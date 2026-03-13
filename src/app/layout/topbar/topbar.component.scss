@@ -1,0 +1,141 @@
+@use '../../styles/mixins' as *;
+
+.topbar {
+  @include flex-between;
+  min-height: var(--topbar-height);
+  padding: 0 1.5rem;
+  background: var(--topbar-bg);
+  -webkit-backdrop-filter: var(--layout-bar-glass);
+  backdrop-filter: var(--layout-bar-glass);
+  border-block-end: 1px solid var(--layout-bar-border);
+  flex-shrink: 0;
+  gap: 1rem;
+  flex-wrap: wrap;
+  box-shadow: var(--shadow-sm);
+}
+
+.topbar-left {
+  @include flex-center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.topbar-toggle {
+  flex-shrink: 0;
+}
+
+:host ::ng-deep .topbar .p-button.p-button-text,
+:host ::ng-deep .topbar .p-button.p-button-icon-only {
+  color: var(--layout-bar-text);
+}
+:host ::ng-deep .topbar .p-button.p-button-text:hover,
+:host ::ng-deep .topbar .p-button.p-button-icon-only:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--layout-bar-text);
+}
+:host ::ng-deep .topbar .p-input-icon-left > i {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.topbar-breadcrumb {
+  :host ::ng-deep .p-breadcrumb {
+    background: transparent;
+    border: none;
+    padding: 0;
+  }
+
+  :host ::ng-deep .p-breadcrumb-list {
+    flex-wrap: nowrap;
+  }
+
+  :host ::ng-deep .p-breadcrumb-chevron {
+    margin-inline: 0.25rem;
+  }
+
+  :host ::ng-deep .p-breadcrumb a,
+  :host ::ng-deep .p-breadcrumb .p-menuitem-text {
+    color: var(--layout-bar-text);
+  }
+  :host ::ng-deep .p-breadcrumb a:hover {
+    color: rgba(255, 255, 255, 0.9);
+  }
+}
+
+.topbar-right {
+  @include flex-center;
+  gap: 0.5rem;
+  margin-inline-start: auto;
+}
+
+.topbar-search {
+  width: 12rem;
+  max-width: 100%;
+
+  input {
+    width: 100%;
+    padding-inline-start: 2.25rem;
+    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--layout-bar-border);
+    color: var(--layout-bar-text);
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+  }
+}
+
+.topbar-search-input {
+  border-radius: var(--border-radius);
+  transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+}
+
+.topbar-icon-btn {
+  position: relative;
+}
+
+.topbar-badge {
+  position: absolute;
+  top: 0.25rem;
+  inset-inline-end: 0.25rem;
+}
+
+.topbar-lang-switcher {
+  @include flex-center;
+  gap: 0.25rem;
+
+  .lang-sep {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.875rem;
+  }
+}
+
+.topbar-theme-btn {
+  flex-shrink: 0;
+}
+
+.topbar-user-btn {
+  @include flex-center;
+  gap: 0.5rem;
+  padding-inline: 0.5rem;
+}
+
+.topbar-avatar {
+  width: 2rem;
+  height: 2rem;
+  font-size: 1rem;
+  background: rgba(255, 255, 255, 0.25);
+  color: var(--layout-bar-text);
+}
+
+.topbar-user-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--layout-bar-text);
+
+  @include mobile {
+    display: none;
+  }
+}
+
+.topbar-user-menu {
+  min-width: 12rem;
+}

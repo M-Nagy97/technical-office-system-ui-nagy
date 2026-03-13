@@ -1,0 +1,150 @@
+// =============================================================================
+// Design tokens & CSS custom properties
+// Primary palette, semantic colors, surfaces, layout, shadows, motion
+// Updated: Emerald primary + flat slate sidebar (no gradients, no blur)
+// =============================================================================
+
+// Breakpoints (for use in mixins only)
+$breakpoint-mobile: 576px;
+$breakpoint-tablet: 768px;
+$breakpoint-desktop: 992px;
+$breakpoint-desktop-lg: 1200px;
+
+// Base design tokens (CSS custom properties) - light theme default
+:root {
+  // ---------------------------------------------------------------------------
+  // Primary palette – Emerald
+  // ---------------------------------------------------------------------------
+  --primary-50:  #ecfdf5;
+  --primary-100: #d1fae5;
+  --primary-200: #a7f3d0;
+  --primary-300: #6ee7b7;
+  --primary-400: #34d399;
+  --primary-500: #10b981;
+  --primary-600: #059669;
+  --primary-700: #047857;
+  --primary-800: #065f46;
+  --primary-900: #064e3b;
+
+  // ---------------------------------------------------------------------------
+  // Semantic colors
+  // ---------------------------------------------------------------------------
+  --primary-color:      #10b981;
+  --primary-light:      #34d399;
+  --primary-dark:       #059669;
+  --primary-color-text: #ffffff;
+
+  // Brand identity (keep for logo / marketing use only)
+  --brand-black: #0f0f0f;
+  --brand-red:   #c41e3a;
+
+  --secondary-color:      #334155;
+  --secondary-color-text: #ffffff;
+
+  // Success shifts to a distinct teal-leaning green so it doesn't clash
+  // with the emerald primary
+  --success-color:      #15803d;
+  --success-color-text: #ffffff;
+
+  --warning-color:      #d97706;
+  --warning-color-text: #ffffff;
+
+  // Danger keeps the original brand red — intentional contrast with primary
+  --danger-color:      #dc2626;
+  --danger-color-text: #ffffff;
+
+  --info-color:      #0284c7;
+  --info-color-text: #ffffff;
+
+  // ---------------------------------------------------------------------------
+  // Surface scale – neutral zinc (cool, modern)
+  // ---------------------------------------------------------------------------
+  --surface-0:   #ffffff;
+  --surface-50:  #fafafa;
+  --surface-100: #f4f4f5;
+  --surface-200: #e4e4e7;
+  --surface-300: #d4d4d8;
+  --surface-400: #a1a1aa;
+  --surface-500: #71717a;
+  --surface-600: #52525b;
+  --surface-700: #3f3f46;
+  --surface-800: #27272a;
+  --surface-900: #18181b;
+
+  // ---------------------------------------------------------------------------
+  // Text
+  // ---------------------------------------------------------------------------
+  --text-color:           #18181b;
+  --text-color-secondary: #52525b;
+
+  // ---------------------------------------------------------------------------
+  // Layout – flat slate sidebar, white topbar
+  // No gradients. No backdrop blur. No rgba layering.
+  // ---------------------------------------------------------------------------
+  --sidebar-width:          260px;
+  --sidebar-collapsed-width: 70px;
+  --topbar-height:          64px;
+
+  // Sidebar: deep slate, flat fill
+  --sidebar-bg:          #0f172a;
+  --sidebar-accent:      #10b981;   // active item left-border stripe
+  --sidebar-item-active: rgba(16, 185, 129, 0.12);  // subtle emerald bg on active row
+  --sidebar-item-hover:  rgba(255, 255, 255, 0.06);
+
+  // Topbar: white surface with hairline border
+  --topbar-bg:           #0f172a;
+  --topbar-border:       #e4e4e7;
+
+  // Shared
+  --layout-bar-text:    #ffffff;      // text on dark sidebar
+  --layout-bar-text-muted: rgba(255, 255, 255, 0.5);
+  --layout-bar-border:  rgba(255, 255, 255, 0.08);
+
+  // Removed (kept as comments so find/replace catches old usages):
+  // --layout-bar-glass: blur(12px);  → REMOVED. No blur.
+  // --topbar-bg gradient             → REMOVED. Use flat --topbar-bg.
+  // --sidebar-bg gradient            → REMOVED. Use flat --sidebar-bg.
+
+  // ---------------------------------------------------------------------------
+  // Borders & radius
+  // ---------------------------------------------------------------------------
+  --border-radius:    10px;   // bumped from 8px — softer, more modern
+  --border-radius-sm:  6px;
+  --border-radius-lg: 14px;
+  --border-radius-xl: 20px;
+  --surface-border:   #e4e4e7;
+
+  // ---------------------------------------------------------------------------
+  // Shadows – reduced, purposeful only
+  // ---------------------------------------------------------------------------
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.06);
+
+  // ---------------------------------------------------------------------------
+  // Motion
+  // ---------------------------------------------------------------------------
+  --transition-speed:  0.2s;   // snappier than 0.3s
+  --transition-ease:   cubic-bezier(0.4, 0, 0.2, 1);
+
+  // ---------------------------------------------------------------------------
+  // PrimeNG compatibility (surfaces used by components)
+  // ---------------------------------------------------------------------------
+  --surface-ground:   var(--surface-50);
+  --surface-section:  var(--surface-0);
+  --surface-card:     var(--surface-0);
+  --surface-overlay:  var(--surface-0);
+  --surface-a:        var(--surface-0);
+  --surface-b:        var(--surface-50);
+  --surface-c:        var(--surface-100);
+  --surface-d:        var(--surface-200);
+  --surface-e:        var(--surface-0);
+  --surface-f:        var(--surface-0);
+  --surface-hover:    var(--surface-100);
+  --focus-ring:       0 0 0 0.2rem var(--primary-200);
+  --highlight-bg:     var(--primary-100);
+  --highlight-text-color: var(--primary-800);
+  --maskbg:           rgba(0, 0, 0, 0.4);
+  --content-padding:  1.25rem;
+  --inline-spacing:   0.5rem;
+}

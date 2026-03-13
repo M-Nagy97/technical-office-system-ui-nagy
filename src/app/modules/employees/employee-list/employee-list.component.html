@@ -1,0 +1,164 @@
+<div class="employee-list">
+  <div class="stats-row">
+    <p-card class="stat-card stat-card--total">
+      <div class="stat-content">
+        <i class="pi pi-users stat-icon"></i>
+        <div>
+          <span class="stat-value">{{ stats().total }}</span>
+          <span class="stat-label">إجمالي الموظفين</span>
+        </div>
+      </div>
+    </p-card>
+    <p-card class="stat-card stat-card--active">
+      <div class="stat-content">
+        <i class="pi pi-check-circle stat-icon"></i>
+        <div>
+          <span class="stat-value">{{ stats().active }}</span>
+          <span class="stat-label">نشط</span>
+        </div>
+      </div>
+    </p-card>
+    <p-card class="stat-card stat-card--suspended">
+      <div class="stat-content">
+        <i class="pi pi-pause-circle stat-icon"></i>
+        <div>
+          <span class="stat-value">{{ stats().suspended }}</span>
+          <span class="stat-label">موقوف</span>
+        </div>
+      </div>
+    </p-card>
+    <p-card class="stat-card stat-card--new">
+      <div class="stat-content">
+        <i class="pi pi-star stat-icon"></i>
+        <div>
+          <span class="stat-value">{{ stats().newThisMonth }}</span>
+          <span class="stat-label">جدد هذا الشهر</span>
+        </div>
+      </div>
+    </p-card>
+  </div>
+
+  <p-card class="filter-card">
+    <div class="filter-bar">
+      <span class="p-input-icon-left filter-search">
+        <i class="pi pi-search"></i>
+        <input
+          type="text"
+          pInputText
+          [ngModel]="searchText()"
+          (ngModelChange)="searchText.set($event)"
+          placeholder="بحث بالاسم أو رقم الموظف..."
+        />
+      </span>
+      <p-dropdown
+        [options]="departments()"
+        [ngModel]="departmentFilter()"
+        (ngModelChange)="departmentFilter.set($event)"
+        placeholder="القسم"
+        [showClear]="true"
+        styleClass="filter-dropdown"
+      />
+      <p-dropdown
+        [options]="statusOptions"
+        [ngModel]="statusFilter()"
+        (ngModelChange)="statusFilter.set($event)"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="الحالة"
+        [showClear]="true"
+        styleClass="filter-dropdown"
+      />
+      <p-dropdown
+        [options]="employmentTypeOptions"
+        [ngModel]="employmentTypeFilter()"
+        (ngModelChange)="employmentTypeFilter.set($event)"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="نوع التعيين"
+        [showClear]="true"
+        styleClass="filter-dropdown"
+      />
+      <a pButton label="إضافة موظف" icon="pi pi-plus" routerLink="/employees/add" class="p-button-primary"></a>
+    </div>
+  </p-card>
+
+  <p-card>
+    <p-table
+      [value]="filteredEmployees()"
+      [lazy]="false"
+      [paginator]="true"
+      [rows]="rows()"
+      [first]="first()"
+      [totalRecords]="filteredEmployees().length"
+      (onPage)="onPage($event)"
+      [loading]="loading()"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      styleClass="p-datatable-sm p-datatable-striped"
+      [tableStyle]="{ 'min-width': '50rem' }"
+      currentPageReportTemplate="عرض {first} إلى {last} من {totalRecords}"
+      [showCurrentPageReport]="true"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 4rem">الصورة</th>
+          <th pSortableColumn="employeeNumber">رقم الموظف <p-sortIcon field="employeeNumber" /></th>
+          <th pSortableColumn="fullName">الاسم الكامل <p-sortIcon field="fullName" /></th>
+          <th>المسمى الوظيفي</th>
+          <th>القسم</th>
+          <th>الحالة</th>
+          <th style="width: 10rem">إجراءات</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-employee>
+        <tr>
+          <td>
+            <p-avatar
+              [image]="employee.photo"
+              [label]="(employee.fullName?.charAt(0) || '?')"
+              shape="circle"
+              size="normal"
+              styleClass="table-avatar"
+            />
+          </td>
+          <td>{{ employee.employeeNumber }}</td>
+          <td>{{ employee.fullName }}</td>
+          <td>{{ employee.jobTitle }}</td>
+          <td>{{ employee.department }}</td>
+          <td>
+            <p-tag [value]="getStatusLabel(employee.status)" [severity]="getStatusSeverity(employee.status)" />
+          </td>
+          <td>
+            <a
+              pButton
+              pRipple
+              icon="pi pi-eye"
+              [routerLink]="['/employees', employee.id]"
+              pTooltip="عرض"
+              class="p-button-rounded p-button-text p-button-sm"
+            ></a>
+            <a
+              pButton
+              pRipple
+              icon="pi pi-pencil"
+              [routerLink]="['/employees', employee.id, 'edit']"
+              pTooltip="تعديل"
+              class="p-button-rounded p-button-text p-button-sm"
+            ></a>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7">لا توجد بيانات</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="loadingbody">
+        <tr>
+          <td colspan="7">
+            <i class="pi pi-spin pi-spinner"></i> جاري التحميل...
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>

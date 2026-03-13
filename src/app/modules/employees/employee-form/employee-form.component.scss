@@ -1,0 +1,57 @@
+.employee-form {
+  max-width: 56rem;
+  margin: 0 auto;
+}
+
+.form-panels {
+  margin: 1.5rem 0;
+  min-height: 20rem;
+}
+
+.form-panel h3 {
+  margin: 0 0 1rem 0;
+  color: var(--text-color);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.field.col-12 {
+  grid-column: span 12;
+}
+
+.field.col-6 {
+  grid-column: span 6;
+}
+
+@media (max-width: 768px) {
+  .field.col-6 {
+    grid-column: span 12;
+  }
+}
+
+.required {
+  color: var(--danger-color);
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--surface-border);
+}
+
+.form-actions label {
+  margin-inline-end: 0.5rem;
+}

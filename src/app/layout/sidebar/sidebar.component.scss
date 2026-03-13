@@ -1,0 +1,224 @@
+@use '../../styles/mixins' as *;
+
+.sidebar {
+  position: fixed;
+  inset-inline-start: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--sidebar-width);
+  background: var(--sidebar-bg);
+  -webkit-backdrop-filter: var(--layout-bar-glass);
+  backdrop-filter: var(--layout-bar-glass);
+  border-inline-end: 1px solid var(--layout-bar-border);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  transition: width var(--transition-speed), box-shadow var(--transition-speed);
+  box-shadow: var(--shadow-md);
+
+  &--collapsed {
+    width: var(--sidebar-collapsed-width);
+
+    .sidebar-header .sidebar-logo-link {
+      justify-content: center;
+    }
+    .sidebar-logo-img {
+      max-width: 2.25rem;
+    }
+    .nav-label,
+    .nav-chevron,
+    .nav-group-trigger .nav-label,
+    .nav-children {
+      opacity: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      width: 0;
+      padding: 0;
+      margin: 0;
+      min-width: 0;
+    }
+
+    .nav-group-trigger,
+    .nav-link {
+      justify-content: center;
+      padding-inline: 0.75rem;
+    }
+  }
+}
+
+.sidebar-header {
+  @include flex-between;
+  min-height: var(--topbar-height);
+  padding: 0 1rem;
+  border-block-end: 1px solid var(--layout-bar-border);
+  flex-shrink: 0;
+}
+
+.sidebar-logo-link {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  flex: 1;
+  text-decoration: none;
+}
+
+.sidebar-logo-img {
+  display: block;
+  height: 2.5rem;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  object-position: left center;
+  transition: height var(--transition-speed), width var(--transition-speed), opacity var(--transition-speed);
+}
+.sidebar-logo-img--collapsed {
+  height: 2.25rem;
+  width: 2.25rem;
+  object-fit: contain;
+  object-position: center;
+}
+
+.sidebar-toggle {
+  @include flex-center;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  background: transparent;
+  color: var(--layout-bar-text);
+  opacity: 0.9;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: background-color var(--transition-speed), opacity var(--transition-speed);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+    opacity: 1;
+  }
+}
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.5rem 0;
+}
+
+.nav-group {
+  margin-bottom: 0.25rem;
+}
+
+.nav-group-trigger {
+  @include flex-between;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  color: var(--layout-bar-text);
+  font-size: 0.9375rem;
+  text-align: start;
+  cursor: pointer;
+  border-radius: var(--border-radius);
+  transition: background-color var(--transition-speed), opacity var(--transition-speed);
+  gap: 0.5rem;
+  opacity: 0.9;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.12);
+    opacity: 1;
+  }
+
+  &--active {
+    color: var(--layout-bar-text);
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.18);
+    opacity: 1;
+  }
+
+  &--expanded {
+    background: rgba(255, 255, 255, 0.12);
+    opacity: 1;
+
+    .nav-chevron {
+      transform: rotate(0deg);
+    }
+  }
+}
+
+.nav-chevron {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  transition: transform var(--transition-speed);
+  transform: rotate(-90deg);
+
+  &--open {
+    transform: rotate(0deg);
+  }
+}
+
+.nav-children {
+  padding-inline-start: 2rem;
+  padding-block-end: 0.25rem;
+  transition: opacity var(--transition-speed);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 1rem;
+  color: var(--layout-bar-text);
+  text-decoration: none;
+  font-size: 0.875rem;
+  border-inline-start: 3px solid transparent;
+  opacity: 0.9;
+  transition: background-color var(--transition-speed), opacity var(--transition-speed), border-color var(--transition-speed);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.12);
+    opacity: 1;
+  }
+
+  &--child {
+    padding-inline-start: 1rem;
+  }
+
+  &--active {
+    color: var(--layout-bar-text);
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.18);
+    border-inline-start-color: var(--layout-bar-text);
+    opacity: 1;
+  }
+}
+
+.nav-icon {
+  flex-shrink: 0;
+  width: 1.25rem;
+  font-size: 1.125rem;
+  opacity: 0.9;
+}
+
+.nav-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: opacity var(--transition-speed), width var(--transition-speed);
+}
+
+.sidebar-expand-btn {
+  @include flex-center;
+  width: 100%;
+  min-height: 3rem;
+  border: none;
+  border-block-start: 1px solid var(--layout-bar-border);
+  background: transparent;
+  color: var(--layout-bar-text);
+  opacity: 0.9;
+  cursor: pointer;
+  transition: background-color var(--transition-speed), opacity var(--transition-speed);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.12);
+    opacity: 1;
+  }
+}

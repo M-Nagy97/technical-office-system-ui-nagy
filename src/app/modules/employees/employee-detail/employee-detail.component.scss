@@ -1,0 +1,108 @@
+.employee-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.profile-card :host ::ng-deep .p-card-body {
+  padding: 1.5rem;
+}
+
+.profile-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.profile-avatar {
+  width: 5rem;
+  height: 5rem;
+  font-size: 2rem;
+  background: var(--primary-color);
+  color: var(--primary-color-text);
+}
+
+.profile-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-info h1 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.5rem;
+  color: var(--text-color);
+}
+
+.profile-meta {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-color-secondary);
+  font-size: 0.9375rem;
+}
+
+.profile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tab-content {
+  padding: 0.5rem 0;
+}
+
+.data-list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.5rem 2rem;
+  margin: 0;
+}
+
+.data-list dt {
+  font-weight: 600;
+  color: var(--text-color-secondary);
+}
+
+.data-list dd {
+  margin: 0;
+  color: var(--text-color);
+}
+
+.penalties-tab .penalty-summary-label {
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+  color: var(--text-color-secondary);
+}
+
+.penalty-stats-list {
+  margin: 0 0 1rem 0;
+  padding-inline-start: 1.25rem;
+}
+
+.penalty-stats-list li {
+  margin-bottom: 0.25rem;
+}
+
+.penalty-type-label {
+  font-weight: 500;
+}
+
+.penalties-tab .penalty-list-label {
+  margin: 1rem 0 0.5rem 0;
+  font-weight: 600;
+  color: var(--text-color-secondary);
+}
+
+.penalties-tab p-table {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+  .profile-header {
+    flex-direction: column;
+    text-align: center;
+  }
+  .profile-actions {
+    justify-content: center;
+  }
+}

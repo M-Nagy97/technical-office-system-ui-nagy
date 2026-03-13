@@ -1,0 +1,84 @@
+@use '../../../styles/mixins' as *;
+
+.employee-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.stat-card {
+  :host ::ng-deep .p-card-body {
+    padding: 1rem;
+  }
+  :host ::ng-deep .p-card-content {
+    padding: 0;
+  }
+}
+
+.stat-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.stat-icon {
+  font-size: 2rem;
+  opacity: 0.9;
+}
+
+.stat-card--total .stat-icon {
+  color: var(--primary-color);
+}
+.stat-card--active .stat-icon {
+  color: var(--success-color);
+}
+.stat-card--suspended .stat-icon {
+  color: var(--warning-color);
+}
+.stat-card--new .stat-icon {
+  color: var(--info-color);
+}
+
+.stat-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: var(--text-color-secondary);
+}
+
+.filter-card :host ::ng-deep .p-card-body,
+.filter-card :host ::ng-deep .p-card-content {
+  padding: 0.75rem 1rem;
+}
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.filter-search {
+  min-width: 12rem;
+  flex: 1;
+}
+
+.filter-dropdown {
+  min-width: 10rem;
+}
+
+.table-avatar {
+  background: var(--primary-color);
+  color: var(--primary-color-text);
+}

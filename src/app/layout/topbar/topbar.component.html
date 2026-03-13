@@ -1,0 +1,97 @@
+<header class="topbar">
+  <div class="topbar-left">
+    <button
+      pButton
+      type="button"
+      class="p-button-text p-button-icon-only topbar-toggle"
+      icon="pi pi-bars"
+      (click)="toggleSidebar.emit()"
+      [pTooltip]="'nav.collapse_sidebar' | translate"
+      [attr.aria-label]="'nav.collapse_sidebar' | translate"
+    ></button>
+    <p-breadcrumb
+      [model]="breadcrumbItems()"
+      [home]="{ icon: 'pi pi-home', routerLink: '/dashboard' }"
+      styleClass="topbar-breadcrumb"
+    />
+  </div>
+
+  <div class="topbar-right">
+    <span class="p-input-icon-left topbar-search">
+      <i class="pi pi-search"></i>
+      <input
+        type="text"
+        pInputText
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+        [placeholder]="'topbar.search' | translate"
+        class="topbar-search-input"
+      />
+    </span>
+
+    <div class="topbar-lang-switcher">
+      <button
+        pButton
+        type="button"
+        class="p-button-text p-button-sm"
+        [class.p-button-primary]="languageService.currentLang() === 'ar'"
+        (click)="languageService.setLanguage('ar')"
+        label="عربي"
+      ></button>
+      <span class="lang-sep">|</span>
+      <button
+        pButton
+        type="button"
+        class="p-button-text p-button-sm"
+        [class.p-button-primary]="languageService.currentLang() === 'en'"
+        (click)="languageService.setLanguage('en')"
+        label="EN"
+      ></button>
+    </div>
+
+    <button
+      pButton
+      type="button"
+      class="p-button-text p-button-icon-only topbar-icon-btn"
+      (click)="$event.stopPropagation()"
+      [pTooltip]="'topbar.notifications' | translate"
+      [attr.aria-label]="'topbar.notifications' | translate"
+    >
+      <i class="pi pi-bell" pBadge value="3" severity="danger"></i>
+    </button>
+
+    <button
+      pButton
+      type="button"
+      class="p-button-text topbar-theme-btn"
+      [icon]="darkTheme() ? 'pi pi-sun' : 'pi pi-moon'"
+      (click)="toggleTheme()"
+      [pTooltip]="darkTheme() ? ('topbar.light_mode' | translate) : ('topbar.dark_mode' | translate)"
+      [attr.aria-label]="darkTheme() ? ('topbar.light_mode' | translate) : ('topbar.dark_mode' | translate)"
+    ></button>
+
+    <button
+      #userMenuBtn
+      pButton
+      type="button"
+      class="p-button-text topbar-user-btn"
+      (click)="userMenu.toggle($event)"
+      [attr.aria-label]="'topbar.user_menu' | translate"
+    >
+      <p-avatar
+        icon="pi pi-user"
+        shape="circle"
+        styleClass="topbar-avatar"
+      />
+      <span class="topbar-user-name">{{ 'topbar.user' | translate }}</span>
+    </button>
+  </div>
+</header>
+
+<p-menu
+  #userMenu
+  [model]="userMenuItems()"
+  [popup]="true"
+  appendTo="body"
+  styleClass="topbar-user-menu"
+/>

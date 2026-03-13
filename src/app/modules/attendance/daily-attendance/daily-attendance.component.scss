@@ -1,0 +1,71 @@
+@use '../../../styles/mixins' as *;
+
+.daily-attendance {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.toolbar-left {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.stat-card {
+  text-align: center;
+  :host ::ng-deep .p-card-body,
+  :host ::ng-deep .p-card-content {
+    padding: 1rem;
+  }
+}
+
+.stat-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: var(--text-color-secondary);
+}
+
+.stat-present .stat-value { color: var(--success-color); }
+.stat-absent .stat-value { color: var(--danger-color); }
+.stat-late .stat-value { color: var(--warning-color); }
+.stat-vacation .stat-value { color: var(--info-color); }
+
+.time-input {
+  width: 5rem;
+  text-align: center;
+}
+
+.status-dropdown {
+  min-width: 8rem;
+}
+
+::ng-deep .row-present { background: rgba(22, 163, 74, 0.08); }
+::ng-deep .row-absent { background: rgba(220, 38, 38, 0.08); }
+::ng-deep .row-late { background: rgba(217, 119, 6, 0.08); }
+::ng-deep .row-vacation { background: rgba(2, 132, 199, 0.08); }
+::ng-deep .row-excused { background: rgba(100, 116, 139, 0.08); }

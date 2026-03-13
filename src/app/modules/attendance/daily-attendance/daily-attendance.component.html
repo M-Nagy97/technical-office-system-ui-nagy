@@ -1,0 +1,106 @@
+<!-- <div class="daily-attendance">
+  <p-card>
+    <div class="toolbar">
+      <div class="toolbar-right">
+        <label for="att-date">التاريخ:</label>
+        <p-calendar
+          id="att-date"
+          [ngModel]="selectedDate()"
+          (ngModelChange)="onDateChange($event)"
+          dateFormat="dd/mm/yy"
+          [showIcon]="true"
+        />
+      </div>
+      <div class="toolbar-left">
+        <button pButton label="تسجيل الكل حاضر" icon="pi pi-check" (click)="markAllPresent()" class="p-button-success"></button>
+        <button pButton label="استيراد من ملف" icon="pi pi-upload" (click)="onImportFile()" class="p-button-outlined"></button>
+      </div>
+    </div>
+  </p-card>
+
+  <div class="stats-row">
+    <p-card class="stat-card stat-present">
+      <span class="stat-value">{{ stats().present }}</span>
+      <span class="stat-label">حاضر</span>
+    </p-card>
+    <p-card class="stat-card stat-absent">
+      <span class="stat-value">{{ stats().absent }}</span>
+      <span class="stat-label">غائب</span>
+    </p-card>
+    <p-card class="stat-card stat-late">
+      <span class="stat-value">{{ stats().late }}</span>
+      <span class="stat-label">متأخر</span>
+    </p-card>
+    <p-card class="stat-card stat-vacation">
+      <span class="stat-value">{{ stats().vacation }}</span>
+      <span class="stat-label">إجازة</span>
+    </p-card>
+  </div>
+
+  <p-card>
+    <p-table
+      [value]="records()"
+      [loading]="loading()"
+      styleClass="p-datatable-sm p-datatable-striped attendance-table"
+      [tableStyle]="{ 'min-width': '50rem' }"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th>الموظف</th>
+          <th>الحالة</th>
+          <th>وقت الحضور</th>
+          <th>وقت الانصراف</th>
+          <th>ساعات العمل</th>
+          <th>التأخير (د)</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-record>
+        <tr [ngClass]="getRowClass(record)">
+          <td>{{ record.employeeName }}</td>
+          <td>
+            <p-dropdown
+              [options]="statusOptions"
+              [ngModel]="record.status"
+              (ngModelChange)="updateStatus(record, $event)"
+              optionLabel="label"
+              optionValue="value"
+              styleClass="status-dropdown"
+            />
+          </td>
+          <td>
+            <input
+              type="text"
+              pInputText
+              [ngModel]="record.checkIn"
+              (ngModelChange)="updateCheckIn(record, $event)"
+              class="time-input"
+              placeholder="HH:mm"
+            />
+          </td>
+          <td>
+            <input
+              type="text"
+              pInputText
+              [ngModel]="record.checkOut"
+              (ngModelChange)="updateCheckOut(record, $event)"
+              class="time-input"
+              placeholder="HH:mm"
+            />
+          </td>
+          <td>{{ record.workHours }}</td>
+          <td>{{ record.lateMinutes }}</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6">لا توجد سجلات لهذا اليوم.</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="loadingbody">
+        <tr>
+          <td colspan="6">جاري التحميل...</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div> -->

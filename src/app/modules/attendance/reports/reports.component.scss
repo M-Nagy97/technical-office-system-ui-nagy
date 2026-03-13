@@ -1,0 +1,127 @@
+@use '../../../styles/mixins' as *;
+
+.attendance-reports {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-group label {
+  white-space: nowrap;
+}
+
+.filter-dropdown {
+  min-width: 8rem;
+}
+
+.chart-section :host ::ng-deep .p-card-body,
+.chart-section :host ::ng-deep .p-card-content {
+  padding: 1rem;
+}
+
+.bar-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.bar-label {
+  min-width: 10rem;
+  font-size: 0.875rem;
+}
+
+.bar-track {
+  flex: 1;
+  display: flex;
+  height: 1.5rem;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--surface-200);
+}
+
+.bar-seg {
+  min-width: 2%;
+  transition: width 0.2s;
+}
+
+.bar-present { background: var(--success-color); }
+.bar-late { background: var(--warning-color); }
+.bar-absent { background: var(--danger-color); }
+
+.bar-legend {
+  font-size: 0.75rem;
+  color: var(--text-color-secondary);
+  white-space: nowrap;
+}
+
+h3 {
+  margin: 0 0 1rem 0;
+  color: var(--text-color);
+}
+
+.calendar-legend {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.leg {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.leg.present { background: rgba(22, 163, 74, 0.3); color: var(--success-color); }
+.leg.absent { background: rgba(220, 38, 38, 0.3); color: var(--danger-color); }
+.leg.late { background: rgba(217, 119, 6, 0.3); color: var(--warning-color); }
+.leg.vacation { background: rgba(2, 132, 199, 0.3); color: var(--info-color); }
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+}
+
+.calendar-day {
+  padding: 0.5rem;
+  border-radius: var(--border-radius);
+  text-align: center;
+  font-size: 0.875rem;
+}
+
+.day-num {
+  display: block;
+  font-weight: 600;
+}
+
+.day-status {
+  display: block;
+  font-size: 0.75rem;
+  opacity: 0.9;
+}
+
+.day-present { background: rgba(22, 163, 74, 0.2); color: var(--success-color); }
+.day-absent { background: rgba(220, 38, 38, 0.2); color: var(--danger-color); }
+.day-late { background: rgba(217, 119, 6, 0.2); color: var(--warning-color); }
+.day-vacation, .day-sick_leave { background: rgba(2, 132, 199, 0.2); color: var(--info-color); }
+.day-excused { background: rgba(100, 116, 139, 0.2); color: var(--text-color-secondary); }

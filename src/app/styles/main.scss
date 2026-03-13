@@ -1,0 +1,80 @@
+// =============================================================================
+// Main application styles – imports, resets, RTL (Arabic) support
+// =============================================================================
+
+// All @use first (Sass requirement)
+@use 'variables';
+@use 'themes';
+@use 'mixins';
+
+// PrimeNG base theme, then our overrides (order: theme then overrides)
+@import 'primeng/resources/themes/lara-light-blue/theme.css';
+@import 'primeng-overrides';
+
+// PrimeIcons & PrimeFlex
+@import 'primeicons/primeicons.css';
+@import 'primeflex/primeflex.css';
+
+// =============================================================================
+// Global resets
+// =============================================================================
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family, 'Inter', 'Segoe UI', system-ui, sans-serif);
+  background-color: var(--surface-ground);
+  color: var(--text-color);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+// =============================================================================
+// RTL / LTR – applied on <html> by LanguageService (default: ar = RTL)
+// =============================================================================
+html[dir='rtl'],
+[dir='rtl'] {
+  direction: rtl;
+  text-align: right;
+}
+
+html[dir='rtl'] body,
+[dir='rtl'] body {
+  text-align: right;
+}
+
+html[dir='ltr'],
+[dir='ltr'] {
+  direction: ltr;
+  text-align: left;
+}
+
+html[dir='ltr'] body,
+[dir='ltr'] body {
+  text-align: left;
+}
+
+// RTL-only overrides for PrimeNG (sidebar/menu position)
+html[dir='rtl'] {
+  .p-sidebar,
+  .p-panel-menu,
+  .p-menu,
+  .p-menubar {
+    left: auto;
+    right: 0;
+  }
+}
+
+// Arabic font stack when lang=ar
+html[lang='ar'] body {
+  font-family: 'Segoe UI', 'Tahoma', 'Noto Sans Arabic', 'Arabic UI Display', system-ui, sans-serif;
+}

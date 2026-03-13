@@ -1,0 +1,102 @@
+.penalty-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
+}
+
+.stat-card {
+  text-align: center;
+  :host ::ng-deep .p-card-body,
+  :host ::ng-deep .p-card-content {
+    padding: 0.75rem;
+  }
+}
+
+.stat-value {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-color-secondary);
+}
+
+.stat-warning .stat-value { color: #ca8a04; }
+.stat-written .stat-value { color: #ea580c; }
+.stat-deduction .stat-value { color: var(--warning-color); }
+.stat-suspension .stat-value { color: var(--danger-color); }
+.stat-dismissal .stat-value { color: #7f1d1d; }
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.filter-dropdown {
+  min-width: 8rem;
+}
+
+.search-input {
+  min-width: 12rem;
+}
+
+.clickable-row {
+  cursor: pointer;
+}
+
+.type-badge {
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.severity-warning,
+.severity-warning .type-badge { background: rgba(202, 138, 4, 0.2); color: #ca8a04; }
+.severity-written,
+.severity-written .type-badge { background: rgba(234, 88, 12, 0.2); color: #ea580c; }
+.severity-deduction,
+.severity-deduction .type-badge { background: rgba(217, 119, 6, 0.2); color: var(--warning-color); }
+.severity-suspension,
+.severity-suspension .type-badge { background: rgba(220, 38, 38, 0.15); color: var(--danger-color); }
+.severity-dismissal,
+.severity-dismissal .type-badge { background: rgba(127, 29, 29, 0.3); color: #7f1d1d; }
+
+.sidebar-content {
+  padding: 0.5rem 0;
+}
+
+.detail-list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.5rem 1rem;
+  margin: 0 0 1rem 0;
+}
+
+.detail-list dt {
+  font-weight: 600;
+  color: var(--text-color-secondary);
+}
+
+.detail-list dd {
+  margin: 0;
+  color: var(--text-color);
+}

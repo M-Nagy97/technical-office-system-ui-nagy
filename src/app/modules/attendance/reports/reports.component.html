@@ -1,0 +1,129 @@
+<div class="attendance-reports">
+  <p-card>
+    <div class="filters">
+      <div class="filter-group">
+        <label>الشهر:</label>
+        <p-dropdown
+          [options]="monthOptions"
+          [ngModel]="selectedMonth()"
+          (ngModelChange)="selectedMonth.set($event); refresh()"
+          optionLabel="label"
+          optionValue="value"
+          styleClass="filter-dropdown"
+        />
+      </div>
+      <div class="filter-group">
+        <label>السنة:</label>
+        <p-dropdown
+          [options]="yearOptions"
+          [ngModel]="selectedYear()"
+          (ngModelChange)="selectedYear.set($event); refresh()"
+          optionLabel="label"
+          optionValue="value"
+          styleClass="filter-dropdown"
+        />
+      </div>
+      <div class="filter-group">
+        <label>الموظف:</label>
+        <p-dropdown
+          [options]="employeeDropdownOptions()"
+          [ngModel]="selectedEmployeeId()"
+          (ngModelChange)="selectedEmployeeId.set($event); refresh()"
+          optionLabel="label"
+          optionValue="value"
+          styleClass="filter-dropdown"
+        />
+      </div>
+      <button pButton label="تصدير Excel" icon="pi pi-file-excel" (click)="exportExcel()" class="p-button-outlined"></button>
+    </div>
+  </p-card>
+
+  <div class="chart-section">
+    <p-card>
+      <h3>نظرة عامة على الحضور</h3>
+      <div class="bar-chart">
+        @for (bar of chartBars(); track bar.name) {
+          <div class="bar-row">
+            <span class="bar-label">{{ bar.name }}</span>
+            <div class="bar-track">
+              <div class="bar-seg bar-present" [style.width.%]="(bar.present / bar.total) * 100" [title]="'حاضر: ' + bar.present"></div>
+              <div class="bar-seg bar-late" [style.width.%]="(bar.late / bar.total) * 100" [title]="'متأخر: ' + bar.late"></div>
+              <div class="bar-seg bar-absent" [style.width.%]="(bar.absent / bar.total) * 100" [title]="'غائب: ' + bar.absent"></div>
+            </div>
+            <span class="bar-legend">{{ bar.present }} ح / {{ bar.late }} ت / {{ bar.absent }} غ</span>
+          </div>
+        }
+      </div>
+    </p-card>
+  </div>
+
+  <p-card>
+    <h3>ملخص شهري للموظفين</h3>
+    <p-table
+      [value]="filteredSummaries()"
+      styleClass="p-datatable-sm p-datatable-striped"
+      [tableStyle]="{ 'min-width': '40rem' }"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th>الموظف</th>
+          <th>أيام الحضور</th>
+          <th>أيام الغياب</th>
+          <th>أيام التأخير</th>
+          <th>إجازة</th>
+          <th>دقائق التأخير</th>
+          <th>إجراء</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-summary>
+        <tr>
+          <td>{{ summary.employeeName }}</td>
+          <td>{{ summary.presentDays }}</td>
+          <td>{{ summary.absentDays }}</td>
+          <td>{{ summary.lateDays }}</td>
+          <td>{{ summary.vacationDays }}</td>
+          <td>{{ summary.totalLateMinutes }}</td>
+          <td>
+            <button
+              pButton
+              pRipple
+              label="عرض التقويم"
+              icon="pi pi-calendar"
+              class="p-button-sm p-button-outlined"
+              (click)="showCalendarFor(summary.employeeId)"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7">لا توجد بيانات.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+
+  @if (employeeForCalendar(); as eid) {
+    <p-card>
+      <h3>تقويم حضور الموظف</h3>
+      <p class="calendar-legend">
+        <span class="leg present">حاضر</span>
+        <span class="leg absent">غائب</span>
+        <span class="leg late">متأخر</span>
+        <span class="leg vacation">إجازة</span>
+      </p>
+      <div class="calendar-grid">
+        @for (rec of calendarRecords(); track rec.id) {
+          <div
+            class="calendar-day"
+            [class]="'day-' + rec.status"
+            [title]="rec.employeeName + ' - ' + (rec.date | date:'d/M') + ' - ' + rec.status"
+          >
+            <span class="day-num">{{ rec.date | date:'d' }}</span>
+            <span class="day-status">{{ rec.status === 'present' ? 'ح' : rec.status === 'absent' ? 'غ' : rec.status === 'late' ? 'ت' : 'إ' }}</span>
+          </div>
+        }
+      </div>
+    </p-card>
+  }
+</div>

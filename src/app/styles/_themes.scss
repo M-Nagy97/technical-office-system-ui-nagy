@@ -1,0 +1,77 @@
+// =============================================================================
+// Light / dark theme overrides
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Light theme (default – already set in _variables.scss :root)
+// -----------------------------------------------------------------------------
+[data-theme='light'],
+:root {
+  color-scheme: light;
+}
+
+// -----------------------------------------------------------------------------
+// Dark theme overrides (construction palette)
+// -----------------------------------------------------------------------------
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --primary-50: #7f1d1d;
+  --primary-100: #991b1b;
+  --primary-200: #b91c1c;
+  --primary-300: #dc2626;
+  --primary-400: #ef4444;
+  --primary-500: #f87171;
+  --primary-600: #fca5a5;
+  --primary-700: #fecaca;
+  --primary-800: #fee2e2;
+  --primary-900: #fef2f2;
+
+  --primary-color: #dc2626;
+  --primary-light: #ef4444;
+  --primary-dark: #991b1b;
+  --primary-color-text: #ffffff;
+
+  --secondary-color: #a8a29e;
+  --success-color: #22c55e;
+  --warning-color: #fbbf24;
+  --danger-color: #f87171;
+  --info-color: #38bdf8;
+
+  --surface-0: #1c1917;
+  --surface-50: #292524;
+  --surface-100: #44403c;
+  --surface-200: #57534e;
+  --surface-300: #78716c;
+  --surface-400: #a8a29e;
+  --surface-500: #d6d3d1;
+  --surface-600: #e7e5e4;
+  --surface-700: #f5f5f4;
+  --surface-800: #fafaf9;
+  --surface-900: #ffffff;
+
+  --text-color: #fafaf9;
+  --text-color-secondary: #a8a29e;
+
+  --surface-ground: var(--surface-0);
+  --surface-section: var(--surface-50);
+  --surface-card: var(--surface-50);
+  --surface-overlay: var(--surface-100);
+  --surface-a: var(--surface-50);
+  --surface-b: var(--surface-100);
+  --surface-c: var(--surface-200);
+  --surface-d: var(--surface-300);
+  --surface-e: var(--surface-50);
+  --surface-f: var(--surface-50);
+  --surface-border: #44403c;
+  --surface-hover: var(--surface-200);
+  --focus-ring: 0 0 0 0.2rem rgba(220, 38, 38, 0.4);
+  --highlight-bg: var(--primary-800);
+  --highlight-text-color: var(--primary-200);
+  --maskbg: rgba(0, 0, 0, 0.6);
+
+  --sidebar-bg: linear-gradient(160deg, rgba(15, 15, 15, 0.95) 0%, rgba(127, 29, 29, 0.9) 50%, rgba(185, 28, 28, 0.88) 100%);
+  --topbar-bg: linear-gradient(90deg, rgba(15, 15, 15, 0.94) 0%, rgba(127, 29, 29, 0.88) 50%, rgba(185, 28, 28, 0.9) 100%);
+  --layout-bar-text: #ffffff;
+  --layout-bar-border: rgba(255, 255, 255, 0.12);
+}

@@ -1,0 +1,83 @@
+// Page layout (when dialogMode = false)
+.penalty-form-page {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 1.5rem 0;
+}
+
+.penalty-form-page-header {
+  padding: 0.25rem 0;
+  h2 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: var(--text-color);
+  }
+  .subtitle {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--text-color-secondary);
+  }
+}
+
+:host ::ng-deep .penalty-form-card .p-card-header {
+  padding: 1.25rem 1.5rem;
+  border-block-end: 1px solid var(--surface-border);
+}
+:host ::ng-deep .penalty-form-card .p-card-body {
+  padding: 1.5rem;
+}
+:host ::ng-deep .penalty-form-card .p-card-content {
+  padding: 0;
+}
+:host ::ng-deep .penalty-form-card .p-card-footer {
+  padding: 1rem 1.5rem;
+  border-block-start: 1px solid var(--surface-border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.penalty-form-page-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.penalty-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  label {
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: var(--text-color);
+  }
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.required {
+  color: var(--danger-color);
+}
+
+.w-full {
+  width: 100%;
+}
+
+@media (max-width: 500px) {
+  .field-row {
+    grid-template-columns: 1fr;
+  }
+}

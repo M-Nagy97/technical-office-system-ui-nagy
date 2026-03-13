@@ -1,0 +1,87 @@
+<aside
+  class="sidebar"
+  [class.sidebar--collapsed]="collapsed()"
+  [attr.aria-expanded]="!collapsed()"
+>
+  <div class="sidebar-header">
+    <a [routerLink]="['/dashboard']" class="sidebar-logo-link" [pTooltip]="'nav.technical_office' | translate">
+      <img src="assets/images/logo-sg.png" alt="SG For Industries and General Contracting" class="sidebar-logo-img" [class.sidebar-logo-img--collapsed]="collapsed()" />
+    </a>
+    @if (!collapsed()) {
+      <button
+        type="button"
+        class="sidebar-toggle"
+        (click)="toggleSidebar.emit()"
+        [attr.aria-label]="'nav.collapse_sidebar' | translate"
+      >
+        <i class="pi pi-angle-double-left"></i>
+      </button>
+    }
+  </div>
+
+  <nav class="sidebar-nav">
+    @for (item of navItems; track item.module) {
+      @if (item.children?.length) {
+        <div class="nav-group">
+          <button
+            type="button"
+            class="nav-group-trigger"
+            [class.nav-group-trigger--active]="hasActiveChild(item)"
+            [class.nav-group-trigger--expanded]="isModuleExpanded(item.module)"
+            [pTooltip]="collapsed() ? (item.label | translate) : ''"
+            (click)="collapsed() ? toggleSidebar.emit() : toggleModule(item.module)"
+          >
+            <i [class]="item.icon" class="nav-icon"></i>
+            @if (!collapsed()) {
+              <span class="nav-label">{{ item.label | translate }}</span>
+              <i
+                class="pi pi-chevron-down nav-chevron"
+                [class.nav-chevron--open]="isModuleExpanded(item.module)"
+              ></i>
+            }
+          </button>
+          @if (!collapsed() && isModuleExpanded(item.module)) {
+            <div class="nav-children">
+              @for (child of item.children; track child.route || child.label) {
+                <a
+                  [routerLink]="child.route!"
+                  routerLinkActive="nav-link--active"
+                  [routerLinkActiveOptions]="{ exact: child.route === '/dashboard' }"
+                  class="nav-link nav-link--child"
+                >
+                  <i [class]="child.icon" class="nav-icon"></i>
+                  <span class="nav-label">{{ child.label | translate }}</span>
+                </a>
+              }
+            </div>
+          }
+        </div>
+      } @else {
+        <a
+          [routerLink]="item.route!"
+          routerLinkActive="nav-link--active"
+          [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }"
+          class="nav-link"
+          [pTooltip]="collapsed() ? (item.label | translate) : ''"
+        >
+          <i [class]="item.icon" class="nav-icon"></i>
+          @if (!collapsed()) {
+            <span class="nav-label">{{ item.label | translate }}</span>
+          }
+        </a>
+      }
+    }
+  </nav>
+
+  @if (collapsed()) {
+    <button
+      type="button"
+      class="sidebar-expand-btn"
+      (click)="toggleSidebar.emit()"
+      [pTooltip]="'nav.expand_sidebar' | translate"
+      [attr.aria-label]="'nav.expand_sidebar' | translate"
+    >
+      <i class="pi pi-angle-double-right"></i>
+    </button>
+  }
+</aside>

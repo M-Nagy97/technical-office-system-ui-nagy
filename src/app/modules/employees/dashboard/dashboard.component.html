@@ -1,0 +1,93 @@
+<div class="dashboard">
+  <header class="dashboard-header">
+    <h1>{{ 'dashboard.welcome' | translate }}</h1>
+    <p class="dashboard-date">{{ getArabicDate() }}</p>
+  </header>
+
+  <section class="stats-cards">
+    <p-card class="stat-card stat-employees">
+      <div class="stat-inner">
+        <i class="pi pi-users stat-icon"></i>
+        <div>
+          <span class="stat-value">{{ employeeCount() }}</span>
+          <span class="stat-label">{{ 'dashboard.employees' | translate }}</span>
+        </div>
+      </div>
+    </p-card>
+    <p-card class="stat-card stat-attendance">
+      <div class="stat-inner">
+        <i class="pi pi-calendar-check stat-icon"></i>
+        <div>
+          <span class="stat-value">{{ todayAttendancePercent() }}%</span>
+          <span class="stat-label">{{ 'dashboard.today_attendance' | translate }}</span>
+        </div>
+      </div>
+    </p-card>
+    <p-card class="stat-card stat-penalties">
+      <div class="stat-inner">
+        <i class="pi pi-exclamation-triangle stat-icon"></i>
+        <div>
+          <span class="stat-value">{{ pendingPenaltiesCount() }}</span>
+          <span class="stat-label">{{ 'dashboard.pending_penalties' | translate }}</span>
+        </div>
+      </div>
+    </p-card>
+    <p-card class="stat-card stat-documents">
+      <div class="stat-inner">
+        <i class="pi pi-file stat-icon"></i>
+        <div>
+          <span class="stat-value">{{ documentsCount() }}</span>
+          <span class="stat-label">{{ 'dashboard.documents' | translate }}</span>
+        </div>
+      </div>
+    </p-card>
+  </section>
+
+  <div class="dashboard-grid">
+    <section class="quick-actions">
+      <p-card [header]="'dashboard.quick_actions' | translate" styleClass="dashboard-card">
+        <div class="quick-actions-btns">
+          <a pButton [label]="'dashboard.employees' | translate" icon="pi pi-users" routerLink="/employees" class="p-button-outlined"></a>
+          <a pButton [label]="'breadcrumb.attendance' | translate" icon="pi pi-calendar" routerLink="/attendance" class="p-button-outlined"></a>
+          <a pButton [label]="'breadcrumb.penalties' | translate" icon="pi pi-exclamation-triangle" routerLink="/penalties" class="p-button-outlined"></a>
+          <a pButton [label]="'breadcrumb.documents' | translate" icon="pi pi-file" routerLink="/employees/documents" class="p-button-outlined"></a>
+        </div>
+      </p-card>
+    </section>
+
+    <section class="recent-activity">
+      <p-card [header]="'dashboard.recent_activity' | translate" styleClass="dashboard-card">
+        <ul class="activity-list">
+          @for (item of recentActivity(); track item.id) {
+            <li class="activity-item">
+              <i [class]="item.icon" class="activity-icon"></i>
+              <div>
+                <span class="activity-text">{{ item.textKey | translate }}</span>
+                <span class="activity-time">{{ item.timeKey | translate }}</span>
+              </div>
+            </li>
+          }
+        </ul>
+      </p-card>
+    </section>
+  </div>
+
+  <section class="charts-row">
+    <p-card [header]="'dashboard.attendance_trend' | translate" styleClass="dashboard-card chart-card">
+      <p-chart
+        type="line"
+        [data]="lineChartData()"
+        [options]="lineChartOptions"
+        [style]="{ height: '280px' }"
+      />
+    </p-card>
+    <p-card [header]="'dashboard.penalties_by_type' | translate" styleClass="dashboard-card chart-card">
+      <p-chart
+        type="doughnut"
+        [data]="donutChartData()"
+        [options]="donutChartOptions"
+        [style]="{ height: '280px' }"
+      />
+    </p-card>
+  </section>
+</div>

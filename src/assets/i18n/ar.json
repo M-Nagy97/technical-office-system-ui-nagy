@@ -1,0 +1,80 @@
+{
+  "nav": {
+    "dashboard": "لوحة التحكم",
+    "employees_module": "وحدة الموظفين",
+    "employee_list": "قائمة الموظفين",
+    "add_employee": "إضافة موظف",
+    "appointment_documents": "مستندات التعيين",
+    "attendance_module": "وحدة الحضور",
+    "daily_attendance": "الحضور اليومي",
+    "attendance_reports": "تقارير الحضور",
+    "penalties_module": "وحدة الجزاءات",
+    "penalty_list": "قائمة الجزاءات",
+    "add_penalty": "إضافة جزاء",
+    "technical_office": "المكتب الفني",
+    "collapse_sidebar": "طي القائمة",
+    "expand_sidebar": "توسيع القائمة"
+  },
+  "topbar": {
+    "home": "الرئيسية",
+    "search": "بحث...",
+    "notifications": "الإشعارات",
+    "light_mode": "الوضع الفاتح",
+    "dark_mode": "الوضع الداكن",
+    "user_menu": "قائمة المستخدم",
+    "user": "المستخدم",
+    "profile": "الملف الشخصي",
+    "settings": "الإعدادات",
+    "logout": "تسجيل الخروج"
+  },
+  "breadcrumb": {
+    "dashboard": "لوحة التحكم",
+    "employees": "الموظفين",
+    "attendance": "الحضور",
+    "penalties": "الجزاءات",
+    "add": "إضافة",
+    "documents": "مستندات التعيين",
+    "reports": "التقارير"
+  },
+  "dashboard": {
+    "welcome": "مرحباً بك في نظام المكتب الفني",
+    "employees": "الموظفين",
+    "today_attendance": "حضور اليوم",
+    "pending_penalties": "جزاءات قيد الدراسة",
+    "documents": "المستندات",
+    "quick_actions": "إجراءات سريعة",
+    "recent_activity": "النشاط الأخير",
+    "attendance_trend": "اتجاه الحضور (آخر 7 أيام)",
+    "penalties_by_type": "الجزاءات حسب النوع",
+    "attendance_percent": "نسبة الحضور %",
+    "activity_1": "تسجيل حضور يومي جديد",
+    "activity_2": "إضافة موظف جديد - أحمد محمد",
+    "activity_3": "جزاء معتمد - تنبيه لموظف",
+    "activity_4": "رفع مستند تعيين",
+    "activity_5": "تحديث بيانات الحضور",
+    "time_ago_1h": "منذ ساعة",
+    "time_ago_3h": "منذ 3 ساعات",
+    "time_yesterday": "أمس",
+    "time_2_days": "قبل يومين"
+  },
+  "common": {
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "add": "إضافة",
+    "back": "العودة",
+    "loading": "جاري التحميل...",
+    "no_data": "لا توجد بيانات",
+    "required": "مطلوب"
+  },
+  "not_found": {
+    "title": "404",
+    "message": "الصفحة المطلوبة غير موجودة.",
+    "back_home": "العودة للرئيسية"
+  },
+  "lang": {
+    "ar": "العربية",
+    "en": "English"
+  }
+}

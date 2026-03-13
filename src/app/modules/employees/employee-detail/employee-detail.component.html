@@ -1,0 +1,141 @@
+@if (employee(); as emp) {
+  <div class="employee-detail">
+    <p-card class="profile-card">
+      <div class="profile-header">
+        <p-avatar
+          [image]="emp.photo"
+          [label]="(emp.fullName && emp.fullName.charAt(0)) || '?'"
+          shape="circle"
+          size="xlarge"
+          styleClass="profile-avatar"
+        />
+        <div class="profile-info">
+          <h1>{{ emp.fullName }}</h1>
+          <p class="profile-meta">{{ emp.employeeNumber }} · {{ emp.jobTitle }}</p>
+          <p-tag [value]="getStatusLabel(emp.status)" [severity]="getStatusSeverity(emp.status)" />
+        </div>
+        <div class="profile-actions">
+          <button pButton label="تعديل" icon="pi pi-pencil" (click)="edit()" class="p-button-primary"></button>
+          <button pButton label="طباعة" icon="pi pi-print" (click)="print()" class="p-button-outlined"></button>
+          @if (emp.status === 'active') {
+            <button pButton label="إيقاف" icon="pi pi-pause" (click)="suspend()" class="p-button-warning p-button-outlined"></button>
+          }
+          <button pButton label="أرشفة" icon="pi pi-archive" (click)="archive()" class="p-button-outlined"></button>
+        </div>
+      </div>
+    </p-card>
+
+    <p-tabView styleClass="detail-tabs">
+      <p-tabPanel header="البيانات الشخصية">
+        <div class="tab-content">
+          <dl class="data-list">
+            <dt>الرقم القومي</dt><dd>{{ emp.nationalId }}</dd>
+            <dt>النوع</dt><dd>{{ emp.gender === 'male' ? 'ذكر' : 'أنثى' }}</dd>
+            <dt>تاريخ الميلاد</dt><dd>{{ formatDate(emp.birthDate) }}</dd>
+            <dt>مكان الميلاد</dt><dd>{{ emp.birthPlace }}</dd>
+            <dt>الجنسية</dt><dd>{{ emp.nationality }}</dd>
+            <dt>الديانة</dt><dd>{{ emp.religion }}</dd>
+            <dt>الحالة الاجتماعية</dt><dd>{{ emp.maritalStatus === 'single' ? 'أعزب' : emp.maritalStatus === 'married' ? 'متزوج' : emp.maritalStatus === 'divorced' ? 'مطلق' : 'أرمل' }}</dd>
+            <dt>الهاتف</dt><dd>{{ emp.phone }}</dd>
+            @if (emp.alternatePhone) {
+              <dt>هاتف بديل</dt><dd>{{ emp.alternatePhone }}</dd>
+            }
+            @if (emp.email) {
+              <dt>البريد الإلكتروني</dt><dd>{{ emp.email }}</dd>
+            }
+            <dt>العنوان</dt><dd>{{ emp.address }}</dd>
+          </dl>
+        </div>
+      </p-tabPanel>
+      <p-tabPanel header="بيانات التعيين">
+        <div class="tab-content">
+          <dl class="data-list">
+            <dt>تاريخ التعيين</dt><dd>{{ formatDate(emp.appointmentDate) }}</dd>
+            <dt>رقم قرار التعيين</dt><dd>{{ emp.appointmentDecisionNumber }}</dd>
+            <dt>تاريخ قرار التعيين</dt><dd>{{ formatDate(emp.appointmentDecisionDate) }}</dd>
+            <dt>المسمى الوظيفي</dt><dd>{{ emp.jobTitle }}</dd>
+            <dt>الدرجة الوظيفية</dt><dd>{{ emp.jobGrade }}</dd>
+            <dt>القسم</dt><dd>{{ emp.department }}</dd>
+            <dt>الوحدة</dt><dd>{{ emp.section }}</dd>
+            <dt>مكان العمل</dt><dd>{{ emp.workLocation }}</dd>
+            <dt>نوع التعيين</dt><dd>{{ getEmploymentTypeLabel(emp.employmentType) }}</dd>
+            <dt>المؤهل الدراسي</dt><dd>{{ emp.educationLevel }} - {{ emp.educationField }}</dd>
+            <dt>سنة التخرج</dt><dd>{{ emp.graduationYear }}</dd>
+          </dl>
+        </div>
+      </p-tabPanel>
+      <p-tabPanel header="سجل الحضور">
+        <div class="tab-content">
+          <p>عرض سجل الحضور للموظف.</p>
+          <a pButton label="فتح سجل الحضور" icon="pi pi-calendar" [routerLink]="['/attendance']" [queryParams]="{ employeeId: emp.id }" class="p-button-outlined"></a>
+        </div>
+      </p-tabPanel>
+      <p-tabPanel header="الجزاءات">
+        <div class="tab-content penalties-tab">
+          @if (penaltyStats().length) {
+            <p class="penalty-summary-label">إحصائيات الجزاءات:</p>
+            <ul class="penalty-stats-list">
+              @for (s of penaltyStats(); track s.type) {
+                <li><span class="penalty-type-label">{{ getPenaltyTypeLabel(s.type) }}</span>: {{ s.count }}</li>
+              }
+            </ul>
+          }
+          @if (employeePenalties().length) {
+            <p class="penalty-list-label">سجل الجزاءات:</p>
+            <p-table
+              [value]="employeePenalties()"
+              styleClass="p-datatable-sm p-datatable-striped"
+              [tableStyle]="{ 'min-width': '40rem' }"
+            >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>رقم الجزاء</th>
+                  <th>النوع</th>
+                  <th>السبب</th>
+                  <th>تاريخ الواقعة</th>
+                  <th>الحالة</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-p>
+                <tr>
+                  <td>{{ p.penaltyNumber }}</td>
+                  <td>{{ getPenaltyTypeLabel(p.type) }}</td>
+                  <td>{{ p.reason }}</td>
+                  <td>{{ formatDate(p.incidentDate) }}</td>
+                  <td>{{ getPenaltyStatusLabel(p.status) }}</td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr><td colspan="5">لا توجد جزاءات.</td></tr>
+              </ng-template>
+            </p-table>
+          } @else {
+            <p>لا توجد جزاءات مسجلة لهذا الموظف.</p>
+          }
+          <a pButton label="فتح سجل الجزاءات" icon="pi pi-exclamation-triangle" [routerLink]="['/penalties']" [queryParams]="{ employeeId: emp.id }" class="p-button-outlined"></a>
+        </div>
+      </p-tabPanel>
+      <p-tabPanel header="المستندات">
+        <div class="tab-content">
+          @if (emp.documents && emp.documents.length) {
+            <ul>
+              @for (doc of emp.documents; track doc.id) {
+                <li>{{ doc.name }} ({{ doc.type }}) - {{ formatDate(doc.uploadDate) }}</li>
+              }
+            </ul>
+          } @else {
+            <p>لا توجد مستندات مرفقة.</p>
+          }
+          <a pButton label="مستندات التعيين" icon="pi pi-file" routerLink="/employees/documents" [queryParams]="{ employeeId: emp.id }" class="p-button-outlined"></a>
+        </div>
+      </p-tabPanel>
+    </p-tabView>
+  </div>
+} @else if (loading()) {
+  <p>جاري التحميل...</p>
+} @else {
+  <p-card>
+    <p>الموظف غير موجود.</p>
+    <a pButton label="العودة للقائمة" routerLink="/employees"></a>
+  </p-card>
+}

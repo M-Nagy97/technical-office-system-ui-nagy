@@ -1,0 +1,127 @@
+// =============================================================================
+// SCSS mixins – layout, cards, responsive, RTL
+// =============================================================================
+
+@use 'variables' as *;
+
+// -----------------------------------------------------------------------------
+// Flexbox
+// -----------------------------------------------------------------------------
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+// -----------------------------------------------------------------------------
+// Card style
+// -----------------------------------------------------------------------------
+@mixin card-style {
+  background-color: var(--surface-card);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--surface-border);
+  padding: var(--content-padding);
+  transition: box-shadow var(--transition-speed), border-color var(--transition-speed);
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Responsive breakpoints: mobile, tablet, desktop
+// -----------------------------------------------------------------------------
+@mixin mobile {
+  @media (max-width: #{$breakpoint-mobile - 1px}) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: $breakpoint-mobile) and (max-width: #{$breakpoint-desktop - 1px}) {
+    @content;
+  }
+}
+
+@mixin tablet-up {
+  @media (min-width: $breakpoint-mobile) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: $breakpoint-desktop) {
+    @content;
+  }
+}
+
+@mixin desktop-lg {
+  @media (min-width: $breakpoint-desktop-lg) {
+    @content;
+  }
+}
+
+// Legacy respond-to (sm, md, lg, xl) for backward compatibility
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == sm or $breakpoint == mobile {
+    @media (min-width: $breakpoint-mobile) {
+      @content;
+    }
+  } @else if $breakpoint == md or $breakpoint == tablet {
+    @media (min-width: $breakpoint-tablet) {
+      @content;
+    }
+  } @else if $breakpoint == lg or $breakpoint == desktop {
+    @media (min-width: $breakpoint-desktop) {
+      @content;
+    }
+  } @else if $breakpoint == xl or $breakpoint == desktop-lg {
+    @media (min-width: $breakpoint-desktop-lg) {
+      @content;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// RTL support (for Arabic and other RTL languages)
+// -----------------------------------------------------------------------------
+@mixin rtl-support {
+  [dir='rtl'] & {
+    @content;
+  }
+}
+
+// Apply logical property: margin-inline-start in RTL becomes margin-right in LTR terms
+@mixin rtl-inline-start($property, $value) {
+  #{$property}: $value;
+  [dir='rtl'] & {
+    #{$property}: $value;
+  }
+}
+
+// Flip horizontal values for RTL (e.g. left <-> right)
+@mixin rtl-flip {
+  [dir='rtl'] & {
+    direction: rtl;
+    text-align: right;
+  }
+}
+
+// Padding/margin that respect direction (use with margin-inline-start, etc.)
+@mixin rtl-logical($start-prop, $end-prop, $start-value, $end-value: null) {
+  #{$start-prop}: $start-value;
+  @if $end-value != null {
+    #{$end-prop}: $end-value;
+  }
+  [dir='rtl'] & {
+    #{$start-prop}: if($end-value != null, $end-value, $start-value);
+    #{$end-prop}: $start-value;
+  }
+}

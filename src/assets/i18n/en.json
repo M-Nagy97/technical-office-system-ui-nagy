@@ -1,0 +1,80 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "employees_module": "Employees Module",
+    "employee_list": "Employee List",
+    "add_employee": "Add Employee",
+    "appointment_documents": "Appointment Documents",
+    "attendance_module": "Attendance Module",
+    "daily_attendance": "Daily Attendance",
+    "attendance_reports": "Attendance Reports",
+    "penalties_module": "Penalties Module",
+    "penalty_list": "Penalty List",
+    "add_penalty": "Add Penalty",
+    "technical_office": "Technical Office",
+    "collapse_sidebar": "Collapse sidebar",
+    "expand_sidebar": "Expand sidebar"
+  },
+  "topbar": {
+    "home": "Home",
+    "search": "Search...",
+    "notifications": "Notifications",
+    "light_mode": "Light mode",
+    "dark_mode": "Dark mode",
+    "user_menu": "User menu",
+    "user": "User",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "breadcrumb": {
+    "dashboard": "Dashboard",
+    "employees": "Employees",
+    "attendance": "Attendance",
+    "penalties": "Penalties",
+    "add": "Add",
+    "documents": "Appointment Documents",
+    "reports": "Reports"
+  },
+  "dashboard": {
+    "welcome": "Welcome to Technical Office System",
+    "employees": "Employees",
+    "today_attendance": "Today Attendance",
+    "pending_penalties": "Pending Penalties",
+    "documents": "Documents",
+    "quick_actions": "Quick Actions",
+    "recent_activity": "Recent Activity",
+    "attendance_trend": "Attendance Trend (Last 7 days)",
+    "penalties_by_type": "Penalties by Type",
+    "attendance_percent": "Attendance %",
+    "activity_1": "Daily attendance recorded",
+    "activity_2": "New employee added - Ahmed Mohamed",
+    "activity_3": "Penalty approved - Warning for employee",
+    "activity_4": "Appointment document uploaded",
+    "activity_5": "Attendance data updated",
+    "time_ago_1h": "1 hour ago",
+    "time_ago_3h": "3 hours ago",
+    "time_yesterday": "Yesterday",
+    "time_2_days": "2 days ago"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "add": "Add",
+    "back": "Back",
+    "loading": "Loading...",
+    "no_data": "No data",
+    "required": "Required"
+  },
+  "not_found": {
+    "title": "404",
+    "message": "The requested page was not found.",
+    "back_home": "Back to Home"
+  },
+  "lang": {
+    "ar": "العربية",
+    "en": "English"
+  }
+}

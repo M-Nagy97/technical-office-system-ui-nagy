@@ -1,0 +1,61 @@
+@use '../../styles/mixins' as *;
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--surface-ground);
+}
+
+.layout-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin-inline-start: var(--sidebar-width);
+  transition: margin-inline-start var(--transition-speed);
+}
+
+.layout.layout--sidebar-collapsed .layout-main {
+  margin-inline-start: var(--sidebar-collapsed-width);
+}
+
+.layout-content {
+  flex: 1;
+  padding: var(--content-padding);
+  overflow: auto;
+}
+
+.layout-content-outlet {
+  view-transition-name: main-content;
+}
+
+::view-transition-old(main-content),
+::view-transition-new(main-content) {
+  animation-duration: 0.2s;
+}
+
+::view-transition-old(main-content) {
+  animation-name: fade-out;
+}
+
+::view-transition-new(main-content) {
+  animation-name: fade-in;
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

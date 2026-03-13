@@ -1,0 +1,20 @@
+<p-toast />
+<p-confirmDialog />
+
+<div class="layout" [class.layout--sidebar-collapsed]="sidebarCollapsed()">
+  <app-sidebar
+    [collapsed]="sidebarCollapsed()"
+    (toggleSidebar)="toggleSidebar()"
+  />
+  <div class="layout-main">
+    <app-topbar
+      [sidebarCollapsed]="sidebarCollapsed()"
+      (toggleSidebar)="toggleSidebar()"
+    />
+    <main class="layout-content">
+      <div class="layout-content-outlet">
+        <router-outlet />
+      </div>
+    </main>
+  </div>
+</div>

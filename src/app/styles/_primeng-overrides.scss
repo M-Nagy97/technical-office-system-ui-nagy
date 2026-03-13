@@ -1,0 +1,43 @@
+// =============================================================================
+// PrimeNG theme variable overrides – match custom design tokens
+// Load after PrimeNG theme CSS so our colors take precedence.
+// =============================================================================
+
+// Design tokens are defined in _variables.scss and _themes.scss (construction/building theme).
+// This file only ensures PrimeNG uses them (loaded after PrimeNG theme CSS).
+:root {
+  --surface-ground: var(--surface-50);
+  --surface-section: var(--surface-0);
+  --surface-card: var(--surface-0);
+  --surface-overlay: var(--surface-0);
+  --surface-a: var(--surface-0);
+  --surface-b: var(--surface-50);
+  --surface-c: var(--surface-100);
+  --surface-d: var(--surface-200);
+  --surface-e: var(--surface-0);
+  --surface-f: var(--surface-0);
+  --surface-hover: var(--surface-100);
+  --border-radius: 8px;
+  --focus-ring: 0 0 0 0.2rem var(--primary-200);
+  --highlight-bg: var(--primary-100);
+  --highlight-text-color: var(--primary-800);
+  --maskbg: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme='dark'] {
+  --surface-ground: var(--surface-0);
+  --surface-section: var(--surface-50);
+  --surface-card: var(--surface-50);
+  --surface-overlay: var(--surface-100);
+  --surface-a: var(--surface-50);
+  --surface-b: var(--surface-100);
+  --surface-c: var(--surface-200);
+  --surface-d: var(--surface-300);
+  --surface-e: var(--surface-50);
+  --surface-f: var(--surface-50);
+  --surface-hover: var(--surface-200);
+  --focus-ring: 0 0 0 0.2rem rgba(251, 191, 36, 0.4);
+  --highlight-bg: var(--primary-800);
+  --highlight-text-color: var(--primary-200);
+  --maskbg: rgba(0, 0, 0, 0.6);
+}
