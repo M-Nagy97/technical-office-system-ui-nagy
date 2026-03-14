@@ -43,15 +43,19 @@
           @if (!collapsed() && isModuleExpanded(item.module)) {
             <div class="nav-children">
               @for (child of item.children; track child.route || child.label) {
-                <a
-                  [routerLink]="child.route!"
-                  routerLinkActive="nav-link--active"
-                  [routerLinkActiveOptions]="{ exact: child.route === '/dashboard' }"
-                  class="nav-link nav-link--child"
-                >
-                  <i [class]="child.icon" class="nav-icon"></i>
-                  <span class="nav-label">{{ child.label | translate }}</span>
-                </a>
+                @if (child.section) {
+                  <div class="nav-section-label">{{ child.label | translate }}</div>
+                } @else if (child.route) {
+                  <a
+                    [routerLink]="child.route"
+                    routerLinkActive="nav-link--active"
+                    [routerLinkActiveOptions]="{ exact: child.route === '/dashboard' }"
+                    class="nav-link nav-link--child"
+                  >
+                    <i [class]="child.icon" class="nav-icon"></i>
+                    <span class="nav-label">{{ child.label | translate }}</span>
+                  </a>
+                }
               }
             </div>
           }

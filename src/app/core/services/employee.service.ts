@@ -22,10 +22,11 @@ export class EmployeeService {
    * Fetch all employees from API and update local state.
    */
   fetchAll(): Observable<Employee[]> {
-    return this.api.apiEmployeesGet().pipe(
-      map(dtos => {
-        console.log('API response for employees:', dtos);
-        const employees = this.mapDtosToEmployees(dtos);
+    return this.api.employeesGetAll().pipe(
+      map(response => {
+        console.log('API response for employees:', response);
+        const dtos = response.data || [];
+        const employees = this.mapDtosToEmployees(dtos as any[]);
         this.employeesSubject.next(employees);
         return  employees;
       })
@@ -61,8 +62,8 @@ export class EmployeeService {
    * Get employee by id from API.
    */
   getById(id: string): Observable<Employee | undefined> {
-    return this.api.apiEmployeesIdGet(id).pipe(
-      map(dto => dto ? this.mapDtoToEmployee(dto) : undefined)
+    return this.api.employeesGetById(id).pipe(
+      map(response => response.data ? this.mapDtoToEmployee(response.data) : undefined)
     );
   }
 
@@ -89,7 +90,7 @@ export class EmployeeService {
 
     // API call - mapping to command object
     const command = this.mapToCreateCommand(newEmployee);
-    return this.api.apiEmployeesPost(command);
+    return this.api.employeesCreate(command);
   }
 
   /**
@@ -106,7 +107,7 @@ export class EmployeeService {
       this.employeesSubject.next(newList);
 
       const command = this.mapToUpdateCommand(updated);
-      return this.api.apiEmployeesIdPut(id, command);
+      return this.api.employeesUpdate(id, command);
     }
     return of(null);
   }
@@ -117,7 +118,7 @@ export class EmployeeService {
   delete(id: string): Observable<any> {
     const current = this.employeesSubject.getValue();
     this.employeesSubject.next(current.filter(e => e.id !== id));
-    return this.api.apiEmployeesIdDelete(id);
+    return this.api.employeesDelete(id);
   }
 
   /**
@@ -155,29 +156,70 @@ export class EmployeeService {
     };
   }
 
+  /**
+   * Map API EmployeeDto (employeeCode, arabicName, hireDate, contacts[], addresses[], etc.)
+   * to frontend Employee model (employeeNumber, fullName, appointmentDate, phone, email, etc.).
+   */
   private mapDtoToEmployee(dto: any): Employee {
+    const primaryContact = dto.contacts && dto.contacts.length > 0 ? dto.contacts[0] : null;
+    const primaryAddress = (dto.addresses && Array.isArray(dto.addresses))
+      ? (dto.addresses.find((a: any) => a.isPrimary) || dto.addresses[0])
+      : null;
+    const firstExperience = dto.experiences && dto.experiences.length > 0 ? dto.experiences[0] : null;
+
+    const fullName = dto.arabicName?.trim()
+      || [dto.firstName, dto.lastName].filter(Boolean).join(' ').trim()
+      || '—';
+
+    const statusMap: Record<number, Employee['status']> = {
+      1: 'active',
+      2: 'suspended',
+      3: 'terminated',
+      4: 'retired',
+    };
+
     return {
-      id: dto.id,
-      employeeNumber: dto.employeeNumber,
-      fullName: dto.fullName,
-      firstName: dto.firstName,
-      secondName: dto.secondName,
-      thirdName: dto.thirdName,
-      lastName: dto.lastName,
-      nationalId: dto.nationalId,
-      gender: dto.gender?.toLowerCase() as any,
-      birthDate: new Date(dto.birthDate),
-      birthPlace: dto.birthPlace,
-      maritalStatus: dto.maritalStatus?.toLowerCase() as any,
-      phone: dto.phone,
-      email: dto.email,
-      address: dto.address?.addressLine1 || '',
-      appointmentDate: new Date(dto.appointmentDate),
-      department: dto.department,
-      jobTitle: dto.jobTitle,
-      employmentType: dto.employmentType?.toLowerCase() as any,
-      status: dto.status?.toLowerCase() as any,
-      // ... Add more mappings as needed based on DTO structure
+      id: dto.id ?? '',
+      employeeNumber: dto.employeeCode ?? '',
+      fullName,
+      firstName: dto.firstName ?? '',
+      secondName: '',
+      thirdName: '',
+      lastName: dto.lastName ?? '',
+      nationalId: '',
+      gender: (dto.genderId === 1 ? 'male' : 'female') as Employee['gender'],
+      birthDate: dto.birthDate ? new Date(dto.birthDate) : new Date(0),
+      birthPlace: '',
+      nationality: '',
+      religion: '',
+      maritalStatus: 'single' as Employee['maritalStatus'],
+      phone: primaryContact?.phone ?? primaryContact?.mobile ?? '',
+      alternatePhone: primaryContact?.mobile ?? undefined,
+      email: primaryContact?.email ?? undefined,
+      address: primaryAddress?.addressLine ?? '',
+      photo: undefined,
+      appointmentDate: dto.hireDate ? new Date(dto.hireDate) : new Date(0),
+      appointmentDecisionNumber: '',
+      appointmentDecisionDate: new Date(0),
+      jobTitle: firstExperience?.jobTitle ?? '',
+      jobGrade: '',
+      department: '',
+      section: '',
+      workLocation: '',
+      employmentType: 'permanent',
+      status: (dto.statusId != null && statusMap[dto.statusId]) ? statusMap[dto.statusId] : 'active',
+      educationLevel: '',
+      educationField: '',
+      graduationYear: 0,
+      documents: (dto.documents || []).map((doc: any) => ({
+        id: doc.id ?? '',
+        type: 'other' as const,
+        name: doc.documentNumber ?? '',
+        fileUrl: doc.fileUrl ?? '',
+        uploadDate: doc.issueDate ? new Date(doc.issueDate) : new Date(0),
+      })),
+      createdAt: new Date(),
+      updatedAt: new Date(),
     } as Employee;
   }
 

@@ -1,0 +1,74 @@
+<div class="job-grade-list">
+  <p-card>
+    <div class="filter-bar">
+      <span class="p-input-icon-left filter-search">
+        <i class="pi pi-search"></i>
+        <input
+          type="text"
+          pInputText
+          [ngModel]="searchText()"
+          (ngModelChange)="searchText.set($event)"
+          placeholder="بحث بالرمز أو الاسم..."
+        />
+      </span>
+      <a pButton label="إضافة درجة وظيفية" icon="pi pi-plus" routerLink="/job-grades/add" class="p-button-primary"></a>
+    </div>
+
+    <p-table
+      [value]="filteredGrades()"
+      [loading]="loading()"
+      styleClass="p-datatable-sm p-datatable-striped"
+      [tableStyle]="{ 'min-width': '40rem' }"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="code">الرمز <p-sortIcon field="code" /></th>
+          <th pSortableColumn="name">الاسم <p-sortIcon field="name" /></th>
+          <th pSortableColumn="rank">الرتبة <p-sortIcon field="rank" /></th>
+          <th style="width: 10rem">إجراءات</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-grade>
+        <tr>
+          <td>{{ grade.code }}</td>
+          <td>{{ grade.name }}</td>
+          <td>{{ grade.rank ?? '-' }}</td>
+          <td>
+            <a
+              pButton
+              pRipple
+              icon="pi pi-pencil"
+              [routerLink]="['/job-grades', grade.id, 'edit']"
+              pTooltip="تعديل"
+              class="p-button-rounded p-button-text p-button-sm"
+            ></a>
+            <button
+              pButton
+              pRipple
+              icon="pi pi-trash"
+              (click)="confirmDelete($event, grade)"
+              pTooltip="حذف"
+              class="p-button-rounded p-button-text p-button-danger p-button-sm"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="4">لا توجد بيانات</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="loadingbody">
+        <tr>
+          <td colspan="4">
+            <i class="pi pi-spin pi-spinner"></i> جاري التحميل...
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<p-toast />
+<p-confirmDialog />
+<p-confirmPopup />

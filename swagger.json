@@ -21,6 +21,7 @@
         "tags": [
           "Account"
         ],
+        "operationId": "Account_Remove",
         "responses": {
           "200": {
             "description": "OK"
@@ -39,6 +40,7 @@
         "tags": [
           "Account"
         ],
+        "operationId": "Account_Profile",
         "responses": {
           "200": {
             "description": "OK"
@@ -57,6 +59,7 @@
         "tags": [
           "Account"
         ],
+        "operationId": "Account_AdminAccess",
         "responses": {
           "200": {
             "description": "OK"
@@ -75,6 +78,7 @@
         "tags": [
           "Account"
         ],
+        "operationId": "Account_UserAccess",
         "responses": {
           "200": {
             "description": "OK"
@@ -93,6 +97,7 @@
         "tags": [
           "Account"
         ],
+        "operationId": "Account_CanUserAccessAdminFeatures",
         "responses": {
           "200": {
             "description": "OK",
@@ -128,21 +133,22 @@
         "tags": [
           "Account"
         ],
+        "operationId": "Account_Register",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Host.WebApi.Models.RegisterRequest"
+                "$ref": "#/components/schemas/RegisterRequest"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Host.WebApi.Models.RegisterRequest"
+                "$ref": "#/components/schemas/RegisterRequest"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Host.WebApi.Models.RegisterRequest"
+                "$ref": "#/components/schemas/RegisterRequest"
               }
             }
           }
@@ -165,6 +171,7 @@
         "tags": [
           "Account"
         ],
+        "operationId": "Account_DisActive",
         "responses": {
           "200": {
             "description": "OK"
@@ -183,6 +190,7 @@
         "tags": [
           "ApiMetric"
         ],
+        "operationId": "ApiMetric_Get",
         "responses": {
           "200": {
             "description": "OK"
@@ -195,21 +203,22 @@
         "tags": [
           "Auth"
         ],
+        "operationId": "Auth_Login",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Host.WebApi.Controllers.AuthController.LoginDto"
+                "$ref": "#/components/schemas/LoginDto"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Host.WebApi.Controllers.AuthController.LoginDto"
+                "$ref": "#/components/schemas/LoginDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Host.WebApi.Controllers.AuthController.LoginDto"
+                "$ref": "#/components/schemas/LoginDto"
               }
             }
           }
@@ -226,21 +235,22 @@
         "tags": [
           "Auth"
         ],
+        "operationId": "Auth_Register",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Host.WebApi.Controllers.AuthController.RegisterDto"
+                "$ref": "#/components/schemas/RegisterDto"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Host.WebApi.Controllers.AuthController.RegisterDto"
+                "$ref": "#/components/schemas/RegisterDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Host.WebApi.Controllers.AuthController.RegisterDto"
+                "$ref": "#/components/schemas/RegisterDto"
               }
             }
           }
@@ -257,6 +267,7 @@
         "tags": [
           "Authenticate"
         ],
+        "operationId": "Authenticate_LoginAs",
         "parameters": [
           {
             "name": "id",
@@ -280,6 +291,7 @@
         "tags": [
           "Authenticate"
         ],
+        "operationId": "Authenticate_Logout",
         "responses": {
           "200": {
             "description": "OK"
@@ -292,6 +304,7 @@
         "tags": [
           "Authenticate"
         ],
+        "operationId": "Authenticate_IsAuthenticated",
         "responses": {
           "200": {
             "description": "OK"
@@ -304,6 +317,7 @@
         "tags": [
           "Authenticate"
         ],
+        "operationId": "Authenticate_Authorize",
         "responses": {
           "200": {
             "description": "OK"
@@ -322,6 +336,7 @@
         "tags": [
           "Authenticate"
         ],
+        "operationId": "Authenticate_CurrentUser",
         "responses": {
           "200": {
             "description": "OK"
@@ -334,6 +349,7 @@
         "tags": [
           "Authenticate"
         ],
+        "operationId": "Authenticate_ValidateToken",
         "responses": {
           "200": {
             "description": "OK"
@@ -346,21 +362,22 @@
         "tags": [
           "Authenticate"
         ],
+        "operationId": "Authenticate_Login",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Host.WebApi.Models.LoginRequest"
+                "$ref": "#/components/schemas/LoginRequest"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Host.WebApi.Models.LoginRequest"
+                "$ref": "#/components/schemas/LoginRequest"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Host.WebApi.Models.LoginRequest"
+                "$ref": "#/components/schemas/LoginRequest"
               }
             }
           }
@@ -377,6 +394,7 @@
         "tags": [
           "Cach"
         ],
+        "operationId": "Cach_Get",
         "parameters": [
           {
             "name": "Key",
@@ -399,21 +417,22 @@
         "tags": [
           "Cach"
         ],
+        "operationId": "Cach_Set",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Host.WebApi.Controllers.Common.CacheRequest"
+                "$ref": "#/components/schemas/CacheRequest"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Host.WebApi.Controllers.Common.CacheRequest"
+                "$ref": "#/components/schemas/CacheRequest"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Host.WebApi.Controllers.Common.CacheRequest"
+                "$ref": "#/components/schemas/CacheRequest"
               }
             }
           }
@@ -430,21 +449,22 @@
         "tags": [
           "CategoryContorller"
         ],
+        "operationId": "CategoryContorller_Create",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Shared.Core.Application.UseCases.Store.Cart.Handlers.Category.Create.CategoryCreateRequest"
+                "$ref": "#/components/schemas/CategoryCreateRequest"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Shared.Core.Application.UseCases.Store.Cart.Handlers.Category.Create.CategoryCreateRequest"
+                "$ref": "#/components/schemas/CategoryCreateRequest"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Shared.Core.Application.UseCases.Store.Cart.Handlers.Category.Create.CategoryCreateRequest"
+                "$ref": "#/components/schemas/CategoryCreateRequest"
               }
             }
           }
@@ -467,6 +487,7 @@
         "tags": [
           "Dapper"
         ],
+        "operationId": "Dapper_Get",
         "parameters": [
           {
             "name": "entityId",
@@ -490,21 +511,22 @@
         "tags": [
           "Dapper"
         ],
+        "operationId": "Dapper_ReadList",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Host.WebApi.Controllers.Common.DapperRequest"
+                "$ref": "#/components/schemas/DapperRequest"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Host.WebApi.Controllers.Common.DapperRequest"
+                "$ref": "#/components/schemas/DapperRequest"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Host.WebApi.Controllers.Common.DapperRequest"
+                "$ref": "#/components/schemas/DapperRequest"
               }
             }
           }
@@ -521,6 +543,7 @@
         "tags": [
           "Employees"
         ],
+        "operationId": "Employees_Delete",
         "parameters": [
           {
             "name": "id",
@@ -534,7 +557,24 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              }
+            }
           }
         }
       },
@@ -542,6 +582,7 @@
         "tags": [
           "Employees"
         ],
+        "operationId": "Employees_GetById",
         "parameters": [
           {
             "name": "id",
@@ -555,7 +596,24 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfEmployeeDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfEmployeeDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfEmployeeDto"
+                }
+              }
+            }
           }
         }
       },
@@ -563,6 +621,7 @@
         "tags": [
           "Employees"
         ],
+        "operationId": "Employees_Update",
         "parameters": [
           {
             "name": "id",
@@ -578,24 +637,41 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.HR.Core.Application.Employees.Commands.UpdateEmployee.UpdateEmployeeCommand"
+                "$ref": "#/components/schemas/UpdateEmployeeCommand"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.HR.Core.Application.Employees.Commands.UpdateEmployee.UpdateEmployeeCommand"
+                "$ref": "#/components/schemas/UpdateEmployeeCommand"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.HR.Core.Application.Employees.Commands.UpdateEmployee.UpdateEmployeeCommand"
+                "$ref": "#/components/schemas/UpdateEmployeeCommand"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              }
+            }
           }
         }
       }
@@ -605,9 +681,27 @@
         "tags": [
           "Employees"
         ],
+        "operationId": "Employees_GetAll",
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfListOfEmployeeDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfListOfEmployeeDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfListOfEmployeeDto"
+                }
+              }
+            }
           }
         }
       },
@@ -615,28 +709,46 @@
         "tags": [
           "Employees"
         ],
+        "operationId": "Employees_Create",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.HR.Core.Application.Employees.Commands.CreateEmployee.CreateEmployeeCommand"
+                "$ref": "#/components/schemas/CreateEmployeeCommand"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.HR.Core.Application.Employees.Commands.CreateEmployee.CreateEmployeeCommand"
+                "$ref": "#/components/schemas/CreateEmployeeCommand"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.HR.Core.Application.Employees.Commands.CreateEmployee.CreateEmployeeCommand"
+                "$ref": "#/components/schemas/CreateEmployeeCommand"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfGuid"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfGuid"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfGuid"
+                }
+              }
+            }
           }
         }
       }
@@ -646,6 +758,7 @@
         "tags": [
           "ExcelExporter"
         ],
+        "operationId": "ExcelExporter_ListToExcelByteArray",
         "responses": {
           "200": {
             "description": "OK"
@@ -658,6 +771,7 @@
         "tags": [
           "ExcelExporter"
         ],
+        "operationId": "ExcelExporter_ExcelToDataTable",
         "responses": {
           "200": {
             "description": "OK"
@@ -670,6 +784,7 @@
         "tags": [
           "ExcelExporter"
         ],
+        "operationId": "ExcelExporter_ExcelToList",
         "responses": {
           "200": {
             "description": "OK"
@@ -682,6 +797,7 @@
         "tags": [
           "ExcelExporter"
         ],
+        "operationId": "ExcelExporter_ExportExcelFile",
         "responses": {
           "200": {
             "description": "OK"
@@ -694,6 +810,7 @@
         "tags": [
           "ExcelExporter"
         ],
+        "operationId": "ExcelExporter_ExportEExportExcelFileListxcelFile",
         "responses": {
           "200": {
             "description": "OK"
@@ -706,6 +823,7 @@
         "tags": [
           "ExcelExporter"
         ],
+        "operationId": "ExcelExporter_ExportExcelFilePath",
         "responses": {
           "200": {
             "description": "OK"
@@ -718,6 +836,7 @@
         "tags": [
           "ExcelExporter"
         ],
+        "operationId": "ExcelExporter_OpenCloseGenerator",
         "responses": {
           "200": {
             "description": "OK"
@@ -730,6 +849,7 @@
         "tags": [
           "ExcelExporter"
         ],
+        "operationId": "ExcelExporter_EPPlusGenerator",
         "responses": {
           "200": {
             "description": "OK"
@@ -742,6 +862,7 @@
         "tags": [
           "Exception"
         ],
+        "operationId": "Exception_Get",
         "responses": {
           "200": {
             "description": "OK"
@@ -754,6 +875,7 @@
         "tags": [
           "Exception"
         ],
+        "operationId": "Exception_Throw",
         "responses": {
           "200": {
             "description": "OK"
@@ -766,6 +888,7 @@
         "tags": [
           "Hangfire"
         ],
+        "operationId": "Hangfire_CreateOrder",
         "parameters": [
           {
             "name": "orderId",
@@ -784,26 +907,457 @@
         }
       }
     },
-    "/api/MessageBroker/Publish": {
-      "post": {
+    "/api/JobGrades/{id}": {
+      "delete": {
         "tags": [
-          "MessageBroker"
+          "JobGrades"
+        ],
+        "operationId": "JobGrades_Delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "JobGrades"
+        ],
+        "operationId": "JobGrades_GetById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfJobGradeDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfJobGradeDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfJobGradeDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "JobGrades"
+        ],
+        "operationId": "JobGrades_Update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
         ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Host.WebApi.Controllers.Common.MessageParameter"
+                "$ref": "#/components/schemas/UpdateJobGradeCommand"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Host.WebApi.Controllers.Common.MessageParameter"
+                "$ref": "#/components/schemas/UpdateJobGradeCommand"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Host.WebApi.Controllers.Common.MessageParameter"
+                "$ref": "#/components/schemas/UpdateJobGradeCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/JobGrades": {
+      "get": {
+        "tags": [
+          "JobGrades"
+        ],
+        "operationId": "JobGrades_GetAll",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfListOfJobGradeDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfListOfJobGradeDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfListOfJobGradeDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "JobGrades"
+        ],
+        "operationId": "JobGrades_Create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateJobGradeCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateJobGradeCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateJobGradeCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfGuid"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfGuid"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/JobPositions/{id}": {
+      "delete": {
+        "tags": [
+          "JobPositions"
+        ],
+        "operationId": "JobPositions_Delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "JobPositions"
+        ],
+        "operationId": "JobPositions_GetById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfJobPositionDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfJobPositionDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfJobPositionDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "JobPositions"
+        ],
+        "operationId": "JobPositions_Update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateJobPositionCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateJobPositionCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateJobPositionCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/JobPositions": {
+      "get": {
+        "tags": [
+          "JobPositions"
+        ],
+        "operationId": "JobPositions_GetAll",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfListOfJobPositionDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfListOfJobPositionDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfListOfJobPositionDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "JobPositions"
+        ],
+        "operationId": "JobPositions_Create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateJobPositionCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateJobPositionCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateJobPositionCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfGuid"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfGuid"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/MessageBroker/Publish": {
+      "post": {
+        "tags": [
+          "MessageBroker"
+        ],
+        "operationId": "MessageBroker_Publish",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageParameter"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageParameter"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageParameter"
               }
             }
           }
@@ -815,26 +1369,242 @@
         }
       }
     },
-    "/api/ProductContorller": {
-      "post": {
+    "/api/OrganizationUnits/{id}": {
+      "delete": {
         "tags": [
-          "ProductContorller"
+          "OrganizationUnits"
+        ],
+        "operationId": "OrganizationUnits_Delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "OrganizationUnits"
+        ],
+        "operationId": "OrganizationUnits_GetById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfOrganizationUnitDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfOrganizationUnitDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfOrganizationUnitDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "OrganizationUnits"
+        ],
+        "operationId": "OrganizationUnits_Update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
         ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Shared.Core.Application.UseCases.Store.Cart.Handlers.Product.Create.ProductCreateRequest"
+                "$ref": "#/components/schemas/UpdateOrganizationUnitCommand"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Shared.Core.Application.UseCases.Store.Cart.Handlers.Product.Create.ProductCreateRequest"
+                "$ref": "#/components/schemas/UpdateOrganizationUnitCommand"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Shared.Core.Application.UseCases.Store.Cart.Handlers.Product.Create.ProductCreateRequest"
+                "$ref": "#/components/schemas/UpdateOrganizationUnitCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/OrganizationUnits": {
+      "get": {
+        "tags": [
+          "OrganizationUnits"
+        ],
+        "operationId": "OrganizationUnits_GetAll",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfListOfOrganizationUnitDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfListOfOrganizationUnitDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfListOfOrganizationUnitDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "OrganizationUnits"
+        ],
+        "operationId": "OrganizationUnits_Create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrganizationUnitCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrganizationUnitCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrganizationUnitCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfGuid"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfGuid"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ProductContorller": {
+      "post": {
+        "tags": [
+          "ProductContorller"
+        ],
+        "operationId": "ProductContorller_Create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductCreateRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductCreateRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductCreateRequest"
               }
             }
           }
@@ -857,6 +1627,7 @@
         "tags": [
           "User"
         ],
+        "operationId": "User_Delete",
         "parameters": [
           {
             "name": "entityId",
@@ -884,6 +1655,7 @@
         "tags": [
           "User"
         ],
+        "operationId": "User_Get",
         "parameters": [
           {
             "name": "entityId",
@@ -913,6 +1685,7 @@
         "tags": [
           "User"
         ],
+        "operationId": "User_Get",
         "responses": {
           "200": {
             "description": "OK"
@@ -929,21 +1702,22 @@
         "tags": [
           "User"
         ],
+        "operationId": "User_Create",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Shared.Core.Application.UseCases.Security.User.Handlers.AppUser.Create.UserCreateRequest"
+                "$ref": "#/components/schemas/UserCreateRequest"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Shared.Core.Application.UseCases.Security.User.Handlers.AppUser.Create.UserCreateRequest"
+                "$ref": "#/components/schemas/UserCreateRequest"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Shared.Core.Application.UseCases.Security.User.Handlers.AppUser.Create.UserCreateRequest"
+                "$ref": "#/components/schemas/UserCreateRequest"
               }
             }
           }
@@ -964,21 +1738,22 @@
         "tags": [
           "User"
         ],
+        "operationId": "User_Update",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Shared.Core.Application.UseCases.Security.User.Handlers.AppUser.Update.UserUpdateRequest"
+                "$ref": "#/components/schemas/UserUpdateRequest"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Shared.Core.Application.UseCases.Security.User.Handlers.AppUser.Update.UserUpdateRequest"
+                "$ref": "#/components/schemas/UserUpdateRequest"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/MyERP.Shared.Core.Application.UseCases.Security.User.Handlers.AppUser.Update.UserUpdateRequest"
+                "$ref": "#/components/schemas/UserUpdateRequest"
               }
             }
           }
@@ -1001,6 +1776,7 @@
         "tags": [
           "UserLogin"
         ],
+        "operationId": "UserLogin_Get",
         "responses": {
           "200": {
             "description": "OK"
@@ -1019,6 +1795,7 @@
         "tags": [
           "UserLogin"
         ],
+        "operationId": "UserLogin_GetByCurrentUser",
         "responses": {
           "200": {
             "description": "OK"
@@ -1037,6 +1814,7 @@
         "tags": [
           "UserRole"
         ],
+        "operationId": "UserRole_Get",
         "responses": {
           "200": {
             "description": "OK"
@@ -1055,6 +1833,7 @@
         "tags": [
           "UserRole"
         ],
+        "operationId": "UserRole_GetByCurrentUser",
         "responses": {
           "200": {
             "description": "OK"
@@ -1073,6 +1852,7 @@
         "tags": [
           "UserToken"
         ],
+        "operationId": "UserToken_Get",
         "responses": {
           "200": {
             "description": "OK"
@@ -1091,6 +1871,7 @@
         "tags": [
           "UserToken"
         ],
+        "operationId": "UserToken_GetByCurrentUser",
         "responses": {
           "200": {
             "description": "OK"
@@ -1107,7 +1888,521 @@
   },
   "components": {
     "schemas": {
-      "MyERP.HR.Core.Application.Employees.Commands.CreateEmployee.CreateEmployeeCommand": {
+      "ApiResultOfBoolean": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiResultOfEmployeeDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/EmployeeDto"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiResultOfGuid": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiResultOfJobGradeDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/JobGradeDto"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiResultOfJobPositionDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/JobPositionDto"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiResultOfListOfEmployeeDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmployeeDto"
+            },
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiResultOfListOfJobGradeDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/JobGradeDto"
+            },
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiResultOfListOfJobPositionDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/JobPositionDto"
+            },
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiResultOfListOfOrganizationUnitDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrganizationUnitDto"
+            },
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiResultOfOrganizationUnitDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/OrganizationUnitDto"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Assembly": {
+        "type": "object",
+        "properties": {
+          "definedTypes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TypeInfo"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "exportedTypes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Type"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "codeBase": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true,
+            "deprecated": true
+          },
+          "entryPoint": {
+            "$ref": "#/components/schemas/MethodInfo"
+          },
+          "fullName": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "imageRuntimeVersion": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "isDynamic": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "reflectionOnly": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isCollectible": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isFullyTrusted": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "customAttributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomAttributeData"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "escapedCodeBase": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true,
+            "deprecated": true
+          },
+          "manifestModule": {
+            "$ref": "#/components/schemas/Module"
+          },
+          "modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Module"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "globalAssemblyCache": {
+            "type": "boolean",
+            "readOnly": true,
+            "deprecated": true
+          },
+          "hostContext": {
+            "type": "integer",
+            "format": "int64",
+            "readOnly": true
+          },
+          "securityRuleSet": {
+            "$ref": "#/components/schemas/SecurityRuleSet"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CacheRequest": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "nullable": true
+          },
+          "value": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CallingConventions": {
+        "enum": [
+          1,
+          2,
+          3,
+          32,
+          64
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "CategoryCreateRequest": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ConstructorInfo": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "declaringType": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "reflectedType": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "module": {
+            "$ref": "#/components/schemas/Module"
+          },
+          "customAttributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomAttributeData"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "isCollectible": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "metadataToken": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          },
+          "attributes": {
+            "$ref": "#/components/schemas/MethodAttributes"
+          },
+          "methodImplementationFlags": {
+            "$ref": "#/components/schemas/MethodImplAttributes"
+          },
+          "callingConvention": {
+            "$ref": "#/components/schemas/CallingConventions"
+          },
+          "isAbstract": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isConstructor": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isFinal": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isHideBySig": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isSpecialName": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isStatic": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isVirtual": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isAssembly": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isFamily": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isFamilyAndAssembly": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isFamilyOrAssembly": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isPrivate": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isPublic": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isConstructedGenericMethod": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isGenericMethod": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isGenericMethodDefinition": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "containsGenericParameters": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "methodHandle": {
+            "$ref": "#/components/schemas/RuntimeMethodHandle"
+          },
+          "isSecurityCritical": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isSecuritySafeCritical": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isSecurityTransparent": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "memberType": {
+            "$ref": "#/components/schemas/MemberTypes"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateEmployeeCommand": {
         "type": "object",
         "properties": {
           "employeeCode": {
@@ -1153,42 +2448,2275 @@
           "contacts": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/MyERP.HR.Core.Application.Employees.Dtos.EmployeeContactDto"
+              "$ref": "#/components/schemas/EmployeeContactDto"
             },
             "nullable": true
           },
           "addresses": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/MyERP.HR.Core.Application.Employees.Dtos.EmployeeAddressDto"
+              "$ref": "#/components/schemas/EmployeeAddressDto"
             },
             "nullable": true
           },
           "documents": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/MyERP.HR.Core.Application.Employees.Dtos.EmployeeDocumentDto"
+              "$ref": "#/components/schemas/EmployeeDocumentDto"
             },
             "nullable": true
           },
           "educations": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/MyERP.HR.Core.Application.Employees.Dtos.EmployeeEducationDto"
+              "$ref": "#/components/schemas/EmployeeEducationDto"
             },
             "nullable": true
           },
           "experiences": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/MyERP.HR.Core.Application.Employees.Dtos.EmployeeExperienceDto"
+              "$ref": "#/components/schemas/EmployeeExperienceDto"
             },
             "nullable": true
           }
         },
         "additionalProperties": false
       },
-      "MyERP.HR.Core.Application.Employees.Commands.UpdateEmployee.UpdateEmployeeCommand": {
+      "CreateJobGradeCommand": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "rank": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateJobPositionCommand": {
+        "type": "object",
+        "properties": {
+          "companyId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "jobGradeId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateOrganizationUnitCommand": {
+        "type": "object",
+        "properties": {
+          "companyId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "parentId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CustomAttributeData": {
+        "type": "object",
+        "properties": {
+          "attributeType": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "constructor": {
+            "$ref": "#/components/schemas/ConstructorInfo"
+          },
+          "constructorArguments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomAttributeTypedArgument"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "namedArguments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomAttributeNamedArgument"
+            },
+            "nullable": true,
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CustomAttributeNamedArgument": {
+        "type": "object",
+        "properties": {
+          "memberInfo": {
+            "$ref": "#/components/schemas/MemberInfo"
+          },
+          "typedValue": {
+            "$ref": "#/components/schemas/CustomAttributeTypedArgument"
+          },
+          "memberName": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "isField": {
+            "type": "boolean",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CustomAttributeTypedArgument": {
+        "type": "object",
+        "properties": {
+          "argumentType": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "value": {
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DapperRequest": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EmployeeAddressDto": {
+        "type": "object",
+        "properties": {
+          "countryId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cityId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "addressLine": {
+            "type": "string",
+            "nullable": true
+          },
+          "postalCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "isPrimary": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "EmployeeContactDto": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "mobile": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "emergencyContactName": {
+            "type": "string",
+            "nullable": true
+          },
+          "emergencyPhone": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EmployeeDocumentDto": {
+        "type": "object",
+        "properties": {
+          "documentTypeId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "documentNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "issueDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expiryDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fileUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EmployeeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "employeeCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "arabicName": {
+            "type": "string",
+            "nullable": true
+          },
+          "birthDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "genderId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nationalityId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "maritalStatusId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hireDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "statusId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "contacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmployeeContactDto"
+            },
+            "nullable": true
+          },
+          "addresses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmployeeAddressDto"
+            },
+            "nullable": true
+          },
+          "documents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmployeeDocumentDto"
+            },
+            "nullable": true
+          },
+          "educations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmployeeEducationDto"
+            },
+            "nullable": true
+          },
+          "experiences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmployeeExperienceDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EmployeeEducationDto": {
+        "type": "object",
+        "properties": {
+          "degree": {
+            "type": "string",
+            "nullable": true
+          },
+          "university": {
+            "type": "string",
+            "nullable": true
+          },
+          "graduationYear": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "grade": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EmployeeExperienceDto": {
+        "type": "object",
+        "properties": {
+          "company": {
+            "type": "string",
+            "nullable": true
+          },
+          "jobTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "EventAttributes": {
+        "enum": [
+          0,
+          512,
+          1024
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "EventInfo": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "declaringType": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "reflectedType": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "module": {
+            "$ref": "#/components/schemas/Module"
+          },
+          "customAttributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomAttributeData"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "isCollectible": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "metadataToken": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          },
+          "memberType": {
+            "$ref": "#/components/schemas/MemberTypes"
+          },
+          "attributes": {
+            "$ref": "#/components/schemas/EventAttributes"
+          },
+          "isSpecialName": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "addMethod": {
+            "$ref": "#/components/schemas/MethodInfo"
+          },
+          "removeMethod": {
+            "$ref": "#/components/schemas/MethodInfo"
+          },
+          "raiseMethod": {
+            "$ref": "#/components/schemas/MethodInfo"
+          },
+          "isMulticast": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "eventHandlerType": {
+            "$ref": "#/components/schemas/Type"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Exception": {
+        "type": "object",
+        "properties": {
+          "targetSite": {
+            "$ref": "#/components/schemas/MethodBase"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": { },
+            "nullable": true,
+            "readOnly": true
+          },
+          "innerException": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "helpLink": {
+            "type": "string",
+            "nullable": true
+          },
+          "source": {
+            "type": "string",
+            "nullable": true
+          },
+          "hResult": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "stackTrace": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FieldAttributes": {
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          16,
+          32,
+          64,
+          128,
+          256,
+          512,
+          1024,
+          4096,
+          8192,
+          32768,
+          38144
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "FieldInfo": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "declaringType": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "reflectedType": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "module": {
+            "$ref": "#/components/schemas/Module"
+          },
+          "customAttributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomAttributeData"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "isCollectible": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "metadataToken": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          },
+          "memberType": {
+            "$ref": "#/components/schemas/MemberTypes"
+          },
+          "attributes": {
+            "$ref": "#/components/schemas/FieldAttributes"
+          },
+          "fieldType": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "isInitOnly": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isLiteral": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isNotSerialized": {
+            "type": "boolean",
+            "readOnly": true,
+            "deprecated": true
+          },
+          "isPinvokeImpl": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isSpecialName": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isStatic": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isAssembly": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isFamily": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isFamilyAndAssembly": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isFamilyOrAssembly": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isPrivate": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isPublic": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isSecurityCritical": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isSecuritySafeCritical": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isSecurityTransparent": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "fieldHandle": {
+            "$ref": "#/components/schemas/RuntimeFieldHandle"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GenericParameterAttributes": {
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          8,
+          16,
+          28,
+          32
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "ICustomAttributeProvider": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IntPtr": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "JobGradeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "rank": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "JobPositionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "companyId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "jobGradeId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LayoutKind": {
+        "enum": [
+          0,
+          2,
+          3
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LoginRequest": {
+        "required": [
+          "password",
+          "username"
+        ],
+        "type": "object",
+        "properties": {
+          "username": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "password": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "isRemember": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "MemberInfo": {
+        "type": "object",
+        "properties": {
+          "memberType": {
+            "$ref": "#/components/schemas/MemberTypes"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "declaringType": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "reflectedType": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "module": {
+            "$ref": "#/components/schemas/Module"
+          },
+          "customAttributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomAttributeData"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "isCollectible": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "metadataToken": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MemberTypes": {
+        "enum": [
+          1,
+          2,
+          4,
+          8,
+          16,
+          32,
+          64,
+          128,
+          191
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "MessageParameter": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "subject": {
+            "type": "string",
+            "nullable": true
+          },
+          "body": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MethodAttributes": {
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          16,
+          32,
+          64,
+          128,
+          256,
+          512,
+          1024,
+          2048,
+          4096,
+          8192,
+          16384,
+          32768,
+          53248
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "MethodBase": {
+        "type": "object",
+        "properties": {
+          "memberType": {
+            "$ref": "#/components/schemas/MemberTypes"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "declaringType": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "reflectedType": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "module": {
+            "$ref": "#/components/schemas/Module"
+          },
+          "customAttributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomAttributeData"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "isCollectible": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "metadataToken": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          },
+          "attributes": {
+            "$ref": "#/components/schemas/MethodAttributes"
+          },
+          "methodImplementationFlags": {
+            "$ref": "#/components/schemas/MethodImplAttributes"
+          },
+          "callingConvention": {
+            "$ref": "#/components/schemas/CallingConventions"
+          },
+          "isAbstract": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isConstructor": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isFinal": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isHideBySig": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isSpecialName": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isStatic": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isVirtual": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isAssembly": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isFamily": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isFamilyAndAssembly": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isFamilyOrAssembly": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isPrivate": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isPublic": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isConstructedGenericMethod": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isGenericMethod": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isGenericMethodDefinition": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "containsGenericParameters": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "methodHandle": {
+            "$ref": "#/components/schemas/RuntimeMethodHandle"
+          },
+          "isSecurityCritical": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isSecuritySafeCritical": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isSecurityTransparent": {
+            "type": "boolean",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MethodImplAttributes": {
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          8,
+          16,
+          32,
+          64,
+          128,
+          256,
+          512,
+          4096,
+          8192,
+          65535
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "MethodInfo": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "declaringType": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "reflectedType": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "module": {
+            "$ref": "#/components/schemas/Module"
+          },
+          "customAttributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomAttributeData"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "isCollectible": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "metadataToken": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          },
+          "attributes": {
+            "$ref": "#/components/schemas/MethodAttributes"
+          },
+          "methodImplementationFlags": {
+            "$ref": "#/components/schemas/MethodImplAttributes"
+          },
+          "callingConvention": {
+            "$ref": "#/components/schemas/CallingConventions"
+          },
+          "isAbstract": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isConstructor": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isFinal": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isHideBySig": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isSpecialName": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isStatic": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isVirtual": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isAssembly": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isFamily": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isFamilyAndAssembly": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isFamilyOrAssembly": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isPrivate": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isPublic": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isConstructedGenericMethod": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isGenericMethod": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isGenericMethodDefinition": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "containsGenericParameters": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "methodHandle": {
+            "$ref": "#/components/schemas/RuntimeMethodHandle"
+          },
+          "isSecurityCritical": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isSecuritySafeCritical": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isSecurityTransparent": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "memberType": {
+            "$ref": "#/components/schemas/MemberTypes"
+          },
+          "returnParameter": {
+            "$ref": "#/components/schemas/ParameterInfo"
+          },
+          "returnType": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "returnTypeCustomAttributes": {
+            "$ref": "#/components/schemas/ICustomAttributeProvider"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Module": {
+        "type": "object",
+        "properties": {
+          "assembly": {
+            "$ref": "#/components/schemas/Assembly"
+          },
+          "fullyQualifiedName": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "mdStreamVersion": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          },
+          "moduleVersionId": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "scopeName": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "moduleHandle": {
+            "$ref": "#/components/schemas/ModuleHandle"
+          },
+          "customAttributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomAttributeData"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "metadataToken": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ModuleHandle": {
+        "type": "object",
+        "properties": {
+          "mdStreamVersion": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "OrganizationUnitDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "companyId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "parentId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ParameterAttributes": {
+        "enum": [
+          0,
+          1,
+          2,
+          4,
+          8,
+          16,
+          4096,
+          8192,
+          16384,
+          32768,
+          61440
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "ParameterInfo": {
+        "type": "object",
+        "properties": {
+          "attributes": {
+            "$ref": "#/components/schemas/ParameterAttributes"
+          },
+          "member": {
+            "$ref": "#/components/schemas/MemberInfo"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "parameterType": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "position": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          },
+          "isIn": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isLcid": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isOptional": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isOut": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isRetval": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "defaultValue": {
+            "nullable": true,
+            "readOnly": true
+          },
+          "rawDefaultValue": {
+            "nullable": true,
+            "readOnly": true
+          },
+          "hasDefaultValue": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "customAttributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomAttributeData"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "metadataToken": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProductCreateRequest": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "categoryId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productDetails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductDetailCreateParameter"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProductDetailCreateParameter": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "value": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PropertyAttributes": {
+        "enum": [
+          0,
+          512,
+          1024,
+          4096,
+          8192,
+          16384,
+          32768,
+          62464
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "PropertyInfo": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "declaringType": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "reflectedType": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "module": {
+            "$ref": "#/components/schemas/Module"
+          },
+          "customAttributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomAttributeData"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "isCollectible": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "metadataToken": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          },
+          "memberType": {
+            "$ref": "#/components/schemas/MemberTypes"
+          },
+          "propertyType": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "attributes": {
+            "$ref": "#/components/schemas/PropertyAttributes"
+          },
+          "isSpecialName": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "canRead": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "canWrite": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "getMethod": {
+            "$ref": "#/components/schemas/MethodInfo"
+          },
+          "setMethod": {
+            "$ref": "#/components/schemas/MethodInfo"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "family": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RegisterRequest": {
+        "required": [
+          "confirmPassword",
+          "email",
+          "firstName",
+          "lastName",
+          "password",
+          "phoneNumber",
+          "username"
+        ],
+        "type": "object",
+        "properties": {
+          "username": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "email": {
+            "minLength": 1,
+            "type": "string",
+            "format": "email"
+          },
+          "firstName": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "lastName": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "password": {
+            "minLength": 8,
+            "type": "string"
+          },
+          "phoneNumber": {
+            "maxLength": 10,
+            "minLength": 10,
+            "type": "string"
+          },
+          "confirmPassword": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RuntimeFieldHandle": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "$ref": "#/components/schemas/IntPtr"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RuntimeMethodHandle": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "$ref": "#/components/schemas/IntPtr"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RuntimeTypeHandle": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "$ref": "#/components/schemas/IntPtr"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SecurityRuleSet": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "StructLayoutAttribute": {
+        "type": "object",
+        "properties": {
+          "typeId": {
+            "nullable": true,
+            "readOnly": true
+          },
+          "value": {
+            "$ref": "#/components/schemas/LayoutKind"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Type": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "customAttributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomAttributeData"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "isCollectible": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "metadataToken": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          },
+          "memberType": {
+            "$ref": "#/components/schemas/MemberTypes"
+          },
+          "namespace": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "assemblyQualifiedName": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "fullName": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "assembly": {
+            "$ref": "#/components/schemas/Assembly"
+          },
+          "module": {
+            "$ref": "#/components/schemas/Module"
+          },
+          "isInterface": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isNested": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "declaringType": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "declaringMethod": {
+            "$ref": "#/components/schemas/MethodBase"
+          },
+          "reflectedType": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "underlyingSystemType": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "isTypeDefinition": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isArray": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isByRef": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isPointer": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isConstructedGenericType": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isGenericParameter": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isGenericTypeParameter": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isGenericMethodParameter": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isGenericType": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isGenericTypeDefinition": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isSZArray": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isVariableBoundArray": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isByRefLike": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isFunctionPointer": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isUnmanagedFunctionPointer": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "hasElementType": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "genericTypeArguments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Type"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "genericParameterPosition": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          },
+          "genericParameterAttributes": {
+            "$ref": "#/components/schemas/GenericParameterAttributes"
+          },
+          "attributes": {
+            "$ref": "#/components/schemas/TypeAttributes"
+          },
+          "isAbstract": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isImport": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isSealed": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isSpecialName": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isClass": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isNestedAssembly": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isNestedFamANDAssem": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isNestedFamily": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isNestedFamORAssem": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isNestedPrivate": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isNestedPublic": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isNotPublic": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isPublic": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isAutoLayout": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isExplicitLayout": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isLayoutSequential": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isAnsiClass": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isAutoClass": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isUnicodeClass": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isCOMObject": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isContextful": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isEnum": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isMarshalByRef": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isPrimitive": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isValueType": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isSignatureType": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isSecurityCritical": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isSecuritySafeCritical": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isSecurityTransparent": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "structLayoutAttribute": {
+            "$ref": "#/components/schemas/StructLayoutAttribute"
+          },
+          "typeInitializer": {
+            "$ref": "#/components/schemas/ConstructorInfo"
+          },
+          "typeHandle": {
+            "$ref": "#/components/schemas/RuntimeTypeHandle"
+          },
+          "guid": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "baseType": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "isSerializable": {
+            "type": "boolean",
+            "readOnly": true,
+            "deprecated": true
+          },
+          "containsGenericParameters": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isVisible": {
+            "type": "boolean",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TypeAttributes": {
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          16,
+          24,
+          32,
+          128,
+          256,
+          1024,
+          2048,
+          4096,
+          8192,
+          16384,
+          65536,
+          131072,
+          196608,
+          262144,
+          264192,
+          1048576,
+          12582912
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "TypeInfo": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "customAttributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomAttributeData"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "isCollectible": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "metadataToken": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          },
+          "memberType": {
+            "$ref": "#/components/schemas/MemberTypes"
+          },
+          "namespace": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "assemblyQualifiedName": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "fullName": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "assembly": {
+            "$ref": "#/components/schemas/Assembly"
+          },
+          "module": {
+            "$ref": "#/components/schemas/Module"
+          },
+          "isInterface": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isNested": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "declaringType": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "declaringMethod": {
+            "$ref": "#/components/schemas/MethodBase"
+          },
+          "reflectedType": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "underlyingSystemType": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "isTypeDefinition": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isArray": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isByRef": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isPointer": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isConstructedGenericType": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isGenericParameter": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isGenericTypeParameter": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isGenericMethodParameter": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isGenericType": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isGenericTypeDefinition": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isSZArray": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isVariableBoundArray": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isByRefLike": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isFunctionPointer": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isUnmanagedFunctionPointer": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "hasElementType": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "genericTypeArguments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Type"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "genericParameterPosition": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          },
+          "genericParameterAttributes": {
+            "$ref": "#/components/schemas/GenericParameterAttributes"
+          },
+          "attributes": {
+            "$ref": "#/components/schemas/TypeAttributes"
+          },
+          "isAbstract": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isImport": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isSealed": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isSpecialName": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isClass": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isNestedAssembly": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isNestedFamANDAssem": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isNestedFamily": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isNestedFamORAssem": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isNestedPrivate": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isNestedPublic": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isNotPublic": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isPublic": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isAutoLayout": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isExplicitLayout": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isLayoutSequential": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isAnsiClass": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isAutoClass": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isUnicodeClass": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isCOMObject": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isContextful": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isEnum": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isMarshalByRef": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isPrimitive": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isValueType": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isSignatureType": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isSecurityCritical": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isSecuritySafeCritical": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isSecurityTransparent": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "structLayoutAttribute": {
+            "$ref": "#/components/schemas/StructLayoutAttribute"
+          },
+          "typeInitializer": {
+            "$ref": "#/components/schemas/ConstructorInfo"
+          },
+          "typeHandle": {
+            "$ref": "#/components/schemas/RuntimeTypeHandle"
+          },
+          "guid": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "baseType": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "isSerializable": {
+            "type": "boolean",
+            "readOnly": true,
+            "deprecated": true
+          },
+          "containsGenericParameters": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isVisible": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "genericTypeParameters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Type"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "declaredConstructors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConstructorInfo"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "declaredEvents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventInfo"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "declaredFields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FieldInfo"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "declaredMembers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MemberInfo"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "declaredMethods": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MethodInfo"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "declaredNestedTypes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TypeInfo"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "declaredProperties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PropertyInfo"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "implementedInterfaces": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Type"
+            },
+            "nullable": true,
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateEmployeeCommand": {
         "type": "object",
         "properties": {
           "id": {
@@ -1234,315 +4762,102 @@
           "contacts": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/MyERP.HR.Core.Application.Employees.Dtos.EmployeeContactDto"
+              "$ref": "#/components/schemas/EmployeeContactDto"
             },
             "nullable": true
           },
           "addresses": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/MyERP.HR.Core.Application.Employees.Dtos.EmployeeAddressDto"
+              "$ref": "#/components/schemas/EmployeeAddressDto"
             },
             "nullable": true
           },
           "documents": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/MyERP.HR.Core.Application.Employees.Dtos.EmployeeDocumentDto"
+              "$ref": "#/components/schemas/EmployeeDocumentDto"
             },
             "nullable": true
           },
           "educations": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/MyERP.HR.Core.Application.Employees.Dtos.EmployeeEducationDto"
+              "$ref": "#/components/schemas/EmployeeEducationDto"
             },
             "nullable": true
           },
           "experiences": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/MyERP.HR.Core.Application.Employees.Dtos.EmployeeExperienceDto"
+              "$ref": "#/components/schemas/EmployeeExperienceDto"
             },
             "nullable": true
           }
         },
         "additionalProperties": false
       },
-      "MyERP.HR.Core.Application.Employees.Dtos.EmployeeAddressDto": {
+      "UpdateJobGradeCommand": {
         "type": "object",
         "properties": {
-          "countryId": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "rank": {
             "type": "integer",
             "format": "int32"
-          },
-          "cityId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "addressLine": {
-            "type": "string",
-            "nullable": true
-          },
-          "postalCode": {
-            "type": "string",
-            "nullable": true
-          },
-          "isPrimary": {
-            "type": "boolean"
           }
         },
         "additionalProperties": false
       },
-      "MyERP.HR.Core.Application.Employees.Dtos.EmployeeContactDto": {
+      "UpdateJobPositionCommand": {
         "type": "object",
         "properties": {
-          "phone": {
+          "id": {
             "type": "string",
-            "nullable": true
+            "format": "uuid"
           },
-          "mobile": {
+          "jobGradeId": {
             "type": "string",
-            "nullable": true
-          },
-          "email": {
-            "type": "string",
-            "nullable": true
-          },
-          "emergencyContactName": {
-            "type": "string",
-            "nullable": true
-          },
-          "emergencyPhone": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "MyERP.HR.Core.Application.Employees.Dtos.EmployeeDocumentDto": {
-        "type": "object",
-        "properties": {
-          "documentTypeId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "documentNumber": {
-            "type": "string",
-            "nullable": true
-          },
-          "issueDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "expiryDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "fileUrl": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "MyERP.HR.Core.Application.Employees.Dtos.EmployeeEducationDto": {
-        "type": "object",
-        "properties": {
-          "degree": {
-            "type": "string",
-            "nullable": true
-          },
-          "university": {
-            "type": "string",
-            "nullable": true
-          },
-          "graduationYear": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "grade": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "MyERP.HR.Core.Application.Employees.Dtos.EmployeeExperienceDto": {
-        "type": "object",
-        "properties": {
-          "company": {
-            "type": "string",
-            "nullable": true
-          },
-          "jobTitle": {
-            "type": "string",
-            "nullable": true
-          },
-          "startDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "endDate": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "additionalProperties": false
-      },
-      "MyERP.Host.WebApi.Controllers.AuthController.LoginDto": {
-        "type": "object",
-        "properties": {
-          "username": {
-            "type": "string",
-            "nullable": true
-          },
-          "password": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "MyERP.Host.WebApi.Controllers.AuthController.RegisterDto": {
-        "type": "object",
-        "properties": {
-          "username": {
-            "type": "string",
-            "nullable": true
-          },
-          "email": {
-            "type": "string",
-            "nullable": true
-          },
-          "password": {
-            "type": "string",
+            "format": "uuid",
             "nullable": true
           },
           "name": {
             "type": "string",
             "nullable": true
           },
-          "family": {
-            "type": "string",
-            "nullable": true
-          },
-          "phoneNumber": {
+          "description": {
             "type": "string",
             "nullable": true
           }
         },
         "additionalProperties": false
       },
-      "MyERP.Host.WebApi.Controllers.Common.CacheRequest": {
+      "UpdateOrganizationUnitCommand": {
         "type": "object",
         "properties": {
-          "key": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
             "type": "string",
             "nullable": true
           },
-          "value": {
+          "parentId": {
             "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "MyERP.Host.WebApi.Controllers.Common.DapperRequest": {
-        "type": "object",
-        "properties": {
-          "query": {
-            "type": "string",
+            "format": "uuid",
             "nullable": true
           }
         },
         "additionalProperties": false
       },
-      "MyERP.Host.WebApi.Controllers.Common.MessageParameter": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": "string",
-            "nullable": true
-          },
-          "subject": {
-            "type": "string",
-            "nullable": true
-          },
-          "body": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "MyERP.Host.WebApi.Models.LoginRequest": {
-        "required": [
-          "password",
-          "username"
-        ],
-        "type": "object",
-        "properties": {
-          "username": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "password": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "isRemember": {
-            "type": "boolean"
-          }
-        },
-        "additionalProperties": false
-      },
-      "MyERP.Host.WebApi.Models.RegisterRequest": {
-        "required": [
-          "confirmPassword",
-          "email",
-          "firstName",
-          "lastName",
-          "password",
-          "phoneNumber",
-          "username"
-        ],
-        "type": "object",
-        "properties": {
-          "username": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "email": {
-            "minLength": 1,
-            "type": "string",
-            "format": "email"
-          },
-          "firstName": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "lastName": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "password": {
-            "minLength": 8,
-            "type": "string"
-          },
-          "phoneNumber": {
-            "maxLength": 10,
-            "minLength": 10,
-            "type": "string"
-          },
-          "confirmPassword": {
-            "minLength": 1,
-            "type": "string"
-          }
-        },
-        "additionalProperties": false
-      },
-      "MyERP.Shared.Core.Application.UseCases.Security.User.Handlers.AppUser.Create.UserCreateRequest": {
+      "UserCreateRequest": {
         "type": "object",
         "properties": {
           "name": {
@@ -1580,59 +4895,10 @@
         },
         "additionalProperties": false
       },
-      "MyERP.Shared.Core.Application.UseCases.Security.User.Handlers.AppUser.Update.UserUpdateRequest": {
+      "UserUpdateRequest": {
         "type": "object",
         "properties": {
           "email": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "MyERP.Shared.Core.Application.UseCases.Store.Cart.Handlers.Category.Create.CategoryCreateRequest": {
-        "type": "object",
-        "properties": {
-          "title": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "MyERP.Shared.Core.Application.UseCases.Store.Cart.Handlers.Product.Create.ProductCreateRequest": {
-        "type": "object",
-        "properties": {
-          "title": {
-            "type": "string",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "categoryId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "productDetails": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/MyERP.Shared.Core.Application.UseCases.Store.Cart.Handlers.Product.Create.ProductDetailCreateParameter"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "MyERP.Shared.Core.Application.UseCases.Store.Cart.Handlers.Product.Create.ProductDetailCreateParameter": {
-        "type": "object",
-        "properties": {
-          "title": {
-            "type": "string",
-            "nullable": true
-          },
-          "value": {
             "type": "string",
             "nullable": true
           }
@@ -1687,7 +4953,16 @@
       "name": "Hangfire"
     },
     {
+      "name": "JobGrades"
+    },
+    {
+      "name": "JobPositions"
+    },
+    {
       "name": "MessageBroker"
+    },
+    {
+      "name": "OrganizationUnits"
     },
     {
       "name": "ProductContorller"

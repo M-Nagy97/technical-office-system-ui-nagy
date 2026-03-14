@@ -1,6 +1,5 @@
-import { HttpHeaders, HttpParameterCodec } from '@angular/common/http';
+import { HttpParameterCodec } from '@angular/common/http';
 import { Param } from './param';
-import { OpenApiHttpParams } from './query.params';
 
 export interface ConfigurationParameters {
     /**
@@ -67,30 +66,26 @@ export class Configuration {
      */
     credentials: {[ key: string ]: string | (() => string | undefined)};
 
-constructor({ accessToken, apiKeys, basePath, credentials, encodeParam, encoder, password, username, withCredentials }: ConfigurationParameters = {}) {
-        if (apiKeys) {
-            this.apiKeys = apiKeys;
+    constructor(configurationParameters: ConfigurationParameters = {}) {
+        this.apiKeys = configurationParameters.apiKeys;
+        this.username = configurationParameters.username;
+        this.password = configurationParameters.password;
+        this.accessToken = configurationParameters.accessToken;
+        this.basePath = 'https://localhost:8500';
+        this.withCredentials = configurationParameters.withCredentials;
+        this.encoder = configurationParameters.encoder;
+        if (configurationParameters.encodeParam) {
+            this.encodeParam = configurationParameters.encodeParam;
         }
-        if (username !== undefined) {
-            this.username = username;
+        else {
+            this.encodeParam = param => this.defaultEncodeParam(param);
         }
-        if (password !== undefined) {
-            this.password = password;
+        if (configurationParameters.credentials) {
+            this.credentials = configurationParameters.credentials;
         }
-        if (accessToken !== undefined) {
-            this.accessToken = accessToken;
+        else {
+            this.credentials = {};
         }
-        if (basePath !== undefined) {
-            this.basePath = basePath;
-        }
-        if (withCredentials !== undefined) {
-            this.withCredentials = withCredentials;
-        }
-        if (encoder) {
-            this.encoder = encoder;
-        }
-        this.encodeParam = encodeParam ?? (param => this.defaultEncodeParam(param));
-        this.credentials = credentials ?? {};
 
         // init default Bearer credential
         if (!this.credentials['Bearer']) {
@@ -101,6 +96,11 @@ constructor({ accessToken, apiKeys, basePath, credentials, encodeParam, encoder,
             };
         }
     }
+  defaultEncodeParam(param: Param): string {
+    const value = param.value;
+    if (value == null) return '';
+    return encodeURIComponent(String(value));
+  }
 
     /**
      * Select the correct content-type to use for a request.
@@ -155,40 +155,14 @@ constructor({ accessToken, apiKeys, basePath, credentials, encodeParam, encoder,
         return mime !== null && (jsonMime.test(mime) || mime.toLowerCase() === 'application/json-patch+json');
     }
 
-    public lookupCredential(key: string): string | undefined {
-        const value = this.credentials[key];
-        return typeof value === 'function'
-            ? value()
-            : value;
-    }
+//     public lookupCredential(key: string): string | undefined {
+//         const value = this.credentials[key];
+//         return typeof value === 'function'
+//             ? value()
+//             : value;
+//  you need (i.e.: the most common use-case): no need for customization!
+// alue;
 
-    public addCredentialToHeaders(credentialKey: string, headerName: string, headers: HttpHeaders, prefix?: string): HttpHeaders {
-        const value = this.lookupCredential(credentialKey);
-        return value
-            ? headers.set(headerName, (prefix ?? '') + value)
-            : headers;
-    }
-
-    public addCredentialToQuery(credentialKey: string, paramName: string, query: OpenApiHttpParams): OpenApiHttpParams {
-        const value = this.lookupCredential(credentialKey);
-        return value
-            ? query.set(paramName, value)
-            : query;
-    }
-
-    private defaultEncodeParam(param: Param): string {
-        // This implementation exists as fallback for missing configuration
-        // and for backwards compatibility to older typescript-angular generator versions.
-        // It only works for the 'simple' parameter style.
-        // Date-handling only works for the 'date-time' format.
-        // All other styles and Date-formats are probably handled incorrectly.
-        //
-        // But: if that's all you need (i.e.: the most common use-case): no need for customization!
-
-        const value = param.dataFormat === 'date-time' && param.value instanceof Date
-            ? (param.value as Date).toISOString()
-            : param.value;
-
-        return encodeURIComponent(String(value));
-    }
+//         return encodeURIComponent(String(value));
+//     }
 }

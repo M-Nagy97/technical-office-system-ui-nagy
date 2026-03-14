@@ -24,6 +24,7 @@
   box-sizing: border-box;
 }
 
+
 html {
   -webkit-text-size-adjust: 100%;
   -webkit-font-smoothing: antialiased;
@@ -45,6 +46,27 @@ html[dir='rtl'],
 [dir='rtl'] {
   direction: rtl;
   text-align: right;
+}
+[dir="rtl"] {
+  .p-datepicker {
+    .p-datepicker-prev .p-icon,
+    .p-datepicker-next .p-icon {
+      transform: scaleX(-1);
+    }
+  }
+  .p-calendar-w-btn .p-datepicker-trigger {
+  border-top-left-radius: 6px;     /* restore left */
+  border-bottom-left-radius: 6px;  /* restore left */
+  border-top-right-radius: 0;      /* flatten right */
+  border-bottom-right-radius: 0;   /* flatten right */
+}
+.p-paginator {
+  .p-paginator-first .p-icon,
+  .p-paginator-prev .p-icon,
+  .p-paginator-next .p-icon,
+  .p-paginator-last .p-icon {
+    transform: scaleX(-1);
+  }}
 }
 
 html[dir='rtl'] body,

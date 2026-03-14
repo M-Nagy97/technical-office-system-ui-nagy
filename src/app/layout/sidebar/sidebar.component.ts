@@ -43,30 +43,44 @@ export class SidebarComponent implements OnInit {
       route: '/dashboard',
       module: 'dashboard',
     },
+    // الموظفين — ترميزات + عمليات رئيسية
     {
       label: 'nav.employees_module',
       icon: 'pi pi-users',
       module: 'employees',
       children: [
+        { label: 'nav.codings', icon: 'pi pi-cog', section: true, module: 'employees' },
+        { label: 'nav.job_grades_module', icon: 'pi pi-briefcase', route: '/job-grades', module: 'employees' },
+        { label: 'nav.job_positions_module', icon: 'pi pi-sitemap', route: '/job-positions', module: 'employees' },
+        { label: 'nav.organization_units_module', icon: 'pi pi-building', route: '/organization-units', module: 'employees' },
+        { label: 'nav.main_operations', icon: 'pi pi-list', section: true, module: 'employees' },
         { label: 'nav.employee_list', icon: 'pi pi-list', route: '/employees', module: 'employees' },
         { label: 'nav.add_employee', icon: 'pi pi-user-plus', route: '/employees/add', module: 'employees' },
         { label: 'nav.appointment_documents', icon: 'pi pi-file', route: '/employees/documents', module: 'employees' },
       ],
     },
+    // الحضور والانصراف — ترميزات + عمليات رئيسية
     {
       label: 'nav.attendance_module',
       icon: 'pi pi-calendar',
       module: 'attendance',
       children: [
+        { label: 'nav.codings', icon: 'pi pi-cog', section: true, module: 'attendance' },
+        // ترميزات الحضور (يمكن إضافة شيفات، أنواع الانصراف لاحقاً)
+        { label: 'nav.main_operations', icon: 'pi pi-list', section: true, module: 'attendance' },
         { label: 'nav.daily_attendance', icon: 'pi pi-clock', route: '/attendance', module: 'attendance' },
         { label: 'nav.attendance_reports', icon: 'pi pi-chart-bar', route: '/attendance/reports', module: 'attendance' },
       ],
     },
+    // الجزاءات — ترميزات + عمليات رئيسية
     {
       label: 'nav.penalties_module',
       icon: 'pi pi-exclamation-triangle',
       module: 'penalties',
       children: [
+        { label: 'nav.codings', icon: 'pi pi-cog', section: true, module: 'penalties' },
+        // ترميزات الجزاءات (يمكن إضافة أنواع الجزاء لاحقاً)
+        { label: 'nav.main_operations', icon: 'pi pi-list', section: true, module: 'penalties' },
         { label: 'nav.penalty_list', icon: 'pi pi-list', route: '/penalties', module: 'penalties' },
         { label: 'nav.add_penalty', icon: 'pi pi-plus', route: '/penalties/add', module: 'penalties' },
       ],

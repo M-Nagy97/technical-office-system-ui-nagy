@@ -27,6 +27,23 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./modules/penalties/penalties.routes').then((m) => m.PENALTY_ROUTES),
       },
+      {
+        path: 'job-grades',
+        loadChildren: () =>
+          import('./modules/job-grades/job-grades.routes').then((m) => m.JOB_GRADES_ROUTES),
+      },
+      {
+        path: 'job-positions',
+        loadChildren: () =>
+          import('./modules/job-positions/job-positions.routes').then((m) => m.JOB_POSITIONS_ROUTES),
+      },
+      {
+        path: 'organization-units',
+        loadChildren: () =>
+          import('./modules/organization-units/organization-units.routes').then(
+            (m) => m.ORGANIZATION_UNITS_ROUTES
+          ),
+      },
     ],
   },
   {
