@@ -1,6 +1,8 @@
 {
   "nav": {
     "dashboard": "لوحة التحكم",
+    "transactions": "معاملات",
+    "lookups": "ترميزات",
     "codings": "ترميزات",
     "main_operations": "عمليات رئيسية",
     "employees_module": "الموظفين",
@@ -10,6 +12,10 @@
     "attendance_module": "الحضور والانصراف",
     "daily_attendance": "الحضور اليومي",
     "attendance_reports": "تقارير الحضور",
+    "shifts": "الشيفات",
+    "schedules": "الجداول",
+    "month_plans": "خطط الشهر",
+    "time_attendance_settings": "إعدادات الحضور",
     "penalties_module": "الجزاءات",
     "penalty_list": "قائمة الجزاءات",
     "add_penalty": "إضافة جزاء",

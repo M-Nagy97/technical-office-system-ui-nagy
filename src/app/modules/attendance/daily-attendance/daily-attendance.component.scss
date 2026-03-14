@@ -53,7 +53,20 @@
 .stat-present .stat-value { color: var(--success-color); }
 .stat-absent .stat-value { color: var(--danger-color); }
 .stat-late .stat-value { color: var(--warning-color); }
+.stat-total .stat-value { color: var(--primary-color); }
 .stat-vacation .stat-value { color: var(--info-color); }
+
+.manual-punch-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  .p-field label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+  }
+  .w-full { width: 100%; }
+}
 
 .time-input {
   width: 5rem;

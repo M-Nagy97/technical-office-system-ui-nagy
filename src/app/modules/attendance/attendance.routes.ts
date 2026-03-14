@@ -11,4 +11,24 @@ export const ATTENDANCE_ROUTES: Routes = [
     loadComponent: () =>
       import('./reports/reports.component').then((m) => m.ReportsComponent),
   },
+  {
+    path: 'shifts',
+    loadComponent: () =>
+      import('./shift-list/shift-list.component').then((m) => m.ShiftListComponent),
+  },
+  {
+    path: 'schedules',
+    loadComponent: () =>
+      import('./schedule-list/schedule-list.component').then((m) => m.ScheduleListComponent),
+  },
+  {
+    path: 'month-plans',
+    loadComponent: () =>
+      import('./month-plan-list/month-plan-list.component').then((m) => m.MonthPlanListComponent),
+  },
+  {
+    path: 'settings',
+    loadComponent: () =>
+      import('./time-attendance-settings/time-attendance-settings.component').then((m) => m.TimeAttendanceSettingsComponent),
+  },
 ];

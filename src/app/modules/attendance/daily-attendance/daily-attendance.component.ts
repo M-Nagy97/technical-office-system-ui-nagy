@@ -6,19 +6,21 @@ import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
-import { InputTextModule } from 'primeng/inputtext';
-import { FileUploadModule } from 'primeng/fileupload';
-import { AttendanceService } from '../../../core/services/attendance.service';
-import { AttendanceRecord } from '../../../core/models/attendance.model';
+import { DialogModule } from 'primeng/dialog';
+import { AttendanceApiService, RecordManualPunchRequest } from '../../../core/services/attendance-api.service';
+import { EmployeeService } from '../../../core/services/employee.service';
+import { AttendanceCalculationResultDto } from '../../../core/api/generated/model/attendanceCalculationResultDto';
 
-const STATUS_OPTIONS = [
-  { label: 'حاضر', value: 'present' },
-  { label: 'غائب', value: 'absent' },
-  { label: 'متأخر', value: 'late' },
-  { label: 'معذور', value: 'excused' },
-  { label: 'إجازة', value: 'vacation' },
-  { label: 'إجازة مرضية', value: 'sick_leave' },
-];
+const STATUS_LABELS: Record<number, string> = {
+  0: 'في الوقت',
+  1: 'متأخر',
+  2: 'انصراف مبكر',
+  3: 'غائب',
+  4: 'حاضر',
+  5: 'نصف يوم',
+  6: 'إجازة',
+  7: 'عطلة',
+};
 
 @Component({
   selector: 'app-daily-attendance',
@@ -31,106 +33,138 @@ const STATUS_OPTIONS = [
     ButtonModule,
     CalendarModule,
     DropdownModule,
-    InputTextModule,
-    FileUploadModule,
+    DialogModule,
   ],
   templateUrl: './daily-attendance.component.html',
   styleUrl: './daily-attendance.component.scss',
 })
 export class DailyAttendanceComponent implements OnInit {
-  // private readonly attendanceService = inject(AttendanceService);
+  private readonly attendanceApi = inject(AttendanceApiService);
+  private readonly employeeService = inject(EmployeeService);
 
-  // readonly selectedDate = signal(new Date());
-  // readonly records = signal<AttendanceRecord[]>([]);
-  // readonly loading = signal(false);
-  // readonly statusOptions = STATUS_OPTIONS;
+  readonly selectedDate = signal(new Date());
+  readonly results = signal<AttendanceCalculationResultDto[]>([]);
+  readonly loading = signal(false);
+  readonly runningCalculation = signal(false);
+  readonly savingPunch = signal(false);
+  readonly showManualPunchDialog = signal(false);
 
-  // readonly stats = computed(() => {
-  //   const list = this.records();
-  //   return {
-  //     present: list.filter((r) => r.status === 'present').length,
-  //     absent: list.filter((r) => r.status === 'absent').length,
-  //     late: list.filter((r) => r.status === 'late').length,
-  //     vacation: list.filter((r) => r.status === 'vacation' || r.status === 'sick_leave').length,
-  //   };
-  // });
+  readonly employeeOptions = signal<{ label: string; value: string }[]>([]);
+  readonly punchEmployeeId = signal('');
+  readonly punchTime = signal(new Date());
+  readonly punchType = signal<0 | 1>(0);
+  readonly punchNotes = signal('');
+
+  readonly stats = computed(() => {
+    const list = this.results();
+    return {
+      total: list.length,
+      present: list.filter((r) => r.status === 4).length,
+      absent: list.filter((r) => r.status === 3).length,
+      late: list.filter((r) => r.status === 1).length,
+      other: list.length - list.filter((r) => r.status === 4 || r.status === 3 || r.status === 1).length,
+    };
+  });
+
+  readonly resultsWithNames = computed(() => {
+    const list = this.results();
+    const employees = this.employeeService.getList();
+    const nameMap = new Map(employees.map((e) => [e.id, e.fullName]));
+    return list.map((r) => ({
+      ...r,
+      employeeName: nameMap.get(r.employeeId ?? '') ?? r.employeeId ?? '—',
+    }));
+  });
 
   ngOnInit(): void {
-  //  this.loadForDate(this.selectedDate());
+    this.employeeService.fetchAll().subscribe(() => {
+      const list = this.employeeService.getList();
+      this.employeeOptions.set(
+        list.map((e) => ({ label: e.fullName || e.employeeNumber, value: e.id }))
+      );
+    });
+    this.loadForDate(this.selectedDate());
   }
 
-  // onDateChange(date: Date): void {
-  //   this.selectedDate.set(date);
-  //   this.loadForDate(date);
-  // }
+  onDateChange(date: Date): void {
+    this.selectedDate.set(date);
+    this.loadForDate(date);
+  }
 
-  // loadForDate(date: Date): void {
-  //   this.loading.set(true);
-  //   const list = this.attendanceService.ensureRecordsForDate(date);
-  //   this.records.set([...list]);
-  //   this.loading.set(false);
-  // }
+  loadForDate(date: Date): void {
+    this.loading.set(true);
+    this.attendanceApi.getCalculationResultsForDate(date).subscribe({
+      next: (list) => {
+        this.results.set(list);
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false),
+    });
+  }
 
-  // updateCheckIn(record: AttendanceRecord, value: string): void {
-  //   this.attendanceService.updateRecord(record.id, { checkIn: value });
-  //   this.records.set(this.attendanceService.getRecordsByDateSync(this.selectedDate()));
-  // }
+  runCalculation(): void {
+    this.runningCalculation.set(true);
+    this.attendanceApi.runCalculation(this.selectedDate()).subscribe({
+      next: () => {
+        this.loadForDate(this.selectedDate());
+        this.runningCalculation.set(false);
+      },
+      error: () => this.runningCalculation.set(false),
+    });
+  }
 
-  // updateCheckOut(record: AttendanceRecord, value: string): void {
-  //   this.attendanceService.updateRecord(record.id, { checkOut: value });
-  //   this.records.set(this.attendanceService.getRecordsByDateSync(this.selectedDate()));
-  // }
+  openManualPunchDialog(): void {
+    const d = this.selectedDate();
+    this.punchEmployeeId.set(this.employeeOptions()[0]?.value ?? '');
+    this.punchTime.set(new Date(d.getFullYear(), d.getMonth(), d.getDate(), 8, 0, 0, 0));
+    this.punchType.set(0);
+    this.punchNotes.set('');
+    this.showManualPunchDialog.set(true);
+  }
 
-  // updateStatus(record: AttendanceRecord, status: string): void {
-  //   const s = status as AttendanceRecord['status'];
-  //   const patch: Partial<AttendanceRecord> = { status: s };
-  //   if (s === 'absent' || s === 'vacation' || s === 'sick_leave' || s === 'excused') {
-  //     patch.checkIn = '--:--';
-  //     patch.checkOut = '--:--';
-  //     patch.workHours = 0;
-  //     patch.lateMinutes = 0;
-  //     patch.earlyLeaveMinutes = 0;
-  //   } else if (s === 'present') {
-  //     patch.checkIn = '08:00';
-  //     patch.checkOut = '16:00';
-  //     patch.workHours = 8;
-  //     patch.lateMinutes = 0;
-  //     patch.earlyLeaveMinutes = 0;
-  //   } else if (s === 'late') {
-  //     patch.checkIn = '08:30';
-  //     patch.checkOut = '16:00';
-  //     patch.workHours = 7.5;
-  //     patch.lateMinutes = 30;
-  //     patch.earlyLeaveMinutes = 0;
-  //   }
-  //   this.attendanceService.updateRecord(record.id, patch);
-  //   this.records.set(this.attendanceService.getRecordsByDateSync(this.selectedDate()));
-  // }
+  closeManualPunchDialog(): void {
+    this.showManualPunchDialog.set(false);
+  }
 
-  // markAllPresent(): void {
-  //   this.attendanceService.markAllPresentForDate(this.selectedDate());
-  //   this.records.set(this.attendanceService.getRecordsByDateSync(this.selectedDate()));
-  // }
+  saveManualPunch(): void {
+    const employeeId = this.punchEmployeeId();
+    if (!employeeId) return;
+    this.savingPunch.set(true);
+    const req: RecordManualPunchRequest = {
+      employeeId,
+      punchTime: this.punchTime().toISOString(),
+      punchType: this.punchType(),
+      notes: this.punchNotes() || undefined,
+    };
+    this.attendanceApi.recordManualPunch(req).subscribe({
+      next: () => {
+        this.savingPunch.set(false);
+        this.closeManualPunchDialog();
+        this.loadForDate(this.selectedDate());
+      },
+      error: () => this.savingPunch.set(false),
+    });
+  }
 
-  // onImportFile(): void {
-  //   // Placeholder: open file dialog or show message
-  // }
+  getStatusLabel(status: number | undefined): string {
+    if (status == null) return '—';
+    return STATUS_LABELS[status] ?? String(status);
+  }
 
-  // getRowClass(record: AttendanceRecord): string {
-  //   switch (record.status) {
-  //     case 'present':
-  //       return 'row-present';
-  //     case 'absent':
-  //       return 'row-absent';
-  //     case 'late':
-  //       return 'row-late';
-  //     case 'vacation':
-  //     case 'sick_leave':
-  //       return 'row-vacation';
-  //     case 'excused':
-  //       return 'row-excused';
-  //     default:
-  //       return '';
-  //   }
-  // }
+  formatTime(iso: string | null | undefined): string {
+    if (!iso) return '—';
+    try {
+      const d = new Date(iso);
+      return d.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+    } catch {
+      return iso;
+    }
+  }
+
+  formatMinutes(m: number | null | undefined): string {
+    if (m == null) return '—';
+    const h = Math.floor(m / 60);
+    const min = m % 60;
+    return `${h}:${String(min).padStart(2, '0')}`;
+  }
 }

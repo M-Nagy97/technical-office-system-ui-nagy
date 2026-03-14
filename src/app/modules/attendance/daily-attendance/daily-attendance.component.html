@@ -1,4 +1,4 @@
-<!-- <div class="daily-attendance">
+<div class="daily-attendance">
   <p-card>
     <div class="toolbar">
       <div class="toolbar-right">
@@ -12,8 +12,21 @@
         />
       </div>
       <div class="toolbar-left">
-        <button pButton label="تسجيل الكل حاضر" icon="pi pi-check" (click)="markAllPresent()" class="p-button-success"></button>
-        <button pButton label="استيراد من ملف" icon="pi pi-upload" (click)="onImportFile()" class="p-button-outlined"></button>
+        <button
+          pButton
+          label="تشغيل الحساب"
+          icon="pi pi-calculator"
+          (click)="runCalculation()"
+          [loading]="runningCalculation()"
+          class="p-button-success"
+        > </button>
+        <button
+          pButton
+          label="تسجيل حضور يدوي"
+          icon="pi pi-plus"
+          (click)="openManualPunchDialog()"
+          class="p-button-outlined"
+        ></button>
       </div>
     </div>
   </p-card>
@@ -31,15 +44,15 @@
       <span class="stat-value">{{ stats().late }}</span>
       <span class="stat-label">متأخر</span>
     </p-card>
-    <p-card class="stat-card stat-vacation">
-      <span class="stat-value">{{ stats().vacation }}</span>
-      <span class="stat-label">إجازة</span>
+    <p-card class="stat-card stat-total">
+      <span class="stat-value">{{ stats().total }}</span>
+      <span class="stat-label">الإجمالي</span>
     </p-card>
   </div>
 
   <p-card>
     <p-table
-      [value]="records()"
+      [value]="resultsWithNames()"
       [loading]="loading()"
       styleClass="p-datatable-sm p-datatable-striped attendance-table"
       [tableStyle]="{ 'min-width': '50rem' }"
@@ -48,59 +61,108 @@
         <tr>
           <th>الموظف</th>
           <th>الحالة</th>
-          <th>وقت الحضور</th>
-          <th>وقت الانصراف</th>
-          <th>ساعات العمل</th>
-          <th>التأخير (د)</th>
+          <th>أول حضور</th>
+          <th>آخر انصراف</th>
+          <th>ساعات العمل (د)</th>
+          <th>ملاحظات</th>
         </tr>
       </ng-template>
-      <ng-template pTemplate="body" let-record>
-        <tr [ngClass]="getRowClass(record)">
-          <td>{{ record.employeeName }}</td>
-          <td>
-            <p-dropdown
-              [options]="statusOptions"
-              [ngModel]="record.status"
-              (ngModelChange)="updateStatus(record, $event)"
-              optionLabel="label"
-              optionValue="value"
-              styleClass="status-dropdown"
-            />
-          </td>
-          <td>
-            <input
-              type="text"
-              pInputText
-              [ngModel]="record.checkIn"
-              (ngModelChange)="updateCheckIn(record, $event)"
-              class="time-input"
-              placeholder="HH:mm"
-            />
-          </td>
-          <td>
-            <input
-              type="text"
-              pInputText
-              [ngModel]="record.checkOut"
-              (ngModelChange)="updateCheckOut(record, $event)"
-              class="time-input"
-              placeholder="HH:mm"
-            />
-          </td>
-          <td>{{ record.workHours }}</td>
-          <td>{{ record.lateMinutes }}</td>
+      <ng-template pTemplate="body" let-row>
+        <tr>
+          <td>{{ row.employeeName }}</td>
+          <td>{{ getStatusLabel(row.status) }}</td>
+          <td>{{ formatTime(row.firstInUtc) }}</td>
+          <td>{{ formatTime(row.lastOutUtc) }}</td>
+          <td>{{ formatMinutes(row.workedMinutes) }}</td>
+          <td>{{ row.notes ?? '—' }}</td>
         </tr>
       </ng-template>
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="6">لا توجد سجلات لهذا اليوم.</td>
+          <td colspan="6">لا توجد سجلات لهذا اليوم. اضغط «تشغيل الحساب» أو «تسجيل حضور يدوي».</td>
         </tr>
       </ng-template>
       <ng-template pTemplate="loadingbody">
         <tr>
-          <td colspan="6">جاري التحميل...</td>
+          <td colspan="6"><i class="pi pi-spin pi-spinner"></i> جاري التحميل...</td>
         </tr>
       </ng-template>
     </p-table>
   </p-card>
-</div> -->
+</div>
+
+<p-dialog
+  header="تسجيل حضور يدوي"
+  [visible]="showManualPunchDialog()"
+  (visibleChange)="showManualPunchDialog.set($event)"
+  [modal]="true"
+  [style]="{ width: '28rem' }"
+  [draggable]="false"
+  [resizable]="false"
+  (onHide)="closeManualPunchDialog()"
+>
+  <div class="manual-punch-form">
+    <div class="p-field">
+      <label for="punch-emp">الموظف</label>
+      <p-dropdown
+        id="punch-emp"
+        [options]="employeeOptions()"
+        [ngModel]="punchEmployeeId()"
+        (ngModelChange)="punchEmployeeId.set($event)"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="اختر الموظف"
+        styleClass="w-full"
+      />
+    </div>
+    <div class="p-field">
+      <label for="punch-type">نوع التسجيل</label>
+      <p-dropdown
+        id="punch-type"
+        [options]="[
+          { label: 'حضور (دخول)', value: 0 },
+          { label: 'انصراف (خروج)', value: 1 }
+        ]"
+        [ngModel]="punchType()"
+        (ngModelChange)="punchType.set($event)"
+        optionLabel="label"
+        optionValue="value"
+        styleClass="w-full"
+      />
+    </div>
+    <div class="p-field">
+      <label for="punch-time">التاريخ والوقت</label>
+      <p-calendar
+        id="punch-time"
+        [ngModel]="punchTime()"
+        (ngModelChange)="punchTime.set($event)"
+        [showTime]="true"
+        hourFormat="24"
+        dateFormat="dd/mm/yy"
+        styleClass="w-full"
+      />
+    </div>
+    <div class="p-field">
+      <label for="punch-notes">ملاحظات (اختياري)</label>
+      <input
+        id="punch-notes"
+        type="text"
+        pInputText
+        [ngModel]="punchNotes()"
+        (ngModelChange)="punchNotes.set($event)"
+        class="w-full"
+      />
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="إلغاء" icon="pi pi-times" class="p-button-text" (click)="closeManualPunchDialog()" > </button>
+    <button
+      pButton
+      label="حفظ"
+      icon="pi pi-check"
+      (click)="saveManualPunch()"
+      [loading]="savingPunch()"
+      [disabled]="!punchEmployeeId()"
+    ></button>
+  </ng-template>
+</p-dialog>

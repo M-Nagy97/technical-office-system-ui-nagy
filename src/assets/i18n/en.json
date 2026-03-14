@@ -1,6 +1,8 @@
 {
   "nav": {
     "dashboard": "Dashboard",
+    "transactions": "Transactions",
+    "lookups": "Lookups",
     "codings": "Codings",
     "main_operations": "Main Operations",
     "employees_module": "Employees",
@@ -10,6 +12,10 @@
     "attendance_module": "Attendance",
     "daily_attendance": "Daily Attendance",
     "attendance_reports": "Attendance Reports",
+    "shifts": "Shifts",
+    "schedules": "Schedules",
+    "month_plans": "Month Plans",
+    "time_attendance_settings": "Time Attendance Settings",
     "penalties_module": "Penalties",
     "penalty_list": "Penalty List",
     "add_penalty": "Add Penalty",

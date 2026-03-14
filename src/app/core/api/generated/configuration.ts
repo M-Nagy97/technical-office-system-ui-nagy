@@ -96,11 +96,11 @@ export class Configuration {
             };
         }
     }
-  defaultEncodeParam(param: Param): string {
-    const value = param.value;
-    if (value == null) return '';
-    return encodeURIComponent(String(value));
-  }
+    defaultEncodeParam(param: Param): string {
+        const value = param.value;
+        if (value == null) return '';
+        return encodeURIComponent(String(value));
+      }
 
     /**
      * Select the correct content-type to use for a request.

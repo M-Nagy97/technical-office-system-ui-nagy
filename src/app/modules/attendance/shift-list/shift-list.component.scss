@@ -1,0 +1,10 @@
+@use '../../../styles/mixins' as *;
+
+.shift-list {
+  .list-header {
+    margin-bottom: 1rem;
+    .p-input-icon-left {
+      min-width: 14rem;
+    }
+  }
+}

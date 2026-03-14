@@ -1,0 +1,8 @@
+@use '../../../styles/mixins' as *;
+
+.schedule-list .list-header {
+  margin-bottom: 1rem;
+  .p-input-icon-left {
+    min-width: 14rem;
+  }
+}
