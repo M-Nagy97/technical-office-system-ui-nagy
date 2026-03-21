@@ -9,19 +9,15 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { PlanType } from './planType';
+import { EmployeeScheduleCalendarItemDto } from './employeeScheduleCalendarItemDto';
+import { Exception } from './exception';
 
 
-export interface UpdatePlanCommand { 
-    id?: string;
-    name?: string | null;
-    description?: string | null;
-    minDeductMinutes?: number;
-    deductUnitMinutes?: number;
-    planType?: PlanType;
-    isActive?: boolean;
-    shiftIds?: Array<string> | null;
+export interface ApiResultOfIEnumerableOfEmployeeScheduleCalendarItemDto { 
+    success?: boolean;
+    data?: Array<EmployeeScheduleCalendarItemDto> | null;
+    message?: string | null;
+    error?: Exception;
+    token?: string | null;
 }
-
-
 

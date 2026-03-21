@@ -1,28 +1,45 @@
-import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
 import { DialogModule } from 'primeng/dialog';
-import { TagModule } from 'primeng/tag';
 import { InputTextModule } from 'primeng/inputtext';
-import { AttendanceCalcService, AttendanceRawService, AttendanceCalcDto as AttendanceCalculationResultDto, RecalculateAttendanceCommand } from '../../../core/api/generated';
-import { EmployeesService } from '../../../core/api/generated';
-import { map } from 'rxjs';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+import { forkJoin, EMPTY } from 'rxjs';
+import { finalize, map, switchMap } from 'rxjs/operators';
+import {
+  AttendanceRawService,
+  EmployeesService,
+  EmployeeDto,
+  ImportAttendanceRawCommand,
+  PunchDirection,
+  AttendanceSource,
+  AttendanceCalcService,
+  RecalculateAttendanceCommand,
+  AttendanceRawDto,
+} from '../../../core/api/generated';
+import * as XLSX from 'xlsx';
+import { AttendanceCalculationComponent } from '../attendance-calculation/attendance-calculation.component';
+import { parseAttendanceImportCsv, parseAttendanceImportXlsx } from './attendance-import.helpers';
 
-const STATUS_LABELS: Record<number, string> = {
-  0: 'في الوقت',
-  1: 'متأخر',
-  2: 'انصراف مبكر',
-  3: 'غائب',
-  4: 'حاضر',
-  5: 'نصف يوم',
-  6: 'إجازة/عطلة',
-  7: 'غير محدد',
-};
+function toYmdLocal(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function employeeLabel(e: EmployeeDto): string {
+  const ar = e.arabicName?.trim();
+  if (ar) return ar;
+  const parts = [e.firstName, e.lastName].filter(Boolean).join(' ').trim();
+  if (parts) return parts;
+  return e.employeeCode ?? e.id ?? '';
+}
 
 @Component({
   selector: 'app-daily-attendance',
@@ -30,102 +47,68 @@ const STATUS_LABELS: Record<number, string> = {
   imports: [
     CommonModule,
     FormsModule,
-    TableModule,
     CardModule,
     ButtonModule,
     CalendarModule,
     DropdownModule,
     DialogModule,
-    TagModule,
     InputTextModule,
+    ToastModule,
+    AttendanceCalculationComponent,
   ],
+  providers: [MessageService],
   templateUrl: './daily-attendance.component.html',
   styleUrl: './daily-attendance.component.scss',
 })
 export class DailyAttendanceComponent implements OnInit {
-  private readonly attendanceCalcApi = inject(AttendanceCalcService);
   private readonly attendanceRawApi = inject(AttendanceRawService);
+  private readonly attendanceCalcApi = inject(AttendanceCalcService);
   private readonly employeesApi = inject(EmployeesService);
+  private readonly messageService = inject(MessageService);
 
   readonly selectedDate = signal(new Date());
-  readonly results = signal<AttendanceCalculationResultDto[]>([]);
-  readonly loading = signal(false);
-  readonly runningCalculation = signal(false);
+  /** Bumps child grid refresh after import / manual punch. */
+  readonly reloadTick = signal(0);
   readonly savingPunch = signal(false);
+  readonly importingFile = signal(false);
   readonly showManualPunchDialog = signal(false);
 
   readonly employeeOptions = signal<{ label: string; value: string }[]>([]);
-  readonly punchEmployeeId = signal('');
+  readonly punchEmployeeId = signal<string | null>(null);
   readonly punchTime = signal(new Date());
   readonly punchType = signal<0 | 1>(0);
   readonly punchNotes = signal('');
 
-  readonly stats = computed(() => {
-    const list = this.results();
-    return {
-      total: list.length,
-      present: list.filter((r) => r.status === 4).length,
-      absent: list.filter((r) => r.status === 3).length,
-      late: list.filter((r) => r.status === 1).length,
-      other: list.length - list.filter((r) => r.status === 4 || r.status === 3 || r.status === 1).length,
-    };
-  });
-
-  readonly resultsWithNames = computed(() => {
-    const list = this.results();
-    // This part might need adjustment depending on how we want to handle names
-    // For now we'll assume name is in the result or we fetch it
-    return list;
-  });
+  readonly punchTypeOptions = [
+    { label: 'حضور (دخول)', value: 0 as const },
+    { label: 'انصراف (خروج)', value: 1 as const },
+  ];
 
   ngOnInit(): void {
     this.employeesApi.employeesGetAll().pipe(map((res: any) => res.data ?? [])).subscribe({
-      next: (list) => {
+      next: (list: EmployeeDto[]) => {
         this.employeeOptions.set(
-          list.map((e: any) => ({ label: e.fullName || e.employeeNumber, value: e.id }))
+          list
+            .filter((e) => e.id)
+            .map((e) => ({ label: employeeLabel(e), value: e.id! }))
         );
-      }
+      },
+      error: () =>
+        this.messageService.add({
+          severity: 'error',
+          summary: 'خطأ',
+          detail: 'تعذر تحميل قائمة الموظفين',
+        }),
     });
-    this.loadForDate(this.selectedDate());
   }
 
   onDateChange(date: Date): void {
     this.selectedDate.set(date);
-    this.loadForDate(date);
-  }
-
-  loadForDate(date: Date): void {
-    this.loading.set(true);
-    const dateStr = date.toISOString().split('T')[0];
-    this.attendanceCalcApi.attendanceCalcGet(undefined, dateStr, dateStr).pipe(
-      map((res: any) => res.data ?? [])
-    ).subscribe({
-      next: (list: AttendanceCalculationResultDto[]) => {
-        this.results.set(list);
-        this.loading.set(false);
-      },
-      error: () => this.loading.set(false),
-    });
-  }
-
-  runCalculation(): void {
-    this.runningCalculation.set(true);
-    const dateStr = this.selectedDate().toISOString().split('T')[0];
-    const cmd: RecalculateAttendanceCommand = {
-      date: dateStr
-    };
-    this.attendanceCalcApi.attendanceCalcRecalculate(cmd).subscribe({
-      next: () => {
-        this.loadForDate(this.selectedDate());
-        this.runningCalculation.set(false);
-      },
-      error: () => this.runningCalculation.set(false),
-    });
   }
 
   openManualPunchDialog(): void {
     const d = this.selectedDate();
-    this.punchEmployeeId.set(this.employeeOptions()[0]?.value ?? '');
+    this.punchEmployeeId.set(null);
     this.punchTime.set(new Date(d.getFullYear(), d.getMonth(), d.getDate(), 8, 0, 0, 0));
     this.punchType.set(0);
     this.punchNotes.set('');
@@ -140,44 +123,210 @@ export class DailyAttendanceComponent implements OnInit {
     const employeeId = this.punchEmployeeId();
     if (!employeeId) return;
     this.savingPunch.set(true);
-    const cmd = {
-      punches: [{
-        employeeId,
-        date: this.punchTime().toISOString().split('T')[0],
-        time: this.punchTime().toLocaleTimeString('en-GB'),
-        direction: this.punchType() === 0 ? 0 : 1, // In/Out
-        source: 1 // Manual
-      }]
+    const t = this.punchTime();
+    const cmd: ImportAttendanceRawCommand = {
+      punches: [
+        {
+          empId: employeeId,
+          fingerTime: t.toISOString(),
+          direction: this.punchType() === 0 ? PunchDirection.NUMBER_1 : PunchDirection.NUMBER_2,
+          source: AttendanceSource.NUMBER_2,
+          deviceId: null,
+        },
+      ],
     };
-    this.attendanceRawApi.attendanceRawImport(cmd).subscribe({
-      next: () => {
-        this.savingPunch.set(false);
-        this.closeManualPunchDialog();
-        this.loadForDate(this.selectedDate());
-      },
-      error: () => this.savingPunch.set(false),
+    const dateStr = toYmdLocal(t);
+    const recalc: RecalculateAttendanceCommand = { date: dateStr, employeeIds: [employeeId] };
+
+    this.attendanceRawApi
+      .attendanceRawImport(cmd)
+      .pipe(
+        switchMap((imp) => {
+          if (!imp.success) {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'فشل الحفظ',
+              detail: imp.message ?? 'رفض الخادم الاستيراد',
+            });
+            return EMPTY;
+          }
+          return this.attendanceCalcApi.attendanceCalcRecalculate(recalc);
+        }),
+        finalize(() => this.savingPunch.set(false))
+      )
+      .subscribe({
+        next: (rec) => {
+          if (rec && !rec.success) {
+            this.messageService.add({
+              severity: 'warn',
+              summary: 'تنبيه',
+              detail: rec.message ?? 'تم الحفظ لكن إعادة الحساب لم تُؤكد',
+            });
+          } else {
+            this.messageService.add({ severity: 'success', summary: 'تم', detail: 'تم تسجيل البصمة وإعادة الحساب' });
+          }
+          this.reloadTick.update((n) => n + 1);
+          this.closeManualPunchDialog();
+        },
+        error: () => {
+          this.messageService.add({ severity: 'error', summary: 'خطأ', detail: 'فشل الاتصال أو الحفظ' });
+        },
+      });
+  }
+
+  downloadTemplate(): void {
+    const rows = [
+      ['EmpId', 'FingerTime', 'Direction', 'DeviceId'],
+      [
+        '11111111-1111-1111-1111-111111111111',
+        '2025-03-01T08:00:00',
+        'In',
+        '',
+      ],
+      [
+        '11111111-1111-1111-1111-111111111111',
+        '2025-03-01T16:00:00',
+        'Out',
+        '',
+      ],
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Punches');
+    XLSX.writeFile(wb, 'attendance-raw-import-template.xlsx');
+  }
+
+  onAttendanceFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+    const lower = file.name.toLowerCase();
+    this.importingFile.set(true);
+    if (lower.endsWith('.csv')) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const text = String(reader.result ?? '');
+          const punches = parseAttendanceImportCsv(text);
+          this.uploadPunches(punches);
+        } catch (e: any) {
+          this.importingFile.set(false);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'ملف CSV',
+            detail: e?.message ?? 'تعذر قراءة الملف',
+          });
+        }
+      };
+      reader.onerror = () => {
+        this.importingFile.set(false);
+        this.messageService.add({ severity: 'error', summary: 'خطأ', detail: 'تعذر قراءة الملف' });
+      };
+      reader.readAsText(file, 'UTF-8');
+      return;
+    }
+    if (lower.endsWith('.xlsx') || lower.endsWith('.xls')) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const buf = reader.result as ArrayBuffer;
+          const punches = parseAttendanceImportXlsx(buf);
+          this.uploadPunches(punches);
+        } catch (e: any) {
+          this.importingFile.set(false);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'ملف Excel',
+            detail: e?.message ?? 'تعذر قراءة الملف',
+          });
+        }
+      };
+      reader.onerror = () => {
+        this.importingFile.set(false);
+        this.messageService.add({ severity: 'error', summary: 'خطأ', detail: 'تعذر قراءة الملف' });
+      };
+      reader.readAsArrayBuffer(file);
+      return;
+    }
+    this.importingFile.set(false);
+    this.messageService.add({
+      severity: 'warn',
+      summary: 'نوع الملف',
+      detail: 'يُقبل CSV أو Excel (.xlsx / .xls)',
     });
   }
 
-  getStatusLabel(status: number | undefined): string {
-    if (status == null) return '—';
-    return STATUS_LABELS[status] ?? String(status);
-  }
-
-  formatTime(iso: string | null | undefined): string {
-    if (!iso) return '—';
-    try {
-      const d = new Date(iso);
-      return d.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-    } catch {
-      return iso;
+  private uploadPunches(punches: AttendanceRawDto[]): void {
+    if (!punches.length) {
+      this.importingFile.set(false);
+      this.messageService.add({ severity: 'warn', summary: 'ملف فارغ', detail: 'لا توجد صفوف بيانات' });
+      return;
     }
-  }
-
-  formatMinutes(m: number | null | undefined): string {
-    if (m == null) return '—';
-    const h = Math.floor(m / 60);
-    const min = m % 60;
-    return `${h}:${String(min).padStart(2, '0')}`;
+    const cmd: ImportAttendanceRawCommand = { punches };
+    this.attendanceRawApi.attendanceRawImport(cmd).subscribe({
+      next: (res) => {
+        if (!res.success) {
+          this.importingFile.set(false);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'فشل الرفع',
+            detail: res.message ?? 'رفض الخادم الاستيراد',
+          });
+          return;
+        }
+        const empIds = [...new Set(punches.map((p) => p.empId).filter(Boolean) as string[])];
+        const dates = [
+          ...new Set(
+            punches
+              .map((p) => {
+                if (!p.fingerTime) return null;
+                return toYmdLocal(new Date(p.fingerTime));
+              })
+              .filter(Boolean) as string[]
+          ),
+        ];
+        if (!dates.length) {
+          this.importingFile.set(false);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'تم الاستيراد',
+            detail: `تم استيراد ${punches.length} سجلًا`,
+          });
+          this.reloadTick.update((n) => n + 1);
+          return;
+        }
+        const recalcs = dates.map((d) =>
+          this.attendanceCalcApi.attendanceCalcRecalculate({
+            date: d,
+            employeeIds: empIds.length ? empIds : null,
+          })
+        );
+        forkJoin(recalcs).subscribe({
+          next: () => {
+            this.importingFile.set(false);
+            this.messageService.add({
+              severity: 'success',
+              summary: 'تم',
+              detail: `تم استيراد ${punches.length} سجلًا وإعادة الحساب لـ ${dates.length} يومًا`,
+            });
+            this.reloadTick.update((n) => n + 1);
+          },
+          error: () => {
+            this.importingFile.set(false);
+            this.messageService.add({
+              severity: 'warn',
+              summary: 'استيراد فقط',
+              detail: 'تم الاستيراد لكن تعذر تأكيد إعادة الحساب لبعض الأيام',
+            });
+            this.reloadTick.update((n) => n + 1);
+          },
+        });
+      },
+      error: () => {
+        this.importingFile.set(false);
+        this.messageService.add({ severity: 'error', summary: 'خطأ', detail: 'فشل رفع الملف' });
+      },
+    });
   }
 }

@@ -12,7 +12,9 @@ api/cach.service.ts
 api/categoryContorller.service.ts
 api/dapper.service.ts
 api/devices.service.ts
+api/employeeAttendance.service.ts
 api/employeePlans.service.ts
+api/employeeSchedules.service.ts
 api/employees.service.ts
 api/excelExporter.service.ts
 api/exception.service.ts
@@ -42,8 +44,11 @@ model/apiResultOfIEnumerableOfAttendanceCalcDto.ts
 model/apiResultOfIEnumerableOfAttendanceRawDto.ts
 model/apiResultOfIEnumerableOfDayScheduleDto.ts
 model/apiResultOfIEnumerableOfDeviceDto.ts
+model/apiResultOfIEnumerableOfEmployeeAttendanceDirectoryRowDto.ts
 model/apiResultOfIEnumerableOfEmployeeAttendanceStatusDto.ts
 model/apiResultOfIEnumerableOfEmployeePlanListItemDto.ts
+model/apiResultOfIEnumerableOfEmployeeScheduleAttendanceDetailDto.ts
+model/apiResultOfIEnumerableOfEmployeeScheduleCalendarItemDto.ts
 model/apiResultOfIEnumerableOfPlanFactorProfileDto.ts
 model/apiResultOfIEnumerableOfPlanListItemDto.ts
 model/apiResultOfIEnumerableOfPlanScheduleDto.ts
@@ -84,6 +89,7 @@ model/dayScheduleDto.ts
 model/dayType.ts
 model/deviceDto.ts
 model/employeeAddressDto.ts
+model/employeeAttendanceDirectoryRowDto.ts
 model/employeeAttendanceStatusDto.ts
 model/employeeContactDto.ts
 model/employeeDocumentDto.ts
@@ -91,6 +97,8 @@ model/employeeDto.ts
 model/employeeEducationDto.ts
 model/employeeExperienceDto.ts
 model/employeePlanListItemDto.ts
+model/employeeScheduleAttendanceDetailDto.ts
+model/employeeScheduleCalendarItemDto.ts
 model/eventAttributes.ts
 model/eventInfo.ts
 model/exception.ts

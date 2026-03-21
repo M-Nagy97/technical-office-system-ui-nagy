@@ -1,0 +1,23 @@
+.filters-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+  margin-bottom: 1.25rem;
+}
+
+.field {
+  flex: 1 1 12rem;
+  min-width: 10rem;
+
+  label {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-size: 0.875rem;
+    opacity: 0.85;
+  }
+}
+
+.detail-toolbar .field {
+  flex: 0 1 auto;
+}

@@ -1,3 +1,4 @@
+<p-toast />
 <div class="daily-attendance">
   <p-card>
     <div class="toolbar">
@@ -14,83 +15,45 @@
       <div class="toolbar-left">
         <button
           pButton
-          label="تشغيل الحساب"
-          icon="pi pi-calculator"
-          (click)="runCalculation()"
-          [loading]="runningCalculation()"
-          class="p-button-success"
-        > </button>
+          label="تحميل نموذج Excel/CSV"
+          icon="pi pi-download"
+          class="p-button-outlined p-button-secondary"
+          type="button"
+          (click)="downloadTemplate()"
+        ></button>
+        <button
+          pButton
+          label="رفع بصمات من ملف"
+          icon="pi pi-upload"
+          class="p-button-outlined"
+          type="button"
+          [loading]="importingFile()"
+          (click)="fileInput.click()"
+        ></button>
+        <input
+          #fileInput
+          type="file"
+          accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+          hidden
+          (change)="onAttendanceFileSelected($event)"
+        />
         <button
           pButton
           label="تسجيل حضور يدوي"
           icon="pi pi-plus"
           (click)="openManualPunchDialog()"
           class="p-button-outlined"
+          type="button"
         ></button>
       </div>
     </div>
+    <p class="text-600 text-sm m-0 mt-3">
+      النموذج: أعمدة <code>EmpId</code>، <code>FingerTime</code> (مثل 2025-03-01T08:00:00)، <code>Direction</code> (In/Out أو 1/2)،
+      <code>DeviceId</code> اختياري. بعد الرفع يتم إعادة احتساب أيام الصفوف المستوردة.
+    </p>
   </p-card>
 
-  <div class="stats-row">
-    <p-card class="stat-card stat-present">
-      <span class="stat-value">{{ stats().present }}</span>
-      <span class="stat-label">حاضر</span>
-    </p-card>
-    <p-card class="stat-card stat-absent">
-      <span class="stat-value">{{ stats().absent }}</span>
-      <span class="stat-label">غائب</span>
-    </p-card>
-    <p-card class="stat-card stat-late">
-      <span class="stat-value">{{ stats().late }}</span>
-      <span class="stat-label">متأخر</span>
-    </p-card>
-    <p-card class="stat-card stat-total">
-      <span class="stat-value">{{ stats().total }}</span>
-      <span class="stat-label">الإجمالي</span>
-    </p-card>
-  </div>
-
-  <p-card>
-    <p-table
-      [value]="resultsWithNames()"
-      [loading]="loading()"
-      styleClass="p-datatable-sm p-datatable-striped attendance-table"
-      [tableStyle]="{ 'min-width': '50rem' }"
-    >
-      <ng-template pTemplate="header">
-        <tr>
-          <th>الموظف</th>
-          <th>الحالة</th>
-          <th>أول حضور</th>
-          <th>آخر انصراف</th>
-          <th>ساعات العمل (د)</th>
-          <th>ملاحظات</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-row>
-        <tr>
-          <td>{{ row.employeeId }}</td> <!-- Ideally we'd have a name here, but DTO only has ID -->
-          <td>
-            <p-tag [value]="getStatusLabel(row.status)" [severity]="row.status === 4 ? 'success' : 'danger'" />
-          </td>
-          <td>{{ formatTime(row.firstInUtc) }}</td>
-          <td>{{ formatTime(row.lastOutUtc) }}</td>
-          <td>{{ formatMinutes(row.workedMinutes) }}</td>
-          <td>{{ row.notes ?? '—' }}</td>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="6">لا توجد سجلات لهذا اليوم. اضغط «تشغيل الحساب» أو «تسجيل حضور يدوي».</td>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="loadingbody">
-        <tr>
-          <td colspan="6"><i class="pi pi-spin pi-spinner"></i> جاري التحميل...</td>
-        </tr>
-      </ng-template>
-    </p-table>
-  </p-card>
+  <app-attendance-calculation [workDate]="selectedDate()" [reloadTick]="reloadTick()" />
 </div>
 
 <p-dialog
@@ -114,6 +77,7 @@
         optionLabel="label"
         optionValue="value"
         placeholder="اختر الموظف"
+        [filter]="true"
         styleClass="w-full"
       />
     </div>
@@ -121,10 +85,7 @@
       <label for="punch-type">نوع التسجيل</label>
       <p-dropdown
         id="punch-type"
-        [options]="[
-          { label: 'حضور (دخول)', value: 0 },
-          { label: 'انصراف (خروج)', value: 1 }
-        ]"
+        [options]="punchTypeOptions"
         [ngModel]="punchType()"
         (ngModelChange)="punchType.set($event)"
         optionLabel="label"
@@ -157,11 +118,12 @@
     </div>
   </div>
   <ng-template pTemplate="footer">
-    <button pButton label="إلغاء" icon="pi pi-times" class="p-button-text" (click)="closeManualPunchDialog()" > </button>
+    <button pButton label="إلغاء" icon="pi pi-times" class="p-button-text" type="button" (click)="closeManualPunchDialog()"></button>
     <button
       pButton
       label="حفظ"
       icon="pi pi-check"
+      type="button"
       (click)="saveManualPunch()"
       [loading]="savingPunch()"
       [disabled]="!punchEmployeeId()"

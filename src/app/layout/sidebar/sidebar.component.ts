@@ -73,6 +73,8 @@ export class SidebarComponent implements OnInit {
         { label: 'nav.month_plans', icon: 'pi pi-calendar', route: '/attendance/plans', module: 'attendance' },
         { label: 'nav.month_plan_template', icon: 'pi pi-calendar-plus', route: '/attendance/month-plan-template', module: 'attendance' },
         { label: 'nav.employee_plans', icon: 'pi pi-users', route: '/attendance/employee-plans', module: 'attendance' },
+        { label: 'nav.employee_schedule', icon: 'pi pi-calendar', route: '/attendance/employee-schedule', module: 'attendance' },
+        { label: 'nav.employee_attendance', icon: 'pi pi-table', route: '/attendance/employee-attendance', module: 'attendance' },
         { label: 'nav.time_attendance_settings', icon: 'pi pi-cog', route: '/attendance/settings', module: 'attendance' },
       ],
     },

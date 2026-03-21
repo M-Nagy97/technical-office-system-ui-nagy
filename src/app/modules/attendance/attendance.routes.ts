@@ -32,6 +32,18 @@ export const ATTENDANCE_ROUTES: Routes = [
       import('./employee-plans/employee-plans.component').then((m) => m.EmployeePlansComponent),
   },
   {
+    path: 'employee-schedule',
+    loadComponent: () =>
+      import('./employee-schedule-calendar/employee-schedule-calendar.component').then(
+        (m) => m.EmployeeScheduleCalendarComponent
+      ),
+  },
+  {
+    path: 'employee-attendance',
+    loadComponent: () =>
+      import('./employee-attendance/employee-attendance.component').then((m) => m.EmployeeAttendanceComponent),
+  },
+  {
     path: 'month-plan-template',
     loadComponent: () =>
       import('./month-plan-template/month-plan-template.component').then((m) => m.MonthPlanTemplateComponent),

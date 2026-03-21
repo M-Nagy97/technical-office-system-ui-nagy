@@ -33,6 +33,9 @@ export interface AttendanceCalcDto {
     status?: AttendanceStatus;
     source?: AttendanceSource;
     notes?: string | null;
+    employeeName?: string | null;
+    planName?: string | null;
+    shiftName?: string | null;
 }
 
 

@@ -9,10 +9,15 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { EmployeeAttendanceDirectoryRowDto } from './employeeAttendanceDirectoryRowDto';
+import { Exception } from './exception';
 
 
-export interface RecalculateAttendanceCommand { 
-    date?: string;
-    employeeIds?: Array<string> | null;
+export interface ApiResultOfIEnumerableOfEmployeeAttendanceDirectoryRowDto { 
+    success?: boolean;
+    data?: Array<EmployeeAttendanceDirectoryRowDto> | null;
+    message?: string | null;
+    error?: Exception;
+    token?: string | null;
 }
 

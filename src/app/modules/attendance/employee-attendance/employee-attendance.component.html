@@ -1,0 +1,168 @@
+<p-toast position="top-right" />
+
+<p-card [header]="'employee_attendance.title' | translate">
+  <div class="filters-row">
+    <div class="field">
+      <label for="emp-att-name">{{ 'employee_attendance.name' | translate }}</label>
+      <input
+        id="emp-att-name"
+        pInputText
+        type="text"
+        [(ngModel)]="nameFilter"
+        (input)="onNameInput()"
+        [placeholder]="'employee_attendance.name_placeholder' | translate"
+        class="w-full"
+      />
+    </div>
+    <div class="field">
+      <label>{{ 'employee_attendance.plan' | translate }}</label>
+      <p-dropdown
+        class="w-full"
+        [options]="planOptions()"
+        [(ngModel)]="selectedPlanId"
+        optionLabel="label"
+        optionValue="value"
+        [showClear]="true"
+        [placeholder]="'employee_attendance.all' | translate"
+        (onChange)="onPlanOrShiftChange()"
+      />
+    </div>
+    <div class="field">
+      <label>{{ 'employee_attendance.shift' | translate }}</label>
+      <p-dropdown
+        class="w-full"
+        [options]="shiftOptions()"
+        [(ngModel)]="selectedShiftId"
+        optionLabel="label"
+        optionValue="value"
+        [showClear]="true"
+        [placeholder]="'employee_attendance.all' | translate"
+        (onChange)="onPlanOrShiftChange()"
+      />
+    </div>
+  </div>
+
+  <p-table
+    [value]="rows()"
+    [loading]="loading()"
+    [paginator]="true"
+    [rows]="15"
+    [rowsPerPageOptions]="[15, 30, 50]"
+    styleClass="p-datatable-sm p-datatable-striped"
+    [tableStyle]="{ 'min-width': '52rem' }"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>{{ 'employee_attendance.col_name' | translate }}</th>
+        <th>{{ 'employee_attendance.col_code' | translate }}</th>
+        <th>{{ 'employee_attendance.col_dept' | translate }}</th>
+        <th>{{ 'employee_attendance.col_plan' | translate }}</th>
+        <th>{{ 'employee_attendance.col_shifts' | translate }}</th>
+        <th class="text-center">{{ 'employee_attendance.col_schedule_count' | translate }}</th>
+        <th class="w-6rem text-center">{{ 'employee_attendance.col_view' | translate }}</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-row>
+      <tr>
+        <td>{{ row.employeeName || '—' }}</td>
+        <td>{{ row.employeeCode || '—' }}</td>
+        <td>{{ row.departmentName || '—' }}</td>
+        <td>{{ row.planName || '—' }}</td>
+        <td>{{ row.shiftsSummary || '—' }}</td>
+        <td class="text-center">{{ row.scheduleEntryCount ?? 0 }}</td>
+        <td class="text-center">
+          <button
+            pButton
+            type="button"
+            icon="pi pi-eye"
+            class="p-button-text p-button-rounded"
+            [pTooltip]="'employee_attendance.view_schedules' | translate"
+            (click)="openDetail(row)"
+          ></button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7" class="text-center">{{ 'common.no_data' | translate }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>
+
+<p-dialog
+  [header]="detailEmployee?.employeeName || ('employee_attendance.dialog_title' | translate)"
+  [(visible)]="detailVisible"
+  [modal]="true"
+  [dismissableMask]="true"
+  [style]="{ width: 'min(95vw, 56rem)' }"
+  (onHide)="closeDetail()"
+>
+  <div class="detail-toolbar mb-3 flex flex-wrap gap-3 align-items-end">
+    <div class="field">
+      <label>{{ 'employee_attendance.date_from' | translate }}</label>
+      <p-calendar
+        [(ngModel)]="detailFrom"
+        dateFormat="yy-mm-dd"
+        [showIcon]="true"
+        appendTo="body"
+        (onSelect)="onDetailRangeChange()"
+      />
+    </div>
+    <div class="field">
+      <label>{{ 'employee_attendance.date_to' | translate }}</label>
+      <p-calendar
+        [(ngModel)]="detailTo"
+        dateFormat="yy-mm-dd"
+        [showIcon]="true"
+        appendTo="body"
+        (onSelect)="onDetailRangeChange()"
+      />
+    </div>
+  </div>
+
+  <p-table
+    [value]="detailRows()"
+    [loading]="detailLoading"
+    styleClass="p-datatable-sm p-datatable-striped"
+    [tableStyle]="{ 'min-width': '44rem' }"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>{{ 'employee_attendance.col_date' | translate }}</th>
+        <th>{{ 'employee_attendance.col_day_type' | translate }}</th>
+        <th class="text-center">{{ 'employee_attendance.col_holiday' | translate }}</th>
+        <th>{{ 'employee_attendance.col_shift' | translate }}</th>
+        <th>{{ 'employee_attendance.col_status' | translate }}</th>
+        <th>{{ 'employee_attendance.col_in' | translate }}</th>
+        <th>{{ 'employee_attendance.col_out' | translate }}</th>
+        <th>{{ 'employee_attendance.col_net' | translate }}</th>
+        <th>{{ 'employee_attendance.col_notes' | translate }}</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-d>
+      <tr>
+        <td>{{ d.scheduleDate || '—' }}</td>
+        <td>{{ ('employee_attendance.day_type.' + dayTypeKey(d.dayType)) | translate }}</td>
+        <td class="text-center">
+          @if (d.isHoliday) {
+            <i class="pi pi-check text-green-600"></i>
+          } @else {
+            <span>—</span>
+          }
+        </td>
+        <td>{{ d.shiftName || '—' }}</td>
+        <td>{{ d.attendanceStatus || '—' }}</td>
+        <td>{{ d.actualIn ? (d.actualIn | date : 'short') : '—' }}</td>
+        <td>{{ d.actualOut ? (d.actualOut | date : 'short') : '—' }}</td>
+        <td>{{ formatWorkMinutes(d.netWorkMinutes) }}</td>
+        <td>{{ d.notes || '—' }}</td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="9" class="text-center">{{ 'common.no_data' | translate }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-dialog>

@@ -17,6 +17,8 @@
     "month_plans": "Attendance Plans",
     "month_plan_template": "Month Plan Template",
     "employee_plans": "Employee Distribution",
+    "employee_schedule": "Employee schedule",
+    "employee_attendance": "Employee attendance",
     "time_attendance_settings": "Attendance Settings",
     "penalties_module": "Penalties",
     "penalty_list": "Penalty List",
@@ -95,5 +97,40 @@
   "lang": {
     "ar": "العربية",
     "en": "English"
+  },
+  "employee_attendance": {
+    "title": "Employee attendance",
+    "name": "Name",
+    "name_placeholder": "Filter by employee name",
+    "plan": "Plan",
+    "shift": "Shift",
+    "all": "All",
+    "col_name": "Employee",
+    "col_code": "Code",
+    "col_dept": "Department",
+    "col_plan": "Plan",
+    "col_shifts": "Shifts",
+    "col_schedule_count": "Schedules",
+    "col_view": "View",
+    "view_schedules": "Schedules & attendance",
+    "dialog_title": "Schedule & attendance",
+    "date_from": "From",
+    "date_to": "To",
+    "col_date": "Date",
+    "col_day_type": "Day type",
+    "col_holiday": "Holiday",
+    "col_shift": "Shift",
+    "col_status": "Attendance",
+    "col_in": "In",
+    "col_out": "Out",
+    "col_net": "Net work",
+    "col_notes": "Notes",
+    "day_type": {
+      "workday": "Workday",
+      "weekend": "Weekend",
+      "public_holiday": "Public holiday",
+      "compensatory": "Compensatory",
+      "unknown": "—"
+    }
   }
 }

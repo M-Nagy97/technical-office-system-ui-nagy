@@ -1,0 +1,44 @@
+<div class="employee-schedule-calendar">
+  <p-card header="جدول موظف — التقويم">
+    <div class="toolbar flex flex-column md:flex-row md:align-items-end gap-3 mb-4">
+      <div class="field flex-1" style="min-width: 16rem">
+        <label for="empPick" class="block mb-2 font-medium">اختر الموظف</label>
+        @if (loadingEmployees) {
+          <p-progressSpinner styleClass="w-3rem h-3rem" />
+        } @else {
+          <p-dropdown
+            inputId="empPick"
+            [(ngModel)]="selectedEmployeeId"
+            [options]="employees"
+            optionLabel="employeeName"
+            optionValue="employeeId"
+            placeholder="اختر موظفاً لعرض جدوله"
+            [filter]="true"
+            filterBy="employeeName,employeeCode"
+            [showClear]="true"
+            styleClass="w-full"
+            (onChange)="onEmployeeChange()"
+          >
+            <ng-template let-e pTemplate="item">
+              <span>{{ e.employeeName }}</span>
+              @if (e.employeeCode) {
+                <small class="text-500 mr-2">({{ e.employeeCode }})</small>
+              }
+            </ng-template>
+          </p-dropdown>
+        }
+      </div>
+    </div>
+
+    @if (calendarError) {
+      <p-message severity="warn" [text]="calendarError" styleClass="w-full mb-3" />
+    }
+
+    <div class="calendar-shell surface-ground border-round p-2 md:p-3">
+      @if (!selectedEmployeeId) {
+        <p class="text-center text-600 py-6 m-0">اختر موظفاً لعرض الورديات والمواعيد على التقويم.</p>
+      }
+      <full-calendar [options]="calendarOptions" [class.fc-hidden]="!selectedEmployeeId" />
+    </div>
+  </p-card>
+</div>

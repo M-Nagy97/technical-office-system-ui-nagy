@@ -11,16 +11,17 @@ import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
-import { PlansService, ShiftsService } from '../../../core/api/generated';
+import { ApiResultOfIEnumerableOfDayScheduleDto, DayScheduleDto, PlansService, ShiftsService } from '../../../core/api/generated';
 import { map } from 'rxjs/operators';
 
-interface DaySchedule {
+interface DaySchedule extends DayScheduleDto {
   dayNumber: number;
   dayName: string;
   shiftId: string | null;
   dayType: number;
   isHoliday: boolean;
   notes: string | null;
+
 }
 
 @Component({
@@ -47,7 +48,7 @@ export class MonthPlanTemplateComponent implements OnInit {
   plans = signal<any[]>([]);
   shifts = signal<any[]>([]);
   days = signal<DaySchedule[]>([]);
-  
+
   filterForm: FormGroup;
   loading = signal(false);
 
@@ -127,16 +128,12 @@ export class MonthPlanTemplateComponent implements OnInit {
     const { year, month, planId } = this.filterForm.value;
     console.log('Parameters:', { year, month, planId });
     this.loading.set(true);
-
-    const url = `/api/Plans/${planId}/template/${year}/${month}`;
-    console.log('Fetching template from:', url);
-
     // Fetch existing template - using direct http because it might not be in generated service yet
     // But I'll use the basePath from plansApi if possible, or just assume /api works if relative
-    this.http.get<any>(url).subscribe({
+    this.plansApi.plansGetTemplate(planId, year, month).subscribe({
       next: (res) => {
         console.log('Template record:', res);
-        const existing = res.data || [];
+        const existing = res.data as DaySchedule[] || [];
         const numDays = new Date(year, month, 0).getDate();
         console.log('Number of days:', numDays);
         const newDays: DaySchedule[] = [];
@@ -147,6 +144,7 @@ export class MonthPlanTemplateComponent implements OnInit {
           const found = existing.find((d: any) => d.dayNumber === i);
 
           if (found) {
+
             newDays.push({ ...found, dayName });
           } else {
             const isWeekend = date.getDay() === 5 || date.getDay() === 6; // Fri/Sat? Adjust as needed
@@ -196,7 +194,7 @@ export class MonthPlanTemplateComponent implements OnInit {
 
   saveTemplate() {
     if (this.filterForm.invalid) return;
-    
+
     const { year, month, planId } = this.filterForm.value;
     const payload = {
       planId,
@@ -205,7 +203,8 @@ export class MonthPlanTemplateComponent implements OnInit {
       days: this.days()
     };
 
-    this.http.post('/api/Plans/template', payload).subscribe({
+
+    this.plansApi.plansUpsertTemplate(payload).subscribe({
       next: () => {
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Template saved and synced to employees' });
       },

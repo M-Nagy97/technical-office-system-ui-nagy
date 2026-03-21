@@ -1300,6 +1300,181 @@
         }
       }
     },
+    "/api/EmployeeSchedules/{employeeId}": {
+      "get": {
+        "tags": [
+          "EmployeeSchedules"
+        ],
+        "summary": "Returns employee daily schedules in a date range with shift details for calendar display.",
+        "operationId": "EmployeeSchedules_GetForRange",
+        "parameters": [
+          {
+            "name": "employeeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfEmployeeScheduleCalendarItemDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfEmployeeScheduleCalendarItemDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfEmployeeScheduleCalendarItemDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/EmployeeAttendance/directory": {
+      "get": {
+        "tags": [
+          "EmployeeAttendance"
+        ],
+        "operationId": "EmployeeAttendance_GetDirectory",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "planId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "nullable": true
+            }
+          },
+          {
+            "name": "shiftId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "nullable": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfEmployeeAttendanceDirectoryRowDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfEmployeeAttendanceDirectoryRowDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfEmployeeAttendanceDirectoryRowDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/EmployeeAttendance/{employeeId}/schedule-attendance": {
+      "get": {
+        "tags": [
+          "EmployeeAttendance"
+        ],
+        "operationId": "EmployeeAttendance_GetScheduleAttendance",
+        "parameters": [
+          {
+            "name": "employeeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfEmployeeScheduleAttendanceDetailDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfEmployeeScheduleAttendanceDetailDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfEmployeeScheduleAttendanceDetailDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/ExcelExporter/ListToExcelByteArray": {
       "get": {
         "tags": [
@@ -3576,6 +3751,33 @@
         },
         "additionalProperties": false
       },
+      "ApiResultOfIEnumerableOfEmployeeAttendanceDirectoryRowDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmployeeAttendanceDirectoryRowDto"
+            },
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "ApiResultOfIEnumerableOfEmployeePlanListItemDto": {
         "type": "object",
         "properties": {
@@ -3586,6 +3788,60 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/EmployeePlanListItemDto"
+            },
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiResultOfIEnumerableOfEmployeeScheduleCalendarItemDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmployeeScheduleCalendarItemDto"
+            },
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiResultOfIEnumerableOfEmployeeScheduleAttendanceDetailDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmployeeScheduleAttendanceDetailDto"
             },
             "nullable": true
           },
@@ -4155,6 +4411,18 @@
           "notes": {
             "type": "string",
             "nullable": true
+          },
+          "employeeName": {
+            "type": "string",
+            "nullable": true
+          },
+          "planName": {
+            "type": "string",
+            "nullable": true
+          },
+          "shiftName": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -4591,6 +4859,14 @@
           },
           "planType": {
             "$ref": "#/components/schemas/PlanType"
+          },
+          "shiftIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -4854,6 +5130,45 @@
         },
         "additionalProperties": false
       },
+      "EmployeeAttendanceDirectoryRowDto": {
+        "type": "object",
+        "properties": {
+          "employeeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "employeeName": {
+            "type": "string",
+            "nullable": true
+          },
+          "employeeCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "departmentName": {
+            "type": "string",
+            "nullable": true
+          },
+          "planId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "planName": {
+            "type": "string",
+            "nullable": true
+          },
+          "shiftsSummary": {
+            "type": "string",
+            "nullable": true
+          },
+          "scheduleEntryCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
       "EmployeeContactDto": {
         "type": "object",
         "properties": {
@@ -5048,6 +5363,164 @@
           },
           "employeeCode": {
             "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EmployeeScheduleAttendanceDetailDto": {
+        "type": "object",
+        "properties": {
+          "scheduleDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "dayType": {
+            "$ref": "#/components/schemas/DayType"
+          },
+          "isHoliday": {
+            "type": "boolean"
+          },
+          "shiftName": {
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "attendanceStatus": {
+            "type": "string",
+            "nullable": true
+          },
+          "actualIn": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "actualOut": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "netWorkMinutes": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EmployeeScheduleCalendarItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "planId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "planName": {
+            "type": "string",
+            "nullable": true
+          },
+          "scheduleDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "dayType": {
+            "$ref": "#/components/schemas/DayType"
+          },
+          "isHoliday": {
+            "type": "boolean"
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "shiftId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "shiftName": {
+            "type": "string",
+            "nullable": true
+          },
+          "shiftCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "shiftType": {
+            "$ref": "#/components/schemas/ShiftType"
+          },
+          "shiftStart": {
+            "type": "string",
+            "format": "time",
+            "nullable": true
+          },
+          "shiftEnd": {
+            "type": "string",
+            "format": "time",
+            "nullable": true
+          },
+          "crossesMidnight": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "graceInMinutes": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "graceOutMinutes": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "fingerInFrom": {
+            "type": "string",
+            "format": "time",
+            "nullable": true
+          },
+          "fingerInTo": {
+            "type": "string",
+            "format": "time",
+            "nullable": true
+          },
+          "fingerOutFrom": {
+            "type": "string",
+            "format": "time",
+            "nullable": true
+          },
+          "fingerOutTo": {
+            "type": "string",
+            "format": "time",
+            "nullable": true
+          },
+          "allowOvertimeBefore": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "allowOvertimeAfter": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "maxOvertimeBeforeMin": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "maxOvertimeAfterMin": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "minWorkHoursRequired": {
+            "type": "number",
+            "format": "double",
             "nullable": true
           }
         },
@@ -6313,6 +6786,14 @@
           "date": {
             "type": "string",
             "format": "date"
+          },
+          "employeeIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -7480,6 +7961,14 @@
           },
           "isActive": {
             "type": "boolean"
+          },
+          "shiftIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -7704,10 +8193,16 @@
       "name": "Devices"
     },
     {
+      "name": "EmployeeAttendance"
+    },
+    {
       "name": "EmployeePlans"
     },
     {
       "name": "Employees"
+    },
+    {
+      "name": "EmployeeSchedules"
     },
     {
       "name": "ExcelExporter"

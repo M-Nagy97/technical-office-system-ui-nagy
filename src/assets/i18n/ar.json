@@ -17,6 +17,8 @@
     "month_plans": "خطط الحضور",
     "month_plan_template": "نموذج خطة الشهر",
     "employee_plans": "توزيع الموظفين",
+    "employee_schedule": "جدول الموظف",
+    "employee_attendance": "حضور الموظفين",
     "time_attendance_settings": "إعدادات الحضور",
     "penalties_module": "الجزاءات",
     "penalty_list": "قائمة الجزاءات",
@@ -95,5 +97,40 @@
   "lang": {
     "ar": "العربية",
     "en": "English"
+  },
+  "employee_attendance": {
+    "title": "حضور الموظفين",
+    "name": "الاسم",
+    "name_placeholder": "تصفية بالاسم",
+    "plan": "الخطة",
+    "shift": "الشيفت",
+    "all": "الكل",
+    "col_name": "الموظف",
+    "col_code": "الرقم",
+    "col_dept": "الإدارة",
+    "col_plan": "الخطة",
+    "col_shifts": "الشيفتات",
+    "col_schedule_count": "عدد الجداول",
+    "col_view": "عرض",
+    "view_schedules": "الجداول والحضور",
+    "dialog_title": "الجدول والحضور",
+    "date_from": "من",
+    "date_to": "إلى",
+    "col_date": "التاريخ",
+    "col_day_type": "نوع اليوم",
+    "col_holiday": "عطلة",
+    "col_shift": "الشيفت",
+    "col_status": "الحضور",
+    "col_in": "دخول",
+    "col_out": "خروج",
+    "col_net": "صافي العمل",
+    "col_notes": "ملاحظات",
+    "day_type": {
+      "workday": "يوم عمل",
+      "weekend": "عطلة أسبوعية",
+      "public_holiday": "عطلة رسمية",
+      "compensatory": "يوم تعويضي",
+      "unknown": "—"
+    }
   }
 }

@@ -9,18 +9,19 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { PlanType } from './planType';
+import { DayType } from './dayType';
 
 
-export interface UpdatePlanCommand { 
-    id?: string;
-    name?: string | null;
-    description?: string | null;
-    minDeductMinutes?: number;
-    deductUnitMinutes?: number;
-    planType?: PlanType;
-    isActive?: boolean;
-    shiftIds?: Array<string> | null;
+export interface EmployeeScheduleAttendanceDetailDto { 
+    scheduleDate?: string;
+    dayType?: DayType;
+    isHoliday?: boolean;
+    shiftName?: string | null;
+    notes?: string | null;
+    attendanceStatus?: string | null;
+    actualIn?: string | null;
+    actualOut?: string | null;
+    netWorkMinutes?: number | null;
 }
 
 

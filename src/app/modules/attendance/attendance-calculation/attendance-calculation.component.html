@@ -1,0 +1,92 @@
+<div class="attendance-calculation">
+  <p-card header="احتساب الحضور">
+    <div class="calc-toolbar flex flex-column lg:flex-row gap-3 align-items-stretch lg:align-items-end mb-3">
+      <div class="field flex-1" style="min-width: 14rem">
+        <label class="block mb-2 font-medium">تصفية عرض الجدول — موظفون</label>
+        <p-multiSelect
+          [options]="employees()"
+          [ngModel]="selectedFilterEmpIds()"
+          (ngModelChange)="selectedFilterEmpIds.set($event)"
+          optionLabel="employeeName"
+          optionValue="employeeId"
+          placeholder="الكل"
+          [filter]="true"
+          display="chip"
+          styleClass="w-full"
+          [showClear]="true"
+        />
+      </div>
+      <div class="field" style="min-width: 16rem">
+        <label class="block mb-2 font-medium">نطاق إعادة الحساب</label>
+        <p-dropdown
+          [options]="calcScopeOptions"
+          [ngModel]="calcScope()"
+          (ngModelChange)="calcScope.set($event)"
+          optionLabel="label"
+          optionValue="value"
+          styleClass="w-full"
+        />
+      </div>
+      <div>
+        <button
+          pButton
+          label="تشغيل الحساب"
+          icon="pi pi-calculator"
+          (click)="runCalculation()"
+          [loading]="runningCalculation()"
+          class="p-button-success"
+        ></button>
+      </div>
+    </div>
+
+    @if (loadError()) {
+      <p-message severity="warn" [text]="loadError()!" styleClass="w-full mb-3" />
+    }
+
+    <div class="stats-row flex flex-wrap gap-2 mb-3">
+      <span class="stat-pill surface-ground border-round px-3 py-2">المعروض: <strong>{{ stats().total }}</strong></span>
+      <span class="stat-pill stat-present border-round px-3 py-2">حاضر: <strong>{{ stats().present }}</strong></span>
+      <span class="stat-pill stat-absent border-round px-3 py-2">غائب: <strong>{{ stats().absent }}</strong></span>
+      <span class="stat-pill stat-late border-round px-3 py-2">متأخر: <strong>{{ stats().late }}</strong></span>
+    </div>
+
+    <p-table
+      [value]="filteredRows()"
+      [loading]="loading()"
+      styleClass="p-datatable-sm p-datatable-striped"
+      [tableStyle]="{ 'min-width': '52rem' }"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th>الموظف</th>
+          <th>الخطة</th>
+          <th>الوردية</th>
+          <th>الحالة</th>
+          <th>أول دخول</th>
+          <th>آخر خروج</th>
+          <th>صافي الدقائق</th>
+          <th>ملاحظات</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-row>
+        <tr>
+          <td>{{ row.employeeName || row.empId }}</td>
+          <td>{{ row.planName ?? '—' }}</td>
+          <td>{{ row.shiftName ?? '—' }}</td>
+          <td>
+            <p-tag [value]="getStatusLabel(row.status)" [severity]="statusSeverity(row.status)" />
+          </td>
+          <td>{{ formatTime(row.actualIn) }}</td>
+          <td>{{ formatTime(row.actualOut) }}</td>
+          <td>{{ formatMinutes(row.netWorkMinutes) }}</td>
+          <td>{{ row.notes ?? '—' }}</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="8">لا توجد نتائج احتساب لهذا اليوم.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
