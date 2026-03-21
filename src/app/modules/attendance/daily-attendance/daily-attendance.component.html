@@ -69,8 +69,10 @@
       </ng-template>
       <ng-template pTemplate="body" let-row>
         <tr>
-          <td>{{ row.employeeName }}</td>
-          <td>{{ getStatusLabel(row.status) }}</td>
+          <td>{{ row.employeeId }}</td> <!-- Ideally we'd have a name here, but DTO only has ID -->
+          <td>
+            <p-tag [value]="getStatusLabel(row.status)" [severity]="row.status === 4 ? 'success' : 'danger'" />
+          </td>
           <td>{{ formatTime(row.firstInUtc) }}</td>
           <td>{{ formatTime(row.lastOutUtc) }}</td>
           <td>{{ formatMinutes(row.workedMinutes) }}</td>

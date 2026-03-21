@@ -1,0 +1,95 @@
+<div class="shift-form">
+  <p-card [header]="isEdit() ? 'تعديل شيفت' : 'إضافة شيفت'">
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="grid p-fluid">
+        <div class="col-12 md:col-6 field">
+          <label for="shiftCode">الكود <span class="required">*</span></label>
+          <input id="shiftCode" type="text" pInputText formControlName="shiftCode" [readonly]="isEdit()" />
+        </div>
+        <div class="col-12 md:col-6 field">
+          <label for="shiftName">الاسم <span class="required">*</span></label>
+          <input id="shiftName" type="text" pInputText formControlName="shiftName" />
+        </div>
+        
+        <div class="col-12 md:col-3 field flex align-items-center pt-4">
+          <p-checkbox formControlName="isActive" [binary]="true" inputId="isActive" />
+          <label for="isActive" class="ml-2">نشط</label>
+        </div>
+
+        <div class="col-12">
+          <h3 class="border-bottom-1 pb-2 mb-3 mt-4">مواعيد الشيفت الأساسية</h3>
+        </div>
+
+        <div class="col-12 md:col-6 field">
+          <label for="shiftStart">وقت البداية <span class="required">*</span></label>
+          <input id="shiftStart" type="time" pInputText formControlName="shiftStart" />
+        </div>
+        <div class="col-12 md:col-6 field">
+          <label for="shiftEnd">وقت النهاية <span class="required">*</span></label>
+          <input id="shiftEnd" type="time" pInputText formControlName="shiftEnd" />
+        </div>
+
+        <div class="col-12">
+          <h3 class="border-bottom-1 pb-2 mb-3 mt-4">فترات تسجيل البصمة (Fingerprint Ranges)</h3>
+        </div>
+
+        <div class="col-12 md:col-3 field">
+          <label for="fingerInFrom">بداية بصمة الدخول</label>
+          <input id="fingerInFrom" type="time" pInputText formControlName="fingerInFrom" />
+        </div>
+        <div class="col-12 md:col-3 field">
+          <label for="fingerInTo">نهاية بصمة الدخول</label>
+          <input id="fingerInTo" type="time" pInputText formControlName="fingerInTo" />
+        </div>
+        <div class="col-12 md:col-3 field">
+          <label for="fingerOutFrom">بداية بصمة الخروج</label>
+          <input id="fingerOutFrom" type="time" pInputText formControlName="fingerOutFrom" />
+        </div>
+        <div class="col-12 md:col-3 field">
+          <label for="fingerOutTo">نهاية بصمة الخروج</label>
+          <input id="fingerOutTo" type="time" pInputText formControlName="fingerOutTo" />
+        </div>
+
+        <div class="col-12">
+          <h3 class="border-bottom-1 pb-2 mb-3 mt-4">إعدادات إضافية</h3>
+        </div>
+
+        <div class="col-12 md:col-3 field">
+          <label for="graceInMinutes">فترة السماح بالدخول (دقيقة)</label>
+          <p-inputNumber id="graceInMinutes" formControlName="graceInMinutes" [min]="0" />
+        </div>
+        <div class="col-12 md:col-3 field">
+          <label for="graceOutMinutes">فترة السماح بالخروج (دقيقة)</label>
+          <p-inputNumber id="graceOutMinutes" formControlName="graceOutMinutes" [min]="0" />
+        </div>
+        <div class="col-12 md:col-6 field">
+          <label for="minWorkHoursRequired">ساعات العمل المطلوبة</label>
+          <p-inputNumber id="minWorkHoursRequired" formControlName="minWorkHoursRequired" [min]="0" [max]="24" />
+        </div>
+
+        <div class="col-12 md:col-3 field flex align-items-center">
+          <p-checkbox formControlName="allowOvertimeBefore" [binary]="true" inputId="allowOvertimeBefore" />
+          <label for="allowOvertimeBefore" class="ml-2">إضافي قبل الشيفت</label>
+        </div>
+        <div class="col-12 md:col-3 field" *ngIf="form.get('allowOvertimeBefore')?.value">
+          <label for="maxOvertimeBeforeMin">الحد الأقصى للإضافي قبل (د)</label>
+          <p-inputNumber id="maxOvertimeBeforeMin" formControlName="maxOvertimeBeforeMin" [min]="0" />
+        </div>
+
+        <div class="col-12 md:col-3 field flex align-items-center">
+          <p-checkbox formControlName="allowOvertimeAfter" [binary]="true" inputId="allowOvertimeAfter" />
+          <label for="allowOvertimeAfter" class="ml-2">إضافي بعد الشيفت</label>
+        </div>
+        <div class="col-12 md:col-3 field" *ngIf="form.get('allowOvertimeAfter')?.value">
+          <label for="maxOvertimeAfterMin">الحد الأقصى للإضافي بعد (د)</label>
+          <p-inputNumber id="maxOvertimeAfterMin" formControlName="maxOvertimeAfterMin" [min]="0" />
+        </div>
+      </div>
+
+      <div class="form-actions mt-4 flex gap-2">
+        <button pButton type="submit" label="حفظ" icon="pi pi-check" [loading]="saving()" class="p-button-primary"></button>
+        <a pButton label="إلغاء" icon="pi pi-times" routerLink="/attendance/shifts" class="p-button-outlined"></a>
+      </div>
+    </form>
+  </p-card>
+</div>

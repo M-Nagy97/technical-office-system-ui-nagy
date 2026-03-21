@@ -1,5 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
@@ -9,7 +9,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { RippleModule } from 'primeng/ripple';
 
 import { map } from 'rxjs/operators';
-import { SchedulesService, ScheduleDto } from '../../../core/api/generated';
+import { PlanSchedulesService, PlanScheduleDto } from '../../../core/api/generated';
 
 @Component({
   selector: 'app-schedule-list',
@@ -28,11 +28,13 @@ import { SchedulesService, ScheduleDto } from '../../../core/api/generated';
   styleUrl: './schedule-list.component.scss',
 })
 export class ScheduleListComponent implements OnInit {
-  private readonly schedulesApi = inject(SchedulesService);
+  private readonly schedulesApi = inject(PlanSchedulesService);
+  private readonly route = inject(ActivatedRoute);
 
   readonly loading = signal(false);
-  readonly schedules = signal<ScheduleDto[]>([]);
+  readonly schedules = signal<PlanScheduleDto[]>([]);
   readonly searchText = signal('');
+  readonly planId = signal<string | null>(null);
 
   readonly filteredSchedules = computed(() => {
     const list = this.schedules();
@@ -40,19 +42,22 @@ export class ScheduleListComponent implements OnInit {
     if (!q) return list;
     return list.filter(
       (s) =>
-        (s.employeeId?.toLowerCase().includes(q)) ||
-        (s.shiftId?.toLowerCase().includes(q)) ||
+        (s.scheduleDate?.toLowerCase().includes(q)) ||
         (s.notes?.toLowerCase().includes(q))
     );
   });
 
   ngOnInit(): void {
-    this.loadSchedules();
+    const pId = this.route.snapshot.paramMap.get('id') || this.route.snapshot.queryParamMap.get('planId');
+    if (pId) {
+      this.planId.set(pId);
+      this.loadSchedules(pId);
+    }
   }
 
-  loadSchedules(): void {
+  loadSchedules(planId: string): void {
     this.loading.set(true);
-    this.schedulesApi.schedulesGetAll().pipe(map((res) => res.data ?? [])).subscribe({
+    this.schedulesApi.planSchedulesGet(planId).pipe(map((res) => res.data ?? [])).subscribe({
       next: (list) => {
         this.schedules.set(list);
         this.loading.set(false);

@@ -14,13 +14,24 @@ import { ShiftType } from './shiftType';
 
 export interface ShiftDto { 
     id?: string;
-    code?: string | null;
-    name?: string | null;
+    shiftName?: string | null;
+    shiftCode?: string | null;
     shiftType?: ShiftType;
-    startTime?: string;
-    endTime?: string;
-    breakDurationMinutes?: number;
-    isNightCrossing?: boolean;
+    isActive?: boolean;
+    crossesMidnight?: boolean;
+    shiftStart?: string;
+    shiftEnd?: string;
+    fingerInFrom?: string;
+    fingerInTo?: string;
+    fingerOutFrom?: string;
+    fingerOutTo?: string;
+    graceInMinutes?: number;
+    graceOutMinutes?: number;
+    allowOvertimeBefore?: boolean;
+    allowOvertimeAfter?: boolean;
+    maxOvertimeBeforeMin?: number;
+    maxOvertimeAfterMin?: number;
+    minWorkHoursRequired?: number;
 }
 
 

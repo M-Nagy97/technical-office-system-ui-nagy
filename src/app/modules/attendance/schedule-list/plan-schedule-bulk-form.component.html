@@ -1,0 +1,40 @@
+<div class="plan-schedule-bulk-form">
+  <p-card header="توزيع شفتات (Bulk Assignment)">
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="grid p-fluid">
+        <div class="col-12 md:col-6 field">
+          <label for="startDate">من تاريخ <span class="required">*</span></label>
+          <p-calendar id="startDate" formControlName="startDate" dateFormat="dd/mm/yy" [showIcon]="true"></p-calendar>
+        </div>
+        <div class="col-12 md:col-6 field">
+          <label for="endDate">إلى تاريخ <span class="required">*</span></label>
+          <p-calendar id="endDate" formControlName="endDate" dateFormat="dd/mm/yy" [showIcon]="true"></p-calendar>
+        </div>
+
+        <div class="col-12 field">
+          <label for="shiftId">الشيفت <span class="required">*</span></label>
+          <p-dropdown
+            id="shiftId"
+            [options]="shifts()"
+            formControlName="shiftId"
+            optionLabel="shiftName"
+            optionValue="id"
+            placeholder="اختر الشيفت"
+            [filter]="true"
+            filterBy="shiftName"
+          ></p-dropdown>
+        </div>
+
+        <div class="col-12 field">
+          <label for="notes">ملاحظات</label>
+          <textarea id="notes" pInputTextarea formControlName="notes" rows="3"></textarea>
+        </div>
+      </div>
+
+      <div class="form-actions mt-4 flex gap-2">
+        <button pButton type="submit" label="حفظ وتوزيع" icon="pi pi-check" [loading]="saving()" class="p-button-primary"></button>
+        <a pButton label="إلغاء" icon="pi pi-times" [routerLink]="['/attendance/plans', planId(), 'schedules']" class="p-button-outlined"></a>
+      </div>
+    </form>
+  </p-card>
+</div>

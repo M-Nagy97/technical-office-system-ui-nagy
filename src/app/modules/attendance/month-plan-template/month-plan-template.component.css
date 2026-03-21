@@ -1,0 +1,30 @@
+:host ::ng-deep .p-dropdown.border-none {
+    background: transparent;
+}
+
+:host ::ng-deep .p-dropdown-label {
+    padding: 0.5rem;
+}
+
+.bg-blue-50 {
+    background-color: #f0f7ff !important;
+}
+
+.bg-yellow-50 {
+    background-color: #fffaf0 !important;
+}
+
+.fadein {
+    animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+th {
+    background: #f8f9fa !important;
+    color: #495057 !important;
+    font-weight: 600 !important;
+}

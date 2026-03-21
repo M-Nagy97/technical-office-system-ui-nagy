@@ -1,0 +1,97 @@
+.month-plan-form {
+  //max-width: 56rem;
+  .form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .field label {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-weight: 500;
+  }
+  .required {
+    color: var(--red-500);
+  }
+  .w-full {
+    width: 100%;
+  }
+  .multi-select-row {
+    margin-bottom: 1rem;
+  }
+  .full-width {
+    grid-column: 1 / -1;
+  }
+  .employee-plans-link {
+    margin-bottom: 1rem;
+  }
+  .field-hint {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.8rem;
+    color: var(--text-color-secondary);
+  }
+  .grid-section {
+    margin-bottom: 1.5rem;
+    h3 {
+      margin: 0 0 0.75rem 0;
+      font-size: 1rem;
+    }
+  }
+  .grid-empty {
+    padding: 1rem;
+    background: var(--surface-100);
+    border-radius: var(--border-radius);
+    color: var(--text-color-secondary);
+  }
+  .grid-scroll {
+    overflow-x: auto;
+    border: 1px solid var(--surface-border);
+    border-radius: var(--border-radius);
+  }
+  .month-grid {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+    th, td {
+      border: 1px solid var(--surface-border);
+      padding: 0.35rem 0.5rem;
+      vertical-align: middle;
+    }
+    th {
+      background: var(--surface-100);
+      font-weight: 600;
+    }
+    .col-employee {
+      min-width: 10rem;
+      max-width: 14rem;
+      position: sticky;
+      left: 0;
+      z-index: 1;
+      background: var(--surface-card);
+    }
+    thead .col-employee {
+      background: var(--surface-100);
+    }
+    .col-day {
+      min-width: 4rem;
+    }
+    th.col-day:nth-child(7n + 2),
+    td.col-day:nth-child(7n + 2) {
+      border-left: 2px solid var(--surface-300);
+    }
+    .col-day .p-dropdown {
+      min-width: 0;
+    }
+  }
+  .form-actions {
+    display: flex;
+    gap: 0.75rem;
+  }
+  .seed-note {
+    margin-top: 1rem;
+    font-size: 0.875rem;
+    color: var(--text-color-secondary);
+  }
+}

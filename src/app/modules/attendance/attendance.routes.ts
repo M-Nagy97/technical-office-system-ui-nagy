@@ -17,14 +17,70 @@ export const ATTENDANCE_ROUTES: Routes = [
       import('./shift-list/shift-list.component').then((m) => m.ShiftListComponent),
   },
   {
-    path: 'schedules',
+    path: 'shifts/new',
     loadComponent: () =>
-      import('./schedule-list/schedule-list.component').then((m) => m.ScheduleListComponent),
+      import('./shift-form/shift-form.component').then((m) => m.ShiftFormComponent),
   },
   {
-    path: 'month-plans',
+    path: 'shifts/:id/edit',
     loadComponent: () =>
-      import('./month-plan-list/month-plan-list.component').then((m) => m.MonthPlanListComponent),
+      import('./shift-form/shift-form.component').then((m) => m.ShiftFormComponent),
+  },
+  {
+    path: 'employee-plans',
+    loadComponent: () =>
+      import('./employee-plans/employee-plans.component').then((m) => m.EmployeePlansComponent),
+  },
+  {
+    path: 'month-plan-template',
+    loadComponent: () =>
+      import('./month-plan-template/month-plan-template.component').then((m) => m.MonthPlanTemplateComponent),
+  },
+  {
+    path: 'plans',
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./month-plan-list/month-plan-list.component').then((m) => m.MonthPlanListComponent),
+      },
+      {
+        path: 'new',
+        loadComponent: () =>
+          import('./month-plan-form/month-plan-form.component').then((m) => m.MonthPlanFormComponent),
+      },
+      {
+        path: ':id',
+        loadComponent: () =>
+          import('./month-plan-view/month-plan-view.component').then((m) => m.MonthPlanViewComponent),
+      },
+      {
+        path: ':id/edit',
+        loadComponent: () =>
+          import('./month-plan-form/month-plan-form.component').then((m) => m.MonthPlanFormComponent),
+      },
+      {
+        path: ':id/employees',
+        loadComponent: () =>
+          import('./employee-plans/employee-plans.component').then((m) => m.EmployeePlansComponent),
+      },
+      {
+        path: ':id/schedules',
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./schedule-list/schedule-list.component').then((m) => m.ScheduleListComponent),
+          },
+          {
+            path: 'bulk',
+            loadComponent: () =>
+              import('./schedule-list/plan-schedule-bulk-form.component').then((m) => m.PlanScheduleBulkFormComponent),
+          },
+          // Bulk and single schedule forms will be added here
+        ]
+      }
+    ]
   },
   {
     path: 'settings',

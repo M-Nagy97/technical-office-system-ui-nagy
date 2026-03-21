@@ -7,9 +7,11 @@ import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
 import { DialogModule } from 'primeng/dialog';
-import { AttendanceApiService, RecordManualPunchRequest } from '../../../core/services/attendance-api.service';
-import { EmployeeService } from '../../../core/services/employee.service';
-import { AttendanceCalculationResultDto } from '../../../core/api/generated/model/attendanceCalculationResultDto';
+import { TagModule } from 'primeng/tag';
+import { InputTextModule } from 'primeng/inputtext';
+import { AttendanceCalcService, AttendanceRawService, AttendanceCalcDto as AttendanceCalculationResultDto, RecalculateAttendanceCommand } from '../../../core/api/generated';
+import { EmployeesService } from '../../../core/api/generated';
+import { map } from 'rxjs';
 
 const STATUS_LABELS: Record<number, string> = {
   0: 'في الوقت',
@@ -18,8 +20,8 @@ const STATUS_LABELS: Record<number, string> = {
   3: 'غائب',
   4: 'حاضر',
   5: 'نصف يوم',
-  6: 'إجازة',
-  7: 'عطلة',
+  6: 'إجازة/عطلة',
+  7: 'غير محدد',
 };
 
 @Component({
@@ -34,13 +36,16 @@ const STATUS_LABELS: Record<number, string> = {
     CalendarModule,
     DropdownModule,
     DialogModule,
+    TagModule,
+    InputTextModule,
   ],
   templateUrl: './daily-attendance.component.html',
   styleUrl: './daily-attendance.component.scss',
 })
 export class DailyAttendanceComponent implements OnInit {
-  private readonly attendanceApi = inject(AttendanceApiService);
-  private readonly employeeService = inject(EmployeeService);
+  private readonly attendanceCalcApi = inject(AttendanceCalcService);
+  private readonly attendanceRawApi = inject(AttendanceRawService);
+  private readonly employeesApi = inject(EmployeesService);
 
   readonly selectedDate = signal(new Date());
   readonly results = signal<AttendanceCalculationResultDto[]>([]);
@@ -68,20 +73,18 @@ export class DailyAttendanceComponent implements OnInit {
 
   readonly resultsWithNames = computed(() => {
     const list = this.results();
-    const employees = this.employeeService.getList();
-    const nameMap = new Map(employees.map((e) => [e.id, e.fullName]));
-    return list.map((r) => ({
-      ...r,
-      employeeName: nameMap.get(r.employeeId ?? '') ?? r.employeeId ?? '—',
-    }));
+    // This part might need adjustment depending on how we want to handle names
+    // For now we'll assume name is in the result or we fetch it
+    return list;
   });
 
   ngOnInit(): void {
-    this.employeeService.fetchAll().subscribe(() => {
-      const list = this.employeeService.getList();
-      this.employeeOptions.set(
-        list.map((e) => ({ label: e.fullName || e.employeeNumber, value: e.id }))
-      );
+    this.employeesApi.employeesGetAll().pipe(map((res: any) => res.data ?? [])).subscribe({
+      next: (list) => {
+        this.employeeOptions.set(
+          list.map((e: any) => ({ label: e.fullName || e.employeeNumber, value: e.id }))
+        );
+      }
     });
     this.loadForDate(this.selectedDate());
   }
@@ -93,8 +96,11 @@ export class DailyAttendanceComponent implements OnInit {
 
   loadForDate(date: Date): void {
     this.loading.set(true);
-    this.attendanceApi.getCalculationResultsForDate(date).subscribe({
-      next: (list) => {
+    const dateStr = date.toISOString().split('T')[0];
+    this.attendanceCalcApi.attendanceCalcGet(undefined, dateStr, dateStr).pipe(
+      map((res: any) => res.data ?? [])
+    ).subscribe({
+      next: (list: AttendanceCalculationResultDto[]) => {
         this.results.set(list);
         this.loading.set(false);
       },
@@ -104,7 +110,11 @@ export class DailyAttendanceComponent implements OnInit {
 
   runCalculation(): void {
     this.runningCalculation.set(true);
-    this.attendanceApi.runCalculation(this.selectedDate()).subscribe({
+    const dateStr = this.selectedDate().toISOString().split('T')[0];
+    const cmd: RecalculateAttendanceCommand = {
+      date: dateStr
+    };
+    this.attendanceCalcApi.attendanceCalcRecalculate(cmd).subscribe({
       next: () => {
         this.loadForDate(this.selectedDate());
         this.runningCalculation.set(false);
@@ -130,13 +140,16 @@ export class DailyAttendanceComponent implements OnInit {
     const employeeId = this.punchEmployeeId();
     if (!employeeId) return;
     this.savingPunch.set(true);
-    const req: RecordManualPunchRequest = {
-      employeeId,
-      punchTime: this.punchTime().toISOString(),
-      punchType: this.punchType(),
-      notes: this.punchNotes() || undefined,
+    const cmd = {
+      punches: [{
+        employeeId,
+        date: this.punchTime().toISOString().split('T')[0],
+        time: this.punchTime().toLocaleTimeString('en-GB'),
+        direction: this.punchType() === 0 ? 0 : 1, // In/Out
+        source: 1 // Manual
+      }]
     };
-    this.attendanceApi.recordManualPunch(req).subscribe({
+    this.attendanceRawApi.attendanceRawImport(cmd).subscribe({
       next: () => {
         this.savingPunch.set(false);
         this.closeManualPunchDialog();

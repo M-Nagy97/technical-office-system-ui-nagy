@@ -15,6 +15,9 @@
 @import 'primeicons/primeicons.css';
 @import 'primeflex/primeflex.css';
 
+// Angular Calendar (month view) – ensure styles load with main bundle
+@import '../../../node_modules/angular-calendar/css/angular-calendar.css';
+
 // =============================================================================
 // Global resets
 // =============================================================================

@@ -17,6 +17,8 @@ export interface MonthPlanDto {
     year?: number;
     month?: number;
     status?: string | null;
+    employeeIds?: Array<string> | null;
+    scheduleIds?: Array<string> | null;
     details?: Array<MonthPlanDetailDto> | null;
 }
 

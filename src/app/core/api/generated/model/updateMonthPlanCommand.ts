@@ -9,10 +9,14 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { UpdateMonthPlanDetailItem } from './updateMonthPlanDetailItem';
 
 
 export interface UpdateMonthPlanCommand { 
     id?: string;
     status?: string | null;
+    employeeIds?: Array<string> | null;
+    scheduleIds?: Array<string> | null;
+    details?: Array<UpdateMonthPlanDetailItem> | null;
 }
 

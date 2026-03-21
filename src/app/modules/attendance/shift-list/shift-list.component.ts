@@ -43,9 +43,9 @@ export class ShiftListComponent implements OnInit {
   loadShifts(): void {
     this.loading.set(true);
     this.shiftsApi.shiftsGetAll().pipe(
-      map((res) => res.data ?? [])
+      map((res: any) => res.data ?? [])
     ).subscribe({
-      next: (list) => {
+      next: (list: ShiftDto[]) => {
         this.shifts.set(list);
         this.loading.set(false);
       },
@@ -59,22 +59,10 @@ export class ShiftListComponent implements OnInit {
     if (!q) return list;
     return list.filter(
       (s) =>
-        (s.code?.toLowerCase().includes(q)) ||
-        (s.name?.toLowerCase().includes(q))
+        (s.shiftCode?.toLowerCase().includes(q)) ||
+        (s.shiftName?.toLowerCase().includes(q))
     );
   });
-
-  getShiftTypeLabel(type: number | undefined): string {
-    if (type == null) return '—';
-    const labels: Record<number, string> = {
-      0: 'عادي',
-      1: 'صباحي',
-      2: 'مسائي',
-      3: 'ليلي',
-      4: 'مرن',
-    };
-    return labels[type] ?? String(type);
-  }
 
   formatTime(value: string | undefined): string {
     if (!value) return '—';

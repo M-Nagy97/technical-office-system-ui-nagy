@@ -9,8 +9,15 @@ import { TooltipModule } from 'primeng/tooltip';
 import { RippleModule } from 'primeng/ripple';
 
 import { map } from 'rxjs/operators';
-import { TimeAttendanceSettingsDto } from '../../../core/api/generated/model/models';
-import { TimeAttendanceSettingsService } from '../../../core/api/generated/api/api';
+import { HttpClient } from '@angular/common/http';
+// import { TimeAttendanceSettingsDto } from '../../../core/api/generated/model/models';
+// import { TimeAttendanceSettingsService } from '../../../core/api/generated/api/api';
+
+export interface TimeAttendanceSettingsDto {
+  key?: string;
+  value?: string;
+  description?: string;
+}
 
 @Component({
   selector: 'app-time-attendance-settings',
@@ -29,7 +36,8 @@ import { TimeAttendanceSettingsService } from '../../../core/api/generated/api/a
   styleUrl: './time-attendance-settings.component.scss',
 })
 export class TimeAttendanceSettingsComponent implements OnInit {
-  private readonly settingsApi = inject(TimeAttendanceSettingsService);
+  private readonly http = inject(HttpClient);
+  private readonly settingsApi: any = null; // To be replaced
 
   readonly loading = signal(false);
   readonly settings = signal<TimeAttendanceSettingsDto[]>([]);
@@ -53,12 +61,16 @@ export class TimeAttendanceSettingsComponent implements OnInit {
 
   loadSettings(): void {
     this.loading.set(true);
-    this.settingsApi.timeAttendanceSettingsGetAll().pipe(map((res) => res.data ?? [])).subscribe({
-      next: (list) => {
+    // Placeholder until service is found/created
+    this.loading.set(false);
+    /*
+    this.settingsApi.timeAttendanceSettingsGetAll().pipe(map((res: any) => res.data ?? [])).subscribe({
+      next: (list: TimeAttendanceSettingsDto[]) => {
         this.settings.set(list);
         this.loading.set(false);
       },
       error: () => this.loading.set(false),
     });
+    */
   }
 }

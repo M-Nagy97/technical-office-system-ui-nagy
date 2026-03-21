@@ -16,6 +16,8 @@ export interface CreateMonthPlanCommand {
     year?: number;
     month?: number;
     status?: string | null;
+    employeeIds?: Array<string> | null;
+    scheduleIds?: Array<string> | null;
     details?: Array<CreateMonthPlanDetailItem> | null;
 }
 

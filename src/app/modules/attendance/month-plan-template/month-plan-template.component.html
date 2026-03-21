@@ -1,0 +1,99 @@
+<div class="p-4">
+  <p-card header="Month Plan Template" subheader="Schedule shifts for all employees in a plan for a specific month">
+    <form [formGroup]="filterForm" (ngSubmit)="generateDays()" class="flex flex-wrap gap-4 align-items-end mb-4">
+      <div class="flex flex-column gap-2">
+        <label for="plan">Plan</label>
+        <p-dropdown 
+          id="plan" 
+          formControlName="planId" 
+          [options]="plans()" 
+          optionLabel="name" 
+          optionValue="id" 
+          placeholder="Select Plan"
+          (onChange)="onPlanChange()"
+          styleClass="w-full md:w-15rem">
+        </p-dropdown>
+      </div>
+
+      <div class="flex flex-column gap-2">
+        <label for="year">Year</label>
+        <p-dropdown 
+          id="year" 
+          formControlName="year" 
+          [options]="years" 
+          placeholder="Year"
+          styleClass="w-full md:w-8rem">
+        </p-dropdown>
+      </div>
+
+      <div class="flex flex-column gap-2">
+        <label for="month">Month</label>
+        <p-dropdown 
+          id="month" 
+          formControlName="month" 
+          [options]="months" 
+          optionLabel="label" 
+          optionValue="value" 
+          placeholder="Month"
+          styleClass="w-full md:w-10rem">
+        </p-dropdown>
+      </div>
+
+      <p-button label="Load / Generate" icon="pi pi-refresh" type="submit" [loading]="loading()"></p-button>
+    </form>
+
+    <div *ngIf="days().length > 0" class="fadein">
+      <div class="flex justify-content-between align-items-center mb-3">
+        <div class="flex gap-2">
+          <p-button label="Set default Weekends (Fri/Sat)" icon="pi pi-calendar-times" severity="secondary" size="small" (onClick)="setWeekends()"></p-button>
+        </div>
+        <p-button label="Save & Sync To Employees" icon="pi pi-save" severity="success" (onClick)="saveTemplate()"></p-button>
+      </div>
+
+      <p-table [value]="days()" styleClass="p-datatable-sm p-datatable-gridlines" [scrollable]="true" scrollHeight="500px">
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 5rem">Day</th>
+            <th style="width: 5rem">Name</th>
+            <th style="width: 15rem">Shift</th>
+            <th style="width: 10rem">Type</th>
+            <th>Notes</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-day>
+          <tr [ngClass]="{'bg-blue-50': day.dayType === 2, 'bg-yellow-50': day.dayType === 3}">
+            <td class="text-center font-bold">{{day.dayNumber}}</td>
+            <td class="text-center">
+              <p-tag [value]="day.dayName" [severity]="day.dayType === 2 ? 'warning' : 'info'"></p-tag>
+            </td>
+            <td>
+              <p-dropdown 
+                [(ngModel)]="day.shiftId" 
+                [options]="shifts()" 
+                optionLabel="shiftName" 
+                optionValue="id" 
+                [showClear]="true"
+                placeholder="No Shift"
+                [disabled]="day.dayType !== 1"
+                styleClass="w-full border-none shadow-none">
+              </p-dropdown>
+            </td>
+            <td>
+              <p-dropdown 
+                [(ngModel)]="day.dayType" 
+                [options]="dayTypes" 
+                placeholder="Select Type"
+                styleClass="w-full border-none shadow-none">
+              </p-dropdown>
+            </td>
+            <td>
+              <input type="text" pInputText [(ngModel)]="day.notes" class="w-full border-none shadow-none p-2 bg-transparent" placeholder="Add notes...">
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </p-card>
+</div>
+
+<p-toast></p-toast>

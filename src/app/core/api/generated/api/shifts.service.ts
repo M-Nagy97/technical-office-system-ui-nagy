@@ -23,7 +23,7 @@ import { ApiResultOfBoolean } from '../model/apiResultOfBoolean';
 // @ts-ignore
 import { ApiResultOfGuid } from '../model/apiResultOfGuid';
 // @ts-ignore
-import { ApiResultOfListOfShiftDto } from '../model/apiResultOfListOfShiftDto';
+import { ApiResultOfIEnumerableOfShiftDto } from '../model/apiResultOfIEnumerableOfShiftDto';
 // @ts-ignore
 import { ApiResultOfShiftDto } from '../model/apiResultOfShiftDto';
 // @ts-ignore
@@ -229,13 +229,20 @@ export class ShiftsService {
     }
 
     /**
+     * @param planId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public shiftsGetAll(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<ApiResultOfListOfShiftDto>;
-    public shiftsGetAll(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<HttpResponse<ApiResultOfListOfShiftDto>>;
-    public shiftsGetAll(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<HttpEvent<ApiResultOfListOfShiftDto>>;
-    public shiftsGetAll(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<any> {
+    public shiftsGetAll(planId?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<ApiResultOfIEnumerableOfShiftDto>;
+    public shiftsGetAll(planId?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<HttpResponse<ApiResultOfIEnumerableOfShiftDto>>;
+    public shiftsGetAll(planId?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<HttpEvent<ApiResultOfIEnumerableOfShiftDto>>;
+    public shiftsGetAll(planId?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<any> {
+
+        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
+        if (planId !== undefined && planId !== null) {
+          localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+            <any>planId, 'planId');
+        }
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -271,9 +278,10 @@ export class ShiftsService {
         }
 
         let localVarPath = `/api/Shifts`;
-        return this.httpClient.request<ApiResultOfListOfShiftDto>('get', `${this.configuration.basePath}${localVarPath}`,
+        return this.httpClient.request<ApiResultOfIEnumerableOfShiftDto>('get', `${this.configuration.basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters,
                 responseType: <any>responseType_,
                 withCredentials: this.configuration.withCredentials,
                 headers: localVarHeaders,

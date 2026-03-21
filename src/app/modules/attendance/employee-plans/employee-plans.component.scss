@@ -1,0 +1,59 @@
+.employee-plans {
+  .header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .title {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+  .hint {
+    margin-bottom: 1rem;
+    color: var(--text-color-secondary);
+    font-size: 0.9rem;
+  }
+  .add-section {
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.75rem;
+    label {
+      width: 100%;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+    .add-select {
+      min-width: 16rem;
+      flex: 1;
+    }
+  }
+  .list-section {
+    h3 {
+      margin: 0 0 0.75rem 0;
+      font-size: 1rem;
+    }
+  }
+  .empty {
+    color: var(--text-color-secondary);
+    padding: 0.5rem 0;
+  }
+  .employee-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--surface-border);
+      .emp-name {
+        flex: 1;
+      }
+    }
+  }
+}

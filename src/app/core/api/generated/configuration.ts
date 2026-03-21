@@ -96,11 +96,6 @@ export class Configuration {
             };
         }
     }
-    defaultEncodeParam(param: Param): string {
-        const value = param.value;
-        if (value == null) return '';
-        return encodeURIComponent(String(value));
-      }
 
     /**
      * Select the correct content-type to use for a request.
@@ -155,14 +150,26 @@ export class Configuration {
         return mime !== null && (jsonMime.test(mime) || mime.toLowerCase() === 'application/json-patch+json');
     }
 
-//     public lookupCredential(key: string): string | undefined {
-//         const value = this.credentials[key];
-//         return typeof value === 'function'
-//             ? value()
-//             : value;
-//  you need (i.e.: the most common use-case): no need for customization!
-// alue;
+    public lookupCredential(key: string): string | undefined {
+        const value = this.credentials[key];
+        return typeof value === 'function'
+            ? value()
+            : value;
+    }
 
-//         return encodeURIComponent(String(value));
-//     }
+    private defaultEncodeParam(param: Param): string {
+        // This implementation exists as fallback for missing configuration
+        // and for backwards compatibility to older typescript-angular generator versions.
+        // It only works for the 'simple' parameter style.
+        // Date-handling only works for the 'date-time' format.
+        // All other styles and Date-formats are probably handled incorrectly.
+        //
+        // But: if that's all you need (i.e.: the most common use-case): no need for customization!
+
+        const value = param.dataFormat === 'date-time' && param.value instanceof Date
+            ? (param.value as Date).toISOString()
+            : param.value;
+
+        return encodeURIComponent(String(value));
+    }
 }

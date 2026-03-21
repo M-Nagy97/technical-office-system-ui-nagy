@@ -198,17 +198,32 @@
         }
       }
     },
-    "/api/Attendance/calculation-results/{date}": {
+    "/api/AttendanceCalc": {
       "get": {
         "tags": [
-          "Attendance"
+          "AttendanceCalc"
         ],
-        "operationId": "Attendance_GetCalculationResultsForDate",
+        "operationId": "AttendanceCalc_Get",
         "parameters": [
           {
-            "name": "date",
-            "in": "path",
-            "required": true,
+            "name": "empId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
             "schema": {
               "type": "string",
               "format": "date"
@@ -221,17 +236,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfListOfAttendanceCalculationResultDto"
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfAttendanceCalcDto"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfListOfAttendanceCalculationResultDto"
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfAttendanceCalcDto"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfListOfAttendanceCalculationResultDto"
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfAttendanceCalcDto"
                 }
               }
             }
@@ -239,27 +254,124 @@
         }
       }
     },
-    "/api/Attendance/calculate": {
+    "/api/AttendanceCalc/recalculate": {
       "post": {
         "tags": [
-          "Attendance"
+          "AttendanceCalc"
         ],
-        "operationId": "Attendance_RunCalculation",
+        "operationId": "AttendanceCalc_Recalculate",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RunAttendanceCalculationCommand"
+                "$ref": "#/components/schemas/RecalculateAttendanceCommand"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/RunAttendanceCalculationCommand"
+                "$ref": "#/components/schemas/RecalculateAttendanceCommand"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/RunAttendanceCalculationCommand"
+                "$ref": "#/components/schemas/RecalculateAttendanceCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/AttendanceRaw": {
+      "get": {
+        "tags": [
+          "AttendanceRaw"
+        ],
+        "operationId": "AttendanceRaw_Get",
+        "parameters": [
+          {
+            "name": "empId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfAttendanceRawDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfAttendanceRawDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfAttendanceRawDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/AttendanceRaw/import": {
+      "post": {
+        "tags": [
+          "AttendanceRaw"
+        ],
+        "operationId": "AttendanceRaw_Import",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportAttendanceRawCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportAttendanceRawCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportAttendanceRawCommand"
               }
             }
           }
@@ -624,6 +736,351 @@
         "responses": {
           "200": {
             "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Devices/{id}": {
+      "delete": {
+        "tags": [
+          "Devices"
+        ],
+        "operationId": "Devices_Delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Devices"
+        ],
+        "operationId": "Devices_Update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDeviceCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDeviceCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDeviceCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Devices": {
+      "get": {
+        "tags": [
+          "Devices"
+        ],
+        "operationId": "Devices_GetAll",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfDeviceDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfDeviceDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfDeviceDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Devices"
+        ],
+        "operationId": "Devices_Create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDeviceCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDeviceCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDeviceCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfGuid"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfGuid"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/EmployeePlans/plan/{planId}": {
+      "get": {
+        "tags": [
+          "EmployeePlans"
+        ],
+        "operationId": "EmployeePlans_GetEmployees",
+        "parameters": [
+          {
+            "name": "planId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfEmployeePlanListItemDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfEmployeePlanListItemDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfEmployeePlanListItemDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/EmployeePlans/all-employees": {
+      "get": {
+        "tags": [
+          "EmployeePlans"
+        ],
+        "operationId": "EmployeePlans_GetAllEmployees",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfEmployeeAttendanceStatusDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfEmployeeAttendanceStatusDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfEmployeeAttendanceStatusDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/EmployeePlans/assign": {
+      "post": {
+        "tags": [
+          "EmployeePlans"
+        ],
+        "operationId": "EmployeePlans_Assign",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignEmployeeCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignEmployeeCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignEmployeeCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/EmployeePlans/unassign": {
+      "post": {
+        "tags": [
+          "EmployeePlans"
+        ],
+        "operationId": "EmployeePlans_Unassign",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnassignEmployeeCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnassignEmployeeCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnassignEmployeeCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              }
+            }
           }
         }
       }
@@ -1459,221 +1916,6 @@
         }
       }
     },
-    "/api/MonthPlans/{id}": {
-      "delete": {
-        "tags": [
-          "MonthPlans"
-        ],
-        "operationId": "MonthPlans_Delete",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfBoolean"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfBoolean"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfBoolean"
-                }
-              }
-            }
-          }
-        }
-      },
-      "get": {
-        "tags": [
-          "MonthPlans"
-        ],
-        "operationId": "MonthPlans_GetById",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfMonthPlanDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfMonthPlanDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfMonthPlanDto"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "MonthPlans"
-        ],
-        "operationId": "MonthPlans_Update",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateMonthPlanCommand"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateMonthPlanCommand"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateMonthPlanCommand"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfBoolean"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfBoolean"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfBoolean"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/MonthPlans": {
-      "get": {
-        "tags": [
-          "MonthPlans"
-        ],
-        "operationId": "MonthPlans_GetAll",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfListOfMonthPlanDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfListOfMonthPlanDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfListOfMonthPlanDto"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "MonthPlans"
-        ],
-        "operationId": "MonthPlans_Create",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateMonthPlanCommand"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateMonthPlanCommand"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateMonthPlanCommand"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfGuid"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfGuid"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfGuid"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/OrganizationUnits/{id}": {
       "delete": {
         "tags": [
@@ -1889,6 +2131,677 @@
         }
       }
     },
+    "/api/PlanFactorProfiles/{planId}": {
+      "get": {
+        "tags": [
+          "PlanFactorProfiles"
+        ],
+        "operationId": "PlanFactorProfiles_Get",
+        "parameters": [
+          {
+            "name": "planId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfPlanFactorProfileDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfPlanFactorProfileDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfPlanFactorProfileDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PlanFactorProfiles/upsert": {
+      "post": {
+        "tags": [
+          "PlanFactorProfiles"
+        ],
+        "operationId": "PlanFactorProfiles_Upsert",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertPlanFactorProfileCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertPlanFactorProfileCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertPlanFactorProfileCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfGuid"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfGuid"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Plans/{id}": {
+      "delete": {
+        "tags": [
+          "Plans"
+        ],
+        "operationId": "Plans_Delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Plans"
+        ],
+        "operationId": "Plans_GetById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfPlanDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfPlanDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfPlanDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Plans"
+        ],
+        "operationId": "Plans_Update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePlanCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePlanCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePlanCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Plans/{id}/shifts/{shiftId}": {
+      "delete": {
+        "tags": [
+          "Plans"
+        ],
+        "operationId": "Plans_UnassignShift",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "shiftId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Plans": {
+      "get": {
+        "tags": [
+          "Plans"
+        ],
+        "operationId": "Plans_GetAll",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfPlanListItemDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfPlanListItemDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfPlanListItemDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Plans"
+        ],
+        "operationId": "Plans_Create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePlanCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePlanCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePlanCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfGuid"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfGuid"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Plans/{id}/shifts": {
+      "get": {
+        "tags": [
+          "Plans"
+        ],
+        "operationId": "Plans_GetShifts",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfShiftDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfShiftDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfShiftDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Plans"
+        ],
+        "operationId": "Plans_AssignShift",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Plans/{id}/template/{year}/{month}": {
+      "get": {
+        "tags": [
+          "Plans"
+        ],
+        "operationId": "Plans_GetTemplate",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "year",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "month",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfDayScheduleDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfDayScheduleDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfDayScheduleDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Plans/template": {
+      "post": {
+        "tags": [
+          "Plans"
+        ],
+        "operationId": "Plans_UpsertTemplate",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertMonthPlanTemplateCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertMonthPlanTemplateCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertMonthPlanTemplateCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PlanSchedules/{planId}": {
+      "get": {
+        "tags": [
+          "PlanSchedules"
+        ],
+        "operationId": "PlanSchedules_Get",
+        "parameters": [
+          {
+            "name": "planId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfPlanScheduleDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfPlanScheduleDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfPlanScheduleDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PlanSchedules/bulk-upsert": {
+      "post": {
+        "tags": [
+          "PlanSchedules"
+        ],
+        "operationId": "PlanSchedules_BulkUpsert",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkUpsertPlanSchedulesCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkUpsertPlanSchedulesCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkUpsertPlanSchedulesCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/ProductContorller": {
       "post": {
         "tags": [
@@ -1923,221 +2836,6 @@
           },
           "403": {
             "description": "Forbidden - Insufficient permissions"
-          }
-        }
-      }
-    },
-    "/api/Schedules/{id}": {
-      "delete": {
-        "tags": [
-          "Schedules"
-        ],
-        "operationId": "Schedules_Delete",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfBoolean"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfBoolean"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfBoolean"
-                }
-              }
-            }
-          }
-        }
-      },
-      "get": {
-        "tags": [
-          "Schedules"
-        ],
-        "operationId": "Schedules_GetById",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfScheduleDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfScheduleDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfScheduleDto"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "Schedules"
-        ],
-        "operationId": "Schedules_Update",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateScheduleCommand"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateScheduleCommand"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateScheduleCommand"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfBoolean"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfBoolean"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfBoolean"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Schedules": {
-      "get": {
-        "tags": [
-          "Schedules"
-        ],
-        "operationId": "Schedules_GetAll",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfListOfScheduleDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfListOfScheduleDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfListOfScheduleDto"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Schedules"
-        ],
-        "operationId": "Schedules_Create",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateScheduleCommand"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateScheduleCommand"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateScheduleCommand"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfGuid"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfGuid"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfGuid"
-                }
-              }
-            }
           }
         }
       }
@@ -2286,23 +2984,33 @@
           "Shifts"
         ],
         "operationId": "Shifts_GetAll",
+        "parameters": [
+          {
+            "name": "planId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfListOfShiftDto"
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfShiftDto"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfListOfShiftDto"
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfShiftDto"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfListOfShiftDto"
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfShiftDto"
                 }
               }
             }
@@ -2357,96 +3065,19 @@
         }
       }
     },
-    "/api/TimeAttendanceSettings": {
+    "/api/SyncLogs": {
       "get": {
         "tags": [
-          "TimeAttendanceSettings"
+          "SyncLogs"
         ],
-        "operationId": "TimeAttendanceSettings_GetAll",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfListOfTimeAttendanceSettingsDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfListOfTimeAttendanceSettingsDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfListOfTimeAttendanceSettingsDto"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "TimeAttendanceSettings"
-        ],
-        "operationId": "TimeAttendanceSettings_CreateOrUpdate",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateOrUpdateTimeAttendanceSettingCommand"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateOrUpdateTimeAttendanceSettingCommand"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateOrUpdateTimeAttendanceSettingCommand"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfGuid"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfGuid"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfGuid"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/TimeAttendanceSettings/by-key/{key}": {
-      "get": {
-        "tags": [
-          "TimeAttendanceSettings"
-        ],
-        "operationId": "TimeAttendanceSettings_GetByKey",
+        "operationId": "SyncLogs_GetAll",
         "parameters": [
           {
-            "name": "key",
-            "in": "path",
-            "required": true,
+            "name": "deviceId",
+            "in": "query",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -2456,17 +3087,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfTimeAttendanceSettingsDto"
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfSyncLogDto"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfTimeAttendanceSettingsDto"
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfSyncLogDto"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfTimeAttendanceSettingsDto"
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfSyncLogDto"
                 }
               }
             }
@@ -2810,6 +3441,303 @@
         },
         "additionalProperties": false
       },
+      "ApiResultOfIEnumerableOfAttendanceCalcDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttendanceCalcDto"
+            },
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiResultOfIEnumerableOfAttendanceRawDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttendanceRawDto"
+            },
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiResultOfIEnumerableOfDayScheduleDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DayScheduleDto"
+            },
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiResultOfIEnumerableOfDeviceDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeviceDto"
+            },
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiResultOfIEnumerableOfEmployeeAttendanceStatusDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmployeeAttendanceStatusDto"
+            },
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiResultOfIEnumerableOfEmployeePlanListItemDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmployeePlanListItemDto"
+            },
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiResultOfIEnumerableOfPlanFactorProfileDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanFactorProfileDto"
+            },
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiResultOfIEnumerableOfPlanListItemDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanListItemDto"
+            },
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiResultOfIEnumerableOfPlanScheduleDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanScheduleDto"
+            },
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiResultOfIEnumerableOfShiftDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ShiftDto"
+            },
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiResultOfIEnumerableOfSyncLogDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SyncLogDto"
+            },
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "ApiResultOfJobGradeDto": {
         "type": "object",
         "properties": {
@@ -2841,33 +3769,6 @@
           },
           "data": {
             "$ref": "#/components/schemas/JobPositionDto"
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          },
-          "error": {
-            "$ref": "#/components/schemas/Exception"
-          },
-          "token": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "ApiResultOfListOfAttendanceCalculationResultDto": {
-        "type": "object",
-        "properties": {
-          "success": {
-            "type": "boolean"
-          },
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AttendanceCalculationResultDto"
-            },
-            "nullable": true
           },
           "message": {
             "type": "string",
@@ -2964,33 +3865,6 @@
         },
         "additionalProperties": false
       },
-      "ApiResultOfListOfMonthPlanDto": {
-        "type": "object",
-        "properties": {
-          "success": {
-            "type": "boolean"
-          },
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/MonthPlanDto"
-            },
-            "nullable": true
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          },
-          "error": {
-            "$ref": "#/components/schemas/Exception"
-          },
-          "token": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
       "ApiResultOfListOfOrganizationUnitDto": {
         "type": "object",
         "properties": {
@@ -3003,110 +3877,6 @@
               "$ref": "#/components/schemas/OrganizationUnitDto"
             },
             "nullable": true
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          },
-          "error": {
-            "$ref": "#/components/schemas/Exception"
-          },
-          "token": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "ApiResultOfListOfScheduleDto": {
-        "type": "object",
-        "properties": {
-          "success": {
-            "type": "boolean"
-          },
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ScheduleDto"
-            },
-            "nullable": true
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          },
-          "error": {
-            "$ref": "#/components/schemas/Exception"
-          },
-          "token": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "ApiResultOfListOfShiftDto": {
-        "type": "object",
-        "properties": {
-          "success": {
-            "type": "boolean"
-          },
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ShiftDto"
-            },
-            "nullable": true
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          },
-          "error": {
-            "$ref": "#/components/schemas/Exception"
-          },
-          "token": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "ApiResultOfListOfTimeAttendanceSettingsDto": {
-        "type": "object",
-        "properties": {
-          "success": {
-            "type": "boolean"
-          },
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TimeAttendanceSettingsDto"
-            },
-            "nullable": true
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          },
-          "error": {
-            "$ref": "#/components/schemas/Exception"
-          },
-          "token": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "ApiResultOfMonthPlanDto": {
-        "type": "object",
-        "properties": {
-          "success": {
-            "type": "boolean"
-          },
-          "data": {
-            "$ref": "#/components/schemas/MonthPlanDto"
           },
           "message": {
             "type": "string",
@@ -3145,14 +3915,14 @@
         },
         "additionalProperties": false
       },
-      "ApiResultOfScheduleDto": {
+      "ApiResultOfPlanDto": {
         "type": "object",
         "properties": {
           "success": {
             "type": "boolean"
           },
           "data": {
-            "$ref": "#/components/schemas/ScheduleDto"
+            "$ref": "#/components/schemas/PlanDto"
           },
           "message": {
             "type": "string",
@@ -3176,29 +3946,6 @@
           },
           "data": {
             "$ref": "#/components/schemas/ShiftDto"
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          },
-          "error": {
-            "$ref": "#/components/schemas/Exception"
-          },
-          "token": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "ApiResultOfTimeAttendanceSettingsDto": {
-        "type": "object",
-        "properties": {
-          "success": {
-            "type": "boolean"
-          },
-          "data": {
-            "$ref": "#/components/schemas/TimeAttendanceSettingsDto"
           },
           "message": {
             "type": "string",
@@ -3314,46 +4061,96 @@
         },
         "additionalProperties": false
       },
-      "AttendanceCalculationResultDto": {
+      "AssignEmployeeCommand": {
         "type": "object",
         "properties": {
-          "id": {
+          "planId": {
             "type": "string",
             "format": "uuid"
           },
           "employeeId": {
             "type": "string",
             "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AttendanceCalcDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
           },
-          "date": {
+          "empId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "workDate": {
             "type": "string",
             "format": "date"
           },
-          "plannedShiftId": {
+          "scheduleId": {
             "type": "string",
             "format": "uuid",
             "nullable": true
           },
-          "firstInUtc": {
+          "shiftId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "actualIn": {
             "type": "string",
             "format": "date-time",
             "nullable": true
           },
-          "lastOutUtc": {
+          "actualOut": {
             "type": "string",
             "format": "date-time",
             "nullable": true
           },
-          "workedMinutes": {
+          "lateMinutes": {
             "type": "integer",
-            "format": "int32",
-            "nullable": true
+            "format": "int32"
+          },
+          "earlyLeaveMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "overtimeBeforeMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "overtimeAfterMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "netWorkMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lateDeductionValue": {
+            "type": "number",
+            "format": "double"
+          },
+          "earlyLeaveDeduction": {
+            "type": "number",
+            "format": "double"
+          },
+          "overtimeBeforeValue": {
+            "type": "number",
+            "format": "double"
+          },
+          "overtimeAfterValue": {
+            "type": "number",
+            "format": "double"
           },
           "status": {
-            "$ref": "#/components/schemas/AttendanceCalculationStatus"
+            "$ref": "#/components/schemas/AttendanceStatus"
           },
-          "calculationMethodUsed": {
-            "$ref": "#/components/schemas/CalculationMethod"
+          "source": {
+            "$ref": "#/components/schemas/AttendanceSource"
           },
           "notes": {
             "type": "string",
@@ -3362,9 +4159,49 @@
         },
         "additionalProperties": false
       },
-      "AttendanceCalculationStatus": {
+      "AttendanceRawDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "empId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "deviceId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "fingerTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "direction": {
+            "$ref": "#/components/schemas/PunchDirection"
+          },
+          "source": {
+            "$ref": "#/components/schemas/AttendanceSource"
+          },
+          "isProcessed": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AttendanceSource": {
         "enum": [
-          0,
+          1,
+          2,
+          3
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "AttendanceStatus": {
+        "enum": [
           1,
           2,
           3,
@@ -3375,6 +4212,23 @@
         ],
         "type": "integer",
         "format": "int32"
+      },
+      "BulkUpsertPlanSchedulesCommand": {
+        "type": "object",
+        "properties": {
+          "planId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "schedules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanScheduleDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
       },
       "CacheRequest": {
         "type": "object",
@@ -3389,16 +4243,6 @@
           }
         },
         "additionalProperties": false
-      },
-      "CalculationMethod": {
-        "enum": [
-          0,
-          1,
-          2,
-          3
-        ],
-        "type": "integer",
-        "format": "int32"
       },
       "CallingConventions": {
         "enum": [
@@ -3553,6 +4397,28 @@
         },
         "additionalProperties": false
       },
+      "CreateDeviceCommand": {
+        "type": "object",
+        "properties": {
+          "deviceName": {
+            "type": "string",
+            "nullable": true
+          },
+          "deviceIp": {
+            "type": "string",
+            "nullable": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          },
+          "brand": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "CreateEmployeeCommand": {
         "type": "object",
         "properties": {
@@ -3680,71 +4546,6 @@
         },
         "additionalProperties": false
       },
-      "CreateMonthPlanCommand": {
-        "type": "object",
-        "properties": {
-          "year": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "month": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "details": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CreateMonthPlanDetailItem"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "CreateMonthPlanDetailItem": {
-        "type": "object",
-        "properties": {
-          "employeeId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "shiftId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "date": {
-            "type": "string",
-            "format": "date"
-          }
-        },
-        "additionalProperties": false
-      },
-      "CreateOrUpdateTimeAttendanceSettingCommand": {
-        "type": "object",
-        "properties": {
-          "key": {
-            "type": "string",
-            "nullable": true
-          },
-          "value": {
-            "type": "string",
-            "nullable": true
-          },
-          "valueType": {
-            "type": "string",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
       "CreateOrganizationUnitCommand": {
         "type": "object",
         "properties": {
@@ -3769,28 +4570,27 @@
         },
         "additionalProperties": false
       },
-      "CreateScheduleCommand": {
+      "CreatePlanCommand": {
         "type": "object",
         "properties": {
-          "employeeId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "shiftId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "effectiveFromDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "effectiveToDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "notes": {
+          "name": {
             "type": "string",
             "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "minDeductMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "deductUnitMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "planType": {
+            "$ref": "#/components/schemas/PlanType"
           }
         },
         "additionalProperties": false
@@ -3798,28 +4598,66 @@
       "CreateShiftCommand": {
         "type": "object",
         "properties": {
-          "code": {
+          "shiftName": {
             "type": "string",
             "nullable": true
           },
-          "name": {
+          "shiftCode": {
             "type": "string",
             "nullable": true
+          },
+          "shiftStart": {
+            "type": "string",
+            "format": "time"
+          },
+          "shiftEnd": {
+            "type": "string",
+            "format": "time"
+          },
+          "fingerInFrom": {
+            "type": "string",
+            "format": "time"
+          },
+          "fingerInTo": {
+            "type": "string",
+            "format": "time"
+          },
+          "fingerOutFrom": {
+            "type": "string",
+            "format": "time"
+          },
+          "fingerOutTo": {
+            "type": "string",
+            "format": "time"
+          },
+          "graceInMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "graceOutMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "allowOvertimeBefore": {
+            "type": "boolean"
+          },
+          "allowOvertimeAfter": {
+            "type": "boolean"
+          },
+          "maxOvertimeBeforeMin": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "maxOvertimeAfterMin": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "minWorkHoursRequired": {
+            "type": "number",
+            "format": "double"
           },
           "shiftType": {
             "$ref": "#/components/schemas/ShiftType"
-          },
-          "startTime": {
-            "type": "string",
-            "format": "time"
-          },
-          "endTime": {
-            "type": "string",
-            "format": "time"
-          },
-          "breakDurationMinutes": {
-            "type": "integer",
-            "format": "int32"
           }
         },
         "additionalProperties": false
@@ -3895,6 +4733,75 @@
         },
         "additionalProperties": false
       },
+      "DayScheduleDto": {
+        "type": "object",
+        "properties": {
+          "dayNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "shiftId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "dayType": {
+            "$ref": "#/components/schemas/DayType"
+          },
+          "isHoliday": {
+            "type": "boolean"
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DayType": {
+        "enum": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "DeviceDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "deviceName": {
+            "type": "string",
+            "nullable": true
+          },
+          "deviceIp": {
+            "type": "string",
+            "nullable": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          },
+          "brand": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "lastSync": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "EmployeeAddressDto": {
         "type": "object",
         "properties": {
@@ -3916,6 +4823,33 @@
           },
           "isPrimary": {
             "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "EmployeeAttendanceStatusDto": {
+        "type": "object",
+        "properties": {
+          "employeeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "employeeName": {
+            "type": "string",
+            "nullable": true
+          },
+          "employeeCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "planId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "planName": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -4101,6 +5035,24 @@
         },
         "additionalProperties": false
       },
+      "EmployeePlanListItemDto": {
+        "type": "object",
+        "properties": {
+          "employeeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "employeeName": {
+            "type": "string",
+            "nullable": true
+          },
+          "employeeCode": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "EventAttributes": {
         "enum": [
           0,
@@ -4212,6 +5164,24 @@
           }
         },
         "additionalProperties": false
+      },
+      "FactorMode": {
+        "enum": [
+          1,
+          2
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "FactorType": {
+        "enum": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "type": "integer",
+        "format": "int32"
       },
       "FieldAttributes": {
         "enum": [
@@ -4365,6 +5335,19 @@
       },
       "ICustomAttributeProvider": {
         "type": "object",
+        "additionalProperties": false
+      },
+      "ImportAttendanceRawCommand": {
+        "type": "object",
+        "properties": {
+          "punches": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttendanceRawDto"
+            },
+            "nullable": true
+          }
+        },
         "additionalProperties": false
       },
       "IntPtr": {
@@ -4925,61 +5908,6 @@
         },
         "additionalProperties": false
       },
-      "MonthPlanDetailDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "monthPlanId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "employeeId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "shiftId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "date": {
-            "type": "string",
-            "format": "date"
-          }
-        },
-        "additionalProperties": false
-      },
-      "MonthPlanDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "year": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "month": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "details": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/MonthPlanDetailDto"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
       "OrganizationUnitDto": {
         "type": "object",
         "properties": {
@@ -5094,6 +6022,164 @@
           }
         },
         "additionalProperties": false
+      },
+      "PlanDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "minDeductMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "deductUnitMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "factorProfiles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanFactorProfileDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PlanFactorProfileDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "factorType": {
+            "$ref": "#/components/schemas/FactorType"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/FactorMode"
+          },
+          "flatValue": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "tiers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanFactorTierDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PlanFactorTierDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fromMinute": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "toMinute": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "factorValue": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PlanListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "minDeductMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "deductUnitMinutes": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PlanScheduleDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "planId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "scheduleDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "shiftId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "dayType": {
+            "$ref": "#/components/schemas/DayType"
+          },
+          "isHoliday": {
+            "type": "boolean"
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PlanType": {
+        "enum": [
+          1,
+          2,
+          3
+        ],
+        "type": "integer",
+        "format": "int32"
       },
       "ProductCreateRequest": {
         "type": "object",
@@ -5212,6 +6298,25 @@
         },
         "additionalProperties": false
       },
+      "PunchDirection": {
+        "enum": [
+          1,
+          2,
+          3
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "RecalculateAttendanceCommand": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "additionalProperties": false
+      },
       "RegisterDto": {
         "type": "object",
         "properties": {
@@ -5287,19 +6392,6 @@
         },
         "additionalProperties": false
       },
-      "RunAttendanceCalculationCommand": {
-        "type": "object",
-        "properties": {
-          "date": {
-            "type": "string",
-            "format": "date"
-          },
-          "methodOverride": {
-            "$ref": "#/components/schemas/CalculationMethod"
-          }
-        },
-        "additionalProperties": false
-      },
       "RuntimeFieldHandle": {
         "type": "object",
         "properties": {
@@ -5327,36 +6419,6 @@
         },
         "additionalProperties": false
       },
-      "ScheduleDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "employeeId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "shiftId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "effectiveFromDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "effectiveToDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "notes": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
       "SecurityRuleSet": {
         "enum": [
           0,
@@ -5373,38 +6435,78 @@
             "type": "string",
             "format": "uuid"
           },
-          "code": {
+          "shiftName": {
             "type": "string",
             "nullable": true
           },
-          "name": {
+          "shiftCode": {
             "type": "string",
             "nullable": true
           },
           "shiftType": {
             "$ref": "#/components/schemas/ShiftType"
           },
-          "startTime": {
+          "isActive": {
+            "type": "boolean"
+          },
+          "crossesMidnight": {
+            "type": "boolean"
+          },
+          "shiftStart": {
             "type": "string",
             "format": "time"
           },
-          "endTime": {
+          "shiftEnd": {
             "type": "string",
             "format": "time"
           },
-          "breakDurationMinutes": {
+          "fingerInFrom": {
+            "type": "string",
+            "format": "time"
+          },
+          "fingerInTo": {
+            "type": "string",
+            "format": "time"
+          },
+          "fingerOutFrom": {
+            "type": "string",
+            "format": "time"
+          },
+          "fingerOutTo": {
+            "type": "string",
+            "format": "time"
+          },
+          "graceInMinutes": {
             "type": "integer",
             "format": "int32"
           },
-          "isNightCrossing": {
+          "graceOutMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "allowOvertimeBefore": {
             "type": "boolean"
+          },
+          "allowOvertimeAfter": {
+            "type": "boolean"
+          },
+          "maxOvertimeBeforeMin": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "maxOvertimeAfterMin": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "minWorkHoursRequired": {
+            "type": "number",
+            "format": "double"
           }
         },
         "additionalProperties": false
       },
       "ShiftType": {
         "enum": [
-          0,
           1,
           2,
           3,
@@ -5426,31 +6528,43 @@
         },
         "additionalProperties": false
       },
-      "TimeAttendanceSettingsDto": {
+      "SyncLogDto": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
             "format": "uuid"
           },
-          "key": {
+          "deviceId": {
             "type": "string",
-            "nullable": true
+            "format": "uuid"
           },
-          "value": {
+          "syncTime": {
             "type": "string",
-            "nullable": true
+            "format": "date-time"
           },
-          "valueType": {
-            "type": "string",
-            "nullable": true
+          "recordsPulled": {
+            "type": "integer",
+            "format": "int32"
           },
-          "description": {
+          "status": {
+            "$ref": "#/components/schemas/SyncStatus"
+          },
+          "errorMsg": {
             "type": "string",
             "nullable": true
           }
         },
         "additionalProperties": false
+      },
+      "SyncStatus": {
+        "enum": [
+          1,
+          2,
+          3
+        ],
+        "type": "integer",
+        "format": "int32"
       },
       "Type": {
         "type": "object",
@@ -6158,6 +7272,45 @@
         },
         "additionalProperties": false
       },
+      "UnassignEmployeeCommand": {
+        "type": "object",
+        "properties": {
+          "employeeId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateDeviceCommand": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "deviceName": {
+            "type": "string",
+            "nullable": true
+          },
+          "deviceIp": {
+            "type": "string",
+            "nullable": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          },
+          "brand": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
       "UpdateEmployeeCommand": {
         "type": "object",
         "properties": {
@@ -6280,20 +7433,6 @@
         },
         "additionalProperties": false
       },
-      "UpdateMonthPlanCommand": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
       "UpdateOrganizationUnitCommand": {
         "type": "object",
         "properties": {
@@ -6313,24 +7452,34 @@
         },
         "additionalProperties": false
       },
-      "UpdateScheduleCommand": {
+      "UpdatePlanCommand": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
             "format": "uuid"
           },
-          "effectiveFromDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "effectiveToDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "notes": {
+          "name": {
             "type": "string",
             "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "minDeductMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "deductUnitMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "planType": {
+            "$ref": "#/components/schemas/PlanType"
+          },
+          "isActive": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -6342,24 +7491,122 @@
             "type": "string",
             "format": "uuid"
           },
-          "name": {
+          "shiftName": {
+            "type": "string",
+            "nullable": true
+          },
+          "shiftCode": {
             "type": "string",
             "nullable": true
           },
           "shiftType": {
             "$ref": "#/components/schemas/ShiftType"
           },
-          "startTime": {
+          "isActive": {
+            "type": "boolean"
+          },
+          "shiftStart": {
             "type": "string",
             "format": "time"
           },
-          "endTime": {
+          "shiftEnd": {
             "type": "string",
             "format": "time"
           },
-          "breakDurationMinutes": {
+          "fingerInFrom": {
+            "type": "string",
+            "format": "time"
+          },
+          "fingerInTo": {
+            "type": "string",
+            "format": "time"
+          },
+          "fingerOutFrom": {
+            "type": "string",
+            "format": "time"
+          },
+          "fingerOutTo": {
+            "type": "string",
+            "format": "time"
+          },
+          "graceInMinutes": {
             "type": "integer",
             "format": "int32"
+          },
+          "graceOutMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "allowOvertimeBefore": {
+            "type": "boolean"
+          },
+          "allowOvertimeAfter": {
+            "type": "boolean"
+          },
+          "maxOvertimeBeforeMin": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "maxOvertimeAfterMin": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "minWorkHoursRequired": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpsertMonthPlanTemplateCommand": {
+        "type": "object",
+        "properties": {
+          "planId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "year": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "month": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "days": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DayScheduleDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpsertPlanFactorProfileCommand": {
+        "type": "object",
+        "properties": {
+          "planId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "factorType": {
+            "$ref": "#/components/schemas/FactorType"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/FactorMode"
+          },
+          "flatValue": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "tiers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanFactorTierDto"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -6433,7 +7680,10 @@
       "name": "ApiMetric"
     },
     {
-      "name": "Attendance"
+      "name": "AttendanceCalc"
+    },
+    {
+      "name": "AttendanceRaw"
     },
     {
       "name": "Auth"
@@ -6449,6 +7699,12 @@
     },
     {
       "name": "Dapper"
+    },
+    {
+      "name": "Devices"
+    },
+    {
+      "name": "EmployeePlans"
     },
     {
       "name": "Employees"
@@ -6472,22 +7728,25 @@
       "name": "MessageBroker"
     },
     {
-      "name": "MonthPlans"
+      "name": "OrganizationUnits"
     },
     {
-      "name": "OrganizationUnits"
+      "name": "PlanFactorProfiles"
+    },
+    {
+      "name": "Plans"
+    },
+    {
+      "name": "PlanSchedules"
     },
     {
       "name": "ProductContorller"
     },
     {
-      "name": "Schedules"
-    },
-    {
       "name": "Shifts"
     },
     {
-      "name": "TimeAttendanceSettings"
+      "name": "SyncLogs"
     },
     {
       "name": "User"
