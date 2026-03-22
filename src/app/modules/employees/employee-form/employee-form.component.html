@@ -5,80 +5,88 @@
     @if (activeStep() === 0) {
       <div class="form-panel">
         <h3>البيانات الشخصية</h3>
-        <div class="p-grid p-fluid form-grid">
-          <div class="field">
+        <div class="form-grid">
+          <div class="field field--q">
             <label for="firstName">الاسم الأول <span class="required">*</span></label>
             <input id="firstName" pInputText formControlName="firstName" />
             @if (getError('firstName')) { <small class="p-error">{{ getError('firstName') }}</small> }
           </div>
-          <div class="field">
+          <div class="field field--q">
             <label for="secondName">الاسم الثاني <span class="required">*</span></label>
             <input id="secondName" pInputText formControlName="secondName" />
             @if (getError('secondName')) { <small class="p-error">{{ getError('secondName') }}</small> }
           </div>
-          <div class="field">
+          <div class="field field--q">
             <label for="thirdName">الاسم الثالث <span class="required">*</span></label>
             <input id="thirdName" pInputText formControlName="thirdName" />
             @if (getError('thirdName')) { <small class="p-error">{{ getError('thirdName') }}</small> }
           </div>
-          <div class="field">
+          <div class="field field--q">
             <label for="lastName">الاسم الرابع <span class="required">*</span></label>
             <input id="lastName" pInputText formControlName="lastName" />
             @if (getError('lastName')) { <small class="p-error">{{ getError('lastName') }}</small> }
           </div>
-          <div class="field col-12 md:col-6">
+
+          <div class="field field--h">
             <label for="nationalId">الرقم القومي <span class="required">*</span></label>
             <input id="nationalId" pInputText formControlName="nationalId" />
             @if (getError('nationalId')) { <small class="p-error">{{ getError('nationalId') }}</small> }
           </div>
-          <div class="field col-12 md:col-6">
+          <div class="field field--h">
             <label>النوع <span class="required">*</span></label>
-            <p-radioButton name="gender" value="male" formControlName="gender" inputId="g1" />
-            <label for="g1">ذكر</label>
-            <p-radioButton name="gender" value="female" formControlName="gender" inputId="g2" />
-            <label for="g2">أنثى</label>
+            <div class="field-inline">
+              <p-radioButton name="gender" value="male" formControlName="gender" inputId="g1" />
+              <label for="g1">ذكر</label>
+              <p-radioButton name="gender" value="female" formControlName="gender" inputId="g2" />
+              <label for="g2">أنثى</label>
+            </div>
             @if (getError('gender')) { <small class="p-error">{{ getError('gender') }}</small> }
           </div>
-          <div class="field col-12 md:col-6">
+
+          <div class="field field--h">
             <label for="birthDate">تاريخ الميلاد <span class="required">*</span></label>
-            <p-calendar id="birthDate" formControlName="birthDate" dateFormat="dd/mm/yy" [showIcon]="true" />
+            <p-calendar id="birthDate" formControlName="birthDate" dateFormat="dd/mm/yy" [showIcon]="true" styleClass="w-full" [inputStyleClass]="'w-full'" />
             @if (getError('birthDate')) { <small class="p-error">{{ getError('birthDate') }}</small> }
           </div>
-          <div class="field col-12 md:col-6">
+          <div class="field field--h">
             <label for="birthPlace">مكان الميلاد <span class="required">*</span></label>
             <input id="birthPlace" pInputText formControlName="birthPlace" />
             @if (getError('birthPlace')) { <small class="p-error">{{ getError('birthPlace') }}</small> }
           </div>
-          <div class="field col-12 md:col-6">
+
+          <div class="field field--h">
             <label for="nationality">الجنسية <span class="required">*</span></label>
             <input id="nationality" pInputText formControlName="nationality" />
             @if (getError('nationality')) { <small class="p-error">{{ getError('nationality') }}</small> }
           </div>
-          <div class="field col-12 md:col-6">
+          <div class="field field--h">
             <label for="religion">الديانة <span class="required">*</span></label>
             <input id="religion" pInputText formControlName="religion" />
             @if (getError('religion')) { <small class="p-error">{{ getError('religion') }}</small> }
           </div>
-          <div class="field col-12 md:col-6">
+
+          <div class="field field--h">
             <label>الحالة الاجتماعية <span class="required">*</span></label>
-            <p-dropdown formControlName="maritalStatus" [options]="maritalOptions" optionLabel="label" optionValue="value" placeholder="اختر" />
+            <p-dropdown formControlName="maritalStatus" [options]="maritalOptions" optionLabel="label" optionValue="value" placeholder="اختر" styleClass="w-full" />
             @if (getError('maritalStatus')) { <small class="p-error">{{ getError('maritalStatus') }}</small> }
           </div>
-          <div class="field col-12 md:col-6">
+          <div class="field field--h">
             <label for="phone">رقم الهاتف <span class="required">*</span></label>
             <input id="phone" pInputText formControlName="phone" />
             @if (getError('phone')) { <small class="p-error">{{ getError('phone') }}</small> }
           </div>
-          <div class="field col-12 md:col-6">
+
+          <div class="field field--h">
             <label for="alternatePhone">هاتف بديل</label>
             <input id="alternatePhone" pInputText formControlName="alternatePhone" />
           </div>
-          <div class="field col-12 md:col-6">
+          <div class="field field--h">
             <label for="email">البريد الإلكتروني</label>
             <input id="email" pInputText formControlName="email" />
             @if (getError('email')) { <small class="p-error">{{ getError('email') }}</small> }
           </div>
-          <div class="field col-12">
+
+          <div class="field field--f">
             <label for="address">العنوان <span class="required">*</span></label>
             <input id="address" pInputText formControlName="address" />
             @if (getError('address')) { <small class="p-error">{{ getError('address') }}</small> }
@@ -91,54 +99,58 @@
       <div class="form-panel">
         <h3>بيانات التعيين</h3>
         <div class="form-grid">
-          <div class="field col-12 md:col-6">
+          <div class="field field--h">
             <label>تاريخ التعيين <span class="required">*</span></label>
-            <p-calendar formControlName="appointmentDate" dateFormat="dd/mm/yy" [showIcon]="true" />
+            <p-calendar formControlName="appointmentDate" dateFormat="dd/mm/yy" [showIcon]="true" styleClass="w-full" [inputStyleClass]="'w-full'" />
             @if (getError('appointmentDate')) { <small class="p-error">{{ getError('appointmentDate') }}</small> }
           </div>
-          <div class="field col-12 md:col-6">
+          <div class="field field--h">
             <label>رقم قرار التعيين <span class="required">*</span></label>
             <input pInputText formControlName="appointmentDecisionNumber" />
             @if (getError('appointmentDecisionNumber')) { <small class="p-error">{{ getError('appointmentDecisionNumber') }}</small> }
           </div>
-          <div class="field col-12 md:col-6">
+
+          <div class="field field--h">
             <label>تاريخ قرار التعيين <span class="required">*</span></label>
-            <p-calendar formControlName="appointmentDecisionDate" dateFormat="dd/mm/yy" [showIcon]="true" />
+            <p-calendar formControlName="appointmentDecisionDate" dateFormat="dd/mm/yy" [showIcon]="true" styleClass="w-full" [inputStyleClass]="'w-full'" />
             @if (getError('appointmentDecisionDate')) { <small class="p-error">{{ getError('appointmentDecisionDate') }}</small> }
           </div>
-          <div class="field col-12 md:col-6">
+          <div class="field field--h">
             <label>المسمى الوظيفي <span class="required">*</span></label>
             <input pInputText formControlName="jobTitle" />
             @if (getError('jobTitle')) { <small class="p-error">{{ getError('jobTitle') }}</small> }
           </div>
-          <div class="field col-12 md:col-6">
+
+          <div class="field field--h">
             <label>الدرجة الوظيفية <span class="required">*</span></label>
             <input pInputText formControlName="jobGrade" />
             @if (getError('jobGrade')) { <small class="p-error">{{ getError('jobGrade') }}</small> }
           </div>
-          <div class="field col-12 md:col-6">
+          <div class="field field--h">
             <label>القسم <span class="required">*</span></label>
             <input pInputText formControlName="department" />
             @if (getError('department')) { <small class="p-error">{{ getError('department') }}</small> }
           </div>
-          <div class="field col-12 md:col-6">
+
+          <div class="field field--h">
             <label>الوحدة <span class="required">*</span></label>
             <input pInputText formControlName="section" />
             @if (getError('section')) { <small class="p-error">{{ getError('section') }}</small> }
           </div>
-          <div class="field col-12 md:col-6">
+          <div class="field field--h">
             <label>مكان العمل <span class="required">*</span></label>
             <input pInputText formControlName="workLocation" />
             @if (getError('workLocation')) { <small class="p-error">{{ getError('workLocation') }}</small> }
           </div>
-          <div class="field col-12 md:col-6">
+
+          <div class="field field--h">
             <label>نوع التعيين <span class="required">*</span></label>
-            <p-dropdown formControlName="employmentType" [options]="employmentTypeOptions" optionLabel="label" optionValue="value" />
+            <p-dropdown formControlName="employmentType" [options]="employmentTypeOptions" optionLabel="label" optionValue="value" styleClass="w-full" />
             @if (getError('employmentType')) { <small class="p-error">{{ getError('employmentType') }}</small> }
           </div>
-          <div class="field col-12 md:col-6">
+          <div class="field field--h">
             <label>الحالة <span class="required">*</span></label>
-            <p-dropdown formControlName="status" [options]="statusOptions" optionLabel="label" optionValue="value" />
+            <p-dropdown formControlName="status" [options]="statusOptions" optionLabel="label" optionValue="value" styleClass="w-full" />
             @if (getError('status')) { <small class="p-error">{{ getError('status') }}</small> }
           </div>
         </div>
@@ -149,17 +161,17 @@
       <div class="form-panel">
         <h3>المؤهلات والخبرات</h3>
         <div class="form-grid">
-          <div class="field col-12 md:col-6">
+          <div class="field field--third">
             <label>المؤهل الدراسي <span class="required">*</span></label>
             <input pInputText formControlName="educationLevel" />
             @if (getError('educationLevel')) { <small class="p-error">{{ getError('educationLevel') }}</small> }
           </div>
-          <div class="field col-12 md:col-6">
+          <div class="field field--third">
             <label>التخصص <span class="required">*</span></label>
             <input pInputText formControlName="educationField" />
             @if (getError('educationField')) { <small class="p-error">{{ getError('educationField') }}</small> }
           </div>
-          <div class="field col-12 md:col-6">
+          <div class="field field--third">
             <label>سنة التخرج <span class="required">*</span></label>
             <input type="number" pInputText formControlName="graduationYear" />
             @if (getError('graduationYear')) { <small class="p-error">{{ getError('graduationYear') }}</small> }
@@ -171,7 +183,7 @@
     @if (activeStep() === 3) {
       <div class="form-panel">
         <h3>المستندات</h3>
-        <p>رفع المستندات (قرار التعيين، صورة البطاقة، الشهادات، إلخ)</p>
+        <p class="documents-hint">رفع المستندات (قرار التعيين، صورة البطاقة، الشهادات، إلخ)</p>
         <p-fileUpload
           mode="advanced"
           [auto]="false"

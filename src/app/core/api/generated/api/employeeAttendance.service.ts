@@ -19,9 +19,9 @@ import { CustomHttpParameterCodec }                          from '../encoder';
 import { Observable }                                        from 'rxjs';
 
 // @ts-ignore
-import { ApiResultOfIEnumerableOfEmployeeAttendanceDirectoryRowDto } from '../model/apiResultOfIEnumerableOfEmployeeAttendanceDirectoryRowDto';
+import { ApiResultOfIReadOnlyListOfEmployeeAttendanceDirectoryRowDto } from '../model/apiResultOfIReadOnlyListOfEmployeeAttendanceDirectoryRowDto';
 // @ts-ignore
-import { ApiResultOfIEnumerableOfEmployeeScheduleAttendanceDetailDto } from '../model/apiResultOfIEnumerableOfEmployeeScheduleAttendanceDetailDto';
+import { ApiResultOfIReadOnlyListOfEmployeeScheduleAttendanceDetailDto } from '../model/apiResultOfIReadOnlyListOfEmployeeScheduleAttendanceDetailDto';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -100,9 +100,9 @@ export class EmployeeAttendanceService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public employeeAttendanceGetDirectory(name?: string, planId?: string, shiftId?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<ApiResultOfIEnumerableOfEmployeeAttendanceDirectoryRowDto>;
-    public employeeAttendanceGetDirectory(name?: string, planId?: string, shiftId?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<HttpResponse<ApiResultOfIEnumerableOfEmployeeAttendanceDirectoryRowDto>>;
-    public employeeAttendanceGetDirectory(name?: string, planId?: string, shiftId?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<HttpEvent<ApiResultOfIEnumerableOfEmployeeAttendanceDirectoryRowDto>>;
+    public employeeAttendanceGetDirectory(name?: string, planId?: string, shiftId?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<ApiResultOfIReadOnlyListOfEmployeeAttendanceDirectoryRowDto>;
+    public employeeAttendanceGetDirectory(name?: string, planId?: string, shiftId?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<HttpResponse<ApiResultOfIReadOnlyListOfEmployeeAttendanceDirectoryRowDto>>;
+    public employeeAttendanceGetDirectory(name?: string, planId?: string, shiftId?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<HttpEvent<ApiResultOfIReadOnlyListOfEmployeeAttendanceDirectoryRowDto>>;
     public employeeAttendanceGetDirectory(name?: string, planId?: string, shiftId?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<any> {
 
         let localVarQueryParameters = new HttpParams({encoder: this.encoder});
@@ -153,7 +153,7 @@ export class EmployeeAttendanceService {
         }
 
         let localVarPath = `/api/EmployeeAttendance/directory`;
-        return this.httpClient.request<ApiResultOfIEnumerableOfEmployeeAttendanceDirectoryRowDto>('get', `${this.configuration.basePath}${localVarPath}`,
+        return this.httpClient.request<ApiResultOfIReadOnlyListOfEmployeeAttendanceDirectoryRowDto>('get', `${this.configuration.basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 params: localVarQueryParameters,
@@ -173,18 +173,12 @@ export class EmployeeAttendanceService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public employeeAttendanceGetScheduleAttendance(employeeId: string, from: string, to: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<ApiResultOfIEnumerableOfEmployeeScheduleAttendanceDetailDto>;
-    public employeeAttendanceGetScheduleAttendance(employeeId: string, from: string, to: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<HttpResponse<ApiResultOfIEnumerableOfEmployeeScheduleAttendanceDetailDto>>;
-    public employeeAttendanceGetScheduleAttendance(employeeId: string, from: string, to: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<HttpEvent<ApiResultOfIEnumerableOfEmployeeScheduleAttendanceDetailDto>>;
-    public employeeAttendanceGetScheduleAttendance(employeeId: string, from: string, to: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<any> {
+    public employeeAttendanceGetScheduleAttendance(employeeId: string, from?: string, to?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<ApiResultOfIReadOnlyListOfEmployeeScheduleAttendanceDetailDto>;
+    public employeeAttendanceGetScheduleAttendance(employeeId: string, from?: string, to?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<HttpResponse<ApiResultOfIReadOnlyListOfEmployeeScheduleAttendanceDetailDto>>;
+    public employeeAttendanceGetScheduleAttendance(employeeId: string, from?: string, to?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<HttpEvent<ApiResultOfIReadOnlyListOfEmployeeScheduleAttendanceDetailDto>>;
+    public employeeAttendanceGetScheduleAttendance(employeeId: string, from?: string, to?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<any> {
         if (employeeId === null || employeeId === undefined) {
             throw new Error('Required parameter employeeId was null or undefined when calling employeeAttendanceGetScheduleAttendance.');
-        }
-        if (from === null || from === undefined) {
-            throw new Error('Required parameter from was null or undefined when calling employeeAttendanceGetScheduleAttendance.');
-        }
-        if (to === null || to === undefined) {
-            throw new Error('Required parameter to was null or undefined when calling employeeAttendanceGetScheduleAttendance.');
         }
 
         let localVarQueryParameters = new HttpParams({encoder: this.encoder});
@@ -231,7 +225,7 @@ export class EmployeeAttendanceService {
         }
 
         let localVarPath = `/api/EmployeeAttendance/${this.configuration.encodeParam({name: "employeeId", value: employeeId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/schedule-attendance`;
-        return this.httpClient.request<ApiResultOfIEnumerableOfEmployeeScheduleAttendanceDetailDto>('get', `${this.configuration.basePath}${localVarPath}`,
+        return this.httpClient.request<ApiResultOfIReadOnlyListOfEmployeeScheduleAttendanceDetailDto>('get', `${this.configuration.basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 params: localVarQueryParameters,

@@ -254,6 +254,88 @@
         }
       }
     },
+    "/api/AttendanceCalc/runs": {
+      "get": {
+        "tags": [
+          "AttendanceCalc"
+        ],
+        "operationId": "AttendanceCalc_Runs",
+        "parameters": [
+          {
+            "name": "take",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 200
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIReadOnlyListOfAttendanceCalculationRunDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIReadOnlyListOfAttendanceCalculationRunDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIReadOnlyListOfAttendanceCalculationRunDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/AttendanceCalc/runs/{id}": {
+      "get": {
+        "tags": [
+          "AttendanceCalc"
+        ],
+        "operationId": "AttendanceCalc_RunDetail",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfAttendanceCalculationRunDetailDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfAttendanceCalculationRunDetailDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfAttendanceCalculationRunDetailDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/AttendanceCalc/recalculate": {
       "post": {
         "tags": [
@@ -296,6 +378,153 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/AttendanceCalc/preview": {
+      "post": {
+        "tags": [
+          "AttendanceCalc"
+        ],
+        "operationId": "AttendanceCalc_Preview",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewAttendanceCalculationQuery"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewAttendanceCalculationQuery"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewAttendanceCalculationQuery"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIReadOnlyListOfAttendanceCalculationPreviewRowDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIReadOnlyListOfAttendanceCalculationPreviewRowDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIReadOnlyListOfAttendanceCalculationPreviewRowDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/AttendanceCalc/preview/employee-days": {
+      "post": {
+        "tags": [
+          "AttendanceCalc"
+        ],
+        "operationId": "AttendanceCalc_PreviewEmployeeDays",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewAttendanceCalculationEmployeeDaysQuery"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewAttendanceCalculationEmployeeDaysQuery"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewAttendanceCalculationEmployeeDaysQuery"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIReadOnlyListOfAttendanceCalculationPreviewDayDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIReadOnlyListOfAttendanceCalculationPreviewDayDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIReadOnlyListOfAttendanceCalculationPreviewDayDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/AttendanceCalc/commit": {
+      "post": {
+        "tags": [
+          "AttendanceCalc"
+        ],
+        "operationId": "AttendanceCalc_Commit",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommitAttendanceCalculationCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommitAttendanceCalculationCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommitAttendanceCalculationCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfGuid"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfGuid"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfGuid"
                 }
               }
             }
@@ -372,6 +601,104 @@
             "application/*+json": {
               "schema": {
                 "$ref": "#/components/schemas/ImportAttendanceRawCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/AttendanceRaw/list-range": {
+      "post": {
+        "tags": [
+          "AttendanceRaw"
+        ],
+        "operationId": "AttendanceRaw_ListRange",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ListAttendanceRawForRangeQuery"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ListAttendanceRawForRangeQuery"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ListAttendanceRawForRangeQuery"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfAttendanceRawDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfAttendanceRawDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfAttendanceRawDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/AttendanceRaw/ignored-by-calculation": {
+      "put": {
+        "tags": [
+          "AttendanceRaw"
+        ],
+        "operationId": "AttendanceRaw_SetIgnoredByCalculation",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetAttendanceRawIgnoredByCalculationCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetAttendanceRawIgnoredByCalculationCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetAttendanceRawIgnoredByCalculationCommand"
               }
             }
           }
@@ -916,6 +1243,118 @@
         }
       }
     },
+    "/api/EmployeeAttendance/directory": {
+      "get": {
+        "tags": [
+          "EmployeeAttendance"
+        ],
+        "operationId": "EmployeeAttendance_GetDirectory",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "planId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "shiftId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIReadOnlyListOfEmployeeAttendanceDirectoryRowDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIReadOnlyListOfEmployeeAttendanceDirectoryRowDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIReadOnlyListOfEmployeeAttendanceDirectoryRowDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/EmployeeAttendance/{employeeId}/schedule-attendance": {
+      "get": {
+        "tags": [
+          "EmployeeAttendance"
+        ],
+        "operationId": "EmployeeAttendance_GetScheduleAttendance",
+        "parameters": [
+          {
+            "name": "employeeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIReadOnlyListOfEmployeeScheduleAttendanceDetailDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIReadOnlyListOfEmployeeScheduleAttendanceDetailDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResultOfIReadOnlyListOfEmployeeScheduleAttendanceDetailDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/EmployeePlans/plan/{planId}": {
       "get": {
         "tags": [
@@ -1351,123 +1790,6 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResultOfIEnumerableOfEmployeeScheduleCalendarItemDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/EmployeeAttendance/directory": {
-      "get": {
-        "tags": [
-          "EmployeeAttendance"
-        ],
-        "operationId": "EmployeeAttendance_GetDirectory",
-        "parameters": [
-          {
-            "name": "name",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            }
-          },
-          {
-            "name": "planId",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "nullable": true
-            }
-          },
-          {
-            "name": "shiftId",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "nullable": true
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfEmployeeAttendanceDirectoryRowDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfEmployeeAttendanceDirectoryRowDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfEmployeeAttendanceDirectoryRowDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/EmployeeAttendance/{employeeId}/schedule-attendance": {
-      "get": {
-        "tags": [
-          "EmployeeAttendance"
-        ],
-        "operationId": "EmployeeAttendance_GetScheduleAttendance",
-        "parameters": [
-          {
-            "name": "employeeId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "from",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "date"
-            }
-          },
-          {
-            "name": "to",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "date"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfEmployeeScheduleAttendanceDetailDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfEmployeeScheduleAttendanceDetailDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResultOfIEnumerableOfEmployeeScheduleAttendanceDetailDto"
                 }
               }
             }
@@ -3546,6 +3868,29 @@
   },
   "components": {
     "schemas": {
+      "ApiResultOfAttendanceCalculationRunDetailDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AttendanceCalculationRunDetailDto"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "ApiResultOfBoolean": {
         "type": "object",
         "properties": {
@@ -3751,33 +4096,6 @@
         },
         "additionalProperties": false
       },
-      "ApiResultOfIEnumerableOfEmployeeAttendanceDirectoryRowDto": {
-        "type": "object",
-        "properties": {
-          "success": {
-            "type": "boolean"
-          },
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/EmployeeAttendanceDirectoryRowDto"
-            },
-            "nullable": true
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          },
-          "error": {
-            "$ref": "#/components/schemas/Exception"
-          },
-          "token": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
       "ApiResultOfIEnumerableOfEmployeePlanListItemDto": {
         "type": "object",
         "properties": {
@@ -3815,33 +4133,6 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/EmployeeScheduleCalendarItemDto"
-            },
-            "nullable": true
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          },
-          "error": {
-            "$ref": "#/components/schemas/Exception"
-          },
-          "token": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "ApiResultOfIEnumerableOfEmployeeScheduleAttendanceDetailDto": {
-        "type": "object",
-        "properties": {
-          "success": {
-            "type": "boolean"
-          },
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/EmployeeScheduleAttendanceDetailDto"
             },
             "nullable": true
           },
@@ -3977,6 +4268,114 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/SyncLogDto"
+            },
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiResultOfIReadOnlyListOfAttendanceCalculationPreviewRowDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttendanceCalculationPreviewRowDto"
+            },
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiResultOfIReadOnlyListOfAttendanceCalculationRunDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttendanceCalculationRunDto"
+            },
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiResultOfIReadOnlyListOfEmployeeAttendanceDirectoryRowDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmployeeAttendanceDirectoryRowDto"
+            },
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiResultOfIReadOnlyListOfEmployeeScheduleAttendanceDetailDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmployeeScheduleAttendanceDetailDto"
             },
             "nullable": true
           },
@@ -4427,6 +4826,279 @@
         },
         "additionalProperties": false
       },
+      "AttendanceCalculationPreviewRowDto": {
+        "type": "object",
+        "properties": {
+          "employeeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "employeeName": {
+            "type": "string",
+            "nullable": true
+          },
+          "employeeCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "departmentName": {
+            "type": "string",
+            "nullable": true
+          },
+          "planName": {
+            "type": "string",
+            "nullable": true
+          },
+          "shiftsSummaryInRange": {
+            "type": "string",
+            "nullable": true
+          },
+          "calendarDaysInRange": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "daysWithPunches": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "daysPresent": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalNetWorkMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalLateMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "daysAbsentOnScheduledWorkdays": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "daysIncompleteAttendance": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalEarlyLeaveMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalOvertimeBeforeMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalOvertimeAfterMinutes": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiResultOfIReadOnlyListOfAttendanceCalculationPreviewDayDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttendanceCalculationPreviewDayDto"
+            },
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/Exception"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AttendanceCalculationPreviewDayDto": {
+        "type": "object",
+        "properties": {
+          "workDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "scheduleDayType": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "enum": [1, 2, 3, 4]
+          },
+          "isScheduledWorkday": {
+            "type": "boolean"
+          },
+          "isHoliday": {
+            "type": "boolean"
+          },
+          "shiftName": {
+            "type": "string",
+            "nullable": true
+          },
+          "punchCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "actualIn": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "actualOut": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/AttendanceStatus"
+          },
+          "lateMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "earlyLeaveMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "overtimeBeforeMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "overtimeAfterMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "netWorkMinutes": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PreviewAttendanceCalculationEmployeeDaysQuery": {
+        "type": "object",
+        "properties": {
+          "employeeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "from": {
+            "type": "string",
+            "format": "date"
+          },
+          "to": {
+            "type": "string",
+            "format": "date"
+          },
+          "pairingMethod": {
+            "$ref": "#/components/schemas/PunchPairingMethod"
+          },
+          "nameFilter": {
+            "type": "string",
+            "nullable": true
+          },
+          "planId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "shiftId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AttendanceCalculationRunDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fromDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "toDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "pairingMethod": {
+            "$ref": "#/components/schemas/PunchPairingMethod"
+          },
+          "createdAtUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "employeeCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "daySpan": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "filterSnapshotJson": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AttendanceCalculationRunDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fromDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "toDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "pairingMethod": {
+            "$ref": "#/components/schemas/PunchPairingMethod"
+          },
+          "createdAtUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "employeeCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "daySpan": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "AttendanceRawDto": {
         "type": "object",
         "properties": {
@@ -4454,6 +5126,9 @@
             "$ref": "#/components/schemas/AttendanceSource"
           },
           "isProcessed": {
+            "type": "boolean"
+          },
+          "ignoredByCalculation": {
             "type": "boolean"
           }
         },
@@ -4527,6 +5202,41 @@
         "type": "object",
         "properties": {
           "title": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CommitAttendanceCalculationCommand": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "format": "date"
+          },
+          "to": {
+            "type": "string",
+            "format": "date"
+          },
+          "pairingMethod": {
+            "$ref": "#/components/schemas/PunchPairingMethod"
+          },
+          "nameFilter": {
+            "type": "string",
+            "nullable": true
+          },
+          "planId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "shiftId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "note": {
             "type": "string",
             "nullable": true
           }
@@ -5103,33 +5813,6 @@
         },
         "additionalProperties": false
       },
-      "EmployeeAttendanceStatusDto": {
-        "type": "object",
-        "properties": {
-          "employeeId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "employeeName": {
-            "type": "string",
-            "nullable": true
-          },
-          "employeeCode": {
-            "type": "string",
-            "nullable": true
-          },
-          "planId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
-          },
-          "planName": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
       "EmployeeAttendanceDirectoryRowDto": {
         "type": "object",
         "properties": {
@@ -5165,6 +5848,33 @@
           "scheduleEntryCount": {
             "type": "integer",
             "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "EmployeeAttendanceStatusDto": {
+        "type": "object",
+        "properties": {
+          "employeeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "employeeName": {
+            "type": "string",
+            "nullable": true
+          },
+          "employeeCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "planId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "planName": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -5825,6 +6535,41 @@
       },
       "IntPtr": {
         "type": "object",
+        "additionalProperties": false
+      },
+      "ListAttendanceRawForRangeQuery": {
+        "type": "object",
+        "properties": {
+          "employeeIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          },
+          "from": {
+            "type": "string",
+            "format": "date"
+          },
+          "to": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SetAttendanceRawIgnoredByCalculationCommand": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "ignoredByCalculation": {
+            "type": "boolean"
+          }
+        },
         "additionalProperties": false
       },
       "JobGradeDto": {
@@ -6654,6 +7399,37 @@
         "type": "integer",
         "format": "int32"
       },
+      "PreviewAttendanceCalculationQuery": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "format": "date"
+          },
+          "to": {
+            "type": "string",
+            "format": "date"
+          },
+          "pairingMethod": {
+            "$ref": "#/components/schemas/PunchPairingMethod"
+          },
+          "nameFilter": {
+            "type": "string",
+            "nullable": true
+          },
+          "planId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "shiftId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "ProductCreateRequest": {
         "type": "object",
         "properties": {
@@ -6772,6 +7548,15 @@
         "additionalProperties": false
       },
       "PunchDirection": {
+        "enum": [
+          1,
+          2,
+          3
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "PunchPairingMethod": {
         "enum": [
           1,
           2,

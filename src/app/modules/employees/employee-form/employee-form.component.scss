@@ -1,57 +1,129 @@
 .employee-form {
-  max-width: 56rem;
+  max-width: 62rem;
   margin: 0 auto;
+  padding: 0 0.25rem;
 }
 
 .form-panels {
-  margin: 1.5rem 0;
-  min-height: 20rem;
+  margin: 1.25rem 0;
+  min-height: 16rem;
 }
 
-.form-panel h3 {
-  margin: 0 0 1rem 0;
-  color: var(--text-color);
+.form-panel {
+  h3 {
+    margin: 0 0 0.75rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-color);
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--surface-border);
+  }
 }
 
+// 12-col grid: quarters (3), halves (6), full (12)
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 1rem;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: 0.75rem;
+  row-gap: 0.45rem;
+  align-items: start;
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.2rem;
+  min-width: 0;
+
+  label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-color-secondary);
+    line-height: 1.2;
+  }
+
+  input.p-inputtext,
+  input[type='number'] {
+    width: 100%;
+  }
+
+  ::ng-deep .p-calendar,
+  ::ng-deep .p-dropdown {
+    width: 100%;
+  }
+
+  ::ng-deep .p-calendar .p-inputtext {
+    width: 100%;
+  }
 }
 
-.field.col-12 {
-  grid-column: span 12;
+.field--q {
+  grid-column: span 3;
 }
 
-.field.col-6 {
+.field--h {
   grid-column: span 6;
 }
 
-@media (max-width: 768px) {
-  .field.col-6 {
+.field--f {
+  grid-column: span 12;
+}
+
+.field--third {
+  grid-column: span 4;
+}
+
+.field-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  padding-top: 0.15rem;
+
+  .p-radiobutton + label {
+    margin-inline-end: 0.25rem;
+    font-size: 0.875rem;
+    color: var(--text-color);
+  }
+}
+
+@media (max-width: 1024px) {
+  .field--q {
+    grid-column: span 6;
+  }
+
+  .field--third {
+    grid-column: span 6;
+  }
+}
+
+@media (max-width: 640px) {
+  .field--q,
+  .field--h,
+  .field--third {
     grid-column: span 12;
+  }
+
+  .form-grid {
+    row-gap: 0.4rem;
   }
 }
 
 .required {
-  color: var(--danger-color);
+  color: var(--red-500, #dc3545);
 }
 
 .form-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-top: 1.5rem;
-  padding-top: 1rem;
+  margin-top: 1.25rem;
+  padding-top: 0.85rem;
   border-top: 1px solid var(--surface-border);
 }
 
-.form-actions label {
-  margin-inline-end: 0.5rem;
+.documents-hint {
+  margin: 0 0 0.65rem;
+  font-size: 0.875rem;
+  color: var(--text-color-secondary);
 }

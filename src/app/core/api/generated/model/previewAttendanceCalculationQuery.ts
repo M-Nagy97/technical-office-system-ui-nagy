@@ -9,19 +9,16 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { PunchDirection } from './punchDirection';
-import { AttendanceSource } from './attendanceSource';
+import { PunchPairingMethod } from './punchPairingMethod';
 
 
-export interface AttendanceRawDto { 
-    id?: string;
-    empId?: string;
-    deviceId?: string | null;
-    fingerTime?: string;
-    direction?: PunchDirection;
-    source?: AttendanceSource;
-    isProcessed?: boolean;
-    ignoredByCalculation?: boolean;
+export interface PreviewAttendanceCalculationQuery { 
+    from?: string;
+    to?: string;
+    pairingMethod?: PunchPairingMethod;
+    nameFilter?: string | null;
+    planId?: string | null;
+    shiftId?: string | null;
 }
 
 

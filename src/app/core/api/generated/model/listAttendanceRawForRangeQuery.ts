@@ -9,20 +9,11 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { PunchDirection } from './punchDirection';
-import { AttendanceSource } from './attendanceSource';
 
 
-export interface AttendanceRawDto { 
-    id?: string;
-    empId?: string;
-    deviceId?: string | null;
-    fingerTime?: string;
-    direction?: PunchDirection;
-    source?: AttendanceSource;
-    isProcessed?: boolean;
-    ignoredByCalculation?: boolean;
+export interface ListAttendanceRawForRangeQuery { 
+    employeeIds?: Array<string> | null;
+    from?: string;
+    to?: string;
 }
-
-
 

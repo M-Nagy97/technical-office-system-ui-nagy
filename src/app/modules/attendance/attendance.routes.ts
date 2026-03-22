@@ -44,6 +44,16 @@ export const ATTENDANCE_ROUTES: Routes = [
       import('./employee-attendance/employee-attendance.component').then((m) => m.EmployeeAttendanceComponent),
   },
   {
+    path: 'calculation-workbench',
+    loadComponent: () =>
+      import('./calculation-workbench/calculation-workbench.component').then((m) => m.CalculationWorkbenchComponent),
+  },
+  {
+    path: 'calculation-runs',
+    loadComponent: () =>
+      import('./calculation-runs/calculation-runs.component').then((m) => m.CalculationRunsComponent),
+  },
+  {
     path: 'month-plan-template',
     loadComponent: () =>
       import('./month-plan-template/month-plan-template.component').then((m) => m.MonthPlanTemplateComponent),

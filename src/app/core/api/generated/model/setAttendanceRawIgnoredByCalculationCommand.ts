@@ -9,20 +9,10 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { PunchDirection } from './punchDirection';
-import { AttendanceSource } from './attendanceSource';
 
 
-export interface AttendanceRawDto { 
+export interface SetAttendanceRawIgnoredByCalculationCommand { 
     id?: string;
-    empId?: string;
-    deviceId?: string | null;
-    fingerTime?: string;
-    direction?: PunchDirection;
-    source?: AttendanceSource;
-    isProcessed?: boolean;
     ignoredByCalculation?: boolean;
 }
-
-
 

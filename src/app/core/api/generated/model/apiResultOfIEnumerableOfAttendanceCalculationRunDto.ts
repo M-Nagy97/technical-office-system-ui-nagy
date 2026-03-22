@@ -9,20 +9,15 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { PunchDirection } from './punchDirection';
-import { AttendanceSource } from './attendanceSource';
+import { AttendanceCalculationRunDto } from './attendanceCalculationRunDto';
+import { Exception } from './exception';
 
 
-export interface AttendanceRawDto { 
-    id?: string;
-    empId?: string;
-    deviceId?: string | null;
-    fingerTime?: string;
-    direction?: PunchDirection;
-    source?: AttendanceSource;
-    isProcessed?: boolean;
-    ignoredByCalculation?: boolean;
+export interface ApiResultOfIEnumerableOfAttendanceCalculationRunDto { 
+    success?: boolean;
+    data?: Array<AttendanceCalculationRunDto> | null;
+    message?: string | null;
+    error?: Exception;
+    token?: string | null;
 }
-
-
 

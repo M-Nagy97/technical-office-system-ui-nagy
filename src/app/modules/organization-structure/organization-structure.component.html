@@ -1,0 +1,96 @@
+<div class="organization-structure-page">
+  <div class="page-header">
+    <h1 class="page-title">{{ 'organization_structure_page.title' | translate }}</h1>
+    <p class="page-desc">{{ 'organization_structure_page.subtitle' | translate }}</p>
+    <div class="toolbar">
+      <button
+        pButton
+        type="button"
+        icon="pi pi-refresh"
+        [label]="'organization_structure_page.reload' | translate"
+        class="p-button-outlined p-button-sm"
+        [disabled]="loading()"
+        (click)="load()"
+      ></button>
+      <button
+        pButton
+        type="button"
+        icon="pi pi-plus"
+        [label]="'organization_structure_page.expand_all' | translate"
+        class="p-button-text p-button-sm"
+        [disabled]="loading()"
+        (click)="expandAll()"
+      ></button>
+      <button
+        pButton
+        type="button"
+        icon="pi pi-minus"
+        [label]="'organization_structure_page.collapse_all' | translate"
+        class="p-button-text p-button-sm"
+        [disabled]="loading()"
+        (click)="collapseAll()"
+      ></button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-wrap">
+      <p-progressSpinner strokeWidth="3" />
+    </div>
+  } @else {
+    <p-tabView styleClass="org-structure-tabs">
+      <p-tabPanel [header]="'organization_structure_page.tab_admin' | translate">
+        <p-card styleClass="structure-card">
+          @if (orgTree().length === 0) {
+            <p class="empty-msg">{{ 'organization_structure_page.empty_units' | translate }}</p>
+          } @else {
+            <p-tree
+              [value]="orgTree()"
+              styleClass="structure-tree w-full"
+              [filter]="true"
+              [filterPlaceholder]="'organization_structure_page.filter_placeholder' | translate"
+            >
+              <ng-template let-node pTemplate="default">
+                <div class="tree-node-block">
+                  <span class="tree-node-label">{{ node.label }}</span>
+                  @if (unitSubtitle(node)) {
+                    <span class="tree-node-sub"
+                      >{{ 'organization_structure_page.parent_unit' | translate }}:
+                      {{ unitSubtitle(node) }}</span
+                    >
+                  }
+                </div>
+              </ng-template>
+            </p-tree>
+          }
+        </p-card>
+      </p-tabPanel>
+
+      <p-tabPanel [header]="'organization_structure_page.tab_jobs' | translate">
+        <p-card styleClass="structure-card">
+          @if (positionTree().length === 0) {
+            <p class="empty-msg">{{ 'organization_structure_page.empty_positions' | translate }}</p>
+          } @else {
+            <p-tree
+              [value]="positionTree()"
+              styleClass="structure-tree w-full"
+              [filter]="true"
+              [filterPlaceholder]="'organization_structure_page.filter_placeholder' | translate"
+            >
+              <ng-template let-node pTemplate="default">
+                <div class="tree-node-block">
+                  <span class="tree-node-label">{{ node.label }}</span>
+                  @if (positionSubtitle(node)) {
+                    <span class="tree-node-sub">{{ positionSubtitle(node) }}</span>
+                  }
+                </div>
+              </ng-template>
+            </p-tree>
+          }
+        </p-card>
+      </p-tabPanel>
+    </p-tabView>
+  }
+</div>
+
+<p-toast />

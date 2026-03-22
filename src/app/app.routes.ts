@@ -44,6 +44,13 @@ export const routes: Routes = [
             (m) => m.ORGANIZATION_UNITS_ROUTES
           ),
       },
+      {
+        path: 'organization-structure',
+        loadChildren: () =>
+          import('./modules/organization-structure/organization-structure.routes').then(
+            (m) => m.ORGANIZATION_STRUCTURE_ROUTES
+          ),
+      },
     ],
   },
   {

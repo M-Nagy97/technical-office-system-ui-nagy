@@ -77,6 +77,11 @@
   min-width: 8rem;
 }
 
+::ng-deep .p-datatable .p-datatable-tbody > tr.raw-row-ignored > td {
+  opacity: 0.85;
+  background: color-mix(in srgb, var(--surface-ground) 88%, var(--orange-500));
+}
+
 ::ng-deep .row-present { background: rgba(22, 163, 74, 0.08); }
 ::ng-deep .row-absent { background: rgba(220, 38, 38, 0.08); }
 ::ng-deep .row-late { background: rgba(217, 119, 6, 0.08); }

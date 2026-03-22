@@ -9,20 +9,11 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { PunchDirection } from './punchDirection';
-import { AttendanceSource } from './attendanceSource';
 
 
-export interface AttendanceRawDto { 
-    id?: string;
-    empId?: string;
-    deviceId?: string | null;
-    fingerTime?: string;
-    direction?: PunchDirection;
-    source?: AttendanceSource;
-    isProcessed?: boolean;
-    ignoredByCalculation?: boolean;
+export enum PunchPairingMethod {
+    NUMBER_1 = 1,
+    NUMBER_2 = 2,
+    NUMBER_3 = 3
 }
-
-
 

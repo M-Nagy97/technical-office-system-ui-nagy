@@ -69,7 +69,31 @@ html[dir='rtl'],
   .p-paginator-next .p-icon,
   .p-paginator-last .p-icon {
     transform: scaleX(-1);
-  }}
+  }
+}
+
+.filter-search {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+
+  i {
+    position: absolute !important;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 0.75rem; // عشان RTL
+    left: auto !important;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  input {
+    width: 100%;
+    padding-right: 2.5rem !important;
+    padding-left: 0.75rem !important;
+    box-sizing: border-box;
+  }
+}
 }
 
 html[dir='rtl'] body,

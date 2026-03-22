@@ -57,6 +57,12 @@ export class SidebarComponent implements OnInit {
         { label: 'nav.job_grades_module', icon: 'pi pi-briefcase', route: '/job-grades', module: 'employees' },
         { label: 'nav.job_positions_module', icon: 'pi pi-sitemap', route: '/job-positions', module: 'employees' },
         { label: 'nav.organization_units_module', icon: 'pi pi-building', route: '/organization-units', module: 'employees' },
+        {
+          label: 'nav.organization_structure',
+          icon: 'pi pi-share-alt',
+          route: '/organization-structure',
+          module: 'employees',
+        },
       ],
     },
     // الحضور والانصراف — معاملات + ترميزات
@@ -75,6 +81,8 @@ export class SidebarComponent implements OnInit {
         { label: 'nav.employee_plans', icon: 'pi pi-users', route: '/attendance/employee-plans', module: 'attendance' },
         { label: 'nav.employee_schedule', icon: 'pi pi-calendar', route: '/attendance/employee-schedule', module: 'attendance' },
         { label: 'nav.employee_attendance', icon: 'pi pi-table', route: '/attendance/employee-attendance', module: 'attendance' },
+        { label: 'nav.calculation_workbench', icon: 'pi pi-sliders-h', route: '/attendance/calculation-workbench', module: 'attendance' },
+        { label: 'nav.calculation_runs', icon: 'pi pi-history', route: '/attendance/calculation-runs', module: 'attendance' },
         { label: 'nav.time_attendance_settings', icon: 'pi pi-cog', route: '/attendance/settings', module: 'attendance' },
       ],
     },
