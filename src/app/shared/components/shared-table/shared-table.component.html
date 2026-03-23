@@ -1,0 +1,88 @@
+<p-table
+  [value]="value"
+  [loading]="loading"
+  [paginator]="paginator"
+  [rows]="rows"
+  [rowsPerPageOptions]="rowsPerPageOptions"
+  [styleClass]="styleClass"
+  [tableStyle]="tableStyle || undefined"
+>
+  <ng-template pTemplate="header">
+    <tr>
+      <th
+        *ngFor="let col of columns"
+        [style.width]="col.width || undefined"
+        [style.text-align]="resolveAlign(col.align)"
+      >
+        <ng-container *ngIf="translateHeader; else rawHeader">
+          {{ col.header | translate }}
+        </ng-container>
+        <ng-template #rawHeader>{{ col.header }}</ng-template>
+      </th>
+      <th
+        *ngIf="actionsEnabled()"
+        [style.width]="actionsColumnWidth"
+        [style.text-align]="resolveAlign('end')"
+      >
+        <ng-container *ngIf="translateHeader; else rawActionsHeader">
+          {{ actionsColumnHeader ? (actionsColumnHeader | translate) : '' }}
+        </ng-container>
+        <ng-template #rawActionsHeader>{{ actionsColumnHeader ? actionsColumnHeader : '' }}</ng-template>
+      </th>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="body" let-row>
+    <tr [ngClass]="getRowClass(row)">
+      <td
+        *ngFor="let col of columns"
+        [ngClass]="getCellClass(col, row)"
+        [style.text-align]="resolveAlign(col.align)"
+      >
+        <ng-container *ngIf="getCellTemplate(col.id) as tpl; else defaultCell">
+          <ng-container
+            *ngTemplateOutlet="tpl; context: { $implicit: row, row: row, value: getColumnValue(col, row) }"
+          />
+        </ng-container>
+
+        <ng-template #defaultCell>
+          {{ getColumnValue(col, row) }}
+        </ng-template>
+      </td>
+
+      <td *ngIf="actionsEnabled()" [style.text-align]="resolveAlign('end')">
+        <div class="shared-table-actions flex gap-2" style="justify-content: flex-end">
+          <ng-container *ngFor="let action of actions">
+            <ng-container *ngIf="isActionVisible(action, row)">
+              <button
+                pButton
+                type="button"
+                [ngClass]="getActionButtonClass(action, row)"
+                [icon]="getActionIcon(action, row)"
+                [label]="action.label ? (action.label | translate) : undefined"
+                [disabled]="isActionDisabled(action, row)"
+                [loading]="isActionLoading(action, row)"
+                (click)="action.onClick(row)"
+              ></button>
+            </ng-container>
+          </ng-container>
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="emptymessage">
+    <tr>
+      <td
+        [attr.colspan]="columns.length + (actionsEnabled() ? 1 : 0)"
+        class="text-center text-600"
+      >
+        <ng-container *ngIf="translateEmptyMessage; else rawEmptyMessage">
+          {{ emptyMessage | translate }}
+        </ng-container>
+        <ng-template #rawEmptyMessage>{{ emptyMessage }}</ng-template>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+

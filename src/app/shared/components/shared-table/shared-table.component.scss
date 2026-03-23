@@ -1,0 +1,42 @@
+:host {
+  // Keep action buttons consistent across the app.
+  ::ng-deep .shared-table-actions {
+    .p-button {
+      min-height: 2rem;
+      min-width: 2rem;
+    }
+  }
+
+  // Shared table header: colored background + rounded outer corners.
+  ::ng-deep .p-datatable table {
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  ::ng-deep .p-datatable thead > tr > th {
+    background: var(--primary-50);
+    color: var(--text-color-secondary);
+    font-weight: 600;
+    border-top: 1px solid var(--surface-border);
+    border-bottom: 1px solid var(--surface-border);
+  }
+
+  // LTR: round left header edge + right header edge
+  ::ng-deep .p-datatable thead > tr > th:first-child {
+    border-top-left-radius: var(--border-radius);
+  }
+  ::ng-deep .p-datatable thead > tr > th:last-child {
+    border-top-right-radius: var(--border-radius);
+  }
+}
+
+// RTL: swap the corners so the "outer" edges stay rounded.
+:host-context([dir='rtl']) ::ng-deep .p-datatable thead > tr > th:first-child {
+  border-top-left-radius: 0;
+  border-top-right-radius: var(--border-radius);
+}
+:host-context([dir='rtl']) ::ng-deep .p-datatable thead > tr > th:last-child {
+  border-top-right-radius: 0;
+  border-top-left-radius: var(--border-radius);
+}
+

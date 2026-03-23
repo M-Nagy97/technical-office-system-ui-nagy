@@ -6,7 +6,6 @@ import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
@@ -26,6 +25,9 @@ import {
 } from '../../../core/api/generated';
 import * as XLSX from 'xlsx';
 import { parseAttendanceImportCsv, parseAttendanceImportXlsx } from './attendance-import.helpers';
+import { SharedTableAction, SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
+import { SharedTableCellTemplateDirective } from '../../../shared/components/shared-table/shared-table-cell-template.directive';
+import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
 
 function toYmdLocal(d: Date): string {
   const y = d.getFullYear();
@@ -64,12 +66,13 @@ function employeeLabel(e: EmployeeDto): string {
     CalendarModule,
     DropdownModule,
     MultiSelectModule,
-    TableModule,
     TagModule,
     DialogModule,
     InputTextModule,
     ToastModule,
     TranslateModule,
+    SharedTableComponent,
+    SharedTableCellTemplateDirective,
   ],
   providers: [MessageService],
   templateUrl: './daily-attendance.component.html',
@@ -92,6 +95,96 @@ export class DailyAttendanceComponent implements OnInit {
   readonly rawRows = signal<AttendanceRawDto[]>([]);
   readonly loadingGrid = signal(false);
   readonly togglingId = signal<string | null>(null);
+
+  readonly employeeSummaryColumns: SharedTableColumn<DailyAttendanceEmployeeGroup>[] = [
+    {
+      id: 'employeeName',
+      header: 'daily_attendance_page.col_employee',
+      field: 'employeeName',
+      align: 'start',
+      cellClass: 'font-medium',
+    },
+    {
+      id: 'punchCount',
+      header: 'daily_attendance_page.col_punch_count',
+      field: 'punchCount',
+      align: 'end',
+    },
+    {
+      id: 'countingInCalc',
+      header: 'daily_attendance_page.col_counting_in_calc',
+      field: 'countingInCalc',
+      align: 'end',
+    },
+  ];
+
+  readonly employeeSummaryActions: SharedTableAction<DailyAttendanceEmployeeGroup>[] = [
+    {
+      id: 'view',
+      icon: 'pi pi-eye',
+      label: 'daily_attendance_page.view',
+      onClick: (row) => this.openEmployeeDetail(row.empId),
+    },
+  ];
+
+  readonly detailRowClass = (row: AttendanceRawDto): string => (row.ignoredByCalculation ? 'raw-row-ignored' : '');
+
+  readonly detailColumns: SharedTableColumn<AttendanceRawDto>[] = [
+    {
+      id: 'date',
+      header: 'daily_attendance_page.col_date',
+      valueGetter: (row) => this.formatFingerDate(row.fingerTime),
+      align: 'start',
+    },
+    {
+      id: 'time',
+      header: 'daily_attendance_page.col_time',
+      valueGetter: (row) => this.formatFingerClock(row.fingerTime),
+      align: 'start',
+      cellClass: 'font-mono text-900',
+    },
+    {
+      id: 'direction',
+      header: 'daily_attendance_page.col_direction',
+      valueGetter: (row) => this.directionLabel(row.direction),
+    },
+    {
+      id: 'source',
+      header: 'daily_attendance_page.col_source',
+      valueGetter: (row) => this.sourceLabel(row.source),
+    },
+    {
+      id: 'processed',
+      header: 'daily_attendance_page.col_processed',
+      cellClass: (row) => (row.isProcessed ? 'font-medium' : 'text-600'),
+    },
+    {
+      id: 'inCalc',
+      header: 'daily_attendance_page.col_in_calc',
+    },
+  ];
+
+  readonly detailActions: SharedTableAction<AttendanceRawDto>[] = [
+    {
+      id: 'exclude',
+      icon: 'pi pi-ban',
+      label: 'daily_attendance_page.exclude',
+      visible: (row) => !row.ignoredByCalculation,
+      disabled: (row) => !row.id || this.togglingId() !== null,
+      loading: (row) => this.togglingId() === row.id,
+      buttonClass: 'p-button-warning',
+      onClick: (row) => this.setRowIgnored(row, true),
+    },
+    {
+      id: 'include',
+      icon: 'pi pi-check',
+      label: 'daily_attendance_page.include',
+      visible: (row) => !!row.ignoredByCalculation,
+      disabled: (row) => !row.id || this.togglingId() !== null,
+      loading: (row) => this.togglingId() === row.id,
+      onClick: (row) => this.setRowIgnored(row, false),
+    },
+  ];
 
   readonly showEmployeeDetailDialog = signal(false);
   readonly detailEmployeeId = signal<string | null>(null);
