@@ -28,6 +28,13 @@ export const routes: Routes = [
           import('./modules/penalties/penalties.routes').then((m) => m.PENALTY_ROUTES),
       },
       {
+        path: 'custody',
+        loadChildren: () =>
+          import('./modules/employee-custody/employee-custody.routes').then(
+            (m) => m.EMPLOYEE_CUSTODY_ROUTES
+          ),
+      },
+      {
         path: 'job-grades',
         loadChildren: () =>
           import('./modules/job-grades/job-grades.routes').then((m) => m.JOB_GRADES_ROUTES),

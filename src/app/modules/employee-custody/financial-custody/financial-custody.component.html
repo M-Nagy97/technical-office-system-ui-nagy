@@ -1,0 +1,137 @@
+<div class="page-header">
+  <h1 class="page-title">{{ 'custody.financial_title' | translate }}</h1>
+  <p class="page-subtitle text-muted">{{ 'custody.financial_subtitle' | translate }}</p>
+</div>
+
+<div class="toolbar flex flex-wrap gap-2 align-items-end mb-3">
+  <div class="field">
+    <label class="block mb-1 text-sm">{{ 'custody.employee' | translate }}</label>
+    <p-dropdown
+      [options]="employeeOptions()"
+      [(ngModel)]="selectedEmployeeId"
+      optionLabel="label"
+      optionValue="value"
+      [filter]="true"
+      [showClear]="true"
+      [placeholder]="'custody.select_employee' | translate"
+      styleClass="min-w-18rem"
+    />
+  </div>
+  <p-button [label]="'custody.load_details' | translate" icon="pi pi-search" (onClick)="loadDetails()" [loading]="loading()" />
+  <p-button [label]="'custody.new_transaction' | translate" icon="pi pi-plus" severity="success" (onClick)="openTxDialog()" />
+  <p-button [label]="'custody.return_amount' | translate" icon="pi pi-wallet" severity="secondary" (onClick)="openReturnDialog()" />
+  <a routerLink="/custody/documents" class="p-button p-component p-button-outlined ml-auto no-underline">
+    <span class="p-button-label">{{ 'custody.documents_module' | translate }}</span>
+  </a>
+</div>
+
+@if (details(); as d) {
+  <div class="grid">
+    <div class="col-12 md:col-4">
+      <p-card [header]="'custody.balance' | translate">
+        <div class="text-3xl font-bold text-primary">{{ d.balance | number: '1.2-2' }}</div>
+      </p-card>
+    </div>
+    <div class="col-12 md:col-8">
+      <p-card [header]="'custody.docs_in_hand' | translate">
+        @if (d.documentsInHand.length === 0) {
+          <span class="text-500">{{ 'custody.none' | translate }}</span>
+        } @else {
+          <ul class="list-none p-0 m-0">
+            @for (doc of d.documentsInHand; track doc.documentId) {
+              <li class="mb-2">
+                <a [routerLink]="['/custody/documents', doc.documentId]" class="font-medium">{{ doc.title }}</a>
+              </li>
+            }
+          </ul>
+        }
+      </p-card>
+    </div>
+  </div>
+
+  <p-card [header]="'custody.recent_transactions' | translate" styleClass="mt-3">
+    <p-table [value]="d.recentTransactions" [rows]="10" [paginator]="d.recentTransactions.length > 10">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>{{ 'custody.col.date' | translate }}</th>
+          <th>{{ 'custody.col.type' | translate }}</th>
+          <th>{{ 'custody.col.amount' | translate }}</th>
+          <th>{{ 'custody.col.notes' | translate }}</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-row>
+        <tr>
+          <td>{{ row.transactionDate | date: 'short' }}</td>
+          <td>{{ txTypeLabel(row.type) | translate }}</td>
+          <td>{{ row.amount | number: '1.2-2' }}</td>
+          <td>{{ row.notes || '—' }}</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="4" class="text-center text-500">{{ 'custody.no_transactions' | translate }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+}
+
+<p-dialog
+  [header]="'custody.new_transaction' | translate"
+  [(visible)]="dialogVisible"
+  [modal]="true"
+  [style]="{ width: '28rem' }"
+>
+  <div class="flex flex-column gap-3">
+    <div class="field">
+      <label class="block mb-1">{{ 'custody.col.type' | translate }}</label>
+      <p-dropdown [options]="typeOptions" [(ngModel)]="txType" optionLabel="label" optionValue="value" styleClass="w-full" />
+    </div>
+    <div class="field">
+      <label class="block mb-1">{{ 'custody.col.amount' | translate }}</label>
+      <p-inputNumber [(ngModel)]="txAmount" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2" styleClass="w-full" />
+    </div>
+    <div class="field">
+      <label class="block mb-1">{{ 'custody.col.date' | translate }}</label>
+      <p-calendar [(ngModel)]="txDate" [showTime]="true" hourFormat="24" styleClass="w-full" />
+    </div>
+    <div class="field">
+      <label class="block mb-1">{{ 'custody.col.notes' | translate }}</label>
+      <input pInputText class="w-full" [(ngModel)]="txNotes" />
+    </div>
+    <div class="field">
+      <label class="block mb-1">{{ 'custody.attachment_url' | translate }}</label>
+      <input pInputText class="w-full" [(ngModel)]="txAttachment" />
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button [label]="'custody.cancel' | translate" severity="secondary" (onClick)="dialogVisible = false" />
+    <p-button [label]="'custody.save' | translate" (onClick)="submitTransaction()" [loading]="loading()" />
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [header]="'custody.return_amount' | translate"
+  [(visible)]="returnDialogVisible"
+  [modal]="true"
+  [style]="{ width: '26rem' }"
+>
+  <div class="flex flex-column gap-3">
+    <div class="field">
+      <label class="block mb-1">{{ 'custody.col.amount' | translate }}</label>
+      <p-inputNumber [(ngModel)]="returnAmount" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2" styleClass="w-full" />
+    </div>
+    <div class="field">
+      <label class="block mb-1">{{ 'custody.col.date' | translate }}</label>
+      <p-calendar [(ngModel)]="returnDate" [showTime]="true" hourFormat="24" styleClass="w-full" />
+    </div>
+    <div class="field">
+      <label class="block mb-1">{{ 'custody.col.notes' | translate }}</label>
+      <input pInputText class="w-full" [(ngModel)]="returnNotes" />
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button [label]="'custody.cancel' | translate" severity="secondary" (onClick)="returnDialogVisible = false" />
+    <p-button [label]="'custody.save' | translate" (onClick)="submitReturn()" [loading]="loading()" />
+  </ng-template>
+</p-dialog>

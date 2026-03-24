@@ -1,6 +1,5 @@
 import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
@@ -11,6 +10,8 @@ import { TooltipModule } from 'primeng/tooltip';
 import { RippleModule } from 'primeng/ripple';
 import { EmployeeService } from '../../../core/services/employee.service';
 import { Employee } from '../../../core/models/employee.model';
+import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
+import { SharedTableAction, SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
 
 export interface DocumentRow {
   id: string;
@@ -36,7 +37,6 @@ const DOC_TYPE_LABELS: Record<string, string> = {
   standalone: true,
   imports: [
     FormsModule,
-    TableModule,
     CardModule,
     ButtonModule,
     DropdownModule,
@@ -45,6 +45,7 @@ const DOC_TYPE_LABELS: Record<string, string> = {
     FileUploadModule,
     TooltipModule,
     RippleModule,
+    SharedTableComponent,
   ],
   templateUrl: './appointment-documents.component.html',
   styleUrl: './appointment-documents.component.scss',
@@ -129,6 +130,22 @@ export class AppointmentDocumentsComponent implements OnInit {
   formatDate(d: Date): string {
     return new Date(d).toLocaleDateString('ar-EG');
   }
+
+  readonly columns: SharedTableColumn<DocumentRow>[] = [
+    { id: 'employeeName', header: 'الموظف', field: 'employeeName' },
+    { id: 'typeLabel', header: 'نوع المستند', field: 'typeLabel' },
+    { id: 'name', header: 'اسم المستند', field: 'name' },
+    { id: 'uploadDate', header: 'تاريخ الرفع', valueGetter: (row) => this.formatDate(row.uploadDate) },
+  ];
+
+  readonly actions: SharedTableAction<DocumentRow>[] = [
+    {
+      id: 'preview',
+      icon: 'pi pi-eye',
+      buttonClass: 'p-button-rounded p-button-text p-button-sm',
+      onClick: (row) => this.openPreview(row),
+    },
+  ];
 
   onUploadFile(): void {
     // Placeholder: add document to selected employee

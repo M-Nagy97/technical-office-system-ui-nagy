@@ -5,12 +5,13 @@ import { ButtonModule } from 'primeng/button';
 import { TabViewModule } from 'primeng/tabview';
 import { AvatarModule } from 'primeng/avatar';
 import { TagModule } from 'primeng/tag';
-import { TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
 import { EmployeeService } from '../../../core/services/employee.service';
 import { PenaltyService } from '../../../core/services/penalty.service';
 import { Employee } from '../../../core/models/employee.model';
 import { Penalty, PenaltyType, PenaltyStatus } from '../../../core/models/penalty.model';
+import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
+import { SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
 
 const STATUS_LABELS: Record<string, string> = {
   active: 'نشط',
@@ -28,7 +29,7 @@ const EMPLOYMENT_TYPE_LABELS: Record<string, string> = {
 @Component({
   selector: 'app-employee-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, CardModule, ButtonModule, TabViewModule, AvatarModule, TagModule, TableModule],
+  imports: [CommonModule, RouterLink, CardModule, ButtonModule, TabViewModule, AvatarModule, TagModule, SharedTableComponent],
   templateUrl: './employee-detail.component.html',
   styleUrl: './employee-detail.component.scss',
 })
@@ -42,6 +43,14 @@ export class EmployeeDetailComponent implements OnInit {
   readonly loading = signal(true);
   readonly penaltyStats = signal<{ type: PenaltyType; count: number }[]>([]);
   readonly employeePenalties = signal<Penalty[]>([]);
+
+  readonly employeePenaltyColumns: SharedTableColumn<Penalty>[] = [
+    { id: 'penaltyNumber', header: 'رقم الجزاء', valueGetter: (p) => p.penaltyNumber },
+    { id: 'type', header: 'النوع', valueGetter: (p) => this.getPenaltyTypeLabel(p.type) },
+    { id: 'reason', header: 'السبب', valueGetter: (p) => p.reason },
+    { id: 'incidentDate', header: 'تاريخ الواقعة', valueGetter: (p) => this.formatDate(p.incidentDate) },
+    { id: 'status', header: 'الحالة', valueGetter: (p) => this.getPenaltyStatusLabel(p.status) },
+  ];
 
   getStatusLabel(status: string): string {
     return STATUS_LABELS[status] ?? status;

@@ -12,53 +12,22 @@
         />
       </span>
     </div>
-    <p-table
+    <app-shared-table
       [value]="filteredSettings()"
       [loading]="loading()"
+      [columns]="columns"
+      [actions]="actions"
+      actionsColumnHeader="إجراءات"
+      actionsColumnWidth="8rem"
       [rows]="10"
       [paginator]="true"
       [rowsPerPageOptions]="[10, 25, 50]"
-      styleClass="p-datatable-sm p-datatable-striped"
       currentPageReportTemplate="عرض {first} إلى {last} من {totalRecords}"
       [showCurrentPageReport]="true"
-    >
-      <ng-template pTemplate="header">
-        <tr>
-          <th>المفتاح</th>
-          <th>القيمة</th>
-          <th>نوع القيمة</th>
-          <th>الوصف</th>
-          <th style="width: 8rem">إجراءات</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-setting>
-        <tr>
-          <td>{{ setting.key ?? '—' }}</td>
-          <td>{{ setting.value ?? '—' }}</td>
-          <td>{{ setting.valueType ?? '—' }}</td>
-          <td>{{ setting.description ?? '—' }}</td>
-          <td>
-            <a
-              pButton
-              pRipple
-              icon="pi pi-pencil"
-              [routerLink]="['/attendance/settings', setting.key, 'edit']"
-              pTooltip="تعديل"
-              class="p-button-rounded p-button-text p-button-sm"
-            ></a>
-          </td>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="5">لا توجد إعدادات</td>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="loadingbody">
-        <tr>
-          <td colspan="5"><i class="pi pi-spin pi-spinner"></i> جاري التحميل...</td>
-        </tr>
-      </ng-template>
-    </p-table>
+      styleClass="p-datatable-sm p-datatable-striped"
+      [translateHeader]="false"
+      emptyMessage="لا توجد إعدادات"
+      [translateEmptyMessage]="false"
+    />
   </p-card>
 </div>

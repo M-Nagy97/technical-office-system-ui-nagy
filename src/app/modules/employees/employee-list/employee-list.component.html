@@ -83,82 +83,36 @@
   </p-card>
 
   <p-card>
-    <p-table
+    <app-shared-table
       [value]="filteredEmployees()"
-      [lazy]="false"
-      [paginator]="true"
-      [rows]="rows()"
-      [first]="first()"
-      [totalRecords]="filteredEmployees().length"
-      (onPage)="onPage($event)"
       [loading]="loading()"
+      [columns]="columns"
+      [actions]="actions"
+      actionsColumnHeader="إجراءات"
+      actionsColumnWidth="10rem"
+      [rows]="rows()"
       [rowsPerPageOptions]="[10, 25, 50]"
-      styleClass="p-datatable-sm p-datatable-striped"
-      [tableStyle]="{ 'min-width': '50rem' }"
       currentPageReportTemplate="عرض {first} إلى {last} من {totalRecords}"
       [showCurrentPageReport]="true"
+      styleClass="p-datatable-sm p-datatable-striped"
+      [tableStyle]="{ 'min-width': '50rem' }"
+      [translateHeader]="false"
+      emptyMessage="لا توجد بيانات"
+      [translateEmptyMessage]="false"
     >
-      <ng-template pTemplate="header">
-        <tr>
-          <th style="width: 4rem">الصورة</th>
-          <th pSortableColumn="employeeNumber">رقم الموظف <p-sortIcon field="employeeNumber" /></th>
-          <th pSortableColumn="fullName">الاسم الكامل <p-sortIcon field="fullName" /></th>
-          <th>المسمى الوظيفي</th>
-          <th>القسم</th>
-          <th>الحالة</th>
-          <th style="width: 10rem">إجراءات</th>
-        </tr>
+      <ng-template sharedTableCell="photo" let-row>
+        <p-avatar
+          [image]="row.photo"
+          [label]="(row.fullName?.charAt(0) || '?')"
+          shape="circle"
+          size="normal"
+          styleClass="table-avatar"
+        />
       </ng-template>
-      <ng-template pTemplate="body" let-employee>
-        <tr>
-          <td>
-            <p-avatar
-              [image]="employee.photo"
-              [label]="(employee.fullName?.charAt(0) || '?')"
-              shape="circle"
-              size="normal"
-              styleClass="table-avatar"
-            />
-          </td>
-          <td>{{ employee.employeeNumber }}</td>
-          <td>{{ employee.fullName }}</td>
-          <td>{{ employee.jobTitle }}</td>
-          <td>{{ employee.department }}</td>
-          <td>
-            <p-tag [value]="getStatusLabel(employee.status)" [severity]="getStatusSeverity(employee.status)" />
-          </td>
-          <td>
-            <a
-              pButton
-              pRipple
-              icon="pi pi-eye"
-              [routerLink]="['/employees', employee.id]"
-              pTooltip="عرض"
-              class="p-button-rounded p-button-text p-button-sm"
-            ></a>
-            <a
-              pButton
-              pRipple
-              icon="pi pi-pencil"
-              [routerLink]="['/employees', employee.id, 'edit']"
-              pTooltip="تعديل"
-              class="p-button-rounded p-button-text p-button-sm"
-            ></a>
-          </td>
-        </tr>
+
+      <ng-template sharedTableCell="status" let-row>
+        <p-tag [value]="getStatusLabel(row.status)" [severity]="getStatusSeverity(row.status)" />
       </ng-template>
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="7">لا توجد بيانات</td>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="loadingbody">
-        <tr>
-          <td colspan="7">
-            <i class="pi pi-spin pi-spinner"></i> جاري التحميل...
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
+    </app-shared-table>
   </p-card>
 </div>

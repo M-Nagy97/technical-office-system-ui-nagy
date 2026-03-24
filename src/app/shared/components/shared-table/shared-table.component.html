@@ -4,25 +4,41 @@
   [paginator]="paginator"
   [rows]="rows"
   [rowsPerPageOptions]="rowsPerPageOptions"
+  [scrollable]="scrollable"
+  [scrollHeight]="scrollHeight || undefined"
   [styleClass]="styleClass"
   [tableStyle]="tableStyle || undefined"
+  [showCurrentPageReport]="showCurrentPageReport"
+  [currentPageReportTemplate]="currentPageReportTemplate"
 >
   <ng-template pTemplate="header">
     <tr>
-      <th
-        *ngFor="let col of columns"
-        [style.width]="col.width || undefined"
-        [style.text-align]="resolveAlign(col.align)"
-      >
-        <ng-container *ngIf="translateHeader; else rawHeader">
-          {{ col.header | translate }}
-        </ng-container>
-        <ng-template #rawHeader>{{ col.header }}</ng-template>
-      </th>
+      <ng-container *ngFor="let col of columns">
+        <th
+          *ngIf="col.sortableField; else plainHeader"
+          [pSortableColumn]="col.sortableField"
+          [style.width]="col.width || undefined"
+          [style.text-align]="resolveAlign(col.align)"
+        >
+          <ng-container *ngIf="translateHeader; else rawHeader">
+            {{ col.header | translate }}
+          </ng-container>
+          <ng-template #rawHeader>{{ col.header }}</ng-template>
+          <p-sortIcon [field]="col.sortableField" />
+        </th>
+        <ng-template #plainHeader>
+          <th [style.width]="col.width || undefined" [style.text-align]="resolveAlign(col.align)">
+            <ng-container *ngIf="translateHeader; else rawHeader2">
+              {{ col.header | translate }}
+            </ng-container>
+            <ng-template #rawHeader2>{{ col.header }}</ng-template>
+          </th>
+        </ng-template>
+      </ng-container>
       <th
         *ngIf="actionsEnabled()"
         [style.width]="actionsColumnWidth"
-        [style.text-align]="resolveAlign('end')"
+        [style.text-align]="resolveAlign(actionsAlign)"
       >
         <ng-container *ngIf="translateHeader; else rawActionsHeader">
           {{ actionsColumnHeader ? (actionsColumnHeader | translate) : '' }}
@@ -32,8 +48,8 @@
     </tr>
   </ng-template>
 
-  <ng-template pTemplate="body" let-row>
-    <tr [ngClass]="getRowClass(row)">
+  <ng-template pTemplate="body" let-row let-rowIndex="rowIndex">
+    <tr [ngClass]="getRowClass(row)" (click)="onRowClicked(row, $event)">
       <td
         *ngFor="let col of columns"
         [ngClass]="getCellClass(col, row)"
@@ -41,7 +57,10 @@
       >
         <ng-container *ngIf="getCellTemplate(col.id) as tpl; else defaultCell">
           <ng-container
-            *ngTemplateOutlet="tpl; context: { $implicit: row, row: row, value: getColumnValue(col, row) }"
+            *ngTemplateOutlet="
+              tpl;
+              context: { $implicit: row, row: row, value: getColumnValue(col, row), rowIndex: rowIndex }
+            "
           />
         </ng-container>
 
@@ -50,8 +69,11 @@
         </ng-template>
       </td>
 
-      <td *ngIf="actionsEnabled()" [style.text-align]="resolveAlign('end')">
-        <div class="shared-table-actions flex gap-2" style="justify-content: flex-end">
+      <td *ngIf="actionsEnabled()" [style.text-align]="resolveAlign(actionsAlign)">
+        <div
+          class="shared-table-actions flex gap-2"
+          [style.justify-content]="resolveActionsJustify()"
+        >
           <ng-container *ngFor="let action of actions">
             <ng-container *ngIf="isActionVisible(action, row)">
               <button
@@ -62,7 +84,7 @@
                 [label]="action.label ? (action.label | translate) : undefined"
                 [disabled]="isActionDisabled(action, row)"
                 [loading]="isActionLoading(action, row)"
-                (click)="action.onClick(row)"
+                (click)="action.onClick(row, $event)"
               ></button>
             </ng-container>
           </ng-container>

@@ -82,33 +82,16 @@
           }
           @if (employeePenalties().length) {
             <p class="penalty-list-label">سجل الجزاءات:</p>
-            <p-table
+            <app-shared-table
               [value]="employeePenalties()"
+              [columns]="employeePenaltyColumns"
+              [paginator]="false"
               styleClass="p-datatable-sm p-datatable-striped"
               [tableStyle]="{ 'min-width': '40rem' }"
-            >
-              <ng-template pTemplate="header">
-                <tr>
-                  <th>رقم الجزاء</th>
-                  <th>النوع</th>
-                  <th>السبب</th>
-                  <th>تاريخ الواقعة</th>
-                  <th>الحالة</th>
-                </tr>
-              </ng-template>
-              <ng-template pTemplate="body" let-p>
-                <tr>
-                  <td>{{ p.penaltyNumber }}</td>
-                  <td>{{ getPenaltyTypeLabel(p.type) }}</td>
-                  <td>{{ p.reason }}</td>
-                  <td>{{ formatDate(p.incidentDate) }}</td>
-                  <td>{{ getPenaltyStatusLabel(p.status) }}</td>
-                </tr>
-              </ng-template>
-              <ng-template pTemplate="emptymessage">
-                <tr><td colspan="5">لا توجد جزاءات.</td></tr>
-              </ng-template>
-            </p-table>
+              [translateHeader]="false"
+              emptyMessage="لا توجد جزاءات."
+              [translateEmptyMessage]="false"
+            />
           } @else {
             <p>لا توجد جزاءات مسجلة لهذا الموظف.</p>
           }

@@ -5,7 +5,6 @@ import { Router } from '@angular/router';
 import { Subject, forkJoin } from 'rxjs';
 import { finalize, map, takeUntil } from 'rxjs/operators';
 import { CardModule } from 'primeng/card';
-import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
@@ -16,6 +15,9 @@ import { ToastModule } from 'primeng/toast';
 import { DialogModule } from 'primeng/dialog';
 import { MessageService } from 'primeng/api';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
+import { SharedTableCellTemplateDirective } from '../../../shared/components/shared-table/shared-table-cell-template.directive';
+import { SharedTableAction, SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
 import {
   AttendanceCalcService,
   AttendanceCalculationPreviewDayDto,
@@ -44,7 +46,6 @@ function toYmd(d: Date): string {
     CommonModule,
     FormsModule,
     CardModule,
-    TableModule,
     ButtonModule,
     InputTextModule,
     InputTextareaModule,
@@ -54,6 +55,8 @@ function toYmd(d: Date): string {
     ToastModule,
     DialogModule,
     TranslatePipe,
+    SharedTableComponent,
+    SharedTableCellTemplateDirective,
   ],
   providers: [MessageService],
   templateUrl: './calculation-workbench.component.html',
@@ -318,6 +321,50 @@ export class CalculationWorkbenchComponent implements OnInit, OnDestroy {
           }),
       });
   }
+
+  readonly previewColumns: SharedTableColumn<AttendanceCalculationPreviewRowDto>[] = [
+    { id: 'employeeName', header: 'calculation_workbench.col_employee', valueGetter: (r) => r.employeeName || '—' },
+    { id: 'employeeCode', header: 'calculation_workbench.col_code', valueGetter: (r) => r.employeeCode || '—' },
+    { id: 'departmentName', header: 'calculation_workbench.col_dept', valueGetter: (r) => r.departmentName || '—' },
+    { id: 'planName', header: 'calculation_workbench.col_plan', valueGetter: (r) => r.planName || '—' },
+    { id: 'shiftsSummaryInRange', header: 'calculation_workbench.col_shifts', valueGetter: (r) => r.shiftsSummaryInRange || '—' },
+    { id: 'calendarDaysInRange', header: 'calculation_workbench.col_days_range', valueGetter: (r) => r.calendarDaysInRange ?? '—', align: 'end' },
+    { id: 'daysWithPunches', header: 'calculation_workbench.col_days_punches', valueGetter: (r) => r.daysWithPunches ?? '—', align: 'end' },
+    { id: 'daysPresent', header: 'calculation_workbench.col_days_present', valueGetter: (r) => r.daysPresent ?? '—', align: 'end' },
+    { id: 'daysAbsentOnScheduledWorkdays', header: 'calculation_workbench.col_days_absent', valueGetter: (r) => r.daysAbsentOnScheduledWorkdays ?? '—', align: 'end' },
+    { id: 'daysIncompleteAttendance', header: 'calculation_workbench.col_days_incomplete', valueGetter: (r) => r.daysIncompleteAttendance ?? '—', align: 'end' },
+    { id: 'totalNetWorkMinutes', header: 'calculation_workbench.col_net', valueGetter: (r) => this.formatMinutes(r.totalNetWorkMinutes), align: 'end' },
+    { id: 'totalLateMinutes', header: 'calculation_workbench.col_late', valueGetter: (r) => this.formatMinutes(r.totalLateMinutes), align: 'end' },
+    { id: 'totalEarlyLeaveMinutes', header: 'calculation_workbench.col_early', valueGetter: (r) => this.formatMinutes(r.totalEarlyLeaveMinutes), align: 'end' },
+    { id: 'totalOvertimeBeforeMinutes', header: 'calculation_workbench.col_ot_before', valueGetter: (r) => this.formatMinutes(r.totalOvertimeBeforeMinutes), align: 'end' },
+    { id: 'totalOvertimeAfterMinutes', header: 'calculation_workbench.col_ot_after', valueGetter: (r) => this.formatMinutes(r.totalOvertimeAfterMinutes), align: 'end' },
+  ];
+
+  readonly previewActions: SharedTableAction<AttendanceCalculationPreviewRowDto>[] = [
+    {
+      id: 'view',
+      icon: 'pi pi-list',
+      buttonClass: 'p-button-rounded p-button-text p-button-sm',
+      disabled: (_row) => this.loadingPreview(),
+      onClick: (row) => this.openEmployeeDetail(row),
+    },
+  ];
+
+  readonly detailColumns: SharedTableColumn<AttendanceCalculationPreviewDayDto>[] = [
+    { id: 'workDate', header: 'calculation_workbench.col_date', valueGetter: (d) => d.workDate },
+    { id: 'scheduleDayType', header: 'calculation_workbench.col_day_type', valueGetter: (d) => this.formatDayType(d.scheduleDayType) },
+    { id: 'scheduledWork', header: 'calculation_workbench.col_scheduled_work', valueGetter: (d) => this.scheduledWorkLabel(d.isScheduledWorkday) },
+    { id: 'shiftName', header: 'employee_attendance.col_shift', valueGetter: (d) => d.shiftName || '—' },
+    { id: 'punchCount', header: 'calculation_workbench.col_punches', valueGetter: (d) => d.punchCount ?? 0, align: 'end' },
+    { id: 'actualIn', header: 'employee_attendance.col_in' },
+    { id: 'actualOut', header: 'employee_attendance.col_out' },
+    { id: 'attendanceStatus', header: 'employee_attendance.col_status', valueGetter: (d) => this.formatAttendanceStatus(d.status) },
+    { id: 'netWorkMinutes', header: 'employee_attendance.col_net', valueGetter: (d) => this.formatMinutes(d.netWorkMinutes), align: 'end' },
+    { id: 'lateMinutes', header: 'calculation_workbench.col_late', valueGetter: (d) => this.formatMinutes(d.lateMinutes), align: 'end' },
+    { id: 'earlyLeaveMinutes', header: 'calculation_workbench.col_early', valueGetter: (d) => this.formatMinutes(d.earlyLeaveMinutes), align: 'end' },
+    { id: 'overtimeBeforeMinutes', header: 'calculation_workbench.col_ot_before', valueGetter: (d) => this.formatMinutes(d.overtimeBeforeMinutes), align: 'end' },
+    { id: 'overtimeAfterMinutes', header: 'calculation_workbench.col_ot_after', valueGetter: (d) => this.formatMinutes(d.overtimeAfterMinutes), align: 'end' },
+  ];
 
   formatMinutes(m?: number | null): string {
     if (m == null || m < 0) return '—';

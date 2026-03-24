@@ -1,7 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { RouterLink, ActivatedRoute } from '@angular/router';
+import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -10,6 +9,9 @@ import { RippleModule } from 'primeng/ripple';
 
 import { map } from 'rxjs/operators';
 import { PlanSchedulesService, PlanScheduleDto } from '../../../core/api/generated';
+import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
+import { SharedTableAction, SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
+import { SharedTableCellTemplateDirective } from '../../../shared/components/shared-table/shared-table-cell-template.directive';
 
 @Component({
   selector: 'app-schedule-list',
@@ -17,12 +19,13 @@ import { PlanSchedulesService, PlanScheduleDto } from '../../../core/api/generat
   imports: [
     RouterLink,
     FormsModule,
-    TableModule,
     CardModule,
     ButtonModule,
     InputTextModule,
     TooltipModule,
     RippleModule,
+    SharedTableComponent,
+    SharedTableCellTemplateDirective,
   ],
   templateUrl: './schedule-list.component.html',
   styleUrl: './schedule-list.component.scss',
@@ -30,6 +33,7 @@ import { PlanSchedulesService, PlanScheduleDto } from '../../../core/api/generat
 export class ScheduleListComponent implements OnInit {
   private readonly schedulesApi = inject(PlanSchedulesService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   readonly loading = signal(false);
   readonly schedules = signal<PlanScheduleDto[]>([]);
@@ -74,4 +78,29 @@ export class ScheduleListComponent implements OnInit {
       return value;
     }
   }
+
+  readonly columns: SharedTableColumn<PlanScheduleDto>[] = [
+    {
+      id: 'scheduleDate',
+      header: 'التاريخ',
+      valueGetter: (row) => this.formatDate(row.scheduleDate),
+    },
+    { id: 'shiftId', header: 'الشيفت', valueGetter: (row) => row.shiftId ?? '—' },
+    { id: 'dayType', header: 'نوع اليوم', field: 'dayType' },
+    { id: 'isHoliday', header: 'عطلة؟', field: 'isHoliday' },
+    { id: 'notes', header: 'ملاحظات', valueGetter: (row) => row.notes ?? '—' },
+  ];
+
+  readonly actions: SharedTableAction<PlanScheduleDto>[] = [
+    {
+      id: 'edit',
+      icon: 'pi pi-pencil',
+      buttonClass: 'p-button-rounded p-button-text p-button-sm',
+      onClick: (row) => {
+        if (!this.planId()) return;
+        if (!row.id) return;
+        this.router.navigate(['/attendance/plans', this.planId()!, 'schedules', row.id, 'edit']);
+      },
+    },
+  ];
 }

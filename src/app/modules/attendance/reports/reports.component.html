@@ -59,48 +59,18 @@
 
   <p-card>
     <h3>ملخص شهري للموظفين</h3>
-    <p-table
+    <app-shared-table
       [value]="filteredSummaries()"
+      [columns]="columns"
+      [actions]="actions"
+      actionsColumnHeader="إجراء"
+      actionsColumnWidth="10rem"
       styleClass="p-datatable-sm p-datatable-striped"
       [tableStyle]="{ 'min-width': '40rem' }"
-    >
-      <ng-template pTemplate="header">
-        <tr>
-          <th>الموظف</th>
-          <th>أيام الحضور</th>
-          <th>أيام الغياب</th>
-          <th>أيام التأخير</th>
-          <th>إجازة</th>
-          <th>دقائق التأخير</th>
-          <th>إجراء</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-summary>
-        <tr>
-          <td>{{ summary.employeeName }}</td>
-          <td>{{ summary.presentDays }}</td>
-          <td>{{ summary.absentDays }}</td>
-          <td>{{ summary.lateDays }}</td>
-          <td>{{ summary.vacationDays }}</td>
-          <td>{{ summary.totalLateMinutes }}</td>
-          <td>
-            <button
-              pButton
-              pRipple
-              label="عرض التقويم"
-              icon="pi pi-calendar"
-              class="p-button-sm p-button-outlined"
-              (click)="showCalendarFor(summary.employeeId)"
-            ></button>
-          </td>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="7">لا توجد بيانات.</td>
-        </tr>
-      </ng-template>
-    </p-table>
+      [translateHeader]="false"
+      emptyMessage="لا توجد بيانات."
+      [translateEmptyMessage]="false"
+    />
   </p-card>
 
   @if (employeeForCalendar(); as eid) {

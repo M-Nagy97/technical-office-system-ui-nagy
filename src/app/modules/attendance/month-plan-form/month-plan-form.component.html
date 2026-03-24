@@ -68,27 +68,54 @@
                         <span class="font-bold">الشرائح</span>
                         <button type="button" pButton icon="pi pi-plus" label="إضافة شريحة" class="p-button-sm p-button-outlined" (click)="addTier(pi)"></button>
                       </div>
-                      
-                      <p-table [value]="getTiers(pi).controls" styleClass="p-datatable-sm">
-                        <ng-template pTemplate="header">
-                          <tr>
-                            <th>من (دقيقة)</th>
-                            <th>إلى (دقيقة)</th>
-                            <th>العامل</th>
-                            <th style="width: 3rem"></th>
-                          </tr>
+
+                      <app-shared-table
+                        [value]="getTiers(pi).controls"
+                        [columns]="tierColumns"
+                        styleClass="p-datatable-sm"
+                        [paginator]="false"
+                        [translateHeader]="false"
+                        emptyMessage=""
+                        [translateEmptyMessage]="false"
+                      >
+                        <ng-template sharedTableCell="fromMinute" let-rowIndex="rowIndex">
+                          <ng-container [formGroupName]="rowIndex">
+                            <p-inputNumber
+                              formControlName="fromMinute"
+                              [min]="0"
+                              styleClass="w-full"
+                            ></p-inputNumber>
+                          </ng-container>
                         </ng-template>
-                        <ng-template pTemplate="body" let-tier let-ti="rowIndex">
-                          <tr [formGroupName]="ti">
-                            <td><p-inputNumber formControlName="fromMinute" [min]="0" styleClass="w-full"></p-inputNumber></td>
-                            <td><p-inputNumber formControlName="toMinute" [min]="0" styleClass="w-full"></p-inputNumber></td>
-                            <td><p-inputNumber formControlName="factorValue" [min]="0" [step]="0.1" [minFractionDigits]="1" styleClass="w-full"></p-inputNumber></td>
-                            <td>
-                              <button type="button" pButton icon="pi pi-trash" class="p-button-danger p-button-text" (click)="removeTier(pi, ti)"></button>
-                            </td>
-                          </tr>
+
+                        <ng-template sharedTableCell="toMinute" let-rowIndex="rowIndex">
+                          <ng-container [formGroupName]="rowIndex">
+                            <p-inputNumber formControlName="toMinute" [min]="0" styleClass="w-full"></p-inputNumber>
+                          </ng-container>
                         </ng-template>
-                      </p-table>
+
+                        <ng-template sharedTableCell="factorValue" let-rowIndex="rowIndex">
+                          <ng-container [formGroupName]="rowIndex">
+                            <p-inputNumber
+                              formControlName="factorValue"
+                              [min]="0"
+                              [step]="0.1"
+                              [minFractionDigits]="1"
+                              styleClass="w-full"
+                            ></p-inputNumber>
+                          </ng-container>
+                        </ng-template>
+
+                        <ng-template sharedTableCell="delete" let-rowIndex="rowIndex">
+                          <button
+                            type="button"
+                            pButton
+                            icon="pi pi-trash"
+                            class="p-button-danger p-button-text"
+                            (click)="removeTier(pi, rowIndex)"
+                          ></button>
+                        </ng-template>
+                      </app-shared-table>
                     </div>
                   }
                 </div>

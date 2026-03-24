@@ -86,6 +86,17 @@ export class SidebarComponent implements OnInit {
         { label: 'nav.time_attendance_settings', icon: 'pi pi-cog', route: '/attendance/settings', module: 'attendance' },
       ],
     },
+    // العهدة — أموال ومستندات
+    {
+      label: 'nav.custody_module',
+      icon: 'pi pi-briefcase',
+      module: 'custody',
+      children: [
+        { label: 'nav.transactions', icon: 'pi pi-list', section: true, module: 'custody' },
+        { label: 'nav.custody_financial', icon: 'pi pi-wallet', route: '/custody/financial', module: 'custody' },
+        { label: 'nav.custody_documents', icon: 'pi pi-folder', route: '/custody/documents', module: 'custody' },
+      ],
+    },
     // الجزاءات — معاملات + ترميزات
     {
       label: 'nav.penalties_module',

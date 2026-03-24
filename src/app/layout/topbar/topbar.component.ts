@@ -78,13 +78,23 @@ export class TopbarComponent implements OnInit {
     let path = '';
     for (const segment of segments) {
       path += `/${segment}`;
-      const label = this.formatSegment(segment);
+      const label = this.formatSegment(segment, path);
       items.push({ label, routerLink: path });
     }
     this.breadcrumbItems.set(items);
   }
 
-  private formatSegment(segment: string): string {
+  private formatSegment(segment: string, pathSoFar: string): string {
+    if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(segment)) {
+      const detailKey = 'breadcrumb.detail';
+      const detail = this.translate.instant(detailKey);
+      return detail !== detailKey ? detail : 'Detail';
+    }
+    if (segment === 'documents' && pathSoFar === '/custody/documents') {
+      const key = 'breadcrumb.custody_documents';
+      const translated = this.translate.instant(key);
+      return translated !== key ? translated : segment.charAt(0).toUpperCase() + segment.slice(1);
+    }
     const key = `breadcrumb.${segment}`;
     const translated = this.translate.instant(key);
     return translated !== key ? translated : segment.charAt(0).toUpperCase() + segment.slice(1);

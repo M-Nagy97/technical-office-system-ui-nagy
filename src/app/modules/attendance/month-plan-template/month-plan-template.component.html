@@ -50,48 +50,57 @@
         <p-button label="Save & Sync To Employees" icon="pi pi-save" severity="success" (onClick)="saveTemplate()"></p-button>
       </div>
 
-      <p-table [value]="days()" styleClass="p-datatable-sm p-datatable-gridlines" [scrollable]="true" scrollHeight="500px">
-        <ng-template pTemplate="header">
-          <tr>
-            <th style="width: 5rem">Day</th>
-            <th style="width: 5rem">Name</th>
-            <th style="width: 15rem">Shift</th>
-            <th style="width: 10rem">Type</th>
-            <th>Notes</th>
-          </tr>
+      <app-shared-table
+        [value]="days()"
+        [columns]="columns"
+        styleClass="p-datatable-sm p-datatable-gridlines"
+        [scrollable]="true"
+        scrollHeight="500px"
+        [paginator]="false"
+        [translateHeader]="false"
+        emptyMessage="No data"
+        [translateEmptyMessage]="false"
+        [rowClass]="rowClassForDay"
+      >
+        <ng-template sharedTableCell="dayName" let-row>
+          <p-tag
+            [value]="row.dayName"
+            [severity]="row.dayType === 2 ? 'warning' : 'info'"
+          ></p-tag>
         </ng-template>
-        <ng-template pTemplate="body" let-day>
-          <tr [ngClass]="{'bg-blue-50': day.dayType === 2, 'bg-yellow-50': day.dayType === 3}">
-            <td class="text-center font-bold">{{day.dayNumber}}</td>
-            <td class="text-center">
-              <p-tag [value]="day.dayName" [severity]="day.dayType === 2 ? 'warning' : 'info'"></p-tag>
-            </td>
-            <td>
-              <p-dropdown 
-                [(ngModel)]="day.shiftId" 
-                [options]="shifts()" 
-                optionLabel="shiftName" 
-                optionValue="id" 
-                [showClear]="true"
-                placeholder="No Shift"
-                [disabled]="day.dayType !== 1"
-                styleClass="w-full border-none shadow-none">
-              </p-dropdown>
-            </td>
-            <td>
-              <p-dropdown 
-                [(ngModel)]="day.dayType" 
-                [options]="dayTypes" 
-                placeholder="Select Type"
-                styleClass="w-full border-none shadow-none">
-              </p-dropdown>
-            </td>
-            <td>
-              <input type="text" pInputText [(ngModel)]="day.notes" class="w-full border-none shadow-none p-2 bg-transparent" placeholder="Add notes...">
-            </td>
-          </tr>
+
+        <ng-template sharedTableCell="shiftId" let-row>
+          <p-dropdown
+            [(ngModel)]="row.shiftId"
+            [options]="shifts()"
+            optionLabel="shiftName"
+            optionValue="id"
+            [showClear]="true"
+            placeholder="No Shift"
+            [disabled]="row.dayType !== 1"
+            styleClass="w-full border-none shadow-none"
+          ></p-dropdown>
         </ng-template>
-      </p-table>
+
+        <ng-template sharedTableCell="dayType" let-row>
+          <p-dropdown
+            [(ngModel)]="row.dayType"
+            [options]="dayTypes"
+            placeholder="Select Type"
+            styleClass="w-full border-none shadow-none"
+          ></p-dropdown>
+        </ng-template>
+
+        <ng-template sharedTableCell="notes" let-row>
+          <input
+            type="text"
+            pInputText
+            [(ngModel)]="row.notes"
+            class="w-full border-none shadow-none p-2 bg-transparent"
+            placeholder="Add notes..."
+          />
+        </ng-template>
+      </app-shared-table>
     </div>
   </p-card>
 </div>

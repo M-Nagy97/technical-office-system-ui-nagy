@@ -1,0 +1,125 @@
+<div class="page-header flex justify-content-between align-items-start flex-wrap gap-2">
+  <div>
+    <a routerLink="/custody/documents" class="text-sm mb-2 inline-block">{{ 'custody.back_to_list' | translate }}</a>
+    <h1 class="page-title">{{ 'custody.document_detail' | translate }}</h1>
+    <p class="text-muted m-0 font-mono text-sm">{{ documentId }}</p>
+  </div>
+  @if (isActive()) {
+    <div class="flex gap-2">
+      <p-button [label]="'custody.transfer' | translate" icon="pi pi-share-alt" (onClick)="openTransfer()" />
+      <p-button [label]="'custody.complete' | translate" icon="pi pi-check" severity="success" (onClick)="openComplete()" />
+    </div>
+  }
+</div>
+
+<p-card [header]="'custody.history' | translate">
+  <p-table [value]="history()" [loading]="loading()">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>{{ 'custody.col.date' | translate }}</th>
+        <th>{{ 'custody.col.action' | translate }}</th>
+        <th>{{ 'custody.col.from' | translate }}</th>
+        <th>{{ 'custody.col.to' | translate }}</th>
+        <th>{{ 'custody.col.notes' | translate }}</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-row>
+      <tr>
+        <td>{{ row.transactionDate | date: 'short' }}</td>
+        <td>{{ actionLabel(row.action) | translate }}</td>
+        <td>{{ employeeName(row.fromEmployeeId) }}</td>
+        <td>{{ employeeName(row.toEmployeeId) }}</td>
+        <td>{{ row.notes || '—' }}</td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="5" class="text-center text-500">{{ 'custody.no_history' | translate }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>
+
+<p-dialog
+  [header]="'custody.transfer' | translate"
+  [(visible)]="transferVisible"
+  [modal]="true"
+  [style]="{ width: '32rem' }"
+>
+  <div class="flex flex-column gap-3">
+    <div class="field">
+      <label class="block mb-1">{{ 'custody.col.action' | translate }}</label>
+      <p-dropdown [options]="actionOptions" [(ngModel)]="transferAction" optionLabel="label" optionValue="value" styleClass="w-full" />
+    </div>
+    <div class="field">
+      <label class="block mb-1">{{ 'custody.col.from' | translate }}</label>
+      <p-dropdown
+        [options]="employeeOptions()"
+        [(ngModel)]="transferFromId"
+        optionLabel="label"
+        optionValue="value"
+        [showClear]="true"
+        [placeholder]="'custody.optional' | translate"
+        styleClass="w-full"
+      />
+    </div>
+    <div class="field">
+      <label class="block mb-1">{{ 'custody.col.to' | translate }}</label>
+      <p-dropdown
+        [options]="employeeOptions()"
+        [(ngModel)]="transferToId"
+        optionLabel="label"
+        optionValue="value"
+        [showClear]="true"
+        [placeholder]="'custody.optional' | translate"
+        styleClass="w-full"
+      />
+    </div>
+    <div class="field">
+      <label class="block mb-1">{{ 'custody.col.date' | translate }}</label>
+      <p-calendar [(ngModel)]="transferDate" [showTime]="true" hourFormat="24" styleClass="w-full" />
+    </div>
+    <div class="field">
+      <label class="block mb-1">{{ 'custody.col.notes' | translate }}</label>
+      <input pInputText class="w-full" [(ngModel)]="transferNotes" />
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button [label]="'custody.cancel' | translate" severity="secondary" (onClick)="transferVisible = false" />
+    <p-button [label]="'custody.save' | translate" (onClick)="submitTransfer()" [loading]="loading()" />
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [header]="'custody.complete' | translate"
+  [(visible)]="completeVisible"
+  [modal]="true"
+  [style]="{ width: '26rem' }"
+>
+  <div class="flex flex-column gap-3">
+    <div class="field">
+      <label class="block mb-1">{{ 'custody.col.date' | translate }}</label>
+      <p-calendar [(ngModel)]="completeDate" [showTime]="true" hourFormat="24" styleClass="w-full" />
+    </div>
+    <div class="field">
+      <label class="block mb-1">{{ 'custody.completed_by' | translate }}</label>
+      <p-dropdown
+        [options]="employeeOptions()"
+        [(ngModel)]="completeById"
+        optionLabel="label"
+        optionValue="value"
+        [showClear]="true"
+        [placeholder]="'custody.optional' | translate"
+        styleClass="w-full"
+      />
+    </div>
+    <div class="field">
+      <label class="block mb-1">{{ 'custody.col.notes' | translate }}</label>
+      <input pInputText class="w-full" [(ngModel)]="completeNotes" />
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button [label]="'custody.cancel' | translate" severity="secondary" (onClick)="completeVisible = false" />
+    <p-button [label]="'custody.save' | translate" (onClick)="submitComplete()" [loading]="loading()" />
+  </ng-template>
+</p-dialog>

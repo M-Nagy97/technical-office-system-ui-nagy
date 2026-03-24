@@ -22,6 +22,9 @@
     "calculation_workbench": "Calculation workbench",
     "calculation_runs": "Saved calculations",
     "time_attendance_settings": "Attendance Settings",
+    "custody_module": "Custody",
+    "custody_financial": "Financial custody",
+    "custody_documents": "Document custody",
     "penalties_module": "Penalties",
     "penalty_list": "Penalty List",
     "add_penalty": "Add Penalty",
@@ -58,7 +61,11 @@
     "penalties": "Penalties",
     "add": "Add",
     "documents": "Appointment Documents",
-    "reports": "Reports"
+    "reports": "Reports",
+    "custody": "Custody",
+    "financial": "Financial custody",
+    "custody_documents": "Document custody",
+    "detail": "Detail"
   },
   "dashboard": {
     "welcome": "Welcome to Technical Office System",
@@ -273,5 +280,78 @@
     "positions_failed": "Could not load job positions.",
     "error_load": "Load error",
     "error_load_detail": "Could not reach the server or load data."
+  },
+  "custody": {
+    "financial_title": "Employee financial custody",
+    "financial_subtitle": "Balance, ledger lines, and documents currently held.",
+    "documents_title": "Document custody",
+    "documents_subtitle": "In-progress documents and current custodian.",
+    "employee": "Employee",
+    "select_employee": "Select employee",
+    "select_employee_first": "Please select an employee first.",
+    "load_details": "Load details",
+    "new_transaction": "New custody entry",
+    "return_amount": "Return cash",
+    "documents_module": "Documents",
+    "financial_module": "Financial custody",
+    "balance": "Current balance",
+    "docs_in_hand": "Documents in hand",
+    "none": "None",
+    "recent_transactions": "Recent transactions",
+    "no_transactions": "No transactions",
+    "new_document": "New document",
+    "refresh": "Refresh",
+    "details": "Details",
+    "no_documents": "No active documents",
+    "document_detail": "Document detail",
+    "back_to_list": "← Back to list",
+    "history": "Transaction history",
+    "no_history": "No history",
+    "transfer": "Transfer / action",
+    "complete": "Complete document",
+    "initial_holder": "First recipient (optional)",
+    "receive_date": "Receive date",
+    "optional": "Optional",
+    "completed_by": "Completed by",
+    "attachment_url": "Attachment URL",
+    "cancel": "Cancel",
+    "save": "Save",
+    "validation_amount": "Enter a valid amount.",
+    "validation_title": "Enter a document title.",
+    "tx_type": {
+      "give": "Give",
+      "spend": "Spend",
+      "return": "Return"
+    },
+    "doc_type": {
+      "contract": "Contract",
+      "check": "Check",
+      "letter": "Letter",
+      "other": "Other"
+    },
+    "status": {
+      "in_progress": "In progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "action": {
+      "receive": "Receive",
+      "deliver": "Deliver",
+      "sign": "Sign",
+      "return": "Return"
+    },
+    "col": {
+      "date": "Date",
+      "type": "Type",
+      "amount": "Amount",
+      "notes": "Notes",
+      "title": "Title",
+      "doc_type": "Document type",
+      "status": "Status",
+      "custodian": "Custodian",
+      "action": "Action",
+      "from": "From",
+      "to": "To"
+    }
   }
 }

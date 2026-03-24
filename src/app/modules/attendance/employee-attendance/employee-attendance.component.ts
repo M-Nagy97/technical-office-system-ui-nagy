@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { Subject, forkJoin } from 'rxjs';
 import { debounceTime, finalize, map, takeUntil } from 'rxjs/operators';
 import { CardModule } from 'primeng/card';
-import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
@@ -14,6 +13,9 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { TranslatePipe } from '@ngx-translate/core';
+import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
+import { SharedTableCellTemplateDirective } from '../../../shared/components/shared-table/shared-table-cell-template.directive';
+import { SharedTableAction, SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
 import {
   EmployeeAttendanceDirectoryRowDto,
   EmployeeAttendanceService,
@@ -36,7 +38,6 @@ function toYmdLocal(d: Date): string {
     CommonModule,
     FormsModule,
     CardModule,
-    TableModule,
     ButtonModule,
     InputTextModule,
     DropdownModule,
@@ -45,6 +46,8 @@ function toYmdLocal(d: Date): string {
     TooltipModule,
     ToastModule,
     TranslatePipe,
+    SharedTableComponent,
+    SharedTableCellTemplateDirective,
   ],
   providers: [MessageService],
   templateUrl: './employee-attendance.component.html',
@@ -216,4 +219,42 @@ export class EmployeeAttendanceComponent implements OnInit, OnDestroy {
     const min = m % 60;
     return `${h}h ${min}m`;
   }
+
+  readonly directoryColumns: SharedTableColumn<EmployeeAttendanceDirectoryRowDto>[] = [
+    { id: 'employeeName', header: 'employee_attendance.col_name', valueGetter: (r) => r.employeeName || '—' },
+    { id: 'employeeCode', header: 'employee_attendance.col_code', valueGetter: (r) => r.employeeCode || '—' },
+    { id: 'departmentName', header: 'employee_attendance.col_dept', valueGetter: (r) => r.departmentName || '—' },
+    { id: 'planName', header: 'employee_attendance.col_plan', valueGetter: (r) => r.planName || '—' },
+    { id: 'shiftsSummary', header: 'employee_attendance.col_shifts', valueGetter: (r) => r.shiftsSummary || '—' },
+    {
+      id: 'scheduleEntryCount',
+      header: 'employee_attendance.col_schedule_count',
+      valueGetter: (r) => r.scheduleEntryCount ?? 0,
+      align: 'center',
+    },
+  ];
+
+  readonly directoryActions: SharedTableAction<EmployeeAttendanceDirectoryRowDto>[] = [
+    {
+      id: 'view',
+      icon: 'pi pi-eye',
+      buttonClass: 'p-button-rounded p-button-text p-button-sm',
+      onClick: (row) => this.openDetail(row),
+    },
+  ];
+
+  readonly detailColumns: SharedTableColumn<EmployeeScheduleAttendanceDetailDto>[] = [
+    { id: 'scheduleDate', header: 'employee_attendance.col_date', valueGetter: (d) => d.scheduleDate || '—' },
+    {
+      id: 'dayType',
+      header: 'employee_attendance.col_day_type',
+    },
+    { id: 'isHoliday', header: 'employee_attendance.col_holiday', align: 'center' },
+    { id: 'shiftName', header: 'employee_attendance.col_shift', valueGetter: (d) => d.shiftName || '—' },
+    { id: 'attendanceStatus', header: 'employee_attendance.col_status', valueGetter: (d) => d.attendanceStatus || '—' },
+    { id: 'actualIn', header: 'employee_attendance.col_in' },
+    { id: 'actualOut', header: 'employee_attendance.col_out' },
+    { id: 'netWorkMinutes', header: 'employee_attendance.col_net', valueGetter: (d) => this.formatWorkMinutes(d.netWorkMinutes) },
+    { id: 'notes', header: 'employee_attendance.col_notes', valueGetter: (d) => d.notes || '—' },
+  ];
 }

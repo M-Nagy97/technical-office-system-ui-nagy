@@ -1,7 +1,6 @@
-import { Component, OnInit, computed, signal } from '@angular/core';
+import { Component, OnInit, computed, signal, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -12,6 +11,10 @@ import { TooltipModule } from 'primeng/tooltip';
 import { RippleModule } from 'primeng/ripple';
 import { EmployeeService } from '../../../core/services/employee.service';
 import { Employee } from '../../../core/models/employee.model';
+import { Router } from '@angular/router';
+import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
+import { SharedTableAction, SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
+import { SharedTableCellTemplateDirective } from '../../../shared/components/shared-table/shared-table-cell-template.directive';
 
 const STATUS_LABELS: Record<string, string> = {
   active: 'نشط',
@@ -32,7 +35,6 @@ const EMPLOYMENT_TYPE_LABELS: Record<string, string> = {
   imports: [
     RouterLink,
     FormsModule,
-    TableModule,
     CardModule,
     ButtonModule,
     InputTextModule,
@@ -41,6 +43,8 @@ const EMPLOYMENT_TYPE_LABELS: Record<string, string> = {
     AvatarModule,
     TooltipModule,
     RippleModule,
+    SharedTableComponent,
+    SharedTableCellTemplateDirective,
   ],
   templateUrl: './employee-list.component.html',
   styleUrl: './employee-list.component.scss',
@@ -69,6 +73,8 @@ export class EmployeeListComponent implements OnInit {
   ];
 
   readonly employees = signal<Employee[]>([]);
+
+  private readonly router = inject(Router);
   readonly filteredEmployees = computed(() => {
     let list = this.employees();
     const search = this.searchText().trim().toLowerCase();
@@ -161,4 +167,34 @@ export class EmployeeListComponent implements OnInit {
   getEmploymentTypeLabel(value: string): string {
     return EMPLOYMENT_TYPE_LABELS[value] ?? value;
   }
+
+  readonly columns: SharedTableColumn<Employee>[] = [
+    { id: 'photo', header: 'الصورة', valueGetter: () => null, width: '4rem' },
+    { id: 'employeeNumber', header: 'رقم الموظف', field: 'employeeNumber', sortableField: 'employeeNumber' },
+    { id: 'fullName', header: 'الاسم الكامل', field: 'fullName', sortableField: 'fullName' },
+    { id: 'jobTitle', header: 'المسمى الوظيفي', field: 'jobTitle' },
+    { id: 'department', header: 'القسم', field: 'department' },
+    { id: 'status', header: 'الحالة', field: 'status', sortableField: 'status' },
+  ];
+
+  readonly actions: SharedTableAction<Employee>[] = [
+    {
+      id: 'view',
+      icon: 'pi pi-eye',
+      buttonClass: 'p-button-rounded',
+      onClick: (row) => {
+        if (!row.id) return;
+        this.router.navigate(['/employees', row.id]);
+      },
+    },
+    {
+      id: 'edit',
+      icon: 'pi pi-pencil',
+      buttonClass: 'p-button-rounded',
+      onClick: (row) => {
+        if (!row.id) return;
+        this.router.navigate(['/employees', row.id, 'edit']);
+      },
+    },
+  ];
 }

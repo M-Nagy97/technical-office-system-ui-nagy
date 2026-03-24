@@ -16,57 +16,32 @@
         />
       </span>
     </div>
-    <p-table
+    <app-shared-table
       [value]="filteredSchedules()"
       [loading]="loading()"
+      [columns]="columns"
+      [actions]="actions"
+      actionsColumnHeader="إجراءات"
+      actionsColumnWidth="5rem"
       [rows]="31"
-      [paginator]="true"
       [rowsPerPageOptions]="[31, 62, 100]"
-      styleClass="p-datatable-sm p-datatable-striped"
+      [paginator]="true"
       currentPageReportTemplate="عرض {first} إلى {last} من {totalRecords}"
       [showCurrentPageReport]="true"
+      styleClass="p-datatable-sm p-datatable-striped"
+      [tableStyle]="{ 'min-width': '52rem' }"
+      [translateHeader]="false"
+      emptyMessage="لا توجد أيام مبرمجة في هذا الجدول"
+      [translateEmptyMessage]="false"
     >
-      <ng-template pTemplate="header">
-        <tr>
-          <th>التاريخ</th>
-          <th>الشيفت</th>
-          <th>نوع اليوم</th>
-          <th>عطلة؟</th>
-          <th>ملاحظات</th>
-          <th style="width: 5rem">إجراءات</th>
-        </tr>
+      <ng-template sharedTableCell="isHoliday" let-row>
+        <i
+          class="pi"
+          [class.pi-check]="row.isHoliday"
+          [class.text-green-500]="row.isHoliday"
+          [class.pi-times]="!row.isHoliday"
+        ></i>
       </ng-template>
-      <ng-template pTemplate="body" let-schedule>
-        <tr>
-          <td>{{ formatDate(schedule.scheduleDate) }}</td>
-          <td>{{ schedule.shiftId ?? '—' }}</td>
-          <td>{{ schedule.dayType }}</td>
-          <td>
-            <i class="pi" [class.pi-check]="schedule.isHoliday" [class.text-green-500]="schedule.isHoliday" [class.pi-times]="!schedule.isHoliday"></i>
-          </td>
-          <td>{{ schedule.notes ?? '—' }}</td>
-          <td>
-            <a
-              pButton
-              pRipple
-              icon="pi pi-pencil"
-              [routerLink]="['/attendance/plans', planId(), 'schedules', schedule.id, 'edit']"
-              pTooltip="تعديل"
-              class="p-button-rounded p-button-text p-button-sm"
-            ></a>
-          </td>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="6">لا توجد أيام مبرمجة في هذا الجدول</td>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="loadingbody">
-        <tr>
-          <td colspan="6"><i class="pi pi-spin pi-spinner"></i> جاري التحميل...</td>
-        </tr>
-      </ng-template>
-    </p-table>
+    </app-shared-table>
   </p-card>
 </div>

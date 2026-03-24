@@ -1,7 +1,6 @@
 import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
@@ -11,6 +10,8 @@ import { EmployeeService } from '../../../core/services/employee.service';
 import { AttendanceService } from '../../../core/services/attendance.service';
 import { AttendanceSummary } from '../../../core/models/attendance.model';
 import { AttendanceRecord } from '../../../core/models/attendance.model';
+import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
+import { SharedTableAction, SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
 
 @Component({
   selector: 'app-attendance-reports',
@@ -18,12 +19,12 @@ import { AttendanceRecord } from '../../../core/models/attendance.model';
   imports: [
     DatePipe,
     FormsModule,
-    TableModule,
     CardModule,
     ButtonModule,
     DropdownModule,
     CalendarModule,
     RippleModule,
+    SharedTableComponent,
   ],
   templateUrl: './reports.component.html',
   styleUrl: './reports.component.scss',
@@ -126,6 +127,24 @@ export class ReportsComponent implements OnInit {
     this.employeeForCalendar.set(employeeId);
     this.refresh();
   }
+
+  readonly columns: SharedTableColumn<AttendanceSummary>[] = [
+    { id: 'employeeName', header: 'الموظف', field: 'employeeName' },
+    { id: 'presentDays', header: 'أيام الحضور', field: 'presentDays' },
+    { id: 'absentDays', header: 'أيام الغياب', field: 'absentDays' },
+    { id: 'lateDays', header: 'أيام التأخير', field: 'lateDays' },
+    { id: 'vacationDays', header: 'إجازة', field: 'vacationDays' },
+    { id: 'totalLateMinutes', header: 'دقائق التأخير', field: 'totalLateMinutes' },
+  ];
+
+  readonly actions: SharedTableAction<AttendanceSummary>[] = [
+    {
+      id: 'calendar',
+      icon: 'pi pi-calendar',
+      buttonClass: 'p-button-rounded p-button-outlined p-button-sm',
+      onClick: (row) => this.showCalendarFor(row.employeeId),
+    },
+  ];
 
   exportExcel(): void {
     const sum = this.filteredSummaries();

@@ -94,6 +94,11 @@ html[dir='rtl'],
     box-sizing: border-box;
   }
 }
+.p-dropdown .p-dropdown-clear-icon {
+    color: #6b7280;
+    left: 2rem;
+    right: unset !important;
+}
 }
 
 html[dir='rtl'] body,
@@ -126,4 +131,22 @@ html[dir='rtl'] {
 // Arabic font stack when lang=ar
 html[lang='ar'] body {
   font-family: 'Segoe UI', 'Tahoma', 'Noto Sans Arabic', 'Arabic UI Display', system-ui, sans-serif;
+}
+/* styles.scss */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }

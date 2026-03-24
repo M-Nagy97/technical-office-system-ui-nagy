@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
-import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
@@ -13,6 +12,9 @@ import { TagModule } from 'primeng/tag';
 import { PenaltyFormComponent } from '../penalty-form/penalty-form.component';
 import { PenaltyService } from '../../../core/services/penalty.service';
 import { Penalty, PenaltyType, PenaltyStatus, PENALTY_TYPE_LABELS, PENALTY_STATUS_LABELS } from '../../../core/models/penalty.model';
+import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
+import { SharedTableCellTemplateDirective } from '../../../shared/components/shared-table/shared-table-cell-template.directive';
+import { SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
 
 const TYPE_OPTIONS = (Object.entries(PENALTY_TYPE_LABELS) as [PenaltyType, string][]).map(([value, label]) => ({ label, value }));
 const STATUS_OPTIONS = (Object.entries(PENALTY_STATUS_LABELS) as [PenaltyStatus, string][]).map(([value, label]) => ({ label, value }));
@@ -27,7 +29,6 @@ const STATUS_OPTIONS_WITH_ALL = [{ label: 'الكل', value: null as PenaltyStat
     RouterLink,
     FormsModule,
     InputTextModule,
-    TableModule,
     CardModule,
     ButtonModule,
     DropdownModule,
@@ -35,6 +36,8 @@ const STATUS_OPTIONS_WITH_ALL = [{ label: 'الكل', value: null as PenaltyStat
     SidebarModule,
     TagModule,
     PenaltyFormComponent,
+    SharedTableComponent,
+    SharedTableCellTemplateDirective,
   ],
   templateUrl: './penalty-list.component.html',
   styleUrl: './penalty-list.component.scss',
@@ -162,5 +165,20 @@ export class PenaltyListComponent implements OnInit {
 
   formatDate(d: Date): string {
     return new Date(d).toLocaleDateString('ar-EG');
+  }
+
+  readonly columns: SharedTableColumn<Penalty>[] = [
+    { id: 'penaltyNumber', header: 'رقم الجزاء', field: 'penaltyNumber' },
+    { id: 'employeeName', header: 'الموظف', field: 'employeeName' },
+    { id: 'type', header: 'النوع', field: 'type' },
+    { id: 'reason', header: 'السبب', field: 'reason' },
+    { id: 'incidentDate', header: 'تاريخ الواقعة', valueGetter: (row) => this.formatDate(row.incidentDate) },
+    { id: 'status', header: 'الحالة', field: 'status' },
+  ];
+
+  readonly rowClassForPenalty = (row: Penalty): string => `clickable-row ${this.getSeverityClass(row.type)}`.trim();
+
+  onPenaltyRowClick(row: Penalty, _event: MouseEvent): void {
+    this.openRow(row);
   }
 }

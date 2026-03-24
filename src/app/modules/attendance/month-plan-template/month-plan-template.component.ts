@@ -5,12 +5,15 @@ import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } 
 import { DropdownModule } from 'primeng/dropdown';
 import { CalendarModule } from 'primeng/calendar';
 import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
+import { InputTextModule } from 'primeng/inputtext';
+import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
+import { SharedTableCellTemplateDirective } from '../../../shared/components/shared-table/shared-table-cell-template.directive';
+import { SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
 import { ApiResultOfIEnumerableOfDayScheduleDto, DayScheduleDto, PlansService, ShiftsService } from '../../../core/api/generated';
 import { map } from 'rxjs/operators';
 
@@ -34,11 +37,13 @@ interface DaySchedule extends DayScheduleDto {
     DropdownModule,
     CalendarModule,
     ButtonModule,
-    TableModule,
     CardModule,
     TooltipModule,
     ToastModule,
-    TagModule
+    TagModule,
+    InputTextModule,
+    SharedTableComponent,
+    SharedTableCellTemplateDirective,
   ],
   providers: [MessageService],
   templateUrl: './month-plan-template.component.html',
@@ -73,6 +78,20 @@ export class MonthPlanTemplateComponent implements OnInit {
     { label: 'Weekend', value: 2 },
     { label: 'Holiday', value: 3 }
   ];
+
+  readonly columns: SharedTableColumn<DaySchedule>[] = [
+    { id: 'dayNumber', header: 'Day', valueGetter: (d) => d.dayNumber, align: 'center', cellClass: 'font-bold', width: '5rem' },
+    { id: 'dayName', header: 'Name', align: 'center', width: '5rem' },
+    { id: 'shiftId', header: 'Shift', align: 'start', width: '15rem' },
+    { id: 'dayType', header: 'Type', align: 'start', width: '10rem' },
+    { id: 'notes', header: 'Notes', align: 'start' },
+  ];
+
+  readonly rowClassForDay = (d: DaySchedule): string => {
+    if (d.dayType === 2) return 'bg-blue-50';
+    if (d.dayType === 3) return 'bg-yellow-50';
+    return '';
+  };
 
   constructor(
     private http: HttpClient,

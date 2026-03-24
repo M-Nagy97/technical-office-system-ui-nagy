@@ -22,6 +22,9 @@
     "calculation_workbench": "منصة احتساب الحضور",
     "calculation_runs": "عمليات الحفظ",
     "time_attendance_settings": "إعدادات الحضور",
+    "custody_module": "العهدة",
+    "custody_financial": "عهدة نقدية",
+    "custody_documents": "مستندات بعهدة الموظفين",
     "penalties_module": "الجزاءات",
     "penalty_list": "قائمة الجزاءات",
     "add_penalty": "إضافة جزاء",
@@ -58,7 +61,11 @@
     "penalties": "الجزاءات",
     "add": "إضافة",
     "documents": "مستندات التعيين",
-    "reports": "التقارير"
+    "reports": "التقارير",
+    "custody": "العهدة",
+    "financial": "العهدة المالية",
+    "custody_documents": "عهدة المستندات",
+    "detail": "التفاصيل"
   },
   "dashboard": {
     "welcome": "مرحباً بك في نظام المكتب الفني",
@@ -273,5 +280,78 @@
     "positions_failed": "تعذر تحميل المسميات الوظيفية بالكامل.",
     "error_load": "خطأ في التحميل",
     "error_load_detail": "تعذر الاتصال بالخادم أو تحميل البيانات."
+  },
+  "custody": {
+    "financial_title": "عهدة نقدية الموظفين",
+    "financial_subtitle": "عرض الرصيد والحركات والمستندات بحوزة الموظف.",
+    "documents_title": "مستندات بعهدة الموظفين",
+    "documents_subtitle": "المستندات قيد التنفيذ مع صاحب العهدة الحالي.",
+    "employee": "الموظف",
+    "select_employee": "اختر موظفاً",
+    "select_employee_first": "يرجى اختيار موظف أولاً.",
+    "load_details": "تحميل التفاصيل",
+    "new_transaction": "حركة عهدة",
+    "return_amount": "توريد نقدية",
+    "documents_module": "المستندات",
+    "financial_module": "العهدة النقدية",
+    "balance": "الرصيد الحالي",
+    "docs_in_hand": "مستندات بحوزته",
+    "none": "لا يوجد",
+    "recent_transactions": "آخر الحركات المالية",
+    "no_transactions": "لا توجد حركات",
+    "new_document": "مستند جديد",
+    "refresh": "تحديث",
+    "details": "التفاصيل",
+    "no_documents": "لا توجد مستندات نشطة",
+    "document_detail": "تفاصيل المستند",
+    "back_to_list": "← العودة للقائمة",
+    "history": "سجل الحركات",
+    "no_history": "لا يوجد سجل",
+    "transfer": "تحويل / إجراء",
+    "complete": "إتمام المستند",
+    "initial_holder": "المستلم الأول (اختياري)",
+    "receive_date": "تاريخ الاستلام",
+    "optional": "اختياري",
+    "completed_by": "أُنجز بواسطة",
+    "attachment_url": "رابط مرفق",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "validation_amount": "أدخل مبلغاً صحيحاً.",
+    "validation_title": "أدخل عنوان المستند.",
+    "tx_type": {
+      "give": "صرف",
+      "spend": "مصروف",
+      "return": "توريد"
+    },
+    "doc_type": {
+      "contract": "عقد",
+      "check": "شيك",
+      "letter": "خطاب",
+      "other": "أخرى"
+    },
+    "status": {
+      "in_progress": "قيد التنفيذ",
+      "completed": "مكتمل",
+      "cancelled": "ملغى"
+    },
+    "action": {
+      "receive": "استلام",
+      "deliver": "تسليم",
+      "sign": "توقيع",
+      "return": "إرجاع"
+    },
+    "col": {
+      "date": "التاريخ",
+      "type": "النوع",
+      "amount": "المبلغ",
+      "notes": "ملاحظات",
+      "title": "العنوان",
+      "doc_type": "نوع المستند",
+      "status": "الحالة",
+      "custodian": "بحوزة",
+      "action": "الإجراء",
+      "from": "من",
+      "to": "إلى"
+    }
   }
 }

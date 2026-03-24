@@ -23,6 +23,7 @@
   flex: 1;
   padding: var(--content-padding);
   overflow: auto;
+  max-height: 80vh;
 }
 
 .layout-content-outlet {

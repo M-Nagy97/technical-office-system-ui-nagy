@@ -20,6 +20,10 @@ export interface SharedTableColumn<T = any> {
   width?: string;
   align?: SharedTableTextAlign;
   /**
+   * If provided, header will render PrimeNG sort controls using this field.
+   */
+  sortableField?: string;
+  /**
    * Class(es) applied to the <td> for this column.
    */
   cellClass?: string | ((row: T, value: unknown) => string);
@@ -57,6 +61,6 @@ export interface SharedTableAction<T = any> {
   /**
    * Action handler.
    */
-  onClick: (row: T) => void;
+  onClick: (row: T, event: MouseEvent) => void;
 }
 

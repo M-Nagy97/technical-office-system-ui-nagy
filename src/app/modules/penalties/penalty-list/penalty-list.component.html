@@ -85,41 +85,25 @@
       <button pButton label="إضافة جزاء" icon="pi pi-plus" (click)="openAdd()" class="p-button-primary"></button>
     </div>
 
-    <p-table
+    <app-shared-table
       [value]="filteredPenalties()"
-      styleClass="p-datatable-sm p-datatable-striped"
+      [columns]="columns"
       [tableStyle]="{ 'min-width': '50rem' }"
+      styleClass="p-datatable-sm p-datatable-striped"
+      [translateHeader]="false"
+      emptyMessage="لا توجد سجلات."
+      [translateEmptyMessage]="false"
+      [rowClass]="rowClassForPenalty"
+      [rowClick]="onPenaltyRowClick"
     >
-      <ng-template pTemplate="header">
-        <tr>
-          <th>رقم الجزاء</th>
-          <th>الموظف</th>
-          <th>النوع</th>
-          <th>السبب</th>
-          <th>تاريخ الواقعة</th>
-          <th>الحالة</th>
-        </tr>
+      <ng-template sharedTableCell="type" let-row>
+        <span class="type-badge" [ngClass]="getSeverityClass(row.type)">{{ getTypeLabel(row.type) }}</span>
       </ng-template>
-      <ng-template pTemplate="body" let-penalty>
-        <tr
-          [ngClass]="getSeverityClass(penalty.type)"
-          (click)="openRow(penalty)"
-          class="clickable-row"
-        >
-          <td>{{ penalty.penaltyNumber }}</td>
-          <td>{{ penalty.employeeName }}</td>
-          <td><span class="type-badge" [ngClass]="getSeverityClass(penalty.type)">{{ getTypeLabel(penalty.type) }}</span></td>
-          <td>{{ penalty.reason }}</td>
-          <td>{{ formatDate(penalty.incidentDate) }}</td>
-          <td><p-tag [value]="getStatusLabel(penalty.status)" [severity]="getStatusSeverity(penalty.status)" /></td>
-        </tr>
+
+      <ng-template sharedTableCell="status" let-row>
+        <p-tag [value]="getStatusLabel(row.status)" [severity]="getStatusSeverity(row.status)" />
       </ng-template>
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="6">لا توجد سجلات.</td>
-        </tr>
-      </ng-template>
-    </p-table>
+    </app-shared-table>
   </p-card>
 </div>
 

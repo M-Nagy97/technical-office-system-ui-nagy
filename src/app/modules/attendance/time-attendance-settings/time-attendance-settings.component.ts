@@ -1,7 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -12,10 +11,13 @@ import { map } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 // import { TimeAttendanceSettingsDto } from '../../../core/api/generated/model/models';
 // import { TimeAttendanceSettingsService } from '../../../core/api/generated/api/api';
+import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
+import { SharedTableAction, SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
 
 export interface TimeAttendanceSettingsDto {
   key?: string;
   value?: string;
+  valueType?: string;
   description?: string;
 }
 
@@ -25,12 +27,12 @@ export interface TimeAttendanceSettingsDto {
   imports: [
     RouterLink,
     FormsModule,
-    TableModule,
     CardModule,
     ButtonModule,
     InputTextModule,
     TooltipModule,
     RippleModule,
+    SharedTableComponent,
   ],
   templateUrl: './time-attendance-settings.component.html',
   styleUrl: './time-attendance-settings.component.scss',
@@ -38,6 +40,7 @@ export interface TimeAttendanceSettingsDto {
 export class TimeAttendanceSettingsComponent implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly settingsApi: any = null; // To be replaced
+  private readonly router = inject(Router);
 
   readonly loading = signal(false);
   readonly settings = signal<TimeAttendanceSettingsDto[]>([]);
@@ -73,4 +76,23 @@ export class TimeAttendanceSettingsComponent implements OnInit {
     });
     */
   }
+
+  readonly columns: SharedTableColumn<TimeAttendanceSettingsDto>[] = [
+    { id: 'key', header: 'المفتاح', valueGetter: (row) => row.key ?? '—' },
+    { id: 'value', header: 'القيمة', valueGetter: (row) => row.value ?? '—' },
+    { id: 'valueType', header: 'نوع القيمة', valueGetter: (row) => row.valueType ?? '—' },
+    { id: 'description', header: 'الوصف', valueGetter: (row) => row.description ?? '—' },
+  ];
+
+  readonly actions: SharedTableAction<TimeAttendanceSettingsDto>[] = [
+    {
+      id: 'edit',
+      icon: 'pi pi-pencil',
+      buttonClass: 'p-button-rounded p-button-text p-button-sm',
+      onClick: (row) => {
+        if (!row.key) return;
+        this.router.navigate(['/attendance/settings', row.key, 'edit']);
+      },
+    },
+  ];
 }

@@ -135,69 +135,19 @@
 
     <div class="col-12">
       <p-card [header]="'calculation_workbench.results' | translate">
-        <p-table
+        <app-shared-table
           [value]="previewRows()"
           [loading]="loadingPreview()"
+          [columns]="previewColumns"
+          [actions]="previewActions"
+          actionsColumnHeader="calculation_workbench.col_view"
+          actionsColumnWidth="6rem"
+          actionsAlign="center"
           [paginator]="true"
           [rows]="15"
           styleClass="p-datatable-sm"
           [tableStyle]="{ 'min-width': '72rem' }"
-        >
-          <ng-template pTemplate="emptymessage">
-            <tr>
-              <td colspan="16" class="text-center">{{ 'common.no_data' | translate }}</td>
-            </tr>
-          </ng-template>
-          <ng-template pTemplate="header">
-            <tr>
-              <th>{{ 'calculation_workbench.col_employee' | translate }}</th>
-              <th>{{ 'calculation_workbench.col_code' | translate }}</th>
-              <th>{{ 'calculation_workbench.col_dept' | translate }}</th>
-              <th>{{ 'calculation_workbench.col_plan' | translate }}</th>
-              <th>{{ 'calculation_workbench.col_shifts' | translate }}</th>
-              <th class="text-right">{{ 'calculation_workbench.col_days_range' | translate }}</th>
-              <th class="text-right">{{ 'calculation_workbench.col_days_punches' | translate }}</th>
-              <th class="text-right">{{ 'calculation_workbench.col_days_present' | translate }}</th>
-              <th class="text-right">{{ 'calculation_workbench.col_days_absent' | translate }}</th>
-              <th class="text-right">{{ 'calculation_workbench.col_days_incomplete' | translate }}</th>
-              <th class="text-right">{{ 'calculation_workbench.col_net' | translate }}</th>
-              <th class="text-right">{{ 'calculation_workbench.col_late' | translate }}</th>
-              <th class="text-right">{{ 'calculation_workbench.col_early' | translate }}</th>
-              <th class="text-right">{{ 'calculation_workbench.col_ot_before' | translate }}</th>
-              <th class="text-right">{{ 'calculation_workbench.col_ot_after' | translate }}</th>
-              <th class="w-6rem text-center">{{ 'calculation_workbench.col_view' | translate }}</th>
-            </tr>
-          </ng-template>
-          <ng-template pTemplate="body" let-row>
-            <tr>
-              <td>{{ row.employeeName || '—' }}</td>
-              <td>{{ row.employeeCode || '—' }}</td>
-              <td>{{ row.departmentName || '—' }}</td>
-              <td>{{ row.planName || '—' }}</td>
-              <td>{{ row.shiftsSummaryInRange || '—' }}</td>
-              <td class="text-right">{{ row.calendarDaysInRange ?? '—' }}</td>
-              <td class="text-right">{{ row.daysWithPunches ?? '—' }}</td>
-              <td class="text-right">{{ row.daysPresent ?? '—' }}</td>
-              <td class="text-right">{{ row.daysAbsentOnScheduledWorkdays ?? '—' }}</td>
-              <td class="text-right">{{ row.daysIncompleteAttendance ?? '—' }}</td>
-              <td class="text-right">{{ formatMinutes(row.totalNetWorkMinutes) }}</td>
-              <td class="text-right">{{ formatMinutes(row.totalLateMinutes) }}</td>
-              <td class="text-right">{{ formatMinutes(row.totalEarlyLeaveMinutes) }}</td>
-              <td class="text-right">{{ formatMinutes(row.totalOvertimeBeforeMinutes) }}</td>
-              <td class="text-right">{{ formatMinutes(row.totalOvertimeAfterMinutes) }}</td>
-              <td class="text-center">
-                <p-button
-                  icon="pi pi-list"
-                  [rounded]="true"
-                  [text]="true"
-                  (onClick)="openEmployeeDetail(row)"
-                  [disabled]="loadingPreview()"
-                  [attr.aria-label]="'calculation_workbench.view_days' | translate"
-                />
-              </td>
-            </tr>
-          </ng-template>
-        </p-table>
+        />
       </p-card>
     </div>
   </div>
@@ -211,9 +161,10 @@
   [maximizable]="true"
   [dismissableMask]="true"
 >
-  <p-table
+  <app-shared-table
     [value]="detailRows()"
     [loading]="detailLoading"
+    [columns]="detailColumns"
     [paginator]="true"
     [rows]="14"
     styleClass="p-datatable-sm"
@@ -221,44 +172,12 @@
     [scrollable]="true"
     scrollHeight="400px"
   >
-    <ng-template pTemplate="emptymessage">
-      <tr>
-        <td colspan="13" class="text-center">{{ 'common.no_data' | translate }}</td>
-      </tr>
+    <ng-template sharedTableCell="actualIn" let-row>
+      {{ row.actualIn ? (row.actualIn | date : 'short') : '—' }}
     </ng-template>
-    <ng-template pTemplate="header">
-      <tr>
-        <th>{{ 'calculation_workbench.col_date' | translate }}</th>
-        <th>{{ 'calculation_workbench.col_day_type' | translate }}</th>
-        <th>{{ 'calculation_workbench.col_scheduled_work' | translate }}</th>
-        <th>{{ 'employee_attendance.col_shift' | translate }}</th>
-        <th class="text-right">{{ 'calculation_workbench.col_punches' | translate }}</th>
-        <th>{{ 'employee_attendance.col_in' | translate }}</th>
-        <th>{{ 'employee_attendance.col_out' | translate }}</th>
-        <th>{{ 'employee_attendance.col_status' | translate }}</th>
-        <th class="text-right">{{ 'employee_attendance.col_net' | translate }}</th>
-        <th class="text-right">{{ 'calculation_workbench.col_late' | translate }}</th>
-        <th class="text-right">{{ 'calculation_workbench.col_early' | translate }}</th>
-        <th class="text-right">{{ 'calculation_workbench.col_ot_before' | translate }}</th>
-        <th class="text-right">{{ 'calculation_workbench.col_ot_after' | translate }}</th>
-      </tr>
+
+    <ng-template sharedTableCell="actualOut" let-row>
+      {{ row.actualOut ? (row.actualOut | date : 'short') : '—' }}
     </ng-template>
-    <ng-template pTemplate="body" let-day>
-      <tr>
-        <td>{{ day.workDate }}</td>
-        <td>{{ formatDayType(day.scheduleDayType) }}</td>
-        <td>{{ scheduledWorkLabel(day.isScheduledWorkday) }}</td>
-        <td>{{ day.shiftName || '—' }}</td>
-        <td class="text-right">{{ day.punchCount ?? 0 }}</td>
-        <td>{{ day.actualIn ? (day.actualIn | date: 'short') : '—' }}</td>
-        <td>{{ day.actualOut ? (day.actualOut | date: 'short') : '—' }}</td>
-        <td>{{ formatAttendanceStatus(day.status) }}</td>
-        <td class="text-right">{{ formatMinutes(day.netWorkMinutes) }}</td>
-        <td class="text-right">{{ formatMinutes(day.lateMinutes) }}</td>
-        <td class="text-right">{{ formatMinutes(day.earlyLeaveMinutes) }}</td>
-        <td class="text-right">{{ formatMinutes(day.overtimeBeforeMinutes) }}</td>
-        <td class="text-right">{{ formatMinutes(day.overtimeAfterMinutes) }}</td>
-      </tr>
-    </ng-template>
-  </p-table>
+  </app-shared-table>
 </p-dialog>

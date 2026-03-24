@@ -1,13 +1,15 @@
 import { Component, effect, inject, input, signal, computed, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { TagModule } from 'primeng/tag';
 import { MessageModule } from 'primeng/message';
+import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
+import { SharedTableCellTemplateDirective } from '../../../shared/components/shared-table/shared-table-cell-template.directive';
+import { SharedTableAction, SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
 import { map } from 'rxjs/operators';
 import {
   AttendanceCalcService,
@@ -41,13 +43,14 @@ const STATUS_LABELS: Record<number, string> = {
   imports: [
     CommonModule,
     FormsModule,
-    TableModule,
     CardModule,
     ButtonModule,
     DropdownModule,
     MultiSelectModule,
     TagModule,
     MessageModule,
+    SharedTableComponent,
+    SharedTableCellTemplateDirective,
   ],
   templateUrl: './attendance-calculation.component.html',
   styleUrl: './attendance-calculation.component.scss',
@@ -83,6 +86,20 @@ export class AttendanceCalculationComponent {
     const set = new Set(ids);
     return list.filter((r) => r.empId && set.has(r.empId));
   });
+
+  readonly columns: SharedTableColumn<AttendanceCalcDto>[] = [
+    { id: 'employeeName', header: 'الموظف', valueGetter: (row) => row.employeeName || row.empId || '—' },
+    { id: 'planName', header: 'الخطة', valueGetter: (row) => row.planName ?? '—' },
+    { id: 'shiftName', header: 'الوردية', valueGetter: (row) => row.shiftName ?? '—' },
+    { id: 'status', header: 'الحالة', align: 'start' },
+    { id: 'actualIn', header: 'أول دخول', valueGetter: (row) => this.formatTime(row.actualIn) },
+    { id: 'actualOut', header: 'آخر خروج', valueGetter: (row) => this.formatTime(row.actualOut) },
+    { id: 'netWorkMinutes', header: 'صافي الدقائق', valueGetter: (row) => this.formatMinutes(row.netWorkMinutes) },
+    { id: 'notes', header: 'ملاحظات', valueGetter: (row) => row.notes ?? '—' },
+  ];
+
+  // no action buttons in this grid
+  readonly actions: SharedTableAction<AttendanceCalcDto>[] = [];
 
   readonly stats = computed(() => {
     const list = this.filteredRows();

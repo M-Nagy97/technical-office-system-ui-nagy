@@ -42,17 +42,25 @@ export class SharedTableComponent<T = any> implements AfterContentInit {
   @Input() rows = 10;
   @Input() rowsPerPageOptions: number[] = [10, 20, 50];
 
+  @Input() scrollable = false;
+  @Input() scrollHeight: string | null = null;
+
+  @Input() showCurrentPageReport = false;
+  @Input() currentPageReportTemplate = 'showing {first} to {last} of {totalRecords}';
+
   @Input() styleClass = 'p-datatable-sm p-datatable-striped';
   @Input() tableStyle: Record<string, string> | null = null;
 
   @Input() actions: SharedTableAction<T>[] = [];
   @Input() actionsColumnHeader?: string;
   @Input() actionsColumnWidth?: string = '8rem';
+  @Input() actionsAlign: SharedTableTextAlign = 'end';
 
   @Input() emptyMessage = 'common.no_data';
   @Input() translateEmptyMessage = true;
 
   @Input() rowClass?: string | ((row: T) => string);
+  @Input() rowClick?: (row: T, event: MouseEvent) => void;
   @Input() translateHeader = true;
 
   @ContentChildren(SharedTableCellTemplateDirective)
@@ -84,6 +92,19 @@ export class SharedTableComponent<T = any> implements AfterContentInit {
     return 'center';
   }
 
+  resolveActionsJustify(): 'flex-end' | 'flex-start' | 'center' {
+    if (this.actionsAlign === 'center') return 'center';
+    // In RTL we map "end" to physical left.
+    const dir = this.getDir();
+    const isRtl = dir === 'rtl';
+    if (!isRtl) {
+      // LTR
+      return this.actionsAlign === 'start' ? 'flex-start' : 'flex-end';
+    }
+    // RTL
+    return this.actionsAlign === 'start' ? 'flex-end' : 'flex-start';
+  }
+
   getColumnValue(col: SharedTableColumn<T>, row: T): unknown {
     if (col.valueGetter) return col.valueGetter(row);
     if (col.field) return (row as any)[col.field];
@@ -104,6 +125,18 @@ export class SharedTableComponent<T = any> implements AfterContentInit {
   getRowClass(row: T): string {
     if (!this.rowClass) return '';
     return typeof this.rowClass === 'function' ? this.rowClass(row) : this.rowClass;
+  }
+
+  onRowClicked(row: T, event: MouseEvent): void {
+    if (!this.rowClick) return;
+    const target = event.target as HTMLElement | null;
+    if (!target) return;
+
+    // Avoid firing row click when user interacts with buttons/links inside the row.
+    const interactive = target.closest('button, a, input, select, textarea, [role="button"]');
+    if (interactive) return;
+
+    this.rowClick(row, event);
   }
 
   isActionVisible(action: SharedTableAction<T>, row: T): boolean {

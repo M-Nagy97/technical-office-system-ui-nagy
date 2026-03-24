@@ -3,12 +3,14 @@ import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 import { CardModule } from 'primeng/card';
-import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
+import { SharedTableAction, SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
+import { SharedTableCellTemplateDirective } from '../../../shared/components/shared-table/shared-table-cell-template.directive';
 import {
   AttendanceCalcService,
   AttendanceCalculationRunDetailDto,
@@ -22,11 +24,12 @@ import {
   imports: [
     CommonModule,
     CardModule,
-    TableModule,
     ButtonModule,
     DialogModule,
     ToastModule,
     TranslatePipe,
+    SharedTableComponent,
+    SharedTableCellTemplateDirective,
   ],
   providers: [MessageService],
   templateUrl: './calculation-runs.component.html',
@@ -142,4 +145,22 @@ export class CalculationRunsComponent implements OnInit, OnDestroy {
       return json;
     }
   }
+
+  readonly columns: SharedTableColumn<AttendanceCalculationRunDto>[] = [
+    { id: 'createdAtUtc', header: 'calculation_runs.col_created', valueGetter: (r) => r.createdAtUtc },
+    { id: 'range', header: 'calculation_runs.col_range', valueGetter: (r) => `${r.fromDate} — ${r.toDate}` },
+    { id: 'pairingMethod', header: 'calculation_runs.col_pairing', valueGetter: (r) => this.pairingLabel(r.pairingMethod) },
+    { id: 'employeeCount', header: 'calculation_runs.col_employees', field: 'employeeCount', align: 'end' },
+    { id: 'daySpan', header: 'calculation_runs.col_days', field: 'daySpan', align: 'end' },
+    { id: 'note', header: 'calculation_runs.col_note', valueGetter: (r) => r.note ?? '—' },
+  ];
+
+  readonly actions: SharedTableAction<AttendanceCalculationRunDto>[] = [
+    {
+      id: 'view',
+      icon: 'pi pi-eye',
+      buttonClass: 'p-button-rounded p-button-text p-button-sm',
+      onClick: (row) => this.openDetail(row.id),
+    },
+  ];
 }

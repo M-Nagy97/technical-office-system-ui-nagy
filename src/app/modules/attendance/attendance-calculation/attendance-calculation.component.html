@@ -50,43 +50,21 @@
       <span class="stat-pill stat-late border-round px-3 py-2">متأخر: <strong>{{ stats().late }}</strong></span>
     </div>
 
-    <p-table
+    <app-shared-table
       [value]="filteredRows()"
       [loading]="loading()"
+      [columns]="columns"
+      [actions]="actions"
       styleClass="p-datatable-sm p-datatable-striped"
+      [paginator]="false"
       [tableStyle]="{ 'min-width': '52rem' }"
+      [translateHeader]="false"
+      emptyMessage="لا توجد نتائج احتساب لهذا اليوم."
+      [translateEmptyMessage]="false"
     >
-      <ng-template pTemplate="header">
-        <tr>
-          <th>الموظف</th>
-          <th>الخطة</th>
-          <th>الوردية</th>
-          <th>الحالة</th>
-          <th>أول دخول</th>
-          <th>آخر خروج</th>
-          <th>صافي الدقائق</th>
-          <th>ملاحظات</th>
-        </tr>
+      <ng-template sharedTableCell="status" let-row>
+        <p-tag [value]="getStatusLabel(row.status)" [severity]="statusSeverity(row.status)" />
       </ng-template>
-      <ng-template pTemplate="body" let-row>
-        <tr>
-          <td>{{ row.employeeName || row.empId }}</td>
-          <td>{{ row.planName ?? '—' }}</td>
-          <td>{{ row.shiftName ?? '—' }}</td>
-          <td>
-            <p-tag [value]="getStatusLabel(row.status)" [severity]="statusSeverity(row.status)" />
-          </td>
-          <td>{{ formatTime(row.actualIn) }}</td>
-          <td>{{ formatTime(row.actualOut) }}</td>
-          <td>{{ formatMinutes(row.netWorkMinutes) }}</td>
-          <td>{{ row.notes ?? '—' }}</td>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="8">لا توجد نتائج احتساب لهذا اليوم.</td>
-        </tr>
-      </ng-template>
-    </p-table>
+    </app-shared-table>
   </p-card>
 </div>

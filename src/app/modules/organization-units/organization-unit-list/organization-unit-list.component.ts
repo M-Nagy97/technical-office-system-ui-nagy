@@ -1,7 +1,6 @@
 import { Component, OnInit, signal, computed, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -12,6 +11,8 @@ import { TooltipModule } from 'primeng/tooltip';
 import { RippleModule } from 'primeng/ripple';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { OrganizationUnitsService, OrganizationUnitDto } from '../../../core/api/generated';
+import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
+import { SharedTableAction, SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
 
 
 @Component({
@@ -20,7 +21,6 @@ import { OrganizationUnitsService, OrganizationUnitDto } from '../../../core/api
   imports: [
     RouterLink,
     FormsModule,
-    TableModule,
     CardModule,
     ButtonModule,
     InputTextModule,
@@ -29,6 +29,7 @@ import { OrganizationUnitsService, OrganizationUnitDto } from '../../../core/api
     ToastModule,
     TooltipModule,
     RippleModule,
+    SharedTableComponent,
   ],
   templateUrl: './organization-unit-list.component.html',
   styleUrl: './organization-unit-list.component.scss',
@@ -37,6 +38,7 @@ export class OrganizationUnitListComponent implements OnInit {
   private readonly organizationUnitsService = inject(OrganizationUnitsService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
+  private readonly router = inject(Router);
 
   readonly loading = signal(false);
   readonly units = signal<OrganizationUnitDto[]>([]);
@@ -52,6 +54,34 @@ export class OrganizationUnitListComponent implements OnInit {
         (u.name?.toLowerCase().includes(search) ?? false)
     );
   });
+
+  readonly columns: SharedTableColumn<OrganizationUnitDto>[] = [
+    { id: 'code', header: 'الرمز', field: 'code', sortableField: 'code' },
+    { id: 'name', header: 'الاسم', field: 'name', sortableField: 'name' },
+    {
+      id: 'parentName',
+      header: 'الوحدة الأم',
+      valueGetter: (row) => this.getParentName(row.parentId),
+    },
+  ];
+
+  readonly actions: SharedTableAction<OrganizationUnitDto>[] = [
+    {
+      id: 'edit',
+      icon: 'pi pi-pencil',
+      buttonClass: 'p-button-rounded p-button-text p-button-sm',
+      onClick: (row) => {
+        if (!row.id) return;
+        this.router.navigate(['/organization-units', row.id, 'edit']);
+      },
+    },
+    {
+      id: 'delete',
+      icon: 'pi pi-trash',
+      buttonClass: 'p-button-rounded p-button-danger p-button-text p-button-sm',
+      onClick: (row, event) => this.confirmDelete(event, row),
+    },
+  ];
 
   ngOnInit(): void {
     this.load();

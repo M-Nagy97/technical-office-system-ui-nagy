@@ -11,9 +11,11 @@ import { InputSwitchModule } from 'primeng/inputswitch';
 import { DropdownModule } from 'primeng/dropdown';
 import { MessageModule } from 'primeng/message';
 import { MessageService } from 'primeng/api';
-import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
+import { SharedTableCellTemplateDirective } from '../../../shared/components/shared-table/shared-table-cell-template.directive';
+import { SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
 import { map } from 'rxjs/operators';
 import {
   PlansService,
@@ -48,9 +50,10 @@ export type ShiftListItemDto = any;
     InputSwitchModule,
     DropdownModule,
     MessageModule,
-    TableModule,
     TooltipModule,
     MultiSelectModule,
+    SharedTableComponent,
+    SharedTableCellTemplateDirective,
   ],
   templateUrl: './month-plan-form.component.html',
   styleUrl: './month-plan-form.component.scss',
@@ -86,6 +89,14 @@ export class MonthPlanFormComponent implements OnInit {
     { label: 'انصراف مبكر (Early Leave)', value: FactorType.NUMBER_2 },
     { label: 'إضافي قبل (OT Before)', value: FactorType.NUMBER_3 },
     { label: 'إضافي بعد (OT After)', value: FactorType.NUMBER_4 },
+  ];
+
+  // Shared table config for the tier editor (FormArray rows).
+  readonly tierColumns: SharedTableColumn<any>[] = [
+    { id: 'fromMinute', header: 'من (دقيقة)', align: 'start' },
+    { id: 'toMinute', header: 'إلى (دقيقة)', align: 'start' },
+    { id: 'factorValue', header: 'العامل', align: 'start' },
+    { id: 'delete', header: '', width: '3rem', align: 'end' },
   ];
 
   ngOnInit(): void {
