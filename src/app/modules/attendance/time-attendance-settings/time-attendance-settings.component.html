@@ -1,33 +1,92 @@
 <div class="time-attendance-settings">
-  <p-card>
-    <div class="list-header">
-      <span class="p-input-icon-left">
-        <i class="pi pi-search"></i>
-        <input
-          type="text"
-          pInputText
-          [ngModel]="searchText()"
-          (ngModelChange)="searchText.set($event)"
-          placeholder="بحث بالمفتاح أو القيمة أو الوصف..."
-        />
-      </span>
-    </div>
-    <app-shared-table
-      [value]="filteredSettings()"
-      [loading]="loading()"
-      [columns]="columns"
-      [actions]="actions"
-      actionsColumnHeader="إجراءات"
-      actionsColumnWidth="8rem"
-      [rows]="10"
-      [paginator]="true"
-      [rowsPerPageOptions]="[10, 25, 50]"
-      currentPageReportTemplate="عرض {first} إلى {last} من {totalRecords}"
-      [showCurrentPageReport]="true"
-      styleClass="p-datatable-sm p-datatable-striped"
-      [translateHeader]="false"
-      emptyMessage="لا توجد إعدادات"
-      [translateEmptyMessage]="false"
-    />
+  <p-card header="إعدادات الحضور والوقت">
+    <p class="text-600 mb-4">
+      إعدادات عامة لموديول الحضور (صف واحد في قاعدة البيانات). طريقة الحساب الافتراضية والتسامح بالدقائق وتقريب الدقائق واشتراك خروج البصمة.
+    </p>
+
+    @if (loading()) {
+      <div class="flex justify-content-center py-6">
+        <p-progressSpinner strokeWidth="4" />
+      </div>
+    } @else {
+      <div class="settings-form grid">
+        <div class="col-12 md:col-6">
+          <label class="block mb-2 font-medium">طريقة الحساب الافتراضية</label>
+          <input
+            pInputText
+            class="w-full"
+            [ngModel]="model().defaultCalculationMethod"
+            (ngModelChange)="patchModel({ defaultCalculationMethod: $event })"
+            placeholder="مثال: Fifo"
+          />
+        </div>
+        <div class="col-12 md:col-6">
+          <label class="block mb-2 font-medium">تقريب لأقرب (دقائق)</label>
+          <p-inputNumber
+            class="w-full"
+            [ngModel]="model().roundToNearestMinutes"
+            (ngModelChange)="onNumberChange('roundToNearestMinutes', $event)"
+            [min]="1"
+            [max]="60"
+            [showButtons]="true"
+            inputStyleClass="w-full"
+          />
+        </div>
+        <div class="col-12 md:col-6">
+          <label class="block mb-2 font-medium">تسامح التأخير (دقائق)</label>
+          <p-inputNumber
+            class="w-full"
+            [ngModel]="model().lateToleranceMinutes"
+            (ngModelChange)="onNumberChange('lateToleranceMinutes', $event)"
+            [min]="0"
+            [max]="480"
+            [showButtons]="true"
+            inputStyleClass="w-full"
+          />
+        </div>
+        <div class="col-12 md:col-6">
+          <label class="block mb-2 font-medium">تسامح الانصراف المبكر (دقائق)</label>
+          <p-inputNumber
+            class="w-full"
+            [ngModel]="model().earlyLeaveToleranceMinutes"
+            (ngModelChange)="onNumberChange('earlyLeaveToleranceMinutes', $event)"
+            [min]="0"
+            [max]="480"
+            [showButtons]="true"
+            inputStyleClass="w-full"
+          />
+        </div>
+        <div class="col-12 flex align-items-center gap-2">
+          <p-inputSwitch
+            [ngModel]="model().requirePunchOut"
+            (ngModelChange)="patchModel({ requirePunchOut: $event })"
+          />
+          <span>اشتراط تسجيل خروج (بصمة)</span>
+        </div>
+        @if (settingsId()) {
+          <div class="col-12 text-sm text-500">المعرّف: {{ settingsId() }}</div>
+        }
+        <div class="col-12 flex gap-2 mt-3">
+          <button
+            pButton
+            type="button"
+            label="حفظ"
+            icon="pi pi-check"
+            [loading]="saving()"
+            [disabled]="saving()"
+            (click)="save()"
+          ></button>
+          <button
+            pButton
+            type="button"
+            label="إعادة تحميل"
+            icon="pi pi-refresh"
+            class="p-button-outlined"
+            [disabled]="saving() || loading()"
+            (click)="load()"
+          ></button>
+        </div>
+      </div>
+    }
   </p-card>
 </div>

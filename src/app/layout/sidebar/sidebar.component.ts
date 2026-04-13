@@ -97,6 +97,21 @@ export class SidebarComponent implements OnInit {
         { label: 'nav.custody_documents', icon: 'pi pi-folder', route: '/custody/documents', module: 'custody' },
       ],
     },
+    // الرواتب
+    {
+      label: 'nav.payroll_module',
+      icon: 'pi pi-percentage',
+      module: 'payroll',
+      children: [
+        { label: 'nav.transactions', icon: 'pi pi-list', section: true, module: 'payroll' },
+        { label: 'nav.payroll_overview', icon: 'pi pi-th-large', route: '/payroll', module: 'payroll' },
+        { label: 'nav.payroll_periods', icon: 'pi pi-calendar', route: '/payroll/periods', module: 'payroll' },
+        { label: 'nav.payroll_salary_structures', icon: 'pi pi-money-bill', route: '/payroll/salary-structures', module: 'payroll' },
+        { label: 'nav.payroll_lookups', icon: 'pi pi-list', route: '/payroll/lookups', module: 'payroll' },
+        { label: 'nav.payroll_runs', icon: 'pi pi-calculator', route: '/payroll/runs', module: 'payroll' },
+        { label: 'nav.payroll_payslips', icon: 'pi pi-file-pdf', route: '/payroll/payslips', module: 'payroll' },
+      ],
+    },
     // الجزاءات — معاملات + ترميزات
     {
       label: 'nav.penalties_module',

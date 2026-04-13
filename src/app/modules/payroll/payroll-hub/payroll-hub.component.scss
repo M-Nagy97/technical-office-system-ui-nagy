@@ -1,0 +1,58 @@
+.payroll-hub {
+  padding: 0 0 2rem;
+}
+
+.hub-header {
+  margin-bottom: 1.5rem;
+
+  h1 {
+    margin: 0 0 0.35rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  .hub-sub {
+    margin: 0;
+    color: var(--text-color-secondary, #64748b);
+    font-size: 0.95rem;
+  }
+}
+
+.tiles {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tile-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+.tile-icon {
+  font-size: 2rem;
+  color: var(--primary-color, #1e40af);
+}
+
+.tile-text {
+  flex: 1;
+  min-width: 200px;
+
+  h2 {
+    margin: 0 0 0.25rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-color-secondary, #64748b);
+  }
+}
+
+:host ::ng-deep .tile-card .p-card-body {
+  padding: 1.25rem;
+}

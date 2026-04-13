@@ -10,11 +10,12 @@
  * Do not edit the class manually.
  */
 import { AttendanceStatus } from './attendanceStatus';
+import { DayType } from './dayType';
 
 
 export interface AttendanceCalculationPreviewDayDto { 
     workDate?: string;
-    scheduleDayType?: AttendanceCalculationPreviewDayDtoScheduleDayTypeEnum | null;
+    scheduleDayType?: DayType;
     isScheduledWorkday?: boolean;
     isHoliday?: boolean;
     shiftName?: string | null;
@@ -28,12 +29,6 @@ export interface AttendanceCalculationPreviewDayDto {
     overtimeAfterMinutes?: number;
     netWorkMinutes?: number;
 }
-export enum AttendanceCalculationPreviewDayDtoScheduleDayTypeEnum {
-    NUMBER_1 = 1,
-    NUMBER_2 = 2,
-    NUMBER_3 = 3,
-    NUMBER_4 = 4
-};
 
 
 

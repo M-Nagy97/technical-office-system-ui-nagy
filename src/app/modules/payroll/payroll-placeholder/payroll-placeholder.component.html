@@ -1,0 +1,19 @@
+<div class="payroll-placeholder">
+  <p-card>
+    <div class="head-row">
+      <h1>{{ titleKey | translate }}</h1>
+      <a
+        pButton
+        type="button"
+        [label]="'common.back' | translate"
+        icon="pi pi-arrow-left"
+        routerLink="/payroll"
+        class="p-button-text"
+      ></a>
+    </div>
+    <p class="lead">{{ descriptionKey | translate }}</p>
+    <p-message severity="info" styleClass="mt-3 w-full">
+      {{ 'payroll.api_pending_detail' | translate }}
+    </p-message>
+  </p-card>
+</div>

@@ -15,6 +15,7 @@ export interface CreateOrganizationUnitCommand {
     companyId?: string | null;
     code?: string | null;
     name?: string | null;
+    organizationUnitTypeId?: string | null;
     parentId?: string | null;
 }
 

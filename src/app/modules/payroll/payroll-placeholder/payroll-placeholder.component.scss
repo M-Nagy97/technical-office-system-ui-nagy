@@ -1,0 +1,32 @@
+.payroll-placeholder {
+  max-width: 720px;
+}
+
+.head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+
+  h1 {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 600;
+  }
+}
+
+.lead {
+  margin: 0;
+  color: var(--text-color-secondary, #64748b);
+  line-height: 1.5;
+}
+
+.mt-3 {
+  margin-top: 1rem;
+}
+
+.w-full {
+  width: 100%;
+}

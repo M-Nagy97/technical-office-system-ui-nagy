@@ -14,6 +14,8 @@
 export interface CreateJobPositionCommand { 
     companyId?: string | null;
     jobGradeId?: string | null;
+    organizationUnitId?: string | null;
+    parentPositionId?: string | null;
     code?: string | null;
     name?: string | null;
     description?: string | null;

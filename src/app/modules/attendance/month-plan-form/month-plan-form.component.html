@@ -50,7 +50,7 @@
               @for (profile of factorProfiles.controls; track profile; let pi = $index) {
                 <div [formGroupName]="pi" class="col-12 border-1 border-round p-3 mb-3 surface-ground">
                   <div class="flex justify-content-between align-items-center mb-3">
-                    <span class="text-xl font-bold">{{ factorTypes[pi]?.label }}</span>
+                    <span class="text-xl font-bold">{{ factorTypes[pi].label }}</span>
                     <div class="flex align-items-center gap-3">
                       <label>الوضع:</label>
                       <p-dropdown formControlName="mode" [options]="modeOptions" optionLabel="label" optionValue="value" styleClass="w-12rem"></p-dropdown>

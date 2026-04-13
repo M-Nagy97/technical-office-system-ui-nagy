@@ -25,6 +25,13 @@
     "custody_module": "Custody",
     "custody_financial": "Financial custody",
     "custody_documents": "Document custody",
+    "payroll_module": "Payroll",
+    "payroll_overview": "Overview",
+    "payroll_periods": "Pay periods",
+    "payroll_salary_structures": "Salary structures",
+    "payroll_lookups": "Allowances & deductions",
+    "payroll_runs": "Payroll runs",
+    "payroll_payslips": "Payslips",
     "penalties_module": "Penalties",
     "penalty_list": "Penalty List",
     "add_penalty": "Add Penalty",
@@ -65,7 +72,13 @@
     "custody": "Custody",
     "financial": "Financial custody",
     "custody_documents": "Document custody",
-    "detail": "Detail"
+    "detail": "Detail",
+    "payroll": "Payroll",
+    "periods": "Pay periods",
+    "salary-structures": "Salary structures",
+    "lookups": "Lookups",
+    "runs": "Runs",
+    "payslips": "Payslips"
   },
   "dashboard": {
     "welcome": "Welcome to Technical Office System",
@@ -100,7 +113,8 @@
     "required": "Required",
     "error": "Error",
     "warning": "Warning",
-    "success": "Success"
+    "success": "Success",
+    "open": "Open"
   },
   "not_found": {
     "title": "404",
@@ -352,6 +366,38 @@
       "action": "Action",
       "from": "From",
       "to": "To"
+    }
+  },
+  "payroll": {
+    "hub_title": "Payroll",
+    "hub_subtitle": "Periods, salary structures, calculation runs, and payslips (UI shell — connect API when backend controllers are ready).",
+    "api_pending": "Backend API in progress",
+    "api_pending_detail": "The Payroll module exists in the database; REST endpoints will appear in Swagger after controllers are added. Run npm run update-api to refresh the generated client.",
+    "placeholder": "Payroll",
+    "periods": {
+      "title": "Pay periods",
+      "description": "Define monthly or weekly payroll windows (open / processing / closed).",
+      "card_hint": "Period calendar and status"
+    },
+    "salary_structures": {
+      "title": "Salary structures",
+      "description": "Employee base salary, hourly and overtime rates with effective dates.",
+      "card_hint": "Rate cards per employee"
+    },
+    "lookups": {
+      "title": "Allowances & deductions",
+      "description": "Deduction and allowance types (fixed, percentage, per day/hour).",
+      "card_hint": "Lookup tables for payroll engine"
+    },
+    "runs": {
+      "title": "Payroll runs",
+      "description": "Calculated gross, deductions, and net per employee per period.",
+      "card_hint": "Calculation results and approval"
+    },
+    "payslips": {
+      "title": "Payslips",
+      "description": "Generated payslip numbers and delivery status.",
+      "card_hint": "Payslip documents"
     }
   }
 }

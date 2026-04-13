@@ -39,6 +39,7 @@ export interface EmployeeScheduleCalendarItemDto {
     maxOvertimeBeforeMin?: number | null;
     maxOvertimeAfterMin?: number | null;
     minWorkHoursRequired?: number | null;
+    isEmployeeOverride?: boolean;
 }
 
 

@@ -14,6 +14,7 @@
 export interface UpdateOrganizationUnitCommand { 
     id?: string;
     name?: string | null;
+    organizationUnitTypeId?: string | null;
     parentId?: string | null;
 }
 

@@ -35,6 +35,11 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'payroll',
+        loadChildren: () =>
+          import('./modules/payroll/payroll.routes').then((m) => m.PAYROLL_ROUTES),
+      },
+      {
         path: 'job-grades',
         loadChildren: () =>
           import('./modules/job-grades/job-grades.routes').then((m) => m.JOB_GRADES_ROUTES),

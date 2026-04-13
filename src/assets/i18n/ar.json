@@ -25,6 +25,13 @@
     "custody_module": "العهدة",
     "custody_financial": "عهدة نقدية",
     "custody_documents": "مستندات بعهدة الموظفين",
+    "payroll_module": "الرواتب",
+    "payroll_overview": "نظرة عامة",
+    "payroll_periods": "فترات الراتب",
+    "payroll_salary_structures": "هياكل المرتبات",
+    "payroll_lookups": "البدلات والاستقطاعات",
+    "payroll_runs": "تشغيلات الرواتب",
+    "payroll_payslips": "قسائم الراتب",
     "penalties_module": "الجزاءات",
     "penalty_list": "قائمة الجزاءات",
     "add_penalty": "إضافة جزاء",
@@ -65,7 +72,13 @@
     "custody": "العهدة",
     "financial": "العهدة المالية",
     "custody_documents": "عهدة المستندات",
-    "detail": "التفاصيل"
+    "detail": "التفاصيل",
+    "payroll": "الرواتب",
+    "periods": "فترات الراتب",
+    "salary-structures": "هياكل المرتبات",
+    "lookups": "الترميزات",
+    "runs": "التشغيلات",
+    "payslips": "قسائم الراتب"
   },
   "dashboard": {
     "welcome": "مرحباً بك في نظام المكتب الفني",
@@ -100,7 +113,8 @@
     "required": "مطلوب",
     "error": "خطأ",
     "warning": "تنبيه",
-    "success": "تم"
+    "success": "تم",
+    "open": "فتح"
   },
   "not_found": {
     "title": "404",
@@ -352,6 +366,38 @@
       "action": "الإجراء",
       "from": "من",
       "to": "إلى"
+    }
+  },
+  "payroll": {
+    "hub_title": "الرواتب",
+    "hub_subtitle": "الفترات، هياكل المرتبات، التشغيلات، وقسائم الراتب (واجهة أولية — اربط الـ API عند جاهزية الـ Controllers).",
+    "api_pending": "واجهة البرمجة قيد الإعداد",
+    "api_pending_detail": "موديول الرواتب موجود في قاعدة البيانات؛ ستظهر نقاط REST في Swagger بعد إضافة الـ Controllers. نفّذ npm run update-api لتحديث العميل المولَّد.",
+    "placeholder": "الرواتب",
+    "periods": {
+      "title": "فترات الراتب",
+      "description": "تعريف فترات الرواتب الشهرية أو الأسبوعية (مفتوحة / قيد المعالجة / مغلقة).",
+      "card_hint": "التقويم وحالة الفترة"
+    },
+    "salary_structures": {
+      "title": "هياكل المرتبات",
+      "description": "الراتب الأساسي وساعة العمل والأوفرتايم مع تواريخ السريان.",
+      "card_hint": "بطاقات مرتب لكل موظف"
+    },
+    "lookups": {
+      "title": "البدلات والاستقطاعات",
+      "description": "أنواع الاستقطاع والبدل (ثابت، نسبة، لكل يوم/ساعة).",
+      "card_hint": "جداول مساعدة لمحرك الرواتب"
+    },
+    "runs": {
+      "title": "تشغيلات الرواتب",
+      "description": "الإجمالي والاستقطاعات والصافي لكل موظف لكل فترة.",
+      "card_hint": "نتائج الحساب والاعتماد"
+    },
+    "payslips": {
+      "title": "قسائم الراتب",
+      "description": "أرقام القسائم وحالة الإرسال.",
+      "card_hint": "مستندات القسيمة"
     }
   }
 }

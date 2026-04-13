@@ -21,10 +21,10 @@ import { SharedTableAction, SharedTableColumn } from '../../../shared/components
 import {
   AttendanceCalcService,
   AttendanceCalculationPreviewDayDto,
-  AttendanceCalculationPreviewDayDtoScheduleDayTypeEnum,
   AttendanceCalculationPreviewRowDto,
   AttendanceStatus,
   CommitAttendanceCalculationCommand,
+  DayType,
   PlansService,
   PreviewAttendanceCalculationEmployeeDaysQuery,
   PreviewAttendanceCalculationQuery,
@@ -204,13 +204,13 @@ export class CalculationWorkbenchComponent implements OnInit, OnDestroy {
       });
   }
 
-  formatDayType(v?: AttendanceCalculationPreviewDayDtoScheduleDayTypeEnum | null): string {
+  formatDayType(v?: DayType | null): string {
     if (v == null) return '—';
-    const map: Record<AttendanceCalculationPreviewDayDtoScheduleDayTypeEnum, string> = {
-      [AttendanceCalculationPreviewDayDtoScheduleDayTypeEnum.NUMBER_1]: 'employee_attendance.day_type.workday',
-      [AttendanceCalculationPreviewDayDtoScheduleDayTypeEnum.NUMBER_2]: 'employee_attendance.day_type.weekend',
-      [AttendanceCalculationPreviewDayDtoScheduleDayTypeEnum.NUMBER_3]: 'employee_attendance.day_type.public_holiday',
-      [AttendanceCalculationPreviewDayDtoScheduleDayTypeEnum.NUMBER_4]: 'employee_attendance.day_type.compensatory',
+    const map: Record<DayType, string> = {
+      [DayType.NUMBER_1]: 'employee_attendance.day_type.workday',
+      [DayType.NUMBER_2]: 'employee_attendance.day_type.weekend',
+      [DayType.NUMBER_3]: 'employee_attendance.day_type.public_holiday',
+      [DayType.NUMBER_4]: 'employee_attendance.day_type.compensatory',
     };
     return this.translate.instant(map[v] ?? 'employee_attendance.day_type.unknown');
   }

@@ -1,0 +1,29 @@
+<div class="payroll-hub">
+  <header class="hub-header">
+    <h1>{{ 'payroll.hub_title' | translate }}</h1>
+    <p class="hub-sub">{{ 'payroll.hub_subtitle' | translate }}</p>
+  </header>
+
+  <div class="tiles">
+    @for (tile of tiles; track tile.route) {
+      <p-card styleClass="tile-card">
+        <div class="tile-inner">
+          <i [ngClass]="[tile.icon, 'tile-icon']"></i>
+          <div class="tile-text">
+            <h2>{{ tile.titleKey | translate }}</h2>
+            <p>{{ tile.descKey | translate }}</p>
+          </div>
+          <a
+            pButton
+            type="button"
+            [label]="'common.open' | translate"
+            icon="pi pi-arrow-right"
+            iconPos="right"
+            [routerLink]="tile.route"
+            class="p-button-outlined"
+          ></a>
+        </div>
+      </p-card>
+    }
+  </div>
+</div>

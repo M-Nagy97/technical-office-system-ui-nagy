@@ -1,25 +1,20 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { InputSwitchModule } from 'primeng/inputswitch';
 import { TooltipModule } from 'primeng/tooltip';
 import { RippleModule } from 'primeng/ripple';
+import { MessageService } from 'primeng/api';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
-import { map } from 'rxjs/operators';
-import { HttpClient } from '@angular/common/http';
-// import { TimeAttendanceSettingsDto } from '../../../core/api/generated/model/models';
-// import { TimeAttendanceSettingsService } from '../../../core/api/generated/api/api';
-import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
-import { SharedTableAction, SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
-
-export interface TimeAttendanceSettingsDto {
-  key?: string;
-  value?: string;
-  valueType?: string;
-  description?: string;
-}
+import {
+  WorkforceAttendanceSettingsService,
+  WorkforceAttendanceSettingsDto,
+} from '../../../core/services/workforce-attendance-settings.service';
 
 @Component({
   selector: 'app-time-attendance-settings',
@@ -30,69 +25,121 @@ export interface TimeAttendanceSettingsDto {
     CardModule,
     ButtonModule,
     InputTextModule,
+    InputNumberModule,
+    InputSwitchModule,
     TooltipModule,
     RippleModule,
-    SharedTableComponent,
+    ProgressSpinnerModule,
   ],
   templateUrl: './time-attendance-settings.component.html',
   styleUrl: './time-attendance-settings.component.scss',
 })
 export class TimeAttendanceSettingsComponent implements OnInit {
-  private readonly http = inject(HttpClient);
-  private readonly settingsApi: any = null; // To be replaced
-  private readonly router = inject(Router);
+  private readonly api = inject(WorkforceAttendanceSettingsService);
+  private readonly messages = inject(MessageService);
 
   readonly loading = signal(false);
-  readonly settings = signal<TimeAttendanceSettingsDto[]>([]);
-  readonly searchText = signal('');
+  readonly saving = signal(false);
 
-  readonly filteredSettings = computed(() => {
-    const list = this.settings();
-    const q = this.searchText().trim().toLowerCase();
-    if (!q) return list;
-    return list.filter(
-      (s) =>
-        (s.key?.toLowerCase().includes(q)) ||
-        (s.value?.toLowerCase().includes(q)) ||
-        (s.description?.toLowerCase().includes(q))
-    );
+  /** Editable row (typed settings; replaces legacy key/value table). */
+  readonly model = signal<{
+    defaultCalculationMethod: string;
+    lateToleranceMinutes: number;
+    earlyLeaveToleranceMinutes: number;
+    roundToNearestMinutes: number;
+    requirePunchOut: boolean;
+  }>({
+    defaultCalculationMethod: 'Fifo',
+    lateToleranceMinutes: 15,
+    earlyLeaveToleranceMinutes: 15,
+    roundToNearestMinutes: 5,
+    requirePunchOut: true,
   });
 
+  readonly settingsId = signal<string | null>(null);
+
   ngOnInit(): void {
-    this.loadSettings();
+    this.load();
   }
 
-  loadSettings(): void {
+  load(): void {
     this.loading.set(true);
-    // Placeholder until service is found/created
-    this.loading.set(false);
-    /*
-    this.settingsApi.timeAttendanceSettingsGetAll().pipe(map((res: any) => res.data ?? [])).subscribe({
-      next: (list: TimeAttendanceSettingsDto[]) => {
-        this.settings.set(list);
+    this.api.get().subscribe({
+      next: (row: WorkforceAttendanceSettingsDto | null) => {
+        if (row) {
+          this.settingsId.set(row.id);
+          this.model.set({
+            defaultCalculationMethod: row.defaultCalculationMethod,
+            lateToleranceMinutes: row.lateToleranceMinutes,
+            earlyLeaveToleranceMinutes: row.earlyLeaveToleranceMinutes,
+            roundToNearestMinutes: row.roundToNearestMinutes,
+            requirePunchOut: row.requirePunchOut,
+          });
+        } else {
+          this.settingsId.set(null);
+        }
         this.loading.set(false);
       },
-      error: () => this.loading.set(false),
+      error: (err: Error) => {
+        this.loading.set(false);
+        this.messages.add({
+          severity: 'error',
+          summary: 'تعذر التحميل',
+          detail: err.message,
+        });
+      },
     });
-    */
   }
 
-  readonly columns: SharedTableColumn<TimeAttendanceSettingsDto>[] = [
-    { id: 'key', header: 'المفتاح', valueGetter: (row) => row.key ?? '—' },
-    { id: 'value', header: 'القيمة', valueGetter: (row) => row.value ?? '—' },
-    { id: 'valueType', header: 'نوع القيمة', valueGetter: (row) => row.valueType ?? '—' },
-    { id: 'description', header: 'الوصف', valueGetter: (row) => row.description ?? '—' },
-  ];
+  patchModel(patch: {
+    defaultCalculationMethod?: string;
+    lateToleranceMinutes?: number;
+    earlyLeaveToleranceMinutes?: number;
+    roundToNearestMinutes?: number;
+    requirePunchOut?: boolean;
+  }): void {
+    this.model.update((m) => ({ ...m, ...patch }));
+  }
 
-  readonly actions: SharedTableAction<TimeAttendanceSettingsDto>[] = [
-    {
-      id: 'edit',
-      icon: 'pi pi-pencil',
-      buttonClass: 'p-button-rounded p-button-text p-button-sm',
-      onClick: (row) => {
-        if (!row.key) return;
-        this.router.navigate(['/attendance/settings', row.key, 'edit']);
-      },
-    },
-  ];
+  onNumberChange(
+    field: 'lateToleranceMinutes' | 'earlyLeaveToleranceMinutes' | 'roundToNearestMinutes',
+    value: number | null
+  ): void {
+    const n = value ?? 0;
+    if (field === 'lateToleranceMinutes') this.patchModel({ lateToleranceMinutes: n });
+    else if (field === 'earlyLeaveToleranceMinutes') this.patchModel({ earlyLeaveToleranceMinutes: n });
+    else this.patchModel({ roundToNearestMinutes: n });
+  }
+
+  save(): void {
+    const m = this.model();
+    this.saving.set(true);
+    this.api
+      .upsert({
+        defaultCalculationMethod: m.defaultCalculationMethod?.trim() || 'Fifo',
+        lateToleranceMinutes: m.lateToleranceMinutes,
+        earlyLeaveToleranceMinutes: m.earlyLeaveToleranceMinutes,
+        roundToNearestMinutes: m.roundToNearestMinutes,
+        requirePunchOut: m.requirePunchOut,
+      })
+      .subscribe({
+        next: (saved: WorkforceAttendanceSettingsDto) => {
+          this.settingsId.set(saved.id);
+          this.saving.set(false);
+          this.messages.add({
+            severity: 'success',
+            summary: 'تم الحفظ',
+            detail: 'تم تحديث إعدادات الحضور.',
+          });
+        },
+        error: (err: Error) => {
+          this.saving.set(false);
+          this.messages.add({
+            severity: 'error',
+            summary: 'فشل الحفظ',
+            detail: err.message,
+          });
+        },
+      });
+  }
 }
