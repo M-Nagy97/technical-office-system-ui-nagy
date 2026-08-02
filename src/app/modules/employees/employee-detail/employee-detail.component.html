@@ -1,4 +1,5 @@
 @if (employee(); as emp) {
+  <p-toast position="top-right" />
   <div class="employee-detail">
     <p-card class="profile-card">
       <div class="profile-header">
@@ -11,7 +12,20 @@
         />
         <div class="profile-info">
           <h1>{{ emp.fullName }}</h1>
-          <p class="profile-meta">{{ emp.employeeNumber }} · {{ emp.jobTitle }}</p>
+          <div class="profile-meta profile-code-row">
+            @if (!editingCode()) {
+              <span>رقم الموظف (كود البصمة): <strong dir="ltr">{{ emp.employeeNumber || '—' }}</strong></span>
+              <button pButton type="button" icon="pi pi-pencil" class="p-button-text p-button-sm"
+                (click)="startEditEmployeeCode()" pTooltip="يجب أن يطابق User ID على جهاز ZKTeco"></button>
+            } @else {
+              <input pInputText [ngModel]="codeDraft()" (ngModelChange)="codeDraft.set($event)" dir="ltr" class="code-input" placeholder="مثل 1001" />
+              <button pButton type="button" label="حفظ" icon="pi pi-check" class="p-button-sm"
+                [loading]="savingCode()" (click)="saveEmployeeCode()"></button>
+              <button pButton type="button" label="إلغاء" severity="secondary" class="p-button-sm p-button-text"
+                (click)="cancelEditEmployeeCode()"></button>
+            }
+          </div>
+          <p class="profile-meta">{{ emp.jobTitle }}</p>
           <p-tag [value]="getStatusLabel(emp.status)" [severity]="getStatusSeverity(emp.status)" />
         </div>
         <div class="profile-actions">

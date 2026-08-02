@@ -36,6 +36,16 @@ function toYmdLocal(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
+function toLocalIsoDateTime(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  const ss = String(d.getSeconds()).padStart(2, '0');
+  return `${y}-${m}-${day}T${hh}:${mm}:${ss}`;
+}
+
 function startOfMonth(d: Date): Date {
   return new Date(d.getFullYear(), d.getMonth(), 1, 0, 0, 0, 0);
 }
@@ -433,7 +443,7 @@ export class DailyAttendanceComponent implements OnInit {
       punches: [
         {
           empId: employeeId,
-          fingerTime: t.toISOString(),
+          fingerTime: toLocalIsoDateTime(t),
           direction: this.punchType() === 0 ? PunchDirection.NUMBER_1 : PunchDirection.NUMBER_2,
           source: AttendanceSource.NUMBER_2,
           deviceId: null,

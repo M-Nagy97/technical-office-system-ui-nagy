@@ -1,4 +1,7 @@
 <div class="employee-form" [formGroup]="form">
+  @if (submittedAttempt() && form.invalid) {
+    <p-message severity="warn" text="يرجى مراجعة الخطوات وإكمال الحقول المطلوبة قبل الحفظ." styleClass="w-full mb-3" />
+  }
   <p-steps [model]="stepItems" [activeIndex]="activeStep()" (activeIndexChange)="activeStep.set($event)" [readonly]="false"></p-steps>
 
   <div class="form-panels">
@@ -50,18 +53,51 @@
           </div>
           <div class="field field--h">
             <label for="birthPlace">مكان الميلاد <span class="required">*</span></label>
-            <input id="birthPlace" pInputText formControlName="birthPlace" />
+            <p-dropdown
+              inputId="birthPlace"
+              formControlName="birthPlace"
+              [options]="governorateOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="اختر من القائمة أو اكتب مكاناً آخر"
+              [editable]="true"
+              [filter]="true"
+              filterPlaceholder="بحث"
+              styleClass="w-full"
+            />
             @if (getError('birthPlace')) { <small class="p-error">{{ getError('birthPlace') }}</small> }
           </div>
 
           <div class="field field--h">
             <label for="nationality">الجنسية <span class="required">*</span></label>
-            <input id="nationality" pInputText formControlName="nationality" />
+            <p-dropdown
+              inputId="nationality"
+              formControlName="nationality"
+              [options]="nationalityOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="اختر من القائمة أو اكتب جنسية أخرى"
+              [editable]="true"
+              [filter]="true"
+              filterPlaceholder="بحث"
+              styleClass="w-full"
+            />
             @if (getError('nationality')) { <small class="p-error">{{ getError('nationality') }}</small> }
           </div>
           <div class="field field--h">
             <label for="religion">الديانة <span class="required">*</span></label>
-            <input id="religion" pInputText formControlName="religion" />
+            <p-dropdown
+              inputId="religion"
+              formControlName="religion"
+              [options]="religionOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="اختر من القائمة أو اكتب ديانة أخرى"
+              [editable]="true"
+              [filter]="true"
+              filterPlaceholder="بحث"
+              styleClass="w-full"
+            />
             @if (getError('religion')) { <small class="p-error">{{ getError('religion') }}</small> }
           </div>
 
@@ -117,29 +153,74 @@
           </div>
           <div class="field field--h">
             <label>المسمى الوظيفي <span class="required">*</span></label>
-            <input pInputText formControlName="jobTitle" />
+            <p-dropdown
+              formControlName="jobTitle"
+              [options]="jobPositionOptions()"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="اختر المسمى الوظيفي"
+              [filter]="true"
+              filterPlaceholder="بحث"
+              styleClass="w-full"
+            />
             @if (getError('jobTitle')) { <small class="p-error">{{ getError('jobTitle') }}</small> }
           </div>
 
           <div class="field field--h">
             <label>الدرجة الوظيفية <span class="required">*</span></label>
-            <input pInputText formControlName="jobGrade" />
+            <p-dropdown
+              formControlName="jobGrade"
+              [options]="jobGradeOptions()"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="اختر الدرجة"
+              [filter]="true"
+              filterPlaceholder="بحث"
+              styleClass="w-full"
+            />
             @if (getError('jobGrade')) { <small class="p-error">{{ getError('jobGrade') }}</small> }
           </div>
           <div class="field field--h">
             <label>القسم <span class="required">*</span></label>
-            <input pInputText formControlName="department" />
+            <p-dropdown
+              formControlName="department"
+              [options]="departmentOptions()"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="اختر القسم"
+              [filter]="true"
+              filterPlaceholder="بحث"
+              styleClass="w-full"
+            />
             @if (getError('department')) { <small class="p-error">{{ getError('department') }}</small> }
           </div>
 
           <div class="field field--h">
             <label>الوحدة <span class="required">*</span></label>
-            <input pInputText formControlName="section" />
+            <p-dropdown
+              formControlName="section"
+              [options]="sectionOptions()"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="اختر الوحدة"
+              [filter]="true"
+              filterPlaceholder="بحث"
+              styleClass="w-full"
+            />
             @if (getError('section')) { <small class="p-error">{{ getError('section') }}</small> }
           </div>
           <div class="field field--h">
             <label>مكان العمل <span class="required">*</span></label>
-            <input pInputText formControlName="workLocation" />
+            <p-dropdown
+              formControlName="workLocation"
+              [options]="governorateOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="اختر المحافظة"
+              [filter]="true"
+              filterPlaceholder="بحث"
+              styleClass="w-full"
+            />
             @if (getError('workLocation')) { <small class="p-error">{{ getError('workLocation') }}</small> }
           </div>
 
@@ -163,12 +244,30 @@
         <div class="form-grid">
           <div class="field field--third">
             <label>المؤهل الدراسي <span class="required">*</span></label>
-            <input pInputText formControlName="educationLevel" />
+            <p-dropdown
+              formControlName="educationLevel"
+              [options]="educationLevelOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="اختر المؤهل"
+              [filter]="true"
+              filterPlaceholder="بحث"
+              styleClass="w-full"
+            />
             @if (getError('educationLevel')) { <small class="p-error">{{ getError('educationLevel') }}</small> }
           </div>
           <div class="field field--third">
             <label>التخصص <span class="required">*</span></label>
-            <input pInputText formControlName="educationField" />
+            <p-dropdown
+              formControlName="educationField"
+              [options]="educationFieldOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="اختر التخصص"
+              [filter]="true"
+              filterPlaceholder="بحث"
+              styleClass="w-full"
+            />
             @if (getError('educationField')) { <small class="p-error">{{ getError('educationField') }}</small> }
           </div>
           <div class="field field--third">

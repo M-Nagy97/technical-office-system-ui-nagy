@@ -1,0 +1,78 @@
+<div class="payroll-page">
+  <header class="page-head">
+    <a routerLink="/payroll" class="back-link"><i class="pi pi-arrow-left"></i> {{ 'common.back' | translate }}</a>
+    <h1>{{ 'payroll.periods.title' | translate }}</h1>
+    <p class="sub">{{ 'payroll.periods.description' | translate }}</p>
+  </header>
+
+  <p-card>
+    <div class="toolbar">
+      <button        pButton
+        type="button"
+        icon="pi pi-plus"
+        [label]="'common.add' | translate"
+        (click)="openCreate()"
+ ></button>
+    </div>
+    <app-shared-table
+      [value]="rows()"
+      [loading]="loading()"
+      [columns]="columns"
+      [actions]="actions"
+      actionsColumnHeader="payroll.actions"
+      actionsColumnWidth="8rem"
+      [tableStyle]="{ 'min-width': '48rem' }"
+      emptyMessage="common.no_data"
+    />
+  </p-card>
+</div>
+
+<p-dialog
+  [header]="(editingId() ? 'payroll.periods.edit_title' : 'payroll.periods.create_title') | translate"
+  [visible]="dialogVisible()"
+  (visibleChange)="dialogVisible.set($event)"
+  [modal]="true"
+  [style]="{ width: '32rem' }"
+  [draggable]="false"
+  (onHide)="dialogVisible.set(false)"
+>
+  <div class="form-grid">
+    <label for="pp-name">{{ 'payroll.periods.field_name' | translate }}</label>
+    <input id="pp-name" type="text" pInputText [(ngModel)]="formName" class="w-full" />
+
+    <label for="pp-start">{{ 'payroll.periods.field_start' | translate }}</label>
+    <input id="pp-start" type="date" [(ngModel)]="formStart" class="w-full p-inputtext p-component" />
+
+    <label for="pp-end">{{ 'payroll.periods.field_end' | translate }}</label>
+    <input id="pp-end" type="date" [(ngModel)]="formEnd" class="w-full p-inputtext p-component" />
+
+    <label for="pp-status">{{ 'payroll.periods.field_status' | translate }}</label>
+    <p-dropdown
+      inputId="pp-status"
+      [options]="statusOptions"
+      optionLabel="label"
+      optionValue="value"
+      [(ngModel)]="formStatus"
+      styleClass="w-full"
+    />
+
+    @if (editingId()) {
+      <label for="pp-proc">{{ 'payroll.periods.field_processed' | translate }}</label>
+      <input id="pp-proc" type="datetime-local" [(ngModel)]="formProcessedLocal" class="w-full p-inputtext p-component" />
+    }
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton type="button" class="p-button-text" [label]="'common.cancel' | translate" (click)="dialogVisible.set(false)"></button>
+    <button
+      pButton
+      type="button"
+      [label]="'common.save' | translate"
+      [loading]="saving()"
+      [disabled]="saving()"
+      (click)="save()"
+    ></button>
+  </ng-template>
+</p-dialog>
+
+<p-toast />
+<p-confirmPopup />

@@ -109,4 +109,16 @@ export const ATTENDANCE_ROUTES: Routes = [
     loadComponent: () =>
       import('./time-attendance-settings/time-attendance-settings.component').then((m) => m.TimeAttendanceSettingsComponent),
   },
+  {
+    path: 'devices',
+    loadComponent: () =>
+      import('./devices/devices.component').then((m) => m.DevicesComponent),
+  },
+  {
+    path: 'employee-enroll-links',
+    loadComponent: () =>
+      import('./employee-enroll-links/employee-enroll-links.component').then(
+        (m) => m.EmployeeEnrollLinksComponent
+      ),
+  },
 ];

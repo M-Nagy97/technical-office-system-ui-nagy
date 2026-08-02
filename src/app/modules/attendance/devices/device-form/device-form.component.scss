@@ -1,0 +1,11 @@
+.model-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: var(--surface-100, #f4f4f5);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: var(--text-color-secondary, #6b7280);
+  margin-bottom: 0.5rem;
+}

@@ -121,6 +121,14 @@ export class EmployeeService {
     return this.api.employeesDelete(id);
   }
 
+  /** ZKTeco device User ID = employee code in HR */
+  updateEmployeeCode(id: string, employeeCode: string): Observable<{ success?: boolean; data?: boolean }> {
+    return this.http.patch<{ success?: boolean; data?: boolean }>(
+      `https://localhost:8500/api/employees/${id}/employee-code`,
+      { id, employeeCode },
+    );
+  }
+
   /**
    * Mapping logic (Internal)
    */

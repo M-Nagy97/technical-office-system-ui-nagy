@@ -1,0 +1,53 @@
+<p-dialog
+  [header]="isEdit ? 'تعديل جهاز' : 'إضافة جهاز'"
+  [visible]="visible()"
+  [modal]="true"
+  [style]="{ width: '520px' }"
+  (onHide)="onCancel()">
+  <form [formGroup]="form" class="device-form-grid">
+
+    <div class="field model-banner">
+      <i class="pi pi-info-circle"></i>
+      <span>ZKT K14 Pro — zkemkeeper (CZKEM) عبر خدمة Bridge على Windows</span>
+    </div>
+
+    <div class="field">
+      <label>اسم الجهاز <span class="required">*</span></label>
+      <input pInputText formControlName="deviceName" placeholder="مثال: بصمة المدخل" class="w-full" />
+      <small *ngIf="fieldInvalid('deviceName')" class="p-error">اسم الجهاز مطلوب</small>
+    </div>
+
+    <div class="field">
+      <label>عنوان IP <span class="required">*</span></label>
+      <input pInputText formControlName="deviceIp" placeholder="192.168.1.201" class="w-full" dir="ltr" />
+      <small *ngIf="fieldInvalid('deviceIp')" class="p-error">أدخل عنوان IPv4 صالح</small>
+    </div>
+
+    <div class="field">
+      <label>المنفذ <span class="required">*</span></label>
+      <p-inputNumber formControlName="port" [min]="1" [max]="65535" [useGrouping]="false" class="w-full" />
+    </div>
+
+    <div class="field">
+      <label>COMM Key</label>
+      <p-inputNumber formControlName="commPassword" [min]="0" [max]="999999" [useGrouping]="false" class="w-full" />
+      <small class="p-hint">Menu → Options → Comm Opt → COMM Key (0 إذا غير مفعّل)</small>
+    </div>
+
+    <div class="field">
+      <label>الموقع</label>
+      <input pInputText formControlName="location" class="w-full" />
+    </div>
+
+    <div class="field toggle-field">
+      <label>نشط</label>
+      <p-toggleButton formControlName="isActive" onLabel="نعم" offLabel="لا" />
+    </div>
+
+  </form>
+
+  <ng-template pTemplate="footer">
+    <p-button label="إلغاء" icon="pi pi-times" severity="secondary" (onClick)="onCancel()" />
+    <p-button [label]="isEdit ? 'حفظ' : 'إضافة'" icon="pi pi-check" (onClick)="onSave()" />
+  </ng-template>
+</p-dialog>

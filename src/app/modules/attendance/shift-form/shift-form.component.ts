@@ -78,8 +78,8 @@ export class ShiftFormComponent implements OnInit {
     if (routeId && routeId !== 'new') {
       this.id.set(routeId);
       this.isEdit.set(true);
-      this.form.get('code')?.clearValidators();
-      this.form.get('code')?.updateValueAndValidity();
+      this.form.get('shiftCode')?.clearValidators();
+      this.form.get('shiftCode')?.updateValueAndValidity();
       this.shiftsService.shiftsGetById(routeId).pipe(map((r) => r.data)).subscribe({
         next: (d) => {
           if (d) {

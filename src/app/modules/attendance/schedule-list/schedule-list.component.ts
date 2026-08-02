@@ -91,16 +91,5 @@ export class ScheduleListComponent implements OnInit {
     { id: 'notes', header: 'ملاحظات', valueGetter: (row) => row.notes ?? '—' },
   ];
 
-  readonly actions: SharedTableAction<PlanScheduleDto>[] = [
-    {
-      id: 'edit',
-      icon: 'pi pi-pencil',
-      buttonClass: 'p-button-rounded p-button-text p-button-sm',
-      onClick: (row) => {
-        if (!this.planId()) return;
-        if (!row.id) return;
-        this.router.navigate(['/attendance/plans', this.planId()!, 'schedules', row.id, 'edit']);
-      },
-    },
-  ];
+  readonly actions: SharedTableAction<PlanScheduleDto>[] = [];
 }

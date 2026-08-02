@@ -1,0 +1,30 @@
+@import '../payroll-periods/payroll-periods.component.scss';
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+
+  .field-label {
+    font-size: 0.9rem;
+    color: var(--text-color-secondary);
+  }
+}
+
+:host ::ng-deep .employee-dd {
+  min-width: 16rem;
+}
+
+.form-grid.one-col {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem 0;
+
+  label {
+    font-size: 0.9rem;
+    color: var(--text-color-secondary);
+    margin-top: 0.35rem;
+  }
+}

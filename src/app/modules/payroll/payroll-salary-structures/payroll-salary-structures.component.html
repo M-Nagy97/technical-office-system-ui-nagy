@@ -1,0 +1,74 @@
+<div class="payroll-page">
+  <header class="page-head">
+    <a routerLink="/payroll" class="back-link"><i class="pi pi-arrow-left"></i> {{ 'common.back' | translate }}</a>
+    <h1>{{ 'payroll.salary_structures.title' | translate }}</h1>
+    <p class="sub">{{ 'payroll.salary_structures.description' | translate }}</p>
+  </header>
+
+  <p-card>
+    <div class="toolbar filter-row">
+      <span class="field-label">{{ 'payroll.salary.employee' | translate }}</span>
+      <p-dropdown
+        [options]="employeeOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [placeholder]="'payroll.salary.employee_placeholder' | translate"
+        [showClear]="true"
+        [loading]="loadingEmployees()"
+        [ngModel]="selectedEmployeeId()"
+        (ngModelChange)="onEmployeeChange($event)"
+        styleClass="employee-dd"
+      />
+      <button
+        pButton
+        type="button"
+        icon="pi pi-plus"
+        [label]="'common.add' | translate"
+        [disabled]="!selectedEmployeeId()"
+        (click)="openCreate()"
+      ></button>
+    </div>
+
+    <app-shared-table
+      [value]="rows()"
+      [loading]="loadingRows()"
+      [columns]="columns"
+      [actions]="actions"
+      actionsColumnHeader="payroll.actions"
+      actionsColumnWidth="8rem"
+      [tableStyle]="{ 'min-width': '44rem' }"
+      emptyMessage="common.no_data"
+    />
+  </p-card>
+</div>
+
+<p-dialog
+  [header]="(editingId() ? 'payroll.salary.edit_title' : 'payroll.salary.create_title') | translate"
+  [visible]="dialogVisible()"
+  (visibleChange)="dialogVisible.set($event)"
+  [modal]="true"
+  [style]="{ width: '30rem' }"
+  [draggable]="false"
+>
+  <div class="form-grid one-col">
+    <label>{{ 'payroll.salary.col_base' | translate }}</label>
+    <p-inputNumber [(ngModel)]="formBase" mode="decimal" [minFractionDigits]="2" styleClass="w-full" />
+    <label>{{ 'payroll.salary.col_hourly' | translate }}</label>
+    <p-inputNumber [(ngModel)]="formHourly" mode="decimal" [minFractionDigits]="2" styleClass="w-full" />
+    <label>{{ 'payroll.salary.col_ot' | translate }}</label>
+    <p-inputNumber [(ngModel)]="formOt" mode="decimal" [minFractionDigits]="2" styleClass="w-full" />
+    <label>{{ 'payroll.salary.col_from' | translate }}</label>
+    <input type="date" [(ngModel)]="formFrom" class="w-full p-inputtext p-component" />
+    <label>{{ 'payroll.salary.col_to' | translate }}</label>
+    <input type="date" [(ngModel)]="formTo" class="w-full p-inputtext p-component" />
+    <label>{{ 'payroll.lookups.col_active' | translate }}</label>
+    <p-inputSwitch [(ngModel)]="formActive" />
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton type="button" class="p-button-text" [label]="'common.cancel' | translate" (click)="dialogVisible.set(false)"></button>
+    <button pButton type="button" [label]="'common.save' | translate" [loading]="saving()" [disabled]="saving()" (click)="save()"></button>
+  </ng-template>
+</p-dialog>
+
+<p-toast />
+<p-confirmPopup />

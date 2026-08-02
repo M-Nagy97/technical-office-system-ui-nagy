@@ -1,0 +1,249 @@
+<div class="payroll-page">
+  <header class="page-head">
+    <a routerLink="/payroll" class="back-link"><i class="pi pi-arrow-left"></i> {{ 'common.back' | translate }}</a>
+    <h1>{{ 'payroll.runs.title' | translate }}</h1>
+    <p class="sub">{{ 'payroll.runs.description' | translate }}</p>
+  </header>
+
+  <p-card>
+    <div class="toolbar filter-row">
+      <span class="field-label">{{ 'payroll.runs.period' | translate }}</span>
+      <p-dropdown
+        [options]="periodOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [placeholder]="'payroll.runs.period_placeholder' | translate"
+        [showClear]="true"
+        [loading]="loadingPeriods()"
+        [ngModel]="selectedPeriodId()"
+        (ngModelChange)="onPeriodChange($event)"
+        styleClass="period-dd"
+      />
+    </div>
+
+    <p-tabView>
+      <p-tabPanel [header]="'payroll.runs.tab_runs' | translate">
+        <div class="toolbar">
+          <button pButton type="button" icon="pi pi-plus" [label]="'payroll.runs.add_run' | translate" (click)="openCreateRun()"></button>
+        </div>
+        <app-shared-table
+          [value]="runs()"
+          [loading]="loadingRuns()"
+          [columns]="runColumns"
+          [actions]="runActions"
+          actionsColumnHeader="payroll.actions"
+          actionsColumnWidth="8rem"
+          [tableStyle]="{ 'min-width': '40rem' }"
+          emptyMessage="common.no_data"
+        />
+      </p-tabPanel>
+      <p-tabPanel [header]="'payroll.runs.tab_attendance' | translate">
+        <div class="toolbar">
+          <button pButton type="button" icon="pi pi-plus" [label]="'payroll.att.add' | translate" (click)="openAttCreate()"></button>
+        </div>
+        <app-shared-table
+          [value]="attendanceRows()"
+          [loading]="loadingAtt()"
+          [columns]="attColumns"
+          [actions]="attActions"
+          actionsColumnHeader="payroll.actions"
+          actionsColumnWidth="8rem"
+          [tableStyle]="{ 'min-width': '40rem' }"
+          emptyMessage="common.no_data"
+        />
+      </p-tabPanel>
+    </p-tabView>
+  </p-card>
+</div>
+
+<p-dialog
+  [header]="'payroll.runs.create_run_title' | translate"
+  [visible]="createRunOpen()"
+  (visibleChange)="createRunOpen.set($event)"
+  [modal]="true"
+  [style]="{ width: '32rem' }"
+  [draggable]="false"
+>
+  <div class="form-grid one-col">
+    <label>{{ 'payroll.runs.col_employee' | translate }}</label>
+    <p-dropdown
+      [options]="employeeOptions()"
+      optionLabel="label"
+      optionValue="value"
+      [placeholder]="'payroll.salary.employee_placeholder' | translate"
+      [(ngModel)]="crEmployeeId"
+      styleClass="w-full"
+    />
+    <label>{{ 'payroll.salary.col_base' | translate }}</label>
+    <p-inputNumber [(ngModel)]="crBase" mode="decimal" [minFractionDigits]="2" styleClass="w-full" />
+    <label>{{ 'payroll.runs.field_ot_amount' | translate }}</label>
+    <p-inputNumber [(ngModel)]="crOt" mode="decimal" [minFractionDigits]="2" styleClass="w-full" />
+    <label>{{ 'payroll.runs.field_absence' | translate }}</label>
+    <p-inputNumber [(ngModel)]="crAbs" mode="decimal" [minFractionDigits]="2" styleClass="w-full" />
+    <label>{{ 'payroll.runs.field_late' | translate }}</label>
+    <p-inputNumber [(ngModel)]="crLate" mode="decimal" [minFractionDigits]="2" styleClass="w-full" />
+    <label>{{ 'payroll.runs.field_gross' | translate }}</label>
+    <p-inputNumber [(ngModel)]="crGross" mode="decimal" [minFractionDigits]="2" styleClass="w-full" />
+    <label>{{ 'payroll.runs.field_total_ded' | translate }}</label>
+    <p-inputNumber [(ngModel)]="crDed" mode="decimal" [minFractionDigits]="2" styleClass="w-full" />
+    <label>{{ 'payroll.runs.col_net' | translate }}</label>
+    <p-inputNumber [(ngModel)]="crNet" mode="decimal" [minFractionDigits]="2" styleClass="w-full" />
+    <label>{{ 'payroll.runs.col_status' | translate }}</label>
+    <p-dropdown
+      [options]="runStatusOptions"
+      optionLabel="label"
+      optionValue="value"
+      [(ngModel)]="crStatus"
+      styleClass="w-full"
+    />
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton type="button" class="p-button-text" [label]="'common.cancel' | translate" (click)="createRunOpen.set(false)"></button>
+    <button pButton type="button" [label]="'common.save' | translate" [loading]="saving()" [disabled]="saving()" (click)="saveCreateRun()"></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [header]="'payroll.runs.detail_title' | translate"
+  [visible]="detailOpen()"
+  (visibleChange)="detailOpen.set($event)"
+  [modal]="true"
+  [style]="{ width: 'min(52rem, 96vw)' }"
+  [draggable]="false"
+  [contentStyle]="{ 'max-height': '80vh', overflow: 'auto' }"
+>
+  <p class="muted" *ngIf="detailRun() as run">{{ 'payroll.runs.col_employee' | translate }}: {{ empName.get(run.employeeId ?? '') ?? run.employeeId }}</p>
+  <div class="form-grid amounts">
+    <label>{{ 'payroll.salary.col_base' | translate }}</label>
+    <p-inputNumber [(ngModel)]="dBase" mode="decimal" [minFractionDigits]="2" />
+    <label>{{ 'payroll.runs.field_ot_amount' | translate }}</label>
+    <p-inputNumber [(ngModel)]="dOt" mode="decimal" [minFractionDigits]="2" />
+    <label>{{ 'payroll.runs.field_absence' | translate }}</label>
+    <p-inputNumber [(ngModel)]="dAbs" mode="decimal" [minFractionDigits]="2" />
+    <label>{{ 'payroll.runs.field_late' | translate }}</label>
+    <p-inputNumber [(ngModel)]="dLate" mode="decimal" [minFractionDigits]="2" />
+    <label>{{ 'payroll.runs.field_gross' | translate }}</label>
+    <p-inputNumber [(ngModel)]="dGross" mode="decimal" [minFractionDigits]="2" />
+    <label>{{ 'payroll.runs.field_total_ded' | translate }}</label>
+    <p-inputNumber [(ngModel)]="dDed" mode="decimal" [minFractionDigits]="2" />
+    <label>{{ 'payroll.runs.col_net' | translate }}</label>
+    <p-inputNumber [(ngModel)]="dNet" mode="decimal" [minFractionDigits]="2" />
+    <label>{{ 'payroll.runs.col_status' | translate }}</label>
+    <p-dropdown [options]="runStatusOptions" optionLabel="label" optionValue="value" [(ngModel)]="dStatus" />
+  </div>
+  <div class="lines-block">
+    <div class="lines-head">
+      <h3>{{ 'payroll.runs.deductions' | translate }}</h3>
+      <button pButton type="button" class="p-button-sm" icon="pi pi-plus" [label]="'common.add' | translate" (click)="openAddDed()"></button>
+    </div>
+    <app-shared-table
+      [value]="deductions()"
+      [loading]="loadingLines()"
+      [columns]="dedLineCols"
+      [actions]="dedLineActions"
+      actionsColumnHeader="payroll.actions"
+      actionsColumnWidth="5rem"
+      [paginator]="false"
+      emptyMessage="common.no_data"
+    />
+  </div>
+  <div class="lines-block">
+    <div class="lines-head">
+      <h3>{{ 'payroll.runs.allowances' | translate }}</h3>
+      <button pButton type="button" class="p-button-sm" icon="pi pi-plus" [label]="'common.add' | translate" (click)="openAddAll()"></button>
+    </div>
+    <app-shared-table
+      [value]="allowances()"
+      [loading]="loadingLines()"
+      [columns]="allLineCols"
+      [actions]="allLineActions"
+      actionsColumnHeader="payroll.actions"
+      actionsColumnWidth="5rem"
+      [paginator]="false"
+      emptyMessage="common.no_data"
+    />
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton type="button" class="p-button-text" [label]="'common.cancel' | translate" (click)="detailOpen.set(false)"></button>
+    <button pButton type="button" [label]="'common.save' | translate" [loading]="saving()" [disabled]="saving()" (click)="saveDetailRun()"></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [header]="'payroll.runs.add_deduction' | translate"
+  [visible]="addDedOpen()"
+  (visibleChange)="addDedOpen.set($event)"
+  [modal]="true"
+  [style]="{ width: '26rem' }"
+>
+  <div class="form-grid one-col">
+    <label>{{ 'payroll.runs.line_type' | translate }}</label>
+    <p-dropdown [options]="dedTypeOptions()" optionLabel="label" optionValue="value" [(ngModel)]="adTypeId" styleClass="w-full" />
+    <label>{{ 'payroll.lookups.col_value' | translate }}</label>
+    <p-inputNumber [(ngModel)]="adAmount" mode="decimal" [minFractionDigits]="2" styleClass="w-full" />
+    <label>{{ 'payroll.runs.note' | translate }}</label>
+    <input type="text" pInputText class="w-full" [(ngModel)]="adNote" />
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton type="button" class="p-button-text" [label]="'common.cancel' | translate" (click)="addDedOpen.set(false)"></button>
+    <button pButton type="button" [label]="'common.save' | translate" (click)="saveAddDed()"></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [header]="'payroll.runs.add_allowance' | translate"
+  [visible]="addAllOpen()"
+  (visibleChange)="addAllOpen.set($event)"
+  [modal]="true"
+  [style]="{ width: '26rem' }"
+>
+  <div class="form-grid one-col">
+    <label>{{ 'payroll.runs.line_type' | translate }}</label>
+    <p-dropdown [options]="allTypeOptions()" optionLabel="label" optionValue="value" [(ngModel)]="aaTypeId" styleClass="w-full" />
+    <label>{{ 'payroll.lookups.col_value' | translate }}</label>
+    <p-inputNumber [(ngModel)]="aaAmount" mode="decimal" [minFractionDigits]="2" styleClass="w-full" />
+    <label>{{ 'payroll.runs.note' | translate }}</label>
+    <input type="text" pInputText class="w-full" [(ngModel)]="aaNote" />
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton type="button" class="p-button-text" [label]="'common.cancel' | translate" (click)="addAllOpen.set(false)"></button>
+    <button pButton type="button" [label]="'common.save' | translate" (click)="saveAddAll()"></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [header]="(attEditId ? 'payroll.att.edit' : 'payroll.att.add') | translate"
+  [visible]="attDialogOpen()"
+  (visibleChange)="attDialogOpen.set($event)"
+  [modal]="true"
+  [style]="{ width: '28rem' }"
+>
+  <div class="form-grid one-col">
+    <label>{{ 'payroll.runs.col_employee' | translate }}</label>
+    <p-dropdown
+      [options]="employeeOptions()"
+      optionLabel="label"
+      optionValue="value"
+      [(ngModel)]="attEmpId"
+      [disabled]="!!attEditId"
+      styleClass="w-full"
+    />
+    <label>{{ 'payroll.att.working_days' | translate }}</label>
+    <p-inputNumber [(ngModel)]="attWork" [useGrouping]="false" styleClass="w-full" />
+    <label>{{ 'payroll.att.absent_days' | translate }}</label>
+    <p-inputNumber [(ngModel)]="attAbs" [useGrouping]="false" styleClass="w-full" />
+    <label>{{ 'payroll.att.total_hours' | translate }}</label>
+    <p-inputNumber [(ngModel)]="attHours" mode="decimal" [minFractionDigits]="2" styleClass="w-full" />
+    <label>{{ 'payroll.att.ot_hours' | translate }}</label>
+    <p-inputNumber [(ngModel)]="attOt" mode="decimal" [minFractionDigits]="2" styleClass="w-full" />
+    <label>{{ 'payroll.att.late_hours' | translate }}</label>
+    <p-inputNumber [(ngModel)]="attLateH" mode="decimal" [minFractionDigits]="2" styleClass="w-full" />
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton type="button" class="p-button-text" [label]="'common.cancel' | translate" (click)="attDialogOpen.set(false)"></button>
+    <button pButton type="button" [label]="'common.save' | translate" (click)="saveAtt()"></button>
+  </ng-template>
+</p-dialog>
+
+<p-toast />
+<p-confirmPopup />

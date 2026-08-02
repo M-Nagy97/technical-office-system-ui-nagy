@@ -1,0 +1,227 @@
+<div class="devices-page">
+  <p-toast position="top-right" />
+  <p-confirmDialog />
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-title">
+      <i class="pi pi-desktop header-icon"></i>
+      <h2>أجهزة الحضور والانصراف</h2>
+    </div>
+    <div class="header-actions">
+      <p-button
+        label="إضافة جهاز"
+        icon="pi pi-plus"
+        (onClick)="openAddForm()"
+      />
+    </div>
+  </div>
+
+  <!-- Loading skeleton -->
+  <div *ngIf="loading()" class="devices-grid">
+    <div *ngFor="let i of [1,2,3,4]" class="device-card skeleton-card">
+      <div class="skeleton-line wide"></div>
+      <div class="skeleton-line narrow"></div>
+      <div class="skeleton-line mid"></div>
+    </div>
+  </div>
+
+  <!-- Device cards grid -->
+  <div *ngIf="!loading()" class="devices-grid">
+    <div *ngFor="let device of devices()" class="device-card">
+
+      <!-- Card header: name + badges -->
+      <div class="card-header">
+        <div class="device-name">
+          <i class="pi pi-desktop device-icon"></i>
+          <span>{{ device.deviceName }}</span>
+        </div>
+        <div class="card-badges">
+          <p-tag value="ZKT K14 Pro" severity="success" styleClass="mode-badge" />
+          <p-tag value="zkemkeeper" severity="info" styleClass="vendor-badge" />
+        </div>
+      </div>
+
+      <!-- IP:Port -->
+      <div class="card-ip">
+        <i class="pi pi-wifi"></i>
+        <span dir="ltr">{{ device.deviceIp || '—' }}:{{ device.port }}</span>
+      </div>
+
+      <!-- Location -->
+      <div *ngIf="device.location" class="card-location">
+        <i class="pi pi-map-marker"></i>
+        <span>{{ device.location }}</span>
+      </div>
+
+      <!-- Status -->
+      <div class="card-status">
+        <p-tag
+          [value]="statusLabel(device.lastStatus)"
+          [severity]="statusSeverity(device.lastStatus)"
+        />
+        <span class="last-sync">
+          <i class="pi pi-clock"></i>
+          {{ relativeTime(device.lastSync) }}
+        </span>
+      </div>
+
+      <!-- Actions -->
+      <div class="card-actions">
+        <!-- Edit -->
+        <p-button
+          icon="pi pi-pencil"
+          severity="secondary"
+          [rounded]="true" [text]="true"
+          pTooltip="تعديل"
+          (onClick)="openEditForm(device)"
+        />
+
+        <!-- Test Connection -->
+        <p-button
+          icon="pi pi-plug"
+          severity="info"
+          [rounded]="true" [text]="true"
+          pTooltip="اختبار الاتصال"
+          [loading]="testingId() === device.id"
+          (onClick)="testConnection(device)"
+        />
+
+        <!-- Pull from device -->
+        <p-button
+          icon="pi pi-download"
+          severity="success"
+          [rounded]="true" [text]="true"
+          pTooltip="سحب من الجهاز"
+          [loading]="syncingId() === device.id"
+          (onClick)="syncFromDevice(device)"
+        />
+
+        <!-- Preview live device logs -->
+        <p-button
+          icon="pi pi-eye"
+          severity="help"
+          [rounded]="true" [text]="true"
+          pTooltip="معاينة بيانات الجهاز (مطابقة رقم الموظف)"
+          [loading]="readingId() === device.id"
+          (onClick)="readData(device)"
+        />
+
+        <!-- Delete -->
+        <p-button
+          icon="pi pi-trash"
+          severity="danger"
+          [rounded]="true" [text]="true"
+          pTooltip="حذف"
+          (onClick)="confirmDelete(device)"
+        />
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="devices().length === 0" class="empty-state">
+      <i class="pi pi-desktop empty-icon"></i>
+      <p>لا توجد أجهزة مضافة بعد</p>
+      <p-button label="إضافة أول جهاز" icon="pi pi-plus" (onClick)="openAddForm()" />
+    </div>
+  </div>
+
+  <!-- Add / Edit Dialog -->
+  <app-device-form
+    [visible]="formVisible()"
+    [device]="selectedDevice()"
+    (saved)="onFormSaved($event)"
+    (cancelled)="closeForm()"
+  />
+
+  <!-- ── Preview Dialog ──────────────────────────────────────────────────── -->
+  <p-dialog
+    [visible]="previewVisible()"
+    (visibleChange)="previewVisible.set($event)"
+    [header]="'بيانات الجهاز: ' + (previewDevice()?.deviceName ?? '')"
+    [modal]="true"
+    [style]="{ width: '820px', maxWidth: '95vw' }"
+    [draggable]="false"
+    (onHide)="closePreview()"
+  >
+    <!-- Summary bar -->
+    <div class="preview-summary">
+      <span class="preview-stat matched">
+        <i class="pi pi-check-circle"></i>
+        {{ previewMatchedCount() }} سجل مطابق
+      </span>
+      <span class="preview-stat unmatched">
+        <i class="pi pi-exclamation-triangle"></i>
+        {{ previewUnmatchedCount() }} غير مطابق
+      </span>
+            <span class="preview-stat total">
+        <i class="pi pi-list"></i>
+        {{ previewLogs().length }} إجمالي
+      </span>
+    </div>
+
+    <!-- Logs table -->
+    <p-table
+      [value]="previewLogs()"
+      [paginator]="true"
+      [rows]="15"
+      [rowsPerPageOptions]="[15, 30, 50]"
+      [scrollable]="true"
+      scrollHeight="380px"
+      styleClass="p-datatable-sm p-datatable-striped"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th>كود الجهاز</th>
+          <th>اسم الموظف</th>
+          <th>التوقيت</th>
+          <th>النوع</th>
+          <th>الحالة</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-log>
+        <tr [ngClass]="{ 'row-unmatched': !log.employeeFound, 'row-already-saved': log.alreadySaved }">
+          <td dir="ltr">{{ log.enrollNumber }}</td>
+          <td>
+            <span *ngIf="log.employeeFound">{{ log.employeeName }}</span>
+            <span *ngIf="!log.employeeFound" class="unmatched-label">
+              <i class="pi pi-exclamation-triangle"></i> غير موجود
+            </span>
+          </td>
+          <td dir="ltr">{{ log.punchTime | date: 'yyyy-MM-dd HH:mm' }}</td>
+          <td>{{ log.directionLabel }}</td>
+                    <td>
+            <p-tag
+              *ngIf="log.alreadySaved"
+              value="محفوظ مسبقاً"
+              severity="secondary"
+            />
+            <p-tag
+              *ngIf="!log.alreadySaved && log.employeeFound"
+              value="جديد"
+              severity="success"
+            />
+            <p-tag
+              *ngIf="!log.alreadySaved && !log.employeeFound"
+              value="غير مطابق"
+              severity="warning"
+            />
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr><td colspan="5" class="text-center p-4">لا توجد سجلات</td></tr>
+      </ng-template>
+    </p-table>
+
+    <ng-template pTemplate="footer">
+      <div class="preview-footer">
+        <small class="preview-hint" *ngIf="previewError()">
+          <i class="pi pi-info-circle"></i>
+          {{ previewError() }}
+        </small>
+        <p-button label="إغلاق" icon="pi pi-times" severity="secondary" (onClick)="closePreview()" />
+      </div>
+    </ng-template>
+  </p-dialog>
+</div>

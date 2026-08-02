@@ -22,6 +22,9 @@
     "calculation_workbench": "Calculation workbench",
     "calculation_runs": "Saved calculations",
     "time_attendance_settings": "Attendance Settings",
+    "fingerprint_devices": "Fingerprint devices",
+    "attendance_devices": "Attendance Devices",
+    "employee_enroll_links": "Link enroll number",
     "custody_module": "Custody",
     "custody_financial": "Financial custody",
     "custody_documents": "Document custody",
@@ -371,33 +374,157 @@
   "payroll": {
     "hub_title": "Payroll",
     "hub_subtitle": "Periods, salary structures, calculation runs, and payslips (UI shell — connect API when backend controllers are ready).",
+    "hub_subtitle_live": "Manage pay periods, employee salary structures, deduction and allowance types, payroll runs, attendance summaries for payroll, and payslips.",
     "api_pending": "Backend API in progress",
     "api_pending_detail": "The Payroll module exists in the database; REST endpoints will appear in Swagger after controllers are added. Run npm run update-api to refresh the generated client.",
     "placeholder": "Payroll",
+    "actions": "Actions",
+    "yes": "Yes",
+    "no": "No",
+    "load_failed": "Could not load payroll data.",
+    "save_failed": "Save failed.",
+    "delete_failed": "Delete failed.",
+    "saved": "Saved successfully.",
+    "deleted": "Deleted successfully.",
+    "enums": {
+      "period_status": {
+        "open": "Open",
+        "processing": "Processing",
+        "closed": "Closed"
+      },
+      "deduction_method": {
+        "fixed": "Fixed amount",
+        "percentage": "Percentage",
+        "per_day": "Per day",
+        "per_hour": "Per hour"
+      },
+      "allowance_method": {
+        "fixed": "Fixed amount",
+        "percentage": "Percentage",
+        "per_day": "Per day"
+      },
+      "run_status": {
+        "draft": "Draft",
+        "approved": "Approved",
+        "paid": "Paid",
+        "cancelled": "Cancelled"
+      },
+      "payslip_status": {
+        "generated": "Generated",
+        "sent": "Sent",
+        "ack": "Acknowledged"
+      }
+    },
     "periods": {
       "title": "Pay periods",
       "description": "Define monthly or weekly payroll windows (open / processing / closed).",
-      "card_hint": "Period calendar and status"
+      "card_hint": "Period calendar and status",
+      "col_name": "Name",
+      "col_start": "Start",
+      "col_end": "End",
+      "col_status": "Status",
+      "col_processed": "Processed at",
+      "create_title": "New pay period",
+      "edit_title": "Edit pay period",
+      "field_name": "Period name",
+      "field_start": "Start date",
+      "field_end": "End date",
+      "field_status": "Status",
+      "field_processed": "Processed date/time",
+      "validation_required": "Name, start, and end are required.",
+      "confirm_delete": "Delete this pay period?"
     },
     "salary_structures": {
       "title": "Salary structures",
       "description": "Employee base salary, hourly and overtime rates with effective dates.",
       "card_hint": "Rate cards per employee"
     },
+    "salary": {
+      "employee": "Employee",
+      "employee_placeholder": "Select employee",
+      "pick_employee": "Select an employee first.",
+      "col_base": "Base salary",
+      "col_hourly": "Hourly rate",
+      "col_ot": "Overtime rate",
+      "col_from": "Effective from",
+      "col_to": "Effective to",
+      "create_title": "New salary structure",
+      "edit_title": "Edit salary structure",
+      "validation_from": "Effective from date is required.",
+      "confirm_delete": "Delete this salary structure?"
+    },
     "lookups": {
       "title": "Allowances & deductions",
       "description": "Deduction and allowance types (fixed, percentage, per day/hour).",
-      "card_hint": "Lookup tables for payroll engine"
+      "card_hint": "Lookup tables for payroll engine",
+      "tab_deductions": "Deduction types",
+      "tab_allowances": "Allowance types",
+      "col_name": "Name",
+      "col_method": "Method",
+      "col_value": "Value",
+      "col_active": "Active",
+      "create_deduction": "New deduction type",
+      "edit_deduction": "Edit deduction type",
+      "create_allowance": "New allowance type",
+      "edit_allowance": "Edit allowance type",
+      "validation_name": "Name is required.",
+      "confirm_delete": "Delete this row?"
     },
     "runs": {
       "title": "Payroll runs",
       "description": "Calculated gross, deductions, and net per employee per period.",
-      "card_hint": "Calculation results and approval"
+      "card_hint": "Calculation results and approval",
+      "period": "Pay period",
+      "period_placeholder": "Select period",
+      "pick_period": "Select a pay period first.",
+      "tab_runs": "Runs",
+      "tab_attendance": "Attendance summaries",
+      "add_run": "New payroll run",
+      "create_run_title": "New payroll run",
+      "col_employee": "Employee",
+      "col_net": "Net salary",
+      "col_status": "Status",
+      "detail_title": "Payroll run",
+      "field_ot_amount": "Overtime amount",
+      "field_absence": "Absence deduction",
+      "field_late": "Late deduction",
+      "field_gross": "Gross salary",
+      "field_total_ded": "Total deductions",
+      "deductions": "Deduction lines",
+      "allowances": "Allowance lines",
+      "line_type": "Type",
+      "note": "Note",
+      "add_deduction": "Add deduction",
+      "add_allowance": "Add allowance",
+      "validation_run": "Employee and amounts are required.",
+      "validation_line": "Type and amount are required.",
+      "confirm_delete_run": "Delete this payroll run?",
+      "confirm_remove_line": "Remove this line?"
+    },
+    "att": {
+      "add": "Add summary",
+      "edit": "Edit attendance summary",
+      "working_days": "Working days",
+      "absent_days": "Absent days",
+      "total_hours": "Total hours",
+      "ot_hours": "Overtime hours",
+      "late_hours": "Late (hours)",
+      "validation": "Employee is required.",
+      "confirm_delete": "Delete this attendance summary?"
     },
     "payslips": {
       "title": "Payslips",
       "description": "Generated payslip numbers and delivery status.",
-      "card_hint": "Payslip documents"
+      "card_hint": "Payslip documents",
+      "col_number": "Payslip #",
+      "col_generated": "Generated",
+      "col_status": "Status",
+      "create_title": "New payslip",
+      "field_run": "Payroll run",
+      "run_placeholder": "Select run",
+      "validation": "Run and payslip number are required.",
+      "status_title": "Update payslip status",
+      "confirm_delete": "Delete this payslip?"
     }
   }
 }

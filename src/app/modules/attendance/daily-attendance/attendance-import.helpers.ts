@@ -14,12 +14,18 @@ function parseDirection(v: string): PunchDirection {
 
 function parseFingerTime(v: string): string {
   const s = norm(v);
+  if (/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}(:\d{2})?$/.test(s)) {
+    const normalized = s.replace(' ', 'T');
+    return normalized.length === 16 ? `${normalized}:00` : normalized;
+  }
   const d = new Date(s);
-  if (!Number.isNaN(d.getTime())) return d.toISOString();
+  if (!Number.isNaN(d.getTime())) {
+    // If source includes timezone/offset, keep absolute instant.
+    return d.toISOString();
+  }
   const m = s.match(/^(\d{4}-\d{2}-\d{2})[ T](\d{1,2}:\d{2}(?::\d{2})?)$/);
   if (m) {
-    const d2 = new Date(`${m[1]}T${m[2].length === 5 ? m[2] + ':00' : m[2]}`);
-    if (!Number.isNaN(d2.getTime())) return d2.toISOString();
+    return `${m[1]}T${m[2].length === 5 ? m[2] + ':00' : m[2]}`;
   }
   throw new Error(`Invalid FingerTime: ${v}`);
 }

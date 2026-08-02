@@ -1,0 +1,107 @@
+<div class="payroll-page">
+  <header class="page-head">
+    <a routerLink="/payroll" class="back-link"><i class="pi pi-arrow-left"></i> {{ 'common.back' | translate }}</a>
+    <h1>{{ 'payroll.lookups.title' | translate }}</h1>
+    <p class="sub">{{ 'payroll.lookups.description' | translate }}</p>
+  </header>
+
+  <p-card>
+    <p-tabView>
+      <p-tabPanel [header]="'payroll.lookups.tab_deductions' | translate">
+        <div class="toolbar">
+          <button pButton type="button" icon="pi pi-plus" [label]="'common.add' | translate" (click)="openDedCreate()"></button>
+        </div>
+        <app-shared-table
+          [value]="deductions()"
+          [loading]="loadingDed()"
+          [columns]="dedColumns"
+          [actions]="dedActions"
+          actionsColumnHeader="payroll.actions"
+          actionsColumnWidth="8rem"
+          [tableStyle]="{ 'min-width': '42rem' }"
+          emptyMessage="common.no_data"
+        />
+      </p-tabPanel>
+      <p-tabPanel [header]="'payroll.lookups.tab_allowances' | translate">
+        <div class="toolbar">
+          <button pButton type="button" icon="pi pi-plus" [label]="'common.add' | translate" (click)="openAllCreate()"></button>
+        </div>
+        <app-shared-table
+          [value]="allowances()"
+          [loading]="loadingAll()"
+          [columns]="allColumns"
+          [actions]="allActions"
+          actionsColumnHeader="payroll.actions"
+          actionsColumnWidth="8rem"
+          [tableStyle]="{ 'min-width': '42rem' }"
+          emptyMessage="common.no_data"
+        />
+      </p-tabPanel>
+    </p-tabView>
+  </p-card>
+</div>
+
+<p-dialog
+  [header]="(dedEditingId() ? 'payroll.lookups.edit_deduction' : 'payroll.lookups.create_deduction') | translate"
+  [visible]="dedDialog()"
+  (visibleChange)="dedDialog.set($event)"
+  [modal]="true"
+  [style]="{ width: '28rem' }"
+  [draggable]="false"
+>
+  <div class="form-grid one-col">
+    <label for="dd-name">{{ 'payroll.lookups.col_name' | translate }}</label>
+    <input id="dd-name" type="text" pInputText [(ngModel)]="dedFormName" class="w-full" />
+    <label for="dd-m">{{ 'payroll.lookups.col_method' | translate }}</label>
+    <p-dropdown
+      inputId="dd-m"
+      [options]="dedMethodOptions"
+      optionLabel="label"
+      optionValue="value"
+      [(ngModel)]="dedFormMethod"
+      styleClass="w-full"
+    />
+    <label for="dd-v">{{ 'payroll.lookups.col_value' | translate }}</label>
+    <p-inputNumber inputId="dd-v" [(ngModel)]="dedFormValue" mode="decimal" [minFractionDigits]="2" styleClass="w-full" />
+    <label for="dd-a">{{ 'payroll.lookups.col_active' | translate }}</label>
+    <p-inputSwitch inputId="dd-a" [(ngModel)]="dedFormActive" />
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton type="button" class="p-button-text" [label]="'common.cancel' | translate" (click)="dedDialog.set(false)"></button>
+    <button pButton type="button" [label]="'common.save' | translate" [loading]="saving()" [disabled]="saving()" (click)="saveDed()"></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [header]="(allEditingId() ? 'payroll.lookups.edit_allowance' : 'payroll.lookups.create_allowance') | translate"
+  [visible]="allDialog()"
+  (visibleChange)="allDialog.set($event)"
+  [modal]="true"
+  [style]="{ width: '28rem' }"
+  [draggable]="false"
+>
+  <div class="form-grid one-col">
+    <label for="aa-name">{{ 'payroll.lookups.col_name' | translate }}</label>
+    <input id="aa-name" type="text" pInputText [(ngModel)]="allFormName" class="w-full" />
+    <label for="aa-m">{{ 'payroll.lookups.col_method' | translate }}</label>
+    <p-dropdown
+      inputId="aa-m"
+      [options]="allMethodOptions"
+      optionLabel="label"
+      optionValue="value"
+      [(ngModel)]="allFormMethod"
+      styleClass="w-full"
+    />
+    <label for="aa-v">{{ 'payroll.lookups.col_value' | translate }}</label>
+    <p-inputNumber inputId="aa-v" [(ngModel)]="allFormValue" mode="decimal" [minFractionDigits]="2" styleClass="w-full" />
+    <label for="aa-a">{{ 'payroll.lookups.col_active' | translate }}</label>
+    <p-inputSwitch inputId="aa-a" [(ngModel)]="allFormActive" />
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton type="button" class="p-button-text" [label]="'common.cancel' | translate" (click)="allDialog.set(false)"></button>
+    <button pButton type="button" [label]="'common.save' | translate" [loading]="saving()" [disabled]="saving()" (click)="saveAll()"></button>
+  </ng-template>
+</p-dialog>
+
+<p-toast />
+<p-confirmPopup />

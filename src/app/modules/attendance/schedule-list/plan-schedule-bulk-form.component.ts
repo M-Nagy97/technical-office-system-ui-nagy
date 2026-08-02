@@ -17,6 +17,7 @@ import {
   ShiftsService,
   ShiftDto,
   BulkUpsertPlanSchedulesCommand,
+  DayType,
 } from '../../../core/api/generated';
 
 @Component({
@@ -50,6 +51,13 @@ export class PlanScheduleBulkFormComponent implements OnInit {
   readonly shifts = signal<ShiftDto[]>([]);
   readonly saving = signal(false);
   form!: FormGroup;
+
+  private toYmdLocal(value: Date): string {
+    const y = value.getFullYear();
+    const m = String(value.getMonth() + 1).padStart(2, '0');
+    const d = String(value.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
 
   ngOnInit(): void {
     const pId = this.route.snapshot.paramMap.get('id');
@@ -90,12 +98,20 @@ export class PlanScheduleBulkFormComponent implements OnInit {
     const schedules: any[] = [];
     const start = new Date(v.startDate);
     const end = new Date(v.endDate);
-    
-    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+
+    if (start > end) {
+      this.saving.set(false);
+      this.messageService.add({ severity: 'warn', summary: 'تحذير', detail: 'تاريخ البداية يجب أن يكون قبل تاريخ النهاية' });
+      return;
+    }
+
+    for (let d = new Date(start); d <= end; d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1)) {
       schedules.push({
         planId: v.planId,
         shiftId: v.shiftId,
-        scheduleDate: d.toISOString().split('T')[0],
+        scheduleDate: this.toYmdLocal(d),
+        dayType: DayType.NUMBER_1,
+        isHoliday: false,
         notes: v.notes
       });
     }

@@ -22,6 +22,9 @@
     "calculation_workbench": "منصة احتساب الحضور",
     "calculation_runs": "عمليات الحفظ",
     "time_attendance_settings": "إعدادات الحضور",
+    "fingerprint_devices": "البصمة والأجهزة",
+    "attendance_devices": "أجهزة البصمة",
+    "employee_enroll_links": "ربط رقم البصمة",
     "custody_module": "العهدة",
     "custody_financial": "عهدة نقدية",
     "custody_documents": "مستندات بعهدة الموظفين",
@@ -371,33 +374,157 @@
   "payroll": {
     "hub_title": "الرواتب",
     "hub_subtitle": "الفترات، هياكل المرتبات، التشغيلات، وقسائم الراتب (واجهة أولية — اربط الـ API عند جاهزية الـ Controllers).",
+    "hub_subtitle_live": "إدارة فترات الراتب، هياكل المرتبات للموظفين، أنواع الاستقطاع والبدل، تشغيلات الرواتب، ملخصات الحضور للرواتب، وقسائم الراتب.",
     "api_pending": "واجهة البرمجة قيد الإعداد",
     "api_pending_detail": "موديول الرواتب موجود في قاعدة البيانات؛ ستظهر نقاط REST في Swagger بعد إضافة الـ Controllers. نفّذ npm run update-api لتحديث العميل المولَّد.",
     "placeholder": "الرواتب",
+    "actions": "إجراءات",
+    "yes": "نعم",
+    "no": "لا",
+    "load_failed": "تعذر تحميل بيانات الرواتب.",
+    "save_failed": "فشل الحفظ.",
+    "delete_failed": "فشل الحذف.",
+    "saved": "تم الحفظ بنجاح.",
+    "deleted": "تم الحذف بنجاح.",
+    "enums": {
+      "period_status": {
+        "open": "مفتوحة",
+        "processing": "قيد المعالجة",
+        "closed": "مغلقة"
+      },
+      "deduction_method": {
+        "fixed": "مبلغ ثابت",
+        "percentage": "نسبة",
+        "per_day": "لكل يوم",
+        "per_hour": "لكل ساعة"
+      },
+      "allowance_method": {
+        "fixed": "مبلغ ثابت",
+        "percentage": "نسبة",
+        "per_day": "لكل يوم"
+      },
+      "run_status": {
+        "draft": "مسودة",
+        "approved": "معتمد",
+        "paid": "مدفوع",
+        "cancelled": "ملغى"
+      },
+      "payslip_status": {
+        "generated": "مُولَّد",
+        "sent": "مُرسل",
+        "ack": "مُقرَّ به"
+      }
+    },
     "periods": {
       "title": "فترات الراتب",
       "description": "تعريف فترات الرواتب الشهرية أو الأسبوعية (مفتوحة / قيد المعالجة / مغلقة).",
-      "card_hint": "التقويم وحالة الفترة"
+      "card_hint": "التقويم وحالة الفترة",
+      "col_name": "الاسم",
+      "col_start": "البداية",
+      "col_end": "النهاية",
+      "col_status": "الحالة",
+      "col_processed": "تاريخ المعالجة",
+      "create_title": "فترة راتب جديدة",
+      "edit_title": "تعديل فترة الراتب",
+      "field_name": "اسم الفترة",
+      "field_start": "تاريخ البداية",
+      "field_end": "تاريخ النهاية",
+      "field_status": "الحالة",
+      "field_processed": "تاريخ/وقت المعالجة",
+      "validation_required": "الاسم والبداية والنهاية مطلوبة.",
+      "confirm_delete": "هل أنت متأكد من حذف فترة الراتب؟"
     },
     "salary_structures": {
       "title": "هياكل المرتبات",
       "description": "الراتب الأساسي وساعة العمل والأوفرتايم مع تواريخ السريان.",
       "card_hint": "بطاقات مرتب لكل موظف"
     },
+    "salary": {
+      "employee": "الموظف",
+      "employee_placeholder": "اختر الموظف",
+      "pick_employee": "اختر موظفاً أولاً.",
+      "col_base": "الراتب الأساسي",
+      "col_hourly": "أجر الساعة",
+      "col_ot": "أجر الأوفرتايم",
+      "col_from": "ساري من",
+      "col_to": "ساري إلى",
+      "create_title": "هيكل مرتب جديد",
+      "edit_title": "تعديل هيكل المرتب",
+      "validation_from": "تاريخ السريان مطلوب.",
+      "confirm_delete": "هل أنت متأكد من حذف هيكل المرتب هذا؟"
+    },
     "lookups": {
       "title": "البدلات والاستقطاعات",
       "description": "أنواع الاستقطاع والبدل (ثابت، نسبة، لكل يوم/ساعة).",
-      "card_hint": "جداول مساعدة لمحرك الرواتب"
+      "card_hint": "جداول مساعدة لمحرك الرواتب",
+      "tab_deductions": "أنواع الاستقطاع",
+      "tab_allowances": "أنواع البدل",
+      "col_name": "الاسم",
+      "col_method": "الأسلوب",
+      "col_value": "القيمة",
+      "col_active": "نشط",
+      "create_deduction": "نوع استقطاع جديد",
+      "edit_deduction": "تعديل نوع الاستقطاع",
+      "create_allowance": "نوع بدل جديد",
+      "edit_allowance": "تعديل نوع البدل",
+      "validation_name": "الاسم مطلوب.",
+      "confirm_delete": "هل أنت متأكد من حذف هذا السطر؟"
     },
     "runs": {
       "title": "تشغيلات الرواتب",
       "description": "الإجمالي والاستقطاعات والصافي لكل موظف لكل فترة.",
-      "card_hint": "نتائج الحساب والاعتماد"
+      "card_hint": "نتائج الحساب والاعتماد",
+      "period": "فترة الراتب",
+      "period_placeholder": "اختر الفترة",
+      "pick_period": "اختر فترة الراتب أولاً.",
+      "tab_runs": "التشغيلات",
+      "tab_attendance": "ملخصات الحضور",
+      "add_run": "تشغيل راتب جديد",
+      "create_run_title": "تشغيل راتب جديد",
+      "col_employee": "الموظف",
+      "col_net": "صافي الراتب",
+      "col_status": "الحالة",
+      "detail_title": "تشغيل الراتب",
+      "field_ot_amount": "مبلغ الأوفرتايم",
+      "field_absence": "خصم الغياب",
+      "field_late": "خصم التأخر",
+      "field_gross": "الإجمالي",
+      "field_total_ded": "إجمالي الاستقطاعات",
+      "deductions": "بنود الاستقطاع",
+      "allowances": "بنود البدل",
+      "line_type": "النوع",
+      "note": "ملاحظة",
+      "add_deduction": "إضافة استقطاع",
+      "add_allowance": "إضافة بدل",
+      "validation_run": "الموظف والمبالغ مطلوبة.",
+      "validation_line": "النوع والمبلغ مطلوبان.",
+      "confirm_delete_run": "هل أنت متأكد من حذف تشغيل الراتب؟",
+      "confirm_remove_line": "هل تريد إزالة هذا البند؟"
+    },
+    "att": {
+      "add": "إضافة ملخص",
+      "edit": "تعديل ملخص الحضور",
+      "working_days": "أيام العمل",
+      "absent_days": "أيام الغياب",
+      "total_hours": "إجمالي الساعات",
+      "ot_hours": "ساعات الأوفرتايم",
+      "late_hours": "التأخر (ساعات)",
+      "validation": "الموظف مطلوب.",
+      "confirm_delete": "هل أنت متأكد من حذف ملخص الحضور؟"
     },
     "payslips": {
       "title": "قسائم الراتب",
       "description": "أرقام القسائم وحالة الإرسال.",
-      "card_hint": "مستندات القسيمة"
+      "card_hint": "مستندات القسيمة",
+      "col_number": "رقم القسيمة",
+      "col_generated": "تاريخ الإنشاء",
+      "col_status": "الحالة",
+      "create_title": "قسيمة جديدة",
+      "field_run": "تشغيل الراتب",
+      "run_placeholder": "اختر التشغيل",
+      "validation": "التشغيل ورقم القسيمة مطلوبان.",
+      "status_title": "تحديث حالة القسيمة",
+      "confirm_delete": "هل أنت متأكد من حذف هذه القسيمة؟"
     }
   }
 }

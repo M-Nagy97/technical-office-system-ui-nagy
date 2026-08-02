@@ -1,0 +1,84 @@
+<div class="payroll-page">
+  <header class="page-head">
+    <a routerLink="/payroll" class="back-link"><i class="pi pi-arrow-left"></i> {{ 'common.back' | translate }}</a>
+    <h1>{{ 'payroll.payslips.title' | translate }}</h1>
+    <p class="sub">{{ 'payroll.payslips.description' | translate }}</p>
+  </header>
+
+  <p-card>
+    <div class="toolbar filter-row">
+      <span class="field-label">{{ 'payroll.runs.period' | translate }}</span>
+      <p-dropdown
+        [options]="periodOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [placeholder]="'payroll.runs.period_placeholder' | translate"
+        [showClear]="true"
+        [loading]="loadingPeriods()"
+        [ngModel]="selectedPeriodId()"
+        (ngModelChange)="onPeriodChange($event)"
+        styleClass="period-dd"
+      />
+      <button pButton type="button" icon="pi pi-plus" [label]="'common.add' | translate" (click)="openCreate()"></button>
+    </div>
+
+    <app-shared-table
+      [value]="rows()"
+      [loading]="loadingRows()"
+      [columns]="columns"
+      [actions]="actions"
+      actionsColumnHeader="payroll.actions"
+      actionsColumnWidth="8rem"
+      [tableStyle]="{ 'min-width': '44rem' }"
+      emptyMessage="common.no_data"
+    />
+  </p-card>
+</div>
+
+<p-dialog
+  [header]="'payroll.payslips.create_title' | translate"
+  [visible]="createOpen()"
+  (visibleChange)="createOpen.set($event)"
+  [modal]="true"
+  [style]="{ width: '28rem' }"
+>
+  <div class="form-grid one-col">
+    <label>{{ 'payroll.payslips.field_run' | translate }}</label>
+    <p-dropdown
+      [options]="runOptions()"
+      optionLabel="label"
+      optionValue="value"
+      [(ngModel)]="formRunId"
+      [placeholder]="'payroll.payslips.run_placeholder' | translate"
+      styleClass="w-full"
+    />
+    <label>{{ 'payroll.payslips.col_number' | translate }}</label>
+    <input type="text" pInputText class="w-full" [(ngModel)]="formNumber" />
+    <label>{{ 'payroll.payslips.col_status' | translate }}</label>
+    <p-dropdown [options]="statusOptions" optionLabel="label" optionValue="value" [(ngModel)]="formStatus" styleClass="w-full" />
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton type="button" class="p-button-text" [label]="'common.cancel' | translate" (click)="createOpen.set(false)"></button>
+    <button pButton type="button" [label]="'common.save' | translate" [loading]="saving()" [disabled]="saving()" (click)="saveCreate()"></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [header]="'payroll.payslips.status_title' | translate"
+  [visible]="statusOpen()"
+  (visibleChange)="statusOpen.set($event)"
+  [modal]="true"
+  [style]="{ width: '24rem' }"
+>
+  <div class="form-grid one-col">
+    <label>{{ 'payroll.payslips.col_status' | translate }}</label>
+    <p-dropdown [options]="statusOptions" optionLabel="label" optionValue="value" [(ngModel)]="statusValue" styleClass="w-full" />
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton type="button" class="p-button-text" [label]="'common.cancel' | translate" (click)="statusOpen.set(false)"></button>
+    <button pButton type="button" [label]="'common.save' | translate" [loading]="saving()" [disabled]="saving()" (click)="saveStatus()"></button>
+  </ng-template>
+</p-dialog>
+
+<p-toast />
+<p-confirmPopup />

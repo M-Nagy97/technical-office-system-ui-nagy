@@ -9,56 +9,28 @@ export const PAYROLL_ROUTES: Routes = [
   {
     path: 'periods',
     loadComponent: () =>
-      import('./payroll-placeholder/payroll-placeholder.component').then(
-        (m) => m.PayrollPlaceholderComponent
-      ),
-    data: {
-      titleKey: 'payroll.periods.title',
-      descriptionKey: 'payroll.periods.description',
-    },
+      import('./payroll-periods/payroll-periods.component').then((m) => m.PayrollPeriodsComponent),
   },
   {
     path: 'salary-structures',
     loadComponent: () =>
-      import('./payroll-placeholder/payroll-placeholder.component').then(
-        (m) => m.PayrollPlaceholderComponent
+      import('./payroll-salary-structures/payroll-salary-structures.component').then(
+        (m) => m.PayrollSalaryStructuresComponent
       ),
-    data: {
-      titleKey: 'payroll.salary_structures.title',
-      descriptionKey: 'payroll.salary_structures.description',
-    },
   },
   {
     path: 'lookups',
     loadComponent: () =>
-      import('./payroll-placeholder/payroll-placeholder.component').then(
-        (m) => m.PayrollPlaceholderComponent
-      ),
-    data: {
-      titleKey: 'payroll.lookups.title',
-      descriptionKey: 'payroll.lookups.description',
-    },
+      import('./payroll-lookups/payroll-lookups.component').then((m) => m.PayrollLookupsComponent),
   },
   {
     path: 'runs',
     loadComponent: () =>
-      import('./payroll-placeholder/payroll-placeholder.component').then(
-        (m) => m.PayrollPlaceholderComponent
-      ),
-    data: {
-      titleKey: 'payroll.runs.title',
-      descriptionKey: 'payroll.runs.description',
-    },
+      import('./payroll-runs/payroll-runs.component').then((m) => m.PayrollRunsComponent),
   },
   {
     path: 'payslips',
     loadComponent: () =>
-      import('./payroll-placeholder/payroll-placeholder.component').then(
-        (m) => m.PayrollPlaceholderComponent
-      ),
-    data: {
-      titleKey: 'payroll.payslips.title',
-      descriptionKey: 'payroll.payslips.description',
-    },
+      import('./payroll-payslips/payroll-payslips.component').then((m) => m.PayrollPayslipsComponent),
   },
 ];
