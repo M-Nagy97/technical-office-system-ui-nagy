@@ -1,9 +1,15 @@
+export type EmployeeStatus = 'active' | 'suspended' | 'terminated' | 'retired';
+export type EmploymentType = 'permanent' | 'temporary' | 'contract';
+export type EmployeeGender = 'male' | 'female';
+export type EmployeeMaritalStatus = 'single' | 'married' | 'divorced' | 'widowed';
+export type EmployeeDocumentType = 'appointment_decision' | 'id_copy' | 'birth_certificate' | 'qualification' | 'other';
+
 /**
  * Employee document attached to an employee record.
  */
 export interface EmployeeDocument {
   id: string;
-  type: 'appointment_decision' | 'id_copy' | 'birth_certificate' | 'qualification' | 'other';
+  type: EmployeeDocumentType;
   name: string;
   fileUrl: string;
   uploadDate: Date;
@@ -35,12 +41,12 @@ export interface Employee {
   secondName: string;
   thirdName: string;
   lastName: string;
-  gender: 'male' | 'female';
+  gender: EmployeeGender;
   birthDate: Date;
   birthPlace: string;
   nationality: string;
   religion: string;
-  maritalStatus: 'single' | 'married' | 'divorced' | 'widowed';
+  maritalStatus: EmployeeMaritalStatus;
   phone: string;
   alternatePhone?: string;
   email?: string;
@@ -56,8 +62,8 @@ export interface Employee {
   department: string; // القسم
   section: string; // الوحدة
   workLocation: string; // مكان العمل
-  employmentType: 'permanent' | 'temporary' | 'contract'; // نوع التعيين
-  status: 'active' | 'suspended' | 'terminated' | 'retired'; // الحالة
+  employmentType: EmploymentType; // نوع التعيين
+  status: EmployeeStatus; // الحالة
 
   // المؤهلات - Qualifications
   educationLevel: string; // المؤهل الدراسي
@@ -68,3 +74,11 @@ export interface Employee {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface EmployeeFilter {
+  query?: string;
+  department?: string | null;
+  status?: EmployeeStatus | null;
+  employmentType?: EmploymentType | null;
+}
+

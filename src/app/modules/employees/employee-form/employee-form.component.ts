@@ -253,11 +253,9 @@ export class EmployeeFormComponent implements OnInit {
             next: (emp) => {
               if (emp) this.patchForm(emp);
             },
-            error: (err) => console.error('Error loading employee', err),
           });
         }
       },
-      error: (err) => console.error('Error loading lookups', err),
     });
   }
 
@@ -485,16 +483,13 @@ export class EmployeeFormComponent implements OnInit {
     if (id && this.isEdit()) {
       this.employeeService.update(id, payload).subscribe({
         next: () => this.router.navigate(['/employees', id]),
-        error: (err) => console.error('Error updating employee', err)
       });
     } else {
       this.employeeService.create(payload).subscribe({
-        next: (response) => {
-          // If the API returns the created object with ID, we use it, otherwise use local ID
+        next: (response: any) => {
           const newId = response?.id || id;
           this.router.navigate(['/employees', newId]);
         },
-        error: (err) => console.error('Error creating employee', err)
       });
     }
   }

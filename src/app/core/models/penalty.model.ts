@@ -45,3 +45,19 @@ export const PENALTY_STATUS_LABELS: Record<PenaltyStatus, string> = {
   appealed: 'تحت الطعن',
   cancelled: 'ملغى',
 };
+
+/**
+ * فلترة الجزاءات
+ */
+export interface PenaltyFilter {
+  employeeId?: string | null;
+  type?: PenaltyType | null;
+  status?: PenaltyStatus | null;
+  dateFrom?: Date | null;
+  dateTo?: Date | null;
+  searchText?: string | null;
+}
+
+export type CreatePenaltyInput = Omit<Penalty, 'id' | 'penaltyNumber'>;
+export type UpdatePenaltyInput = Partial<Penalty>;
+

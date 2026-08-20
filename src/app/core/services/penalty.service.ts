@@ -1,15 +1,54 @@
-import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, map, Observable } from 'rxjs';
+import { Injectable, inject, signal, computed } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { Observable, map } from 'rxjs';
 import { EmployeeService } from './employee.service';
-import { Penalty, PenaltyType, PenaltyStatus, PENALTY_TYPE_LABELS, PENALTY_STATUS_LABELS } from '../models/penalty.model';
+import {
+  Penalty,
+  PenaltyType,
+  PenaltyStatus,
+  PenaltyFilter,
+  CreatePenaltyInput,
+  UpdatePenaltyInput,
+  PENALTY_TYPE_LABELS,
+  PENALTY_STATUS_LABELS,
+} from '../models/penalty.model';
+import { generateMockPenalties } from '../mocks/penalty.mock';
 
-export interface PenaltyFilter {
-  employeeId?: string | null;
-  type?: PenaltyType | null;
-  status?: PenaltyStatus | null;
-  dateFrom?: Date | null;
-  dateTo?: Date | null;
-  searchText?: string | null;
+export function filterPenalties(list: Penalty[], filter: PenaltyFilter): Penalty[] {
+  let result = list;
+
+  if (filter.employeeId != null && filter.employeeId !== '') {
+    result = result.filter((p) => p.employeeId === filter.employeeId);
+  }
+  if (filter.type != null) {
+    result = result.filter((p) => p.type === filter.type);
+  }
+  if (filter.status != null) {
+    result = result.filter((p) => p.status === filter.status);
+  }
+  if (filter.dateFrom != null) {
+    const from = new Date(filter.dateFrom);
+    from.setHours(0, 0, 0, 0);
+    result = result.filter((p) => new Date(p.incidentDate) >= from);
+  }
+  if (filter.dateTo != null) {
+    const to = new Date(filter.dateTo);
+    to.setHours(23, 59, 59, 999);
+    result = result.filter((p) => new Date(p.incidentDate) <= to);
+  }
+
+  const q = (filter.searchText ?? '').trim().toLowerCase();
+  if (q) {
+    result = result.filter(
+      (p) =>
+        p.reason.toLowerCase().includes(q) ||
+        p.decisionNumber.toLowerCase().includes(q) ||
+        p.employeeName.toLowerCase().includes(q) ||
+        p.penaltyNumber.toLowerCase().includes(q)
+    );
+  }
+
+  return result;
 }
 
 @Injectable({
@@ -17,13 +56,16 @@ export interface PenaltyFilter {
 })
 export class PenaltyService {
   private readonly employeeService = inject(EmployeeService);
-  private readonly penaltiesSubject = new BehaviorSubject<Penalty[]>([]);
-  readonly penalties$ = this.penaltiesSubject.asObservable();
+  private readonly penaltiesState = signal<Penalty[]>([]);
+
+  readonly penalties = this.penaltiesState.asReadonly();
+  readonly penalties$ = toObservable(this.penaltiesState);
+  readonly count = computed(() => this.penaltiesState().length);
 
   private static nextSeq = 1;
 
   constructor() {
-    this.seedMock();
+    this.initMockData();
   }
 
   private generateId(): string {
@@ -36,64 +78,29 @@ export class PenaltyService {
     return `PEN-${y}-${n}`;
   }
 
-  private seedMock(): void {
+  private initMockData(): void {
     const employees = this.employeeService.getList();
-    if (employees.length === 0) return;
-    const list: Penalty[] = [];
-    const types: PenaltyType[] = ['warning', 'written_warning', 'deduction', 'suspension', 'dismissal'];
-    const reasons: string[] = [
-      'التأخر عن العمل دون عذر مقبول',
-      'عدم الالتزام بمواعيد الدوام الرسمية',
-      'إهمال في أداء المهام الموكلة',
-      'مخالفة تعليمات العمل واللوائح الداخلية',
-      'عدم تسليم التقرير الشهري في الموعد المحدد',
-      'الغياب دون إذن مسبق لمدة يومين',
-      'التصرف بشكل يخل بواجبات الوظيفة',
-      'الإخلال بأمانة الوظيفة',
-    ];
-    const statuses: PenaltyStatus[] = ['pending', 'approved', 'appealed', 'cancelled'];
-    for (let i = 0; i < 10; i++) {
-      const emp = employees[i % employees.length];
-      const type = types[i % types.length];
-      const incidentDate = new Date();
-      incidentDate.setDate(incidentDate.getDate() - (i + 1) * 8);
-      const decisionDate = new Date(incidentDate);
-      decisionDate.setDate(decisionDate.getDate() + 3);
-      list.push({
-        id: this.generateId(),
-        penaltyNumber: PenaltyService.nextPenaltyNumber(),
-        employeeId: emp.id,
-        employeeName: emp.fullName,
-        type,
-        reason: reasons[i % reasons.length],
-        incidentDate,
-        decisionDate,
-        decisionNumber: `قرار ${100 + i} لسنة ${new Date().getFullYear()}`,
-        deductionDays: type === 'deduction' ? (i % 3) + 1 : undefined,
-        suspensionDays: type === 'suspension' ? (i % 2) + 1 : undefined,
-        status: statuses[i % 4],
-        approvedBy: 'الإدارة',
-        notes: i % 2 === 0 ? 'تم التحقق من الواقعة.' : undefined,
-      });
+    if (employees.length > 0) {
+      const list = generateMockPenalties(employees);
+      PenaltyService.nextSeq = list.length + 1;
+      this.penaltiesState.set(list);
     }
-    PenaltyService.nextSeq = list.length + 1;
-    this.penaltiesSubject.next(list);
   }
 
   getAll(): Observable<Penalty[]> {
-    return this.penalties$.pipe(map((arr) => [...arr]));
+    return this.penalties$;
   }
 
   getList(): Penalty[] {
-    return this.penaltiesSubject.getValue();
+    return this.penaltiesState();
   }
 
   getById(id: string): Penalty | undefined {
-    return this.penaltiesSubject.getValue().find((p) => p.id === id);
+    return this.penaltiesState().find((p) => p.id === id);
   }
 
   getByEmployeeId(employeeId: string): Penalty[] {
-    return this.penaltiesSubject.getValue().filter((p) => p.employeeId === employeeId);
+    return this.penaltiesState().filter((p) => p.employeeId === employeeId);
   }
 
   getStatsByEmployee(employeeId: string): { type: PenaltyType; count: number }[] {
@@ -105,71 +112,39 @@ export class PenaltyService {
     return Array.from(map.entries()).map(([type, count]) => ({ type, count }));
   }
 
-  create(input: Omit<Penalty, 'id' | 'penaltyNumber'>): Penalty {
+  create(input: CreatePenaltyInput): Penalty {
     const penalty: Penalty = {
       ...input,
       id: this.generateId(),
       penaltyNumber: PenaltyService.nextPenaltyNumber(),
     };
-    const next = [...this.penaltiesSubject.getValue(), penalty];
-    this.penaltiesSubject.next(next);
+    this.penaltiesState.update((list) => [...list, penalty]);
     return penalty;
   }
 
-  update(id: string, patch: Partial<Penalty>): Penalty | null {
-    const list = this.penaltiesSubject.getValue();
+  update(id: string, patch: UpdatePenaltyInput): Penalty | null {
+    const list = this.penaltiesState();
     const index = list.findIndex((p) => p.id === id);
     if (index === -1) return null;
-    const updated = { ...list[index], ...patch };
-    const next = [...list];
-    next[index] = updated;
-    this.penaltiesSubject.next(next);
+
+    const updated: Penalty = { ...list[index], ...patch };
+    this.penaltiesState.update((current) => {
+      const copy = [...current];
+      copy[index] = updated;
+      return copy;
+    });
+
     return updated;
   }
 
   delete(id: string): boolean {
-    const list = this.penaltiesSubject.getValue();
-    const filtered = list.filter((p) => p.id !== id);
-    if (filtered.length === list.length) return false;
-    this.penaltiesSubject.next(filtered);
-    return true;
+    const initialLen = this.penaltiesState().length;
+    this.penaltiesState.update((list) => list.filter((p) => p.id !== id));
+    return this.penaltiesState().length < initialLen;
   }
 
-  /**
-   * Search/filter penalties by employee, type, status, date range, and text (reason, decisionNumber, employeeName).
-   */
   search(filter: PenaltyFilter): Penalty[] {
-    let list = [...this.penaltiesSubject.getValue()];
-    if (filter.employeeId != null && filter.employeeId !== '') {
-      list = list.filter((p) => p.employeeId === filter.employeeId);
-    }
-    if (filter.type != null) {
-      list = list.filter((p) => p.type === filter.type);
-    }
-    if (filter.status != null) {
-      list = list.filter((p) => p.status === filter.status);
-    }
-    if (filter.dateFrom != null) {
-      const from = new Date(filter.dateFrom);
-      from.setHours(0, 0, 0, 0);
-      list = list.filter((p) => new Date(p.incidentDate) >= from);
-    }
-    if (filter.dateTo != null) {
-      const to = new Date(filter.dateTo);
-      to.setHours(23, 59, 59, 999);
-      list = list.filter((p) => new Date(p.incidentDate) <= to);
-    }
-    const q = (filter.searchText ?? '').trim().toLowerCase();
-    if (q) {
-      list = list.filter(
-        (p) =>
-          p.reason.toLowerCase().includes(q) ||
-          p.decisionNumber.toLowerCase().includes(q) ||
-          p.employeeName.toLowerCase().includes(q) ||
-          p.penaltyNumber.toLowerCase().includes(q)
-      );
-    }
-    return list;
+    return filterPenalties(this.penaltiesState(), filter);
   }
 
   static getTypeLabel(type: PenaltyType): string {
@@ -180,3 +155,4 @@ export class PenaltyService {
     return PENALTY_STATUS_LABELS[status] ?? status;
   }
 }
+

@@ -10,11 +10,13 @@ import { CalendarModule } from 'primeng/calendar';
 import { SidebarModule } from 'primeng/sidebar';
 import { TagModule } from 'primeng/tag';
 import { PenaltyFormComponent } from '../penalty-form/penalty-form.component';
-import { PenaltyService } from '../../../core/services/penalty.service';
-import { Penalty, PenaltyType, PenaltyStatus, PENALTY_TYPE_LABELS, PENALTY_STATUS_LABELS } from '../../../core/models/penalty.model';
-import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
-import { SharedTableCellTemplateDirective } from '../../../shared/components/shared-table/shared-table-cell-template.directive';
-import { SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
+import { PenaltyService } from '../../../core';
+import { Penalty, PenaltyType, PenaltyStatus, PENALTY_TYPE_LABELS, PENALTY_STATUS_LABELS } from '../../../core';
+import {
+  SharedTableComponent,
+  SharedTableColumn,
+  SharedTableCellTemplateDirective,
+} from '../../../shared';
 
 const TYPE_OPTIONS = (Object.entries(PENALTY_TYPE_LABELS) as [PenaltyType, string][]).map(([value, label]) => ({ label, value }));
 const STATUS_OPTIONS = (Object.entries(PENALTY_STATUS_LABELS) as [PenaltyStatus, string][]).map(([value, label]) => ({ label, value }));

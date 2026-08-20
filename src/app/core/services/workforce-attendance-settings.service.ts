@@ -21,6 +21,8 @@ export interface UpsertWorkforceAttendanceSettingsPayload {
   requirePunchOut: boolean;
 }
 
+import { environment } from '../../../environments/environment';
+
 interface ApiResult<T> {
   success?: boolean;
   message?: string | null;
@@ -36,7 +38,7 @@ export class WorkforceAttendanceSettingsService {
     inject(Configuration, { optional: true }) ?? new Configuration();
 
   private get baseUrl(): string {
-    const b = this.configuration.basePath ?? 'https://localhost:8500';
+    const b = this.configuration.basePath ?? environment.apiBaseUrl;
     return b.replace(/\/$/, '');
   }
 

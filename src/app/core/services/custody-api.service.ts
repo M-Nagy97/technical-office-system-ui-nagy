@@ -14,6 +14,8 @@ import {
   TransferDocumentPayload,
 } from '../models/custody.models';
 
+import { environment } from '../../../environments/environment';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -24,7 +26,7 @@ export class CustodyApiService {
     inject(Configuration, { optional: true }) ?? new Configuration();
 
   private get baseUrl(): string {
-    const b = this.configuration.basePath ?? 'https://localhost:8500';
+    const b = this.configuration.basePath ?? environment.apiBaseUrl;
     return b.replace(/\/$/, '');
   }
 

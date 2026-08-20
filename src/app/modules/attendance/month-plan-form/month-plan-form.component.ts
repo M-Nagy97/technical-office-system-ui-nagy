@@ -213,7 +213,6 @@ export class MonthPlanFormComponent implements OnInit {
 
   submit(): void {
     if (this.form.invalid) {
-      console.log('Form is invalid:', this.form.errors, this.form.value);
       this.form.markAllAsTouched();
       return;
     }

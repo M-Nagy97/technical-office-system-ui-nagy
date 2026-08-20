@@ -4,13 +4,8 @@ import { Observable, map } from 'rxjs';
 import { AttendanceService as GeneratedAttendanceService } from '../api/generated/api/attendance.service';
 import { AttendanceCalculationResultDto } from '../api/generated/model/attendanceCalculationResultDto';
 import { RunAttendanceCalculationCommand } from '../api/generated/model/runAttendanceCalculationCommand';
-
-export interface RecordManualPunchRequest {
-  employeeId: string;
-  punchTime: string; // ISO 8601
-  punchType: 0 | 1;  // 0 = In, 1 = Out
-  notes?: string;
-}
+import { RecordManualPunchRequest } from '../models/attendance.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -34,10 +29,11 @@ export class AttendanceApiService {
   }
 
   recordManualPunch(request: RecordManualPunchRequest): Observable<string> {
-    const basePath = typeof this.generated.configuration.basePath === 'string'
+    const basePath = typeof this.generated.configuration.basePath === 'string' && this.generated.configuration.basePath
       ? this.generated.configuration.basePath
-      : '';
+      : environment.apiBaseUrl;
     const url = `${basePath}/api/Attendance/manual-punch`;
+
     return this.http.post<{ data?: string }>(url, {
       employeeId: request.employeeId,
       punchTime: request.punchTime,
@@ -55,3 +51,4 @@ export class AttendanceApiService {
     return `${y}-${m}-${d}`;
   }
 }
+

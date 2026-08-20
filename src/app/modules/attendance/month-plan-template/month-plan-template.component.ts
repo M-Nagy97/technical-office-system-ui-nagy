@@ -113,48 +113,31 @@ export class MonthPlanTemplateComponent implements OnInit {
   }
 
   loadPlans() {
-    console.log('Loading plans...');
-    this.plansApi.plansGetAll().pipe(map(res => {
-      console.log('Plans record:', res);
-      return res.data || [];
-    })).subscribe(data => {
-      console.log('Plans set:', data);
+    this.plansApi.plansGetAll().pipe(map(res => res.data || [])).subscribe(data => {
       this.plans.set(data);
     });
   }
 
   onPlanChange() {
     const planId = this.filterForm.value.planId;
-    console.log('Plan changed:', planId);
     if (planId) {
-      this.plansApi.plansGetShifts(planId).pipe(map(res => {
-        console.log('Shifts record:', res);
-        return res.data || [];
-      })).subscribe(data => {
-        console.log('Shifts set:', data);
+      this.plansApi.plansGetShifts(planId).pipe(map(res => res.data || [])).subscribe(data => {
         this.shifts.set(data);
       });
     }
   }
 
   generateDays() {
-    console.log('Generating days...');
     if (this.filterForm.invalid) {
-      console.log('Form invalid:', this.filterForm.errors);
       return;
     }
 
     const { year, month, planId } = this.filterForm.value;
-    console.log('Parameters:', { year, month, planId });
     this.loading.set(true);
-    // Fetch existing template - using direct http because it might not be in generated service yet
-    // But I'll use the basePath from plansApi if possible, or just assume /api works if relative
     this.plansApi.plansGetTemplate(planId, year, month).subscribe({
       next: (res) => {
-        console.log('Template record:', res);
         const existing = res.data as DaySchedule[] || [];
         const numDays = new Date(year, month, 0).getDate();
-        console.log('Number of days:', numDays);
         const newDays: DaySchedule[] = [];
 
         for (let i = 1; i <= numDays; i++) {
@@ -163,10 +146,9 @@ export class MonthPlanTemplateComponent implements OnInit {
           const found = existing.find((d: any) => d.dayNumber === i);
 
           if (found) {
-
             newDays.push({ ...found, dayName });
           } else {
-            const isWeekend = date.getDay() === 5 || date.getDay() === 6; // Fri/Sat? Adjust as needed
+            const isWeekend = date.getDay() === 5 || date.getDay() === 6;
             newDays.push({
               dayNumber: i,
               dayName,
@@ -177,12 +159,10 @@ export class MonthPlanTemplateComponent implements OnInit {
             });
           }
         }
-        console.log('Generated days:', newDays);
         this.days.set(newDays);
         this.loading.set(false);
       },
-      error: (err) => {
-        console.error('Error fetching template:', err);
+      error: () => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load template' });
         this.loading.set(false);
       }

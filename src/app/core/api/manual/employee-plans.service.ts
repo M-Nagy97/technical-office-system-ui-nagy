@@ -8,12 +8,14 @@ import {
   ApiResult
 } from './employee-plans.models';
 
+import { environment } from '../../../../environments/environment';
+
 @Injectable({
   providedIn: 'root'
 })
 export class EmployeePlansService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `/api/EmployeePlans`;
+  private readonly baseUrl = `${environment.apiBaseUrl}/api/EmployeePlans`;
 
   employeesByPlanGet(planId: string): Observable<ApiResult<EmployeePlanListItemDto[]>> {
     return this.http.get<ApiResult<EmployeePlanListItemDto[]>>(`${this.baseUrl}/plan/${planId}`);

@@ -18,7 +18,7 @@ import { AvatarModule } from 'primeng/avatar';
 import { TooltipModule } from 'primeng/tooltip';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { MenuItem } from 'primeng/api';
-import { LanguageService } from '../../core/services/language.service';
+import { LanguageService } from '../../core';
 
 const THEME_KEY = 'technical-office-theme';
 

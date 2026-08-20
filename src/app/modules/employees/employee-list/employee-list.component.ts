@@ -1,5 +1,5 @@
 import { Component, OnInit, computed, signal, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
@@ -9,12 +9,14 @@ import { TagModule } from 'primeng/tag';
 import { AvatarModule } from 'primeng/avatar';
 import { TooltipModule } from 'primeng/tooltip';
 import { RippleModule } from 'primeng/ripple';
-import { EmployeeService } from '../../../core/services/employee.service';
-import { Employee } from '../../../core/models/employee.model';
-import { Router } from '@angular/router';
-import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
-import { SharedTableAction, SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
-import { SharedTableCellTemplateDirective } from '../../../shared/components/shared-table/shared-table-cell-template.directive';
+import { EmployeeService, filterEmployees } from '../../../core/services/employee.service';
+import { Employee, EmployeeStatus, EmploymentType } from '../../../core/models/employee.model';
+import {
+  SharedTableComponent,
+  SharedTableAction,
+  SharedTableColumn,
+  SharedTableCellTemplateDirective,
+} from '../../../shared';
 
 const STATUS_LABELS: Record<string, string> = {
   active: 'نشط',
@@ -50,10 +52,13 @@ const EMPLOYMENT_TYPE_LABELS: Record<string, string> = {
   styleUrl: './employee-list.component.scss',
 })
 export class EmployeeListComponent implements OnInit {
+  private readonly employeeService = inject(EmployeeService);
+  private readonly router = inject(Router);
+
   readonly searchText = signal('');
   readonly departmentFilter = signal<string | null>(null);
-  readonly statusFilter = signal<string | null>(null);
-  readonly employmentTypeFilter = signal<string | null>(null);
+  readonly statusFilter = signal<EmployeeStatus | null>(null);
+  readonly employmentTypeFilter = signal<EmploymentType | null>(null);
   readonly loading = signal(false);
   readonly first = signal(0);
   readonly rows = signal(10);
@@ -72,101 +77,35 @@ export class EmployeeListComponent implements OnInit {
     { label: 'عقد', value: 'contract' },
   ];
 
-  readonly employees = signal<Employee[]>([]);
+  readonly employees = this.employeeService.employees;
 
-  private readonly router = inject(Router);
-  readonly filteredEmployees = computed(() => {
-    let list = this.employees();
-    const search = this.searchText().trim().toLowerCase();
-    if (search) {
-      list = list.filter(
-        (e) =>
-          e.fullName.toLowerCase().includes(search) ||
-          e.employeeNumber.toLowerCase().includes(search) ||
-          e.nationalId.toLowerCase().includes(search) ||
-          e.jobTitle.toLowerCase().includes(search) ||
-          e.department.toLowerCase().includes(search) ||
-          e.phone.toLowerCase().includes(search) ||
-          (e.email?.toLowerCase().includes(search) ?? false)
-      );
-    }
-    const dept = this.departmentFilter();
-    if (dept) list = list.filter((e) => e.department === dept);
-    const status = this.statusFilter();
-    if (status) list = list.filter((e) => e.status === status);
-    const empType = this.employmentTypeFilter();
-    if (empType) list = list.filter((e) => e.employmentType === empType);
-    return list;
-  });
+  readonly filteredEmployees = computed(() =>
+    filterEmployees(this.employees(), {
+      query: this.searchText(),
+      department: this.departmentFilter(),
+      status: this.statusFilter(),
+      employmentType: this.employmentTypeFilter(),
+    })
+  );
 
   readonly stats = computed(() => {
     const list = this.employees();
     const now = new Date();
     const thisMonth = now.getMonth();
     const thisYear = now.getFullYear();
-    const newThisMonth = list.filter((e: Employee) => {
+
+    const newThisMonth = list.filter((e) => {
       const d = e.appointmentDate;
       return d && d.getMonth() === thisMonth && d.getFullYear() === thisYear;
     }).length;
+
     return {
       total: list.length,
-      active: list.filter((e: Employee) => e.status === 'active').length,
-      suspended: list.filter((e: Employee) => e.status === 'suspended').length,
+      active: list.filter((e) => e.status === 'active').length,
+      suspended: list.filter((e) => e.status === 'suspended').length,
       newThisMonth,
     };
   });
-
-  constructor(private readonly employeeService: EmployeeService) {}
-
-  ngOnInit(): void {
-    this.loadEmployees();
-  }
-
-  loadEmployees(): void {
-
-    this.loading.set(true);
-    this.employeeService.fetchAll().subscribe({
-      next: (list: Employee[]) => {
-        console.log('Fetched employees:', list);
-        this.employees.set(list);
-        const depts = [...new Set(list.map((e: Employee) => e.department))].sort().filter(d => !!d) as string[];
-        this.departments.set(depts);
-        this.totalRecords.set(list.length);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.loading.set(false);
-        // Handle error (e.g. show toast)
-      }
-    });
-  }
-
-  onPage(event: { first: number; rows: number }): void {
-    this.first.set(event.first);
-    this.rows.set(event.rows ?? 10);
-  }
-
-  getStatusLabel(status: string): string {
-    return STATUS_LABELS[status] ?? status;
-  }
-
-  getStatusSeverity(status: string): 'success' | 'warning' | 'danger' | 'secondary' {
-    switch (status) {
-      case 'active':
-        return 'success';
-      case 'suspended':
-        return 'warning';
-      case 'terminated':
-      case 'retired':
-        return 'secondary';
-      default:
-        return 'secondary';
-    }
-  }
-
-  getEmploymentTypeLabel(value: string): string {
-    return EMPLOYMENT_TYPE_LABELS[value] ?? value;
-  }
 
   readonly columns: SharedTableColumn<Employee>[] = [
     { id: 'photo', header: 'الصورة', valueGetter: () => null, width: '4rem' },
@@ -197,4 +136,51 @@ export class EmployeeListComponent implements OnInit {
       },
     },
   ];
+
+  ngOnInit(): void {
+    this.loadEmployees();
+  }
+
+  loadEmployees(): void {
+    this.loading.set(true);
+    this.employeeService.fetchAll().subscribe({
+      next: (list) => {
+        const depts = [...new Set(list.map((e) => e.department))].sort().filter(Boolean) as string[];
+        this.departments.set(depts);
+        this.totalRecords.set(list.length);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loading.set(false);
+      },
+    });
+  }
+
+  onPage(event: { first: number; rows: number }): void {
+    this.first.set(event.first);
+    this.rows.set(event.rows ?? 10);
+  }
+
+  getStatusLabel(status: string): string {
+    return STATUS_LABELS[status] ?? status;
+  }
+
+  getStatusSeverity(status: string): 'success' | 'warning' | 'danger' | 'secondary' {
+    switch (status) {
+      case 'active':
+        return 'success';
+      case 'suspended':
+        return 'warning';
+      case 'terminated':
+      case 'retired':
+        return 'secondary';
+      default:
+        return 'secondary';
+    }
+  }
+
+  getEmploymentTypeLabel(value: string): string {
+    return EMPLOYMENT_TYPE_LABELS[value] ?? value;
+  }
 }
+

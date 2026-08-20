@@ -5,11 +5,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { ChartModule } from 'primeng/chart';
-import { EmployeeService } from '../../core/services/employee.service';
-import { AttendanceService } from '../../core/services/attendance.service';
-import { PenaltyService } from '../../core/services/penalty.service';
-import { PenaltyType } from '../../core/models/penalty.model';
-import { PENALTY_TYPE_LABELS } from '../../core/models/penalty.model';
+import { EmployeeService, AttendanceService, PenaltyService, PenaltyType, PENALTY_TYPE_LABELS } from '../../core';
 
 interface ActivityItem {
   id: string;

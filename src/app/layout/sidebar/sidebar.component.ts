@@ -3,7 +3,7 @@ import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/ro
 import { filter } from 'rxjs/operators';
 import { TooltipModule } from 'primeng/tooltip';
 import { TranslatePipe } from '@ngx-translate/core';
-import { NavItem } from '../../core/models/nav-item.model';
+import { NavItem } from '../../core';
 
 @Component({
   selector: 'app-sidebar',

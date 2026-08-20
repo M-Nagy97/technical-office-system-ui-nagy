@@ -1,3 +1,5 @@
+export type AttendanceStatus = 'present' | 'absent' | 'late' | 'excused' | 'vacation' | 'sick_leave';
+
 /**
  * سجل حضور يومي لموظف
  */
@@ -12,7 +14,7 @@ export interface AttendanceRecord {
   requiredHours: number;  // ساعات العمل المطلوبة
   lateMinutes: number;    // دقائق التأخير
   earlyLeaveMinutes: number; // دقائق الانصراف المبكر
-  status: 'present' | 'absent' | 'late' | 'excused' | 'vacation' | 'sick_leave';
+  status: AttendanceStatus;
   notes?: string;
 }
 
@@ -31,3 +33,11 @@ export interface AttendanceSummary {
   vacationDays: number;
   totalLateMinutes: number;
 }
+
+export interface RecordManualPunchRequest {
+  employeeId: string;
+  punchTime: string; // ISO 8601
+  punchType: 0 | 1;  // 0 = In, 1 = Out
+  notes?: string;
+}
+
