@@ -85,6 +85,12 @@ export class EmployeeDetailComponent implements OnInit {
     return new Date(d).toLocaleDateString('ar-EG');
   }
 
+  formatDateOrDash(d?: Date | null): string {
+    if (!d) return '—';
+    const dateObj = new Date(d);
+    return isNaN(dateObj.getTime()) || dateObj.getTime() === 0 ? '—' : dateObj.toLocaleDateString('ar-EG');
+  }
+
   getPenaltyTypeLabel(type: PenaltyType): string {
     return PenaltyService.getTypeLabel(type);
   }
@@ -164,16 +170,48 @@ export class EmployeeDetailComponent implements OnInit {
   suspend(): void {
     const e = this.employee();
     if (e && e.status === 'active') {
-      this.employeeService.update(e.id, { status: 'suspended' });
-      this.employee.set(this.employeeService.getByIdSync(e.id) ?? null);
+      const updated: Employee = { ...e, status: 'suspended' };
+      this.employeeService.update(e.id, updated).subscribe({
+        next: () => {
+          this.employee.set(updated);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'تم الإيقاف',
+            detail: 'تم إيقاف الموظف بنجاح',
+          });
+        },
+        error: (err) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'خطأ',
+            detail: err?.error?.message || err?.message || 'تعذّر إيقاف الموظف',
+          });
+        },
+      });
     }
   }
 
   archive(): void {
     const e = this.employee();
     if (e) {
-      this.employeeService.update(e.id, { status: 'terminated' });
-      this.employee.set(this.employeeService.getByIdSync(e.id) ?? null);
+      const updated: Employee = { ...e, status: 'terminated' };
+      this.employeeService.update(e.id, updated).subscribe({
+        next: () => {
+          this.employee.set(updated);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'تمت الأرشفة',
+            detail: 'تم إنهاء خدمة / أرشفة الموظف بنجاح',
+          });
+        },
+        error: (err) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'خطأ',
+            detail: err?.error?.message || err?.message || 'تعذّر أرشفة الموظف',
+          });
+        },
+      });
     }
   }
 }

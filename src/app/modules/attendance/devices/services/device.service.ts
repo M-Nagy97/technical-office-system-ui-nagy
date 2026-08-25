@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { BASE_PATH } from '../../../../core/api/generated/variables';
+import { environment } from '../../../../../environments/environment';
 import {
   ApiResult, ConnectionResult, Device, DeviceFormData, ReadLogsResult, SyncResult,
 } from '../models/device.model';
@@ -9,8 +9,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class DeviceService {
   private readonly http = inject(HttpClient);
-  private readonly basePath = inject(BASE_PATH, { optional: true });
-  private readonly base = `${this.basePath ?? 'https://localhost:8500'}/api/devices`;
+  private readonly base = `${environment.apiBaseUrl}/api/devices`;
 
   getAll(): Observable<Device[]> {
     return this.http.get<ApiResult<Device[]>>(this.base).pipe(map((r) => r.data ?? []));

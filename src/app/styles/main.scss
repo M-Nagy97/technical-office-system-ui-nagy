@@ -117,15 +117,35 @@ html[dir='ltr'] body,
   text-align: left;
 }
 
-// RTL-only overrides for PrimeNG (sidebar/menu position)
-html[dir='rtl'] {
+// RTL-only overrides for PrimeNG
+html[dir='rtl'],
+[dir='rtl'] {
   .p-sidebar,
   .p-panel-menu,
-  .p-menu,
   .p-menubar {
     left: auto;
     right: 0;
   }
+
+  // Proper RTL alignment for PrimeNG Menus and Popup Menus
+  .p-menu {
+    direction: rtl;
+    text-align: right;
+
+    .p-menuitem-link {
+      text-align: right;
+
+      .p-menuitem-icon {
+        margin-inline-end: 0.5rem;
+        margin-inline-start: 0;
+      }
+    }
+  }
+}
+
+// User Profile Menu custom positioning
+.topbar-user-menu {
+  top: 4.53rem !important; /* 72.5px in rem (or calc(var(--topbar-height, 4rem) + 0.53rem)) */
 }
 
 // Arabic font stack when lang=ar

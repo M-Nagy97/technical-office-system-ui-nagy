@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiBaseUrl: 'https://localhost:8500',
+  apiBaseUrl: 'http://localhost:8400',
   defaultLang: 'ar',
   supportedLangs: ['ar', 'en'] as const,
 };

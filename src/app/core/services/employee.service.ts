@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { Observable, map, tap, of } from 'rxjs';
+import { Observable, map, tap, of, catchError } from 'rxjs';
 import { Employee, EmployeeFilter } from '../models/employee.model';
 import { EmployeesService as GeneratedEmployeesService } from '../api/generated/api/employees.service';
 import { EmployeeMapper } from '../mappers/employee.mapper';
@@ -95,7 +95,45 @@ export class EmployeeService {
    */
   getById(id: string): Observable<Employee | undefined> {
     return this.api.employeesGetById(id).pipe(
-      map((response) => (response.data ? EmployeeMapper.toDomain(response.data) : undefined))
+      map((response) => {
+        if (response.data) {
+          const emp = EmployeeMapper.toDomain(response.data);
+          const local = this.employeesState().find((e) => e.id === id);
+          let finalEmp = emp;
+          if (local) {
+            finalEmp = {
+              ...local,
+              ...emp,
+              nationalId: local.nationalId || emp.nationalId,
+              secondName: emp.secondName || local.secondName,
+              thirdName: emp.thirdName || local.thirdName,
+              birthPlace: local.birthPlace || emp.birthPlace,
+              nationality: local.nationality || emp.nationality,
+              religion: local.religion || emp.religion,
+              maritalStatus: emp.maritalStatus || local.maritalStatus,
+              appointmentDecisionNumber: local.appointmentDecisionNumber || emp.appointmentDecisionNumber,
+              appointmentDecisionDate: local.appointmentDecisionDate || emp.appointmentDecisionDate,
+              jobGrade: local.jobGrade || emp.jobGrade,
+              department: emp.department || local.department,
+              section: emp.section || local.section,
+              workLocation: emp.workLocation || local.workLocation,
+              educationLevel: emp.educationLevel || local.educationLevel,
+              educationField: emp.educationField || local.educationField,
+              graduationYear: emp.graduationYear || local.graduationYear,
+            };
+            this.employeesState.update((list) =>
+              list.map((e) => (e.id === id ? finalEmp : e))
+            );
+          } else {
+            this.employeesState.update((list) => [...list, finalEmp]);
+          }
+          return finalEmp;
+        }
+        return this.employeesState().find((e) => e.id === id);
+      }),
+      catchError(() => {
+        return of(this.employeesState().find((e) => e.id === id));
+      })
     );
   }
 
@@ -109,10 +147,11 @@ export class EmployeeService {
   /**
    * Create a new employee.
    */
-  create(employee: Partial<Employee>): Observable<unknown> {
+  create(employee: Partial<Employee>): Observable<any> {
+    const tempId = this.generateId();
     const newEmployee: Employee = {
       ...employee,
-      id: this.generateId(),
+      id: tempId,
       employeeNumber: employee.employeeNumber || EmployeeService.generateEmployeeNumber(),
       fullName: employee.fullName || `${employee.firstName ?? ''} ${employee.lastName ?? ''}`.trim(),
       firstName: employee.firstName || '',
@@ -127,6 +166,8 @@ export class EmployeeService {
       maritalStatus: employee.maritalStatus || 'single',
       nationalId: employee.nationalId || '',
       phone: employee.phone || '',
+      alternatePhone: employee.alternatePhone,
+      email: employee.email,
       address: employee.address || '',
       appointmentDate: employee.appointmentDate || new Date(),
       appointmentDecisionNumber: employee.appointmentDecisionNumber || '',
@@ -150,7 +191,17 @@ export class EmployeeService {
     this.employeesState.update((list) => [...list, newEmployee]);
 
     const command = EmployeeMapper.toCreateCommand(newEmployee);
-    return this.api.employeesCreate(command);
+    return this.api.employeesCreate(command).pipe(
+      tap((res) => {
+        const realId = res?.data;
+        if (realId) {
+          newEmployee.id = realId;
+          this.employeesState.update((list) =>
+            list.map((e) => (e.id === tempId ? { ...e, id: realId } : e))
+          );
+        }
+      })
+    );
   }
 
   /**
@@ -160,8 +211,9 @@ export class EmployeeService {
     const current = this.employeesState();
     const index = current.findIndex((e) => e.id === id);
 
+    let updated: Employee;
     if (index !== -1) {
-      const updated: Employee = {
+      updated = {
         ...current[index],
         ...patch,
         updatedAt: new Date(),
@@ -172,12 +224,18 @@ export class EmployeeService {
         newList[index] = updated;
         return newList;
       });
+    } else {
+      updated = {
+        ...patch,
+        id,
+        updatedAt: new Date(),
+      } as Employee;
 
-      const command = EmployeeMapper.toUpdateCommand(id, updated);
-      return this.api.employeesUpdate(id, command);
+      this.employeesState.update((list) => [...list, updated]);
     }
 
-    return of(null);
+    const command = EmployeeMapper.toUpdateCommand(id, updated);
+    return this.api.employeesUpdate(id, command);
   }
 
   /**

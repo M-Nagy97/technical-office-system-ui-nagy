@@ -29,10 +29,7 @@ export class AttendanceApiService {
   }
 
   recordManualPunch(request: RecordManualPunchRequest): Observable<string> {
-    const basePath = typeof this.generated.configuration.basePath === 'string' && this.generated.configuration.basePath
-      ? this.generated.configuration.basePath
-      : environment.apiBaseUrl;
-    const url = `${basePath}/api/Attendance/manual-punch`;
+    const url = `${environment.apiBaseUrl}/api/Attendance/manual-punch`;
 
     return this.http.post<{ data?: string }>(url, {
       employeeId: request.employeeId,

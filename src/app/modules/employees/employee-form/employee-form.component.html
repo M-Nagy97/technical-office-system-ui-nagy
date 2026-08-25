@@ -1,3 +1,4 @@
+<p-toast position="top-right" />
 <div class="employee-form" [formGroup]="form">
   @if (submittedAttempt() && form.invalid) {
     <p-message severity="warn" text="يرجى مراجعة الخطوات وإكمال الحقول المطلوبة قبل الحفظ." styleClass="w-full mb-3" />
@@ -25,7 +26,7 @@
             @if (getError('thirdName')) { <small class="p-error">{{ getError('thirdName') }}</small> }
           </div>
           <div class="field field--q">
-            <label for="lastName">الاسم الرابع <span class="required">*</span></label>
+            <label for="lastName">الاسم الرابع</label>
             <input id="lastName" pInputText formControlName="lastName" />
             @if (getError('lastName')) { <small class="p-error">{{ getError('lastName') }}</small> }
           </div>
@@ -52,7 +53,7 @@
             @if (getError('birthDate')) { <small class="p-error">{{ getError('birthDate') }}</small> }
           </div>
           <div class="field field--h">
-            <label for="birthPlace">مكان الميلاد <span class="required">*</span></label>
+            <label for="birthPlace">مكان الميلاد</label>
             <p-dropdown
               inputId="birthPlace"
               formControlName="birthPlace"
@@ -69,7 +70,7 @@
           </div>
 
           <div class="field field--h">
-            <label for="nationality">الجنسية <span class="required">*</span></label>
+            <label for="nationality">الجنسية</label>
             <p-dropdown
               inputId="nationality"
               formControlName="nationality"
@@ -85,7 +86,7 @@
             @if (getError('nationality')) { <small class="p-error">{{ getError('nationality') }}</small> }
           </div>
           <div class="field field--h">
-            <label for="religion">الديانة <span class="required">*</span></label>
+            <label for="religion">الديانة</label>
             <p-dropdown
               inputId="religion"
               formControlName="religion"
@@ -102,7 +103,7 @@
           </div>
 
           <div class="field field--h">
-            <label>الحالة الاجتماعية <span class="required">*</span></label>
+            <label>الحالة الاجتماعية</label>
             <p-dropdown formControlName="maritalStatus" [options]="maritalOptions" optionLabel="label" optionValue="value" placeholder="اختر" styleClass="w-full" />
             @if (getError('maritalStatus')) { <small class="p-error">{{ getError('maritalStatus') }}</small> }
           </div>
@@ -123,7 +124,7 @@
           </div>
 
           <div class="field field--f">
-            <label for="address">العنوان <span class="required">*</span></label>
+            <label for="address">العنوان</label>
             <input id="address" pInputText formControlName="address" />
             @if (getError('address')) { <small class="p-error">{{ getError('address') }}</small> }
           </div>
@@ -136,23 +137,23 @@
         <h3>بيانات التعيين</h3>
         <div class="form-grid">
           <div class="field field--h">
-            <label>تاريخ التعيين <span class="required">*</span></label>
+            <label>تاريخ التعيين</label>
             <p-calendar formControlName="appointmentDate" dateFormat="dd/mm/yy" [showIcon]="true" styleClass="w-full" [inputStyleClass]="'w-full'" />
             @if (getError('appointmentDate')) { <small class="p-error">{{ getError('appointmentDate') }}</small> }
           </div>
           <div class="field field--h">
-            <label>رقم قرار التعيين <span class="required">*</span></label>
+            <label>رقم قرار التعيين</label>
             <input pInputText formControlName="appointmentDecisionNumber" />
             @if (getError('appointmentDecisionNumber')) { <small class="p-error">{{ getError('appointmentDecisionNumber') }}</small> }
           </div>
 
           <div class="field field--h">
-            <label>تاريخ قرار التعيين <span class="required">*</span></label>
+            <label>تاريخ قرار التعيين</label>
             <p-calendar formControlName="appointmentDecisionDate" dateFormat="dd/mm/yy" [showIcon]="true" styleClass="w-full" [inputStyleClass]="'w-full'" />
             @if (getError('appointmentDecisionDate')) { <small class="p-error">{{ getError('appointmentDecisionDate') }}</small> }
           </div>
           <div class="field field--h">
-            <label>المسمى الوظيفي <span class="required">*</span></label>
+            <label>المسمى الوظيفي</label>
             <p-dropdown
               formControlName="jobTitle"
               [options]="jobPositionOptions()"
@@ -167,7 +168,7 @@
           </div>
 
           <div class="field field--h">
-            <label>الدرجة الوظيفية <span class="required">*</span></label>
+            <label>الدرجة الوظيفية</label>
             <p-dropdown
               formControlName="jobGrade"
               [options]="jobGradeOptions()"
@@ -181,7 +182,7 @@
             @if (getError('jobGrade')) { <small class="p-error">{{ getError('jobGrade') }}</small> }
           </div>
           <div class="field field--h">
-            <label>القسم <span class="required">*</span></label>
+            <label>القسم</label>
             <p-dropdown
               formControlName="department"
               [options]="departmentOptions()"
@@ -196,7 +197,7 @@
           </div>
 
           <div class="field field--h">
-            <label>الوحدة <span class="required">*</span></label>
+            <label>الوحدة</label>
             <p-dropdown
               formControlName="section"
               [options]="sectionOptions()"
@@ -210,7 +211,7 @@
             @if (getError('section')) { <small class="p-error">{{ getError('section') }}</small> }
           </div>
           <div class="field field--h">
-            <label>مكان العمل <span class="required">*</span></label>
+            <label>مكان العمل</label>
             <p-dropdown
               formControlName="workLocation"
               [options]="governorateOptions"
@@ -225,12 +226,12 @@
           </div>
 
           <div class="field field--h">
-            <label>نوع التعيين <span class="required">*</span></label>
+            <label>نوع التعيين</label>
             <p-dropdown formControlName="employmentType" [options]="employmentTypeOptions" optionLabel="label" optionValue="value" styleClass="w-full" />
             @if (getError('employmentType')) { <small class="p-error">{{ getError('employmentType') }}</small> }
           </div>
           <div class="field field--h">
-            <label>الحالة <span class="required">*</span></label>
+            <label>الحالة</label>
             <p-dropdown formControlName="status" [options]="statusOptions" optionLabel="label" optionValue="value" styleClass="w-full" />
             @if (getError('status')) { <small class="p-error">{{ getError('status') }}</small> }
           </div>
@@ -243,7 +244,7 @@
         <h3>المؤهلات والخبرات</h3>
         <div class="form-grid">
           <div class="field field--third">
-            <label>المؤهل الدراسي <span class="required">*</span></label>
+            <label>المؤهل الدراسي</label>
             <p-dropdown
               formControlName="educationLevel"
               [options]="educationLevelOptions"
@@ -257,7 +258,7 @@
             @if (getError('educationLevel')) { <small class="p-error">{{ getError('educationLevel') }}</small> }
           </div>
           <div class="field field--third">
-            <label>التخصص <span class="required">*</span></label>
+            <label>التخصص</label>
             <p-dropdown
               formControlName="educationField"
               [options]="educationFieldOptions"
@@ -271,7 +272,7 @@
             @if (getError('educationField')) { <small class="p-error">{{ getError('educationField') }}</small> }
           </div>
           <div class="field field--third">
-            <label>سنة التخرج <span class="required">*</span></label>
+            <label>سنة التخرج</label>
             <input type="number" pInputText formControlName="graduationYear" />
             @if (getError('graduationYear')) { <small class="p-error">{{ getError('graduationYear') }}</small> }
           </div>
@@ -281,8 +282,45 @@
 
     @if (activeStep() === 3) {
       <div class="form-panel">
-        <h3>المستندات</h3>
-        <p class="documents-hint">رفع المستندات (قرار التعيين، صورة البطاقة، الشهادات، إلخ)</p>
+        <h3>بيانات وثيقة الرقم القومي</h3>
+        <p class="documents-hint">بيانات وثيقة الرقم القومي (تاريخ الإصدار، تاريخ الانتهاء، ورابط الملف الإلكتروني)</p>
+        <div class="form-grid mb-4">
+          <div class="field field--h">
+            <label for="nationalIdIssueDate">تاريخ الإصدار</label>
+            <p-calendar id="nationalIdIssueDate" formControlName="nationalIdIssueDate" dateFormat="dd/mm/yy" [showIcon]="true" styleClass="w-full" [inputStyleClass]="'w-full'" />
+          </div>
+          <div class="field field--h">
+            <label for="nationalIdExpiryDate">تاريخ الانتهاء</label>
+            <p-calendar id="nationalIdExpiryDate" formControlName="nationalIdExpiryDate" dateFormat="dd/mm/yy" [showIcon]="true" styleClass="w-full" [inputStyleClass]="'w-full'" />
+          </div>
+          <div class="field field--f">
+            <label>ملف / صورة بطاقة الرقم القومي</label>
+            <p-fileUpload
+              mode="basic"
+              [auto]="true"
+              chooseLabel="رفع ملف البطاقة (PDF أو صورة)"
+              chooseIcon="pi pi-upload"
+              accept="image/*,application/pdf"
+              [maxFileSize]="5000000"
+              (onSelect)="onNationalIdFileSelect($event)"
+              (onClear)="onNationalIdFileClear()"
+              styleClass="w-full"
+            />
+            @if (form.get('nationalIdFileUrl')?.value; as fileUrl) {
+              <div class="mt-2 flex align-items-center gap-2" style="font-size: 0.9rem; padding: 0.5rem 0.75rem; background: var(--surface-100, #f3f4f6); border-radius: 6px; border: 1px solid var(--surface-border, #e5e7eb);">
+                <i class="pi pi-file text-primary" style="font-size: 1.1rem;"></i>
+                <span>الملف المرفق:</span>
+                <strong dir="ltr" class="text-primary">{{ nationalIdFileName() || (fileUrl.startsWith('data:') ? 'مستند مرفق' : fileUrl) }}</strong>
+                <button pButton type="button" icon="pi pi-times" class="p-button-text p-button-danger p-button-sm"
+                  style="margin-right: auto; padding: 0.25rem;"
+                  (click)="onNationalIdFileClear()" pTooltip="إزالة الملف"></button>
+              </div>
+            }
+          </div>
+        </div>
+
+        <h3 class="mt-4">المرفقات والمستندات الإضافية</h3>
+        <p class="documents-hint">رفع مستندات إضافية (قرار التعيين، صورة البطاقة، الشهادات، إلخ)</p>
         <p-fileUpload
           mode="advanced"
           [auto]="false"
@@ -301,9 +339,9 @@
     @if (activeStep() < 3) {
       <button pButton type="button" label="التالي" icon="pi pi-arrow-left" iconPos="right" (click)="nextStep()"></button>
     } @else {
-      <button pButton type="button" label="حفظ كمسودة" icon="pi pi-save" (click)="saveDraft()" class="p-button-outlined"></button>
-      <button pButton type="button" label="حفظ" icon="pi pi-check" (click)="submit()"></button>
+      <button pButton type="button" label="حفظ كمسودة" icon="pi pi-save" (click)="saveDraft()" class="p-button-outlined" [disabled]="saving()"></button>
+      <button pButton type="button" label="حفظ" icon="pi pi-check" (click)="submit()" [loading]="saving()" [disabled]="saving()"></button>
     }
-    <a pButton label="إلغاء" icon="pi pi-times" routerLink="/employees" class="p-button-text"></a>
+    <a pButton label="إلغاء" icon="pi pi-times" routerLink="/employees" class="p-button-text" [class.p-disabled]="saving()"></a>
   </div>
 </div>

@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { Configuration } from '../api/generated/configuration';
 import {
   ApiResult,
   CompleteDocumentPayload,
@@ -21,13 +20,9 @@ import { environment } from '../../../environments/environment';
 })
 export class CustodyApiService {
   private readonly http = inject(HttpClient);
-  /** Same pattern as generated *Service classes: Configuration is optional in this app (no ApiModule.forRoot). */
-  private readonly configuration =
-    inject(Configuration, { optional: true }) ?? new Configuration();
 
   private get baseUrl(): string {
-    const b = this.configuration.basePath ?? environment.apiBaseUrl;
-    return b.replace(/\/$/, '');
+    return environment.apiBaseUrl.replace(/\/$/, '');
   }
 
   private mapResult<T>(res: ApiResult<T>, fallbackMessage: string): T {

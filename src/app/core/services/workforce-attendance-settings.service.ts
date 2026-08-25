@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { Configuration } from '../api/generated/configuration';
 
 /** Matches backend WorkforceAttendanceSettingsDto (camelCase JSON). */
 export interface WorkforceAttendanceSettingsDto {
@@ -34,12 +33,9 @@ interface ApiResult<T> {
 })
 export class WorkforceAttendanceSettingsService {
   private readonly http = inject(HttpClient);
-  private readonly configuration =
-    inject(Configuration, { optional: true }) ?? new Configuration();
 
   private get baseUrl(): string {
-    const b = this.configuration.basePath ?? environment.apiBaseUrl;
-    return b.replace(/\/$/, '');
+    return environment.apiBaseUrl.replace(/\/$/, '');
   }
 
   private unwrap<T>(res: ApiResult<T>, fallback: string): T {

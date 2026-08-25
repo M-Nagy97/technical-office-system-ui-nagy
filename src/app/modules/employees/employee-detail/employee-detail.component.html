@@ -115,15 +115,43 @@
       <p-tabPanel header="المستندات">
         <div class="tab-content">
           @if (emp.documents && emp.documents.length) {
-            <ul>
-              @for (doc of emp.documents; track doc.id) {
-                <li>{{ doc.name }} ({{ doc.type }}) - {{ formatDate(doc.uploadDate) }}</li>
-              }
-            </ul>
+            <table class="w-full border-collapse mb-3" style="width: 100%; border: 1px solid var(--surface-border, #e5e7eb); border-radius: 6px; overflow: hidden;">
+              <thead>
+                <tr style="background: var(--surface-ground, #f9fafb); text-align: right;">
+                  <th style="padding: 0.75rem; border-bottom: 1px solid var(--surface-border, #e5e7eb);">رقم الوثيقة / المستند</th>
+                  <th style="padding: 0.75rem; border-bottom: 1px solid var(--surface-border, #e5e7eb);">تاريخ الإصدار</th>
+                  <th style="padding: 0.75rem; border-bottom: 1px solid var(--surface-border, #e5e7eb);">تاريخ الانتهاء</th>
+                  <th style="padding: 0.75rem; border-bottom: 1px solid var(--surface-border, #e5e7eb);">رابط الملف</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (doc of emp.documents; track doc.id) {
+                  <tr style="border-bottom: 1px solid var(--surface-border, #e5e7eb);">
+                    <td style="padding: 0.75rem;"><strong dir="ltr">{{ doc.name || doc.documentNumber || '—' }}</strong></td>
+                    <td style="padding: 0.75rem;">{{ formatDateOrDash(doc.uploadDate) }}</td>
+                    <td style="padding: 0.75rem;">{{ formatDateOrDash(doc.expiryDate) }}</td>
+                    <td style="padding: 0.75rem;">
+                      @if (doc.fileUrl && doc.fileUrl !== 'https://example.com/doc.pdf') {
+                        <a [href]="doc.fileUrl" target="_blank" rel="noopener noreferrer" class="p-button p-button-sm p-button-link" style="padding: 0;">
+                          <i class="pi pi-external-link" style="margin-left: 0.25rem;"></i> فتح الملف
+                        </a>
+                      } @else if (doc.fileUrl) {
+                        <span class="text-secondary" style="font-size: 0.875rem;">{{ doc.fileUrl }}</span>
+                      } @else {
+                        <span class="text-secondary">—</span>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
           } @else {
             <p>لا توجد مستندات مرفقة.</p>
           }
-          <a pButton label="مستندات التعيين" icon="pi pi-file" routerLink="/employees/documents" [queryParams]="{ employeeId: emp.id }" class="p-button-outlined"></a>
+          <div class="flex gap-2">
+            <a pButton label="تعديل المستندات والبيانات" icon="pi pi-pencil" [routerLink]="['/employees', emp.id, 'edit']" class="p-button-outlined p-button-sm"></a>
+            <a pButton label="مستندات التعيين" icon="pi pi-file" routerLink="/employees/documents" [queryParams]="{ employeeId: emp.id }" class="p-button-text p-button-sm"></a>
+          </div>
         </div>
       </p-tabPanel>
     </p-tabView>

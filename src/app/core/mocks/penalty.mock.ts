@@ -15,6 +15,10 @@ const MOCK_PENALTY_REASONS: string[] = [
 const MOCK_PENALTY_STATUSES: PenaltyStatus[] = ['pending', 'approved', 'appealed', 'cancelled'];
 
 export function generateMockPenalties(employees: Employee[], count = 10): Penalty[] {
+  // Disabled mock penalties generation:
+  return [];
+
+  /*
   if (employees.length === 0) return [];
   const list: Penalty[] = [];
   const currentYear = new Date().getFullYear();
@@ -47,4 +51,5 @@ export function generateMockPenalties(employees: Employee[], count = 10): Penalt
   }
 
   return list;
+  */
 }

@@ -12,7 +12,10 @@ export interface EmployeeDocument {
   type: EmployeeDocumentType;
   name: string;
   fileUrl: string;
-  uploadDate: Date;
+  uploadDate: Date; // issueDate
+  expiryDate?: Date;
+  documentTypeId?: string;
+  documentNumber?: string;
 }
 
 /**

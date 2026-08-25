@@ -1,14 +1,13 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { BASE_PATH } from '../../../../core/api/generated/variables';
+import { environment } from '../../../../../environments/environment';
 import { ApiResult, EmployeeEnrollLink, LinkEnrollRequest } from '../models/employee-enroll-link.model';
 
 @Injectable({ providedIn: 'root' })
 export class EmployeeEnrollService {
   private readonly http = inject(HttpClient);
-  private readonly basePath = inject(BASE_PATH, { optional: true });
-  private readonly base = `${this.basePath ?? 'https://localhost:8500'}/api/attendance/employee-enroll`;
+  private readonly base = `${environment.apiBaseUrl}/api/attendance/employee-enroll`;
 
   getAll(): Observable<EmployeeEnrollLink[]> {
     return this.http
