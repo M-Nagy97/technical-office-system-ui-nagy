@@ -5,3 +5,7 @@ export * from './penalty.service';
 export * from './custody-api.service';
 export * from './workforce-attendance-settings.service';
 export * from './language.service';
+export * from './leave-type.service';
+export * from './leave-request.service';
+export * from './permission-request.service';
+export * from './leave-balance.service';

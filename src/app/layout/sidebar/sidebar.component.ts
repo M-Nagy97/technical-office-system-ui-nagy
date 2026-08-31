@@ -65,6 +65,21 @@ export class SidebarComponent implements OnInit {
         },
       ],
     },
+    // الإجازات والأذونات
+    {
+      label: 'nav.leave_module',
+      icon: 'pi pi-sun',
+      module: 'leave',
+      children: [
+        { label: 'nav.transactions', icon: 'pi pi-list', section: true, module: 'leave' },
+        { label: 'nav.leave_requests', icon: 'pi pi-calendar-plus', route: '/leave/requests', module: 'leave' },
+        { label: 'nav.permission_requests', icon: 'pi pi-clock', route: '/leave/permissions', module: 'leave' },
+        { label: 'nav.leave_balance', icon: 'pi pi-chart-pie', route: '/leave/balance', module: 'leave' },
+        { label: 'nav.lookups', icon: 'pi pi-cog', section: true, module: 'leave' },
+        { label: 'nav.leave_types_list', icon: 'pi pi-list', route: '/leave/types', module: 'leave' },
+        { label: 'nav.add_leave_type', icon: 'pi pi-plus', route: '/leave/types/add', module: 'leave' },
+      ],
+    },
     // الحضور والانصراف — معاملات + ترميزات
     {
       label: 'nav.attendance_module',

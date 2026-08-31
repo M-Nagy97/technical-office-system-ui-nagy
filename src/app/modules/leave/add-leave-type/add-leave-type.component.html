@@ -1,0 +1,111 @@
+<div class="leave-type-form-container">
+  <p-card [header]="isEdit() ? 'تعديل نوع إجازة' : 'إضافة نوع إجازة جديد'">
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="form-grid">
+        <div class="grid">
+          <!-- اسم نوع الإجازة بالعربية -->
+          <div class="col-12 md:col-6 field">
+            <label for="arabicName">اسم نوع الإجازة (بالعربية) <span class="required">*</span></label>
+            <input
+              id="arabicName"
+              type="text"
+              pInputText
+              formControlName="arabicName"
+              placeholder="مثال: إجازة اعتيادية"
+              class="w-full"
+            />
+            <small
+              class="p-error"
+              *ngIf="form.get('arabicName')?.invalid && form.get('arabicName')?.touched"
+            >
+              اسم نوع الإجازة بالعربية مطلوب
+            </small>
+          </div>
+
+          <!-- اسم نوع الإجازة بالإنجليزية -->
+          <div class="col-12 md:col-6 field">
+            <label for="name">اسم نوع الإجازة (بالإنجليزية) <span class="required">*</span></label>
+            <input
+              id="name"
+              type="text"
+              pInputText
+              formControlName="name"
+              placeholder="مثال: Annual Leave"
+              class="w-full text-left"
+              dir="ltr"
+            />
+            <small
+              class="p-error"
+              *ngIf="form.get('name')?.invalid && form.get('name')?.touched"
+            >
+              اسم نوع الإجازة بالإنجليزية مطلوب
+            </small>
+          </div>
+
+          <!-- رصيد الأيام المسموح بها سنوياً -->
+          <div class="col-12 md:col-6 field">
+            <div class="flex justify-content-between align-items-center mb-2">
+              <label for="maxDaysPerYear" class="m-0">الحد الأقصى للأيام سنوياً <span class="required" *ngIf="!form.get('isUnlimitedDays')?.value">*</span></label>
+              <div class="flex align-items-center gap-2">
+                <p-inputSwitch id="isUnlimitedDays" formControlName="isUnlimitedDays" />
+                <label for="isUnlimitedDays" class="m-0 text-sm font-medium cursor-pointer">غير محدود</label>
+              </div>
+            </div>
+            <p-inputNumber
+              id="maxDaysPerYear"
+              formControlName="maxDaysPerYear"
+              [min]="1"
+              [showButtons]="true"
+              placeholder="عدد الأيام"
+              class="w-full"
+            />
+            <small
+              class="p-error"
+              *ngIf="form.get('maxDaysPerYear')?.invalid && form.get('maxDaysPerYear')?.touched"
+            >
+              عدد الأيام مطلوب ويجب أن يكون أكبر من 0
+            </small>
+          </div>
+
+          <!-- خيارات إضافية -->
+          <div class="col-12 md:col-6 field flex flex-column justify-content-center gap-3">
+            <div class="flex align-items-center gap-2">
+              <p-inputSwitch id="isPaid" formControlName="isPaid" />
+              <label for="isPaid" class="m-0 font-medium cursor-pointer">إجازة مدفوعة الأجر</label>
+            </div>
+
+            <div class="flex align-items-center gap-2">
+              <p-inputSwitch id="requiresDocument" formControlName="requiresDocument" />
+              <label for="requiresDocument" class="m-0 font-medium cursor-pointer">تتطلب إرفاق مستند رسمي / طبي</label>
+            </div>
+
+            <div class="flex align-items-center gap-2">
+              <p-inputSwitch id="isActive" formControlName="isActive" />
+              <label for="isActive" class="m-0 font-medium cursor-pointer">نوع إجازة نشط</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- أزرار الإجراءات -->
+      <div class="form-actions mt-4 flex gap-2">
+        <button
+          pButton
+          type="submit"
+          label="حفظ"
+          icon="pi pi-check"
+          [loading]="saving()"
+          class="p-button-primary"
+        ></button>
+        <button
+          pButton
+          type="button"
+          label="إلغاء"
+          icon="pi pi-times"
+          (click)="cancel()"
+          class="p-button-outlined p-button-secondary"
+        ></button>
+      </div>
+    </form>
+  </p-card>
+</div>

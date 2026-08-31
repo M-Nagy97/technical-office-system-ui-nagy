@@ -1,0 +1,149 @@
+<div class="permission-request-detail-container">
+  <div class="mb-3 flex justify-content-between align-items-center">
+    <a
+      pButton
+      label="الرجوع إلى قائمة طلبات الأذونات"
+      icon="pi pi-arrow-right"
+      routerLink="/leave/permissions"
+      class="p-button-outlined p-button-secondary p-button-sm"
+    ></a>
+
+    <div class="actions flex gap-2" *ngIf="request()">
+      <button
+        *ngIf="request()!.status === PermissionRequestStatus.Pending"
+        pButton
+        label="موافقة"
+        icon="pi pi-check"
+        class="p-button-success p-button-sm"
+        (click)="openActionDialog('approve')"
+      ></button>
+      <button
+        *ngIf="request()!.status === PermissionRequestStatus.Pending"
+        pButton
+        label="رفض"
+        icon="pi pi-times"
+        class="p-button-danger p-button-sm"
+        (click)="openActionDialog('reject')"
+      ></button>
+      <button
+        *ngIf="request()!.status === PermissionRequestStatus.Pending || request()!.status === PermissionRequestStatus.Approved"
+        pButton
+        label="إلغاء الطلب"
+        icon="pi pi-ban"
+        class="p-button-secondary p-button-sm"
+        (click)="openActionDialog('cancel')"
+      ></button>
+    </div>
+  </div>
+
+  <p-card *ngIf="request() as req">
+    <ng-template pTemplate="header">
+      <div class="p-3 border-bottom-1 surface-border flex justify-content-between align-items-center">
+        <div>
+          <h2 class="m-0 text-xl font-bold text-900">تفاصيل طلب الإذن</h2>
+          <span class="text-sm text-500">رقم الطلب: {{ req.id }}</span>
+        </div>
+        <app-status-badge [status]="req.status" type="permission" />
+      </div>
+    </ng-template>
+
+    <div class="grid p-fluid">
+      <!-- بيانات الموظف والتاريخ -->
+      <div class="col-12 md:col-6">
+        <label class="text-500 text-sm block">الموظف</label>
+        <span class="text-900 font-semibold text-lg">{{ req.employeeName || employeeName() || req.employeeId }}</span>
+      </div>
+
+      <div class="col-12 md:col-6">
+        <label class="text-500 text-sm block">تاريخ الإذن</label>
+        <span class="text-900 font-semibold text-lg">{{ req.date }}</span>
+      </div>
+
+      <div class="col-12 md:col-6">
+        <label class="text-500 text-sm block">نوع المدة</label>
+        <span class="text-900 font-medium">
+          {{ req.durationType === PermissionDurationType.HalfDay ? 'نصف يوم' : 'نطاق زمني' }}
+        </span>
+      </div>
+
+      <!-- تفاصيل المدة -->
+      <div class="col-12 md:col-6">
+        <label class="text-500 text-sm block">الوقت / الفترة</label>
+        <span class="text-primary font-bold text-lg">
+          <ng-container *ngIf="req.durationType === PermissionDurationType.HalfDay">
+            {{ req.halfDayPeriod === HalfDayPeriod.Afternoon ? 'فترة بعد الظهر (مسائية)' : 'فترة صباحية' }}
+          </ng-container>
+          <ng-container *ngIf="req.durationType === PermissionDurationType.TimeRange">
+            من {{ req.fromTime || '--' }} إلى {{ req.toTime || '--' }}
+          </ng-container>
+        </span>
+      </div>
+
+      <div class="col-12 md:col-6" *ngIf="req.createdDate">
+        <label class="text-500 text-sm block">تاريخ تقديم الطلب</label>
+        <span class="text-900">{{ req.createdDate }}</span>
+      </div>
+
+      <!-- سبب الإذن -->
+      <div class="col-12" *ngIf="req.reason">
+        <label class="text-500 text-sm block">سبب الإذن</label>
+        <div class="p-3 border-round surface-50 text-800 mt-1">
+          {{ req.reason }}
+        </div>
+      </div>
+    </div>
+
+    <!-- معلومات الاعتماد والتدقيق -->
+    <ng-container *ngIf="req.approvedAt || req.rejectionReason || req.cancellationReason">
+      <p-divider />
+
+      <div class="audit-section">
+        <!-- بيانات الموافقة -->
+        <div *ngIf="req.approvedAt" class="p-3 border-round surface-green-50 border-1 border-green-200 mb-3">
+          <div class="flex align-items-center gap-2 text-green-700 font-bold mb-1">
+            <i class="pi pi-check-circle"></i>
+            <span>تمت الموافقة على طلب الإذن</span>
+          </div>
+          <div class="text-sm text-700">
+            <span *ngIf="req.approvedByUserId">معتمد من المستخدم: {{ req.approvedByUserId }} | </span>
+            <span>تاريخ الموافقة: {{ req.approvedAt }}</span>
+          </div>
+        </div>
+
+        <!-- بيانات الرفض -->
+        <div *ngIf="req.rejectionReason" class="p-3 border-round surface-red-50 border-1 border-red-200 mb-3">
+          <div class="flex align-items-center gap-2 text-red-700 font-bold mb-1">
+            <i class="pi pi-times-circle"></i>
+            <span>تم رفض طلب الإذن</span>
+          </div>
+          <div class="text-sm text-800">
+            <strong>سبب الرفض: </strong>
+            {{ req.rejectionReason }}
+          </div>
+        </div>
+
+        <!-- بيانات الإلغاء -->
+        <div *ngIf="req.cancellationReason" class="p-3 border-round surface-50 border-1 surface-border">
+          <div class="flex align-items-center gap-2 text-600 font-bold mb-1">
+            <i class="pi pi-ban"></i>
+            <span>تم إلغاء الطلب</span>
+          </div>
+          <div class="text-sm text-700">
+            <strong>سبب الإلغاء: </strong>
+            {{ req.cancellationReason }}
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </p-card>
+</div>
+
+<!-- Action Dialog -->
+<app-permission-action-dialog
+  *ngIf="request()"
+  [(visible)]="actionDialogOpen"
+  [action]="currentAction()"
+  [requestId]="request()!.id"
+  [loading]="actionLoading()"
+  (confirmed)="handleActionConfirm($event)"
+/>

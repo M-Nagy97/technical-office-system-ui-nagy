@@ -1,0 +1,179 @@
+<div class="permission-request-form-container">
+  <p-card header="تقديم طلب إذن جديد">
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="grid p-fluid">
+        <!-- الموظف -->
+        <div class="col-12 md:col-6 field">
+          <label for="employeeId" class="font-medium">الموظف <span class="text-red-500">*</span></label>
+          <p-dropdown
+            id="employeeId"
+            formControlName="employeeId"
+            [options]="employees()"
+            optionLabel="fullName"
+            optionValue="id"
+            placeholder="اختر الموظف"
+            [filter]="true"
+            filterBy="fullName,employeeNumber"
+            [showClear]="true"
+          ></p-dropdown>
+          <small
+            class="p-error block mt-1"
+            *ngIf="form.get('employeeId')?.invalid && form.get('employeeId')?.touched"
+          >
+            يرجى تحديد الموظف
+          </small>
+        </div>
+
+        <!-- التاريخ -->
+        <div class="col-12 md:col-6 field">
+          <label for="date" class="font-medium">تاريخ الإذن <span class="text-red-500">*</span></label>
+          <p-calendar
+            id="date"
+            formControlName="date"
+            dateFormat="yy-mm-dd"
+            placeholder="حدد تاريخ الإذن"
+            [showIcon]="true"
+          ></p-calendar>
+          <small
+            class="p-error block mt-1"
+            *ngIf="form.get('date')?.invalid && form.get('date')?.touched"
+          >
+            تاريخ الإذن مطلوب
+          </small>
+        </div>
+
+        <!-- نوع المدة (Radio) -->
+        <div class="col-12 field">
+          <label class="font-medium block mb-2">نوع المدة <span class="text-red-500">*</span></label>
+          <div class="flex flex-wrap gap-4">
+            <div class="flex align-items-center">
+              <p-radioButton
+                id="typeTimeRange"
+                [value]="PermissionDurationType.TimeRange"
+                formControlName="durationType"
+              ></p-radioButton>
+              <label for="typeTimeRange" class="mr-2 cursor-pointer font-medium">نطاق زمني (ساعات محددة)</label>
+            </div>
+
+            <div class="flex align-items-center">
+              <p-radioButton
+                id="typeHalfDay"
+                [value]="PermissionDurationType.HalfDay"
+                formControlName="durationType"
+              ></p-radioButton>
+              <label for="typeHalfDay" class="mr-2 cursor-pointer font-medium">نصف يوم</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- نطاق زمني: من الساعة - إلى الساعة -->
+        <ng-container *ngIf="form.get('durationType')?.value === PermissionDurationType.TimeRange">
+          <div class="col-12 md:col-6 field">
+            <label for="fromTime" class="font-medium">من الساعة <span class="text-red-500">*</span></label>
+            <p-calendar
+              id="fromTime"
+              formControlName="fromTime"
+              [timeOnly]="true"
+              [showTime]="true"
+              hourFormat="24"
+              placeholder="00:00"
+              [showIcon]="true"
+              icon="pi pi-clock"
+            ></p-calendar>
+            <small
+              class="p-error block mt-1"
+              *ngIf="form.get('fromTime')?.invalid && form.get('fromTime')?.touched"
+            >
+              وقت البداية مطلوب
+            </small>
+          </div>
+
+          <div class="col-12 md:col-6 field">
+            <label for="toTime" class="font-medium">إلى الساعة <span class="text-red-500">*</span></label>
+            <p-calendar
+              id="toTime"
+              formControlName="toTime"
+              [timeOnly]="true"
+              [showTime]="true"
+              hourFormat="24"
+              placeholder="00:00"
+              [showIcon]="true"
+              icon="pi pi-clock"
+            ></p-calendar>
+            <small
+              class="p-error block mt-1"
+              *ngIf="form.get('toTime')?.invalid && form.get('toTime')?.touched"
+            >
+              وقت النهاية مطلوب
+            </small>
+          </div>
+        </ng-container>
+
+        <!-- نصف يوم: صباحية / مسائية -->
+        <ng-container *ngIf="form.get('durationType')?.value === PermissionDurationType.HalfDay">
+          <div class="col-12 field">
+            <label class="font-medium block mb-2">الفترة <span class="text-red-500">*</span></label>
+            <div class="flex flex-wrap gap-4">
+              <div class="flex align-items-center">
+                <p-radioButton
+                  id="periodMorning"
+                  [value]="HalfDayPeriod.Morning"
+                  formControlName="halfDayPeriod"
+                ></p-radioButton>
+                <label for="periodMorning" class="mr-2 cursor-pointer font-medium">فترة صباحية</label>
+              </div>
+
+              <div class="flex align-items-center">
+                <p-radioButton
+                  id="periodAfternoon"
+                  [value]="HalfDayPeriod.Afternoon"
+                  formControlName="halfDayPeriod"
+                ></p-radioButton>
+                <label for="periodAfternoon" class="mr-2 cursor-pointer font-medium">فترة مسائية (بعد الظهر)</label>
+              </div>
+            </div>
+            <small
+              class="p-error block mt-1"
+              *ngIf="form.get('halfDayPeriod')?.invalid && form.get('halfDayPeriod')?.touched"
+            >
+              يرجى تحديد الفترة
+            </small>
+          </div>
+        </ng-container>
+
+        <!-- السبب / ملاحظات -->
+        <div class="col-12 field">
+          <label for="reason" class="font-medium">سبب الإذن</label>
+          <textarea
+            id="reason"
+            pInputTextarea
+            formControlName="reason"
+            rows="3"
+            placeholder="أدخل أي ملاحظات أو توضيحات حول سبب طلب الإذن..."
+            class="w-full"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="form-actions mt-4 flex gap-2">
+        <button
+          pButton
+          type="submit"
+          label="تقديم الطلب"
+          icon="pi pi-send"
+          [loading]="submitting()"
+          class="p-button-primary"
+        ></button>
+        <button
+          pButton
+          type="button"
+          label="إلغاء"
+          icon="pi pi-times"
+          (click)="cancel()"
+          class="p-button-outlined p-button-secondary"
+        ></button>
+      </div>
+    </form>
+  </p-card>
+</div>

@@ -1,0 +1,39 @@
+<div class="leave-list">
+  <p-card>
+    <div class="filter-bar">
+      <span class="p-input-icon-left filter-search">
+        <i class="pi pi-search"></i>
+        <input
+          type="text"
+          pInputText
+          [ngModel]="searchText()"
+          (ngModelChange)="searchText.set($event)"
+          placeholder="بحث باسم نوع الإجازة..."
+        />
+      </span>
+
+      <a
+        pButton
+        label="إضافة نوع إجازة"
+        icon="pi pi-plus"
+        routerLink="/leave/types/add"
+        class="p-button-primary"
+      ></a>
+    </div>
+
+    <app-shared-table
+      [value]="filteredLeaveTypes()"
+      [loading]="loading()"
+      [columns]="columns"
+      [actions]="actions"
+      actionsColumnHeader="إجراءات"
+      actionsColumnWidth="8rem"
+      [tableStyle]="{ 'min-width': '40rem' }"
+      [translateHeader]="false"
+      emptyMessage="لا توجد أنواع إجازات مضافة"
+      [translateEmptyMessage]="false"
+    ></app-shared-table>
+  </p-card>
+</div>
+
+<p-confirmDialog />

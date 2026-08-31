@@ -23,6 +23,11 @@ export const routes: Routes = [
           import('./modules/attendance/attendance.routes').then((m) => m.ATTENDANCE_ROUTES),
       },
       {
+        path: 'leave',
+        loadChildren: () =>
+          import('./modules/leave/leave.routes').then((m) => m.LEAVE_ROUTES),
+      },
+      {
         path: 'penalties',
         loadChildren: () =>
           import('./modules/penalties/penalties.routes').then((m) => m.PENALTY_ROUTES),

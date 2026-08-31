@@ -1,0 +1,214 @@
+<div class="leave-balance-container">
+  <p-card>
+    <div class="header-toolbar flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+      <div class="page-title">
+        <h2 class="m-0 text-xl font-bold text-900">أرصدة الإجازات</h2>
+        <span class="text-sm text-500">عرض ومتابعة الرصيد المسموح والمستخدم والمتبقي لكل نوع إجازة</span>
+      </div>
+
+      <button
+        pButton
+        label="تهيئة رصيد إجازة (مسؤول)"
+        icon="pi pi-cog"
+        class="p-button-outlined p-button-primary p-button-sm"
+        (click)="openInitDialog()"
+      ></button>
+    </div>
+
+    <!-- Employee & Year Selector Bar -->
+    <div class="selector-section p-3 border-round surface-ground mb-4">
+      <div class="grid p-fluid align-items-end">
+        <div class="col-12 sm:col-8 md:col-6">
+          <label class="block text-sm font-medium mb-1">اختر الموظف لعرض رصيده</label>
+          <p-dropdown
+            [options]="employees()"
+            [ngModel]="selectedEmployeeId()"
+            (ngModelChange)="onEmployeeChange($event)"
+            optionLabel="fullName"
+            optionValue="id"
+            placeholder="اختر الموظف"
+            [filter]="true"
+            filterBy="fullName,employeeNumber"
+          ></p-dropdown>
+        </div>
+
+        <div class="col-12 sm:col-4 md:col-3">
+          <label class="block text-sm font-medium mb-1">السنة</label>
+          <p-dropdown
+            [options]="yearOptions()"
+            [ngModel]="selectedYear()"
+            (ngModelChange)="onYearChange($event)"
+            optionLabel="label"
+            optionValue="value"
+          ></p-dropdown>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading()" class="text-center py-6">
+      <i class="pi pi-spin pi-spinner text-4xl text-primary mb-2"></i>
+      <p class="text-500 m-0">جاري تحميل أرصدة الإجازات...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div
+      *ngIf="!loading() && balances().length === 0"
+      class="text-center py-6 border-round surface-50"
+    >
+      <i class="pi pi-folder-open text-4xl text-400 mb-2"></i>
+      <p class="text-600 font-medium m-0">لا توجد أرصدة إجازات مسجلة لهذا الموظف في سنة {{ selectedYear() }}</p>
+      <small class="text-500 block mt-1">يمكنك استخدام زر "تهيئة رصيد إجازة" لإضافة رصيد جديد للموظف.</small>
+    </div>
+
+    <!-- Balance Cards Grid -->
+    <div class="grid" *ngIf="!loading() && balances().length > 0">
+      <div class="col-12 md:col-6 lg:col-4" *ngFor="let item of balances()">
+        <p-card [styleClass]="'balance-card shadow-1 border-1 surface-border h-full'">
+          <div class="flex justify-content-between align-items-start mb-3">
+            <div>
+              <h3 class="m-0 text-lg font-bold text-900">{{ item.leaveTypeArabicName || item.leaveTypeName }}</h3>
+              <span class="text-xs text-500">سنة {{ item.year }}</span>
+            </div>
+            <p-tag
+              [value]="item.remainingDays > 0 ? 'متبقي ' + item.remainingDays + ' يوم' : 'مستنفذ'"
+              [severity]="item.remainingDays > 5 ? 'success' : item.remainingDays > 0 ? 'warning' : 'danger'"
+            ></p-tag>
+          </div>
+
+          <div class="balance-stats my-3 flex justify-content-around text-center py-2 border-round surface-50">
+            <div>
+              <span class="block text-xs text-500 font-medium">المسموح</span>
+              <span class="text-lg font-bold text-700">{{ item.allowedDays }}</span>
+            </div>
+            <div class="border-left-1 surface-border"></div>
+            <div>
+              <span class="block text-xs text-500 font-medium">المستخدم</span>
+              <span class="text-lg font-bold text-orange-600">{{ item.usedDays }}</span>
+            </div>
+            <div class="border-left-1 surface-border"></div>
+            <div>
+              <span class="block text-xs text-500 font-medium">المتبقي</span>
+              <span class="text-lg font-bold text-green-600">{{ item.remainingDays }}</span>
+            </div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="mt-3">
+            <div class="flex justify-content-between text-xs text-600 mb-1">
+              <span>نسبة الاستهلاك</span>
+              <span>{{ getUsagePercent(item) }}%</span>
+            </div>
+            <p-progressBar
+              [value]="getUsagePercent(item)"
+              [showValue]="false"
+              [style]="{ height: '8px' }"
+            ></p-progressBar>
+          </div>
+        </p-card>
+      </div>
+    </div>
+  </p-card>
+</div>
+
+<!-- Admin Initialize Balance Dialog -->
+<p-dialog
+  [(visible)]="initDialogOpen"
+  header="تهيئة رصيد إجازة لموظف"
+  [modal]="true"
+  [style]="{ width: '480px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <form [formGroup]="initForm" (ngSubmit)="submitInit()" class="py-2">
+    <div class="grid p-fluid">
+      <!-- الموظف -->
+      <div class="col-12 field">
+        <label for="initEmployeeId" class="font-medium">الموظف <span class="text-red-500">*</span></label>
+        <p-dropdown
+          id="initEmployeeId"
+          formControlName="employeeId"
+          [options]="employees()"
+          optionLabel="fullName"
+          optionValue="id"
+          placeholder="اختر الموظف"
+          [filter]="true"
+          filterBy="fullName,employeeNumber"
+        ></p-dropdown>
+        <small
+          class="p-error block mt-1"
+          *ngIf="initForm.get('employeeId')?.invalid && initForm.get('employeeId')?.touched"
+        >
+          الموظف مطلوب
+        </small>
+      </div>
+
+      <!-- نوع الإجازة -->
+      <div class="col-12 field">
+        <label for="initLeaveTypeId" class="font-medium">نوع الإجازة <span class="text-red-500">*</span></label>
+        <p-dropdown
+          id="initLeaveTypeId"
+          formControlName="leaveTypeId"
+          [options]="leaveTypes()"
+          optionLabel="arabicName"
+          optionValue="id"
+          placeholder="اختر نوع الإجازة"
+        ></p-dropdown>
+        <small
+          class="p-error block mt-1"
+          *ngIf="initForm.get('leaveTypeId')?.invalid && initForm.get('leaveTypeId')?.touched"
+        >
+          نوع الإجازة مطلوب
+        </small>
+      </div>
+
+      <!-- السنة -->
+      <div class="col-12 sm:col-6 field">
+        <label for="initYear" class="font-medium">السنة <span class="text-red-500">*</span></label>
+        <p-dropdown
+          id="initYear"
+          formControlName="year"
+          [options]="yearOptions()"
+          optionLabel="label"
+          optionValue="value"
+        ></p-dropdown>
+      </div>
+
+      <!-- الرصيد المسموح (بالأيام) -->
+      <div class="col-12 sm:col-6 field">
+        <label for="initAllowedDays" class="font-medium">الرصيد المسموح (أيام) <span class="text-red-500">*</span></label>
+        <p-inputNumber
+          id="initAllowedDays"
+          formControlName="allowedDays"
+          [min]="1"
+          [showButtons]="true"
+        ></p-inputNumber>
+        <small
+          class="p-error block mt-1"
+          *ngIf="initForm.get('allowedDays')?.invalid && initForm.get('allowedDays')?.touched"
+        >
+          عدد الأيام مطلوب
+        </small>
+      </div>
+    </div>
+
+    <div class="flex justify-content-end gap-2 mt-3">
+      <button
+        pButton
+        type="button"
+        label="إلغاء"
+        icon="pi pi-times"
+        class="p-button-outlined p-button-secondary"
+        (click)="initDialogOpen.set(false)"
+      ></button>
+      <button
+        pButton
+        type="submit"
+        label="حفظ وتهيئة"
+        icon="pi pi-check"
+        [loading]="initSaving()"
+        class="p-button-primary"
+      ></button>
+    </div>
+  </form>
+</p-dialog>

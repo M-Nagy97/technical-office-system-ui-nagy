@@ -1,0 +1,88 @@
+<p-dialog
+  [(visible)]="visible"
+  [header]="title()"
+  [modal]="true"
+  [style]="{ width: '450px' }"
+  [draggable]="false"
+  [resizable]="false"
+  (onHide)="onHide()"
+>
+  <div class="py-2">
+    <!-- Approve mode message -->
+    <div *ngIf="action === 'approve'" class="flex align-items-center gap-3">
+      <i class="pi pi-check-circle text-green-500 text-3xl"></i>
+      <div>
+        <p class="m-0 font-medium">هل أنت متأكد من الموافقة على هذا الطلب؟</p>
+        <small class="text-500">سيتم اعتماد الطلب وتحديث السجل وحساب الأيام.</small>
+      </div>
+    </div>
+
+    <!-- Reject mode -->
+    <div *ngIf="action === 'reject'">
+      <div class="flex align-items-center gap-3 mb-3">
+        <i class="pi pi-times-circle text-red-500 text-3xl"></i>
+        <p class="m-0 font-medium">يرجى توضيح سبب رفض هذا الطلب:</p>
+      </div>
+      <div class="field mb-0">
+        <label for="rejectReason" class="font-medium">سبب الرفض <span class="text-red-500">*</span></label>
+        <textarea
+          id="rejectReason"
+          pInputTextarea
+          [ngModel]="reason()"
+          (ngModelChange)="reason.set($event)"
+          rows="4"
+          placeholder="أدخل سبب الرفض هنا..."
+          class="w-full"
+          [class.ng-invalid]="reasonTouched() && !reason().trim()"
+          [class.ng-dirty]="reasonTouched()"
+        ></textarea>
+        <small class="p-error block mt-1" *ngIf="reasonTouched() && !reason().trim()">
+          سبب الرفض مطلوب لإتمام هذه العملية
+        </small>
+      </div>
+    </div>
+
+    <!-- Cancel mode -->
+    <div *ngIf="action === 'cancel'">
+      <div class="flex align-items-center gap-3 mb-3">
+        <i class="pi pi-exclamation-triangle text-orange-500 text-3xl"></i>
+        <p class="m-0 font-medium">هل أنت متأكد من إلغاء هذا الطلب؟</p>
+      </div>
+      <div class="field mb-0">
+        <label for="cancelReason" class="font-medium">سبب الإلغاء (اختياري)</label>
+        <textarea
+          id="cancelReason"
+          pInputTextarea
+          [ngModel]="reason()"
+          (ngModelChange)="reason.set($event)"
+          rows="3"
+          placeholder="أدخل سبب الإلغاء (إن وجد)..."
+          class="w-full"
+        ></textarea>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-content-end gap-2">
+      <button
+        pButton
+        type="button"
+        label="تراجع"
+        icon="pi pi-times"
+        class="p-button-outlined p-button-secondary"
+        (click)="onHide()"
+        [disabled]="loading"
+      ></button>
+      <button
+        pButton
+        type="button"
+        [label]="confirmButtonLabel()"
+        [icon]="loading ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
+        [class]="confirmButtonClass()"
+        (click)="onConfirm()"
+        [loading]="loading"
+      ></button>
+    </div>
+  </ng-template>
+</p-dialog>
