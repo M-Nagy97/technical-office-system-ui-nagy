@@ -6,10 +6,13 @@ import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { DialogModule } from 'primeng/dialog';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { TagModule } from 'primeng/tag';
-import { MessageService } from 'primeng/api';
-import { LeaveBalanceService, LeaveTypeService, EmployeeService } from '../../../core/services';
+import { TooltipModule } from 'primeng/tooltip';
+import { MessageService, ConfirmationService } from 'primeng/api';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { LeaveBalanceService, LeaveTypeService, EmployeeService, LanguageService } from '../../../core/services';
 import { EmployeeLeaveBalanceDto } from '../../../core/models/leave-balance.model';
 import { LeaveTypeDto } from '../../../core/services/leave-type.service';
 import { Employee } from '../../../core/models/employee.model';
@@ -26,9 +29,13 @@ import { Employee } from '../../../core/models/employee.model';
     DropdownModule,
     ProgressBarModule,
     DialogModule,
+    ConfirmDialogModule,
     InputNumberModule,
     TagModule,
+    TooltipModule,
+    TranslateModule,
   ],
+  providers: [ConfirmationService],
   templateUrl: './leave-balance.component.html',
   styleUrl: './leave-balance.component.scss',
 })
@@ -38,6 +45,9 @@ export class LeaveBalanceComponent implements OnInit {
   private readonly leaveTypeService = inject(LeaveTypeService);
   private readonly employeeService = inject(EmployeeService);
   private readonly messageService = inject(MessageService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly translate = inject(TranslateService);
+  readonly languageService = inject(LanguageService);
 
   readonly loading = signal(false);
   readonly balances = signal<EmployeeLeaveBalanceDto[]>([]);
@@ -67,6 +77,10 @@ export class LeaveBalanceComponent implements OnInit {
     if (!id) return null;
     return this.employees().find((e) => e.id === id) ?? null;
   });
+
+  readonly leaveTypeOptionLabel = computed(() =>
+    this.languageService.currentLang() === 'en' ? 'name' : 'arabicName'
+  );
 
   ngOnInit(): void {
     this.buildInitForm();
@@ -126,8 +140,8 @@ export class LeaveBalanceComponent implements OnInit {
         this.loading.set(false);
         this.messageService.add({
           severity: 'error',
-          summary: 'خطأ',
-          detail: 'فشل في تحميل أرصدة الإجازات للموظف المحدد',
+          summary: this.translate.instant('common.error'),
+          detail: this.translate.instant('leave.balances.load_failed'),
         });
       },
     });
@@ -182,21 +196,83 @@ export class LeaveBalanceComponent implements OnInit {
           this.initDialogOpen.set(false);
           this.messageService.add({
             severity: 'success',
-            summary: 'نجاح',
-            detail: 'تمت تهيئة رصيد الإجازة بنجاح',
+            summary: this.translate.instant('common.success'),
+            detail: this.translate.instant('leave.balances.init_success'),
           });
           if (val.employeeId === this.selectedEmployeeId() && Number(val.year) === this.selectedYear()) {
             this.loadBalances();
           }
         },
-        error: () => {
+        error: (err) => {
           this.initSaving.set(false);
+          const isAr = this.languageService.currentLang() === 'ar';
+          const msg =
+            (isAr ? err?.error?.messageAr : err?.error?.message) ||
+            err?.error?.message ||
+            err?.error?.messageAr ||
+            err?.error?.detail ||
+            this.translate.instant('leave.balances.init_failed');
+
           this.messageService.add({
             severity: 'error',
-            summary: 'خطأ',
-            detail: 'فشل في تهيئة رصيد الإجازة',
+            summary: this.translate.instant('common.error'),
+            detail: msg,
           });
         },
       });
   }
+
+  deleteBalance(balance: EmployeeLeaveBalanceDto): void {
+    if (balance.usedDays > 0) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: this.translate.instant('common.warning'),
+        detail: this.translate.instant('leave.balances.cannot_delete_warn'),
+      });
+      return;
+    }
+
+    const typeName =
+      this.languageService.currentLang() === 'en'
+        ? balance.leaveTypeName || balance.leaveTypeArabicName
+        : balance.leaveTypeArabicName || balance.leaveTypeName;
+
+    this.confirmationService.confirm({
+      message: this.translate.instant('leave.balances.delete_confirm_msg', {
+        name: typeName,
+        year: balance.year,
+      }),
+      header: this.translate.instant('leave.balances.delete_confirm_title'),
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.leaveBalanceService.deleteBalance(balance.id).subscribe({
+          next: () => {
+            this.messageService.add({
+              severity: 'success',
+              summary: this.translate.instant('common.success'),
+              detail: this.translate.instant('leave.balances.delete_success'),
+            });
+            this.loadBalances();
+          },
+          error: (err) => {
+            const isAr = this.languageService.currentLang() === 'ar';
+            const msg =
+              (isAr ? err?.error?.messageAr : err?.error?.message) ||
+              err?.error?.message ||
+              err?.error?.messageAr ||
+              err?.error?.detail ||
+              this.translate.instant('leave.balances.delete_failed');
+
+            this.messageService.add({
+              severity: 'error',
+              summary: this.translate.instant('common.error'),
+              detail: msg,
+            });
+          },
+        });
+      },
+    });
+  }
 }
+
+

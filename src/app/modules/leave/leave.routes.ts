@@ -74,4 +74,20 @@ export const LEAVE_ROUTES: Routes = [
         (m) => m.LeaveBalanceComponent
       ),
   },
+
+  // Policy Rules
+  {
+    path: 'rules',
+    loadComponent: () =>
+      import('./policy-rules/policy-rules.component').then(
+        (m) => m.PolicyRulesComponent
+      ),
+  },
+  {
+    path: 'policy-rules',
+    loadComponent: () =>
+      import('./policy-rules/policy-rules.component').then(
+        (m) => m.PolicyRulesComponent
+      ),
+  },
 ];

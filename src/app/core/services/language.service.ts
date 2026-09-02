@@ -30,6 +30,9 @@ export class LanguageService {
   }
 
   setLanguage(lang: AppLang): void {
+    this.currentLang.set(lang);
+    this.isRtl.set(lang === 'ar');
+    this.dir.set(lang === 'ar' ? 'rtl' : 'ltr');
     this.translate.use(lang);
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem(LANG_KEY, lang);

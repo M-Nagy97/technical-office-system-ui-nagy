@@ -9,3 +9,4 @@ export * from './leave-type.service';
 export * from './leave-request.service';
 export * from './permission-request.service';
 export * from './leave-balance.service';
+export * from './policy-rule.service';

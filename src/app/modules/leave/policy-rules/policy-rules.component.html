@@ -1,0 +1,259 @@
+<div class="policy-rules-container">
+  <p-card>
+    <div class="header-toolbar flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+      <div class="page-title">
+        <h2 class="m-0 text-xl font-bold text-900">{{ 'leave.rules.title' | translate }}</h2>
+        <span class="text-sm text-500">{{ 'leave.rules.subtitle' | translate }}</span>
+      </div>
+
+      <button
+        pButton
+        [label]="'leave.rules.add_rule_btn' | translate"
+        icon="pi pi-plus"
+        class="p-button-primary"
+        (click)="openAddDialog()"
+      ></button>
+    </div>
+
+    <p-tabView [(activeIndex)]="activeTabIndex" (onChange)="onTabChange($event.index)">
+      <!-- Tab 1: Leave Rules -->
+      <p-tabPanel [header]="'leave.rules.tab_leave_rules' | translate" leftIcon="pi pi-calendar">
+        <p-table
+          [value]="leaveRules()"
+          [loading]="loading()"
+          responsiveLayout="scroll"
+          styleClass="p-datatable-sm p-datatable-striped"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width: 25%">{{ 'leave.rules.col_rule_name' | translate }}</th>
+              <th style="width: 20%">{{ 'leave.rules.col_leave_type' | translate }}</th>
+              <th style="width: 15%">{{ 'leave.rules.col_severity' | translate }}</th>
+              <th style="width: 25%">{{ 'leave.rules.col_message' | translate }}</th>
+              <th style="width: 15%" class="text-center">{{ 'leave.rules.col_status' | translate }}</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rule>
+            <tr>
+              <td>
+                <span class="font-bold text-900 block">{{ rule.ruleCode }}</span>
+                <small class="text-500">{{ rule.description }}</small>
+              </td>
+              <td>
+                <span *ngIf="rule.leaveTypeId" class="font-medium text-700">
+                  {{ getLeaveTypeName(rule.leaveTypeId) }}
+                </span>
+                <p-tag
+                  *ngIf="!rule.leaveTypeId"
+                  [value]="'leave.rules.general_all_leaves' | translate"
+                  severity="info"
+                ></p-tag>
+              </td>
+              <td>
+                <p-tag
+                  *ngIf="rule.severity === 0"
+                  severity="danger"
+                  icon="pi pi-times-circle"
+                  [value]="'leave.rules.severity_error' | translate"
+                ></p-tag>
+                <p-tag
+                  *ngIf="rule.severity === 1"
+                  severity="warning"
+                  icon="pi pi-exclamation-triangle"
+                  [value]="'leave.rules.severity_warning' | translate"
+                ></p-tag>
+              </td>
+              <td>
+                <span class="text-sm text-700 block">
+                  {{ languageService.currentLang() === 'ar' ? rule.errorMessageAr : rule.errorMessage }}
+                </span>
+              </td>
+              <td class="text-center">
+                <div class="status-switch flex align-items-center justify-content-center gap-2">
+                  <p-inputSwitch
+                    [ngModel]="rule.isEnabled"
+                    (ngModelChange)="toggleRule(rule, $event)"
+                  ></p-inputSwitch>
+                  <span class="text-xs font-semibold" [class.text-green-600]="rule.isEnabled" [class.text-500]="!rule.isEnabled">
+                    {{ rule.isEnabled ? ('leave.rules.status_enabled' | translate) : ('leave.rules.status_disabled' | translate) }}
+                  </span>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="5" class="text-center py-5 text-500">
+                <i class="pi pi-info-circle text-2xl mb-2 block"></i>
+                {{ 'leave.rules.empty' | translate }}
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-tabPanel>
+
+      <!-- Tab 2: Permission Rules -->
+      <p-tabPanel [header]="'leave.rules.tab_permission_rules' | translate" leftIcon="pi pi-clock">
+        <p-table
+          [value]="permissionRules()"
+          [loading]="loading()"
+          responsiveLayout="scroll"
+          styleClass="p-datatable-sm p-datatable-striped"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width: 30%">{{ 'leave.rules.col_rule_name' | translate }}</th>
+              <th style="width: 15%">{{ 'leave.rules.col_severity' | translate }}</th>
+              <th style="width: 40%">{{ 'leave.rules.col_message' | translate }}</th>
+              <th style="width: 15%" class="text-center">{{ 'leave.rules.col_status' | translate }}</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rule>
+            <tr>
+              <td>
+                <span class="font-bold text-900 block">{{ rule.ruleCode }}</span>
+                <small class="text-500">{{ rule.description }}</small>
+              </td>
+              <td>
+                <p-tag
+                  *ngIf="rule.severity === 0"
+                  severity="danger"
+                  icon="pi pi-times-circle"
+                  [value]="'leave.rules.severity_error' | translate"
+                ></p-tag>
+                <p-tag
+                  *ngIf="rule.severity === 1"
+                  severity="warning"
+                  icon="pi pi-exclamation-triangle"
+                  [value]="'leave.rules.severity_warning' | translate"
+                ></p-tag>
+              </td>
+              <td>
+                <span class="text-sm text-700 block">
+                  {{ languageService.currentLang() === 'ar' ? rule.errorMessageAr : rule.errorMessage }}
+                </span>
+              </td>
+              <td class="text-center">
+                <div class="status-switch flex align-items-center justify-content-center gap-2">
+                  <p-inputSwitch
+                    [ngModel]="rule.isEnabled"
+                    (ngModelChange)="toggleRule(rule, $event)"
+                  ></p-inputSwitch>
+                  <span class="text-xs font-semibold" [class.text-green-600]="rule.isEnabled" [class.text-500]="!rule.isEnabled">
+                    {{ rule.isEnabled ? ('leave.rules.status_enabled' | translate) : ('leave.rules.status_disabled' | translate) }}
+                  </span>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="4" class="text-center py-5 text-500">
+                <i class="pi pi-info-circle text-2xl mb-2 block"></i>
+                {{ 'leave.rules.empty' | translate }}
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-tabPanel>
+    </p-tabView>
+  </p-card>
+</div>
+
+<!-- Add Rule Dialog -->
+<p-dialog
+  [(visible)]="addDialogOpen"
+  [header]="'leave.rules.add_rule_title' | translate"
+  [modal]="true"
+  [style]="{ width: '550px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <form [formGroup]="ruleForm" (ngSubmit)="submitAddRule()" class="py-2">
+    <div class="grid p-fluid">
+      <!-- Target Scope -->
+      <div class="col-12 field">
+        <label class="font-medium">{{ 'leave.rules.field_scope' | translate }} <span class="text-red-500">*</span></label>
+        <p-dropdown
+          formControlName="scope"
+          [options]="scopeOptions"
+          optionLabel="label"
+          optionValue="value"
+          (onChange)="onScopeChanged()"
+        ></p-dropdown>
+      </div>
+
+      <!-- Catalog Template Selection -->
+      <div class="col-12 field">
+        <label class="font-medium">{{ 'leave.rules.field_template' | translate }} <span class="text-red-500">*</span></label>
+        <p-dropdown
+          formControlName="ruleCode"
+          [options]="filteredCatalog()"
+          optionLabel="name"
+          optionValue="ruleCode"
+          [placeholder]="'leave.rules.select_template' | translate"
+          (onChange)="onTemplateSelected($event.value)"
+        ></p-dropdown>
+      </div>
+
+      <!-- Leave Type (if Scope == Leave) -->
+      <div class="col-12 field" *ngIf="ruleForm.get('scope')?.value === 0">
+        <label class="font-medium">{{ 'leave.rules.field_leave_type' | translate }}</label>
+        <p-dropdown
+          formControlName="leaveTypeId"
+          [options]="leaveTypes()"
+          [optionLabel]="leaveTypeOptionLabel()"
+          optionValue="id"
+          [showClear]="true"
+          [placeholder]="'leave.rules.general_all_leaves' | translate"
+        ></p-dropdown>
+      </div>
+
+      <!-- Severity Selection -->
+      <div class="col-12 field">
+        <label class="font-medium">{{ 'leave.rules.field_severity' | translate }} <span class="text-red-500">*</span></label>
+        <div class="flex gap-4 mt-1">
+          <div class="flex align-items-center">
+            <p-radioButton [value]="0" formControlName="severity" inputId="sevError"></p-radioButton>
+            <label for="sevError" class="ml-2 cursor-pointer text-danger font-medium">{{ 'leave.rules.severity_error_option' | translate }}</label>
+          </div>
+          <div class="flex align-items-center">
+            <p-radioButton [value]="1" formControlName="severity" inputId="sevWarning"></p-radioButton>
+            <label for="sevWarning" class="ml-2 cursor-pointer text-warning font-medium">{{ 'leave.rules.severity_warning_option' | translate }}</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error Message En -->
+      <div class="col-12 field">
+        <label class="font-medium">{{ 'leave.rules.field_msg_en' | translate }} <span class="text-red-500">*</span></label>
+        <input pInputText formControlName="errorMessage" [placeholder]="'leave.rules.field_msg_en_placeholder' | translate" />
+      </div>
+
+      <!-- Error Message Ar -->
+      <div class="col-12 field">
+        <label class="font-medium">{{ 'leave.rules.field_msg_ar' | translate }} <span class="text-red-500">*</span></label>
+        <input pInputText formControlName="errorMessageAr" [placeholder]="'leave.rules.field_msg_ar_placeholder' | translate" />
+      </div>
+    </div>
+
+    <div class="flex justify-content-end gap-2 mt-3">
+      <button
+        pButton
+        type="button"
+        [label]="'common.cancel' | translate"
+        icon="pi pi-times"
+        class="p-button-outlined p-button-secondary"
+        (click)="addDialogOpen.set(false)"
+      ></button>
+      <button
+        pButton
+        type="submit"
+        [label]="'leave.rules.save_btn' | translate"
+        icon="pi pi-check"
+        [loading]="saving()"
+        class="p-button-primary"
+      ></button>
+    </div>
+  </form>
+</p-dialog>

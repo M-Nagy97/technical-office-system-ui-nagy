@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment';
 import {
   PermissionRequestDto,
   SubmitPermissionRequestCommand,
+  SubmitPermissionRequestResponse,
   PermissionRequestFilter,
 } from '../models/permission-request.model';
 
@@ -49,12 +50,16 @@ export class PermissionRequestService {
   }
 
   /** POST /api/permission-requests */
-  submit(command: SubmitPermissionRequestCommand): Observable<string> {
-    return this.http.post<ApiResult<string> | string>(this.baseUrl, command).pipe(
+  submit(command: SubmitPermissionRequestCommand): Observable<SubmitPermissionRequestResponse> {
+    return this.http.post<ApiResult<SubmitPermissionRequestResponse> | SubmitPermissionRequestResponse>(this.baseUrl, command).pipe(
       map((res) => {
-        if (typeof res === 'string') return res;
-        if (res && 'data' in res && res.data) return String(res.data);
-        return '';
+        if (res && typeof res === 'object' && 'data' in res && res.data) {
+          return res.data;
+        }
+        if (res && typeof res === 'object' && 'id' in res) {
+          return res as SubmitPermissionRequestResponse;
+        }
+        return { id: String(res || '') };
       })
     );
   }

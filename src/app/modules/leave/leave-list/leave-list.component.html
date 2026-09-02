@@ -8,13 +8,13 @@
           pInputText
           [ngModel]="searchText()"
           (ngModelChange)="searchText.set($event)"
-          placeholder="بحث باسم نوع الإجازة..."
+          [placeholder]="'leave.types.search_placeholder' | translate"
         />
       </span>
 
       <a
         pButton
-        label="إضافة نوع إجازة"
+        [label]="'leave.types.add_button' | translate"
         icon="pi pi-plus"
         routerLink="/leave/types/add"
         class="p-button-primary"
@@ -26,14 +26,15 @@
       [loading]="loading()"
       [columns]="columns"
       [actions]="actions"
-      actionsColumnHeader="إجراءات"
+      actionsColumnHeader="leave.types.actions"
       actionsColumnWidth="8rem"
       [tableStyle]="{ 'min-width': '40rem' }"
-      [translateHeader]="false"
-      emptyMessage="لا توجد أنواع إجازات مضافة"
-      [translateEmptyMessage]="false"
+      [translateHeader]="true"
+      emptyMessage="leave.types.empty"
+      [translateEmptyMessage]="true"
     ></app-shared-table>
   </p-card>
 </div>
 
 <p-confirmDialog />
+

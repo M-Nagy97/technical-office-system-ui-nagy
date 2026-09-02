@@ -33,6 +33,8 @@ export interface PermissionRequestDto {
   approvedAt: string | null;
   rejectionReason: string | null;
   cancellationReason: string | null;
+  warningAlerts?: string | null;
+  warningAlertsAr?: string | null;
   createdDate?: string;
 }
 
@@ -44,6 +46,12 @@ export interface SubmitPermissionRequestCommand {
   toTime?: string;
   halfDayPeriod?: HalfDayPeriod;
   reason?: string;
+}
+
+export interface SubmitPermissionRequestResponse {
+  id: string;
+  warningAlerts?: string | null;
+  warningAlertsAr?: string | null;
 }
 
 export interface PermissionRequestFilter {

@@ -6,7 +6,10 @@ import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { CalendarModule } from 'primeng/calendar';
+import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   SharedTableComponent,
   SharedTableColumn,
@@ -14,7 +17,7 @@ import {
   SharedTableCellTemplateDirective,
   StatusBadgeComponent,
 } from '../../../shared';
-import { PermissionRequestService, EmployeeService } from '../../../core/services';
+import { PermissionRequestService, EmployeeService, LanguageService } from '../../../core/services';
 import {
   PermissionRequestDto,
   PermissionRequestStatus,
@@ -40,10 +43,13 @@ import {
     ButtonModule,
     DropdownModule,
     CalendarModule,
+    TagModule,
+    TooltipModule,
     SharedTableComponent,
     SharedTableCellTemplateDirective,
     StatusBadgeComponent,
     PermissionActionDialogComponent,
+    TranslateModule,
   ],
   templateUrl: './permission-requests-list.component.html',
   styleUrl: './permission-requests-list.component.scss',
@@ -53,6 +59,8 @@ export class PermissionRequestsListComponent implements OnInit {
   private readonly permissionRequestService = inject(PermissionRequestService);
   private readonly employeeService = inject(EmployeeService);
   private readonly messageService = inject(MessageService);
+  private readonly translate = inject(TranslateService);
+  readonly languageService = inject(LanguageService);
 
   readonly loading = signal(false);
   readonly requests = signal<PermissionRequestDto[]>([]);
@@ -68,15 +76,16 @@ export class PermissionRequestsListComponent implements OnInit {
   readonly actionDialogOpen = signal(false);
   readonly currentAction = signal<PermissionActionType | null>(null);
   readonly currentRequestId = signal('');
+  readonly currentRequestWarnings = signal<string | null>(null);
   readonly actionLoading = signal(false);
 
-  readonly statusOptions = [
-    { label: 'الكل', value: null },
-    { label: 'قيد الانتظار', value: PermissionRequestStatus.Pending },
-    { label: 'موافق عليه', value: PermissionRequestStatus.Approved },
-    { label: 'مرفوض', value: PermissionRequestStatus.Rejected },
-    { label: 'ملغي', value: PermissionRequestStatus.Cancelled },
-  ];
+  readonly statusOptions = computed(() => [
+    { label: this.translate.instant('leave.status.all'), value: null },
+    { label: this.translate.instant('leave.status.pending'), value: PermissionRequestStatus.Pending },
+    { label: this.translate.instant('leave.status.approved'), value: PermissionRequestStatus.Approved },
+    { label: this.translate.instant('leave.status.rejected'), value: PermissionRequestStatus.Rejected },
+    { label: this.translate.instant('leave.status.cancelled'), value: PermissionRequestStatus.Cancelled },
+  ]);
 
   readonly employeeMap = computed(() => {
     const map = new Map<string, string>();
@@ -89,13 +98,13 @@ export class PermissionRequestsListComponent implements OnInit {
   readonly columns: SharedTableColumn<PermissionRequestDto>[] = [
     {
       id: 'employee',
-      header: 'الموظف',
+      header: 'leave.permissions.col_employee',
       width: '22%',
       valueGetter: (row) => row.employeeName || this.employeeMap().get(row.employeeId) || row.employeeId,
     },
     {
       id: 'date',
-      header: 'التاريخ',
+      header: 'leave.permissions.col_date',
       field: 'date',
       sortableField: 'date',
       width: '14%',
@@ -103,25 +112,32 @@ export class PermissionRequestsListComponent implements OnInit {
     },
     {
       id: 'durationType',
-      header: 'نوع المدة',
+      header: 'leave.permissions.col_duration_type',
       width: '15%',
       valueGetter: (row) =>
-        row.durationType === PermissionDurationType.HalfDay ? 'نصف يوم' : 'نطاق زمني',
+        row.durationType === PermissionDurationType.HalfDay
+          ? this.translate.instant('leave.permissions.duration_half_day')
+          : this.translate.instant('leave.permissions.duration_custom_time'),
     },
     {
       id: 'details',
-      header: 'التفاصيل / الفترة',
+      header: 'leave.permissions.col_details',
       width: '20%',
       valueGetter: (row) => {
         if (row.durationType === PermissionDurationType.HalfDay) {
-          return row.halfDayPeriod === HalfDayPeriod.Afternoon ? 'فترة بعد الظهر' : 'فترة صباحية';
+          return row.halfDayPeriod === HalfDayPeriod.Afternoon
+            ? this.translate.instant('leave.permissions.period_afternoon')
+            : this.translate.instant('leave.permissions.period_morning');
         }
-        return `من ${row.fromTime || '--'} إلى ${row.toTime || '--'}`;
+        return this.translate.instant('leave.permissions.time_range', {
+          from: row.fromTime || '--',
+          to: row.toTime || '--',
+        });
       },
     },
     {
       id: 'status',
-      header: 'الحالة',
+      header: 'leave.permissions.col_status',
       width: '14%',
     },
   ];
@@ -141,7 +157,7 @@ export class PermissionRequestsListComponent implements OnInit {
       buttonClass: 'p-button-rounded p-button-text p-button-sm p-button-success',
       visible: (row) => row.status === PermissionRequestStatus.Pending,
       onClick: (row) => {
-        this.openActionDialog('approve', row.id);
+        this.openActionDialog('approve', row);
       },
     },
     {
@@ -150,7 +166,7 @@ export class PermissionRequestsListComponent implements OnInit {
       buttonClass: 'p-button-rounded p-button-text p-button-sm p-button-danger',
       visible: (row) => row.status === PermissionRequestStatus.Pending,
       onClick: (row) => {
-        this.openActionDialog('reject', row.id);
+        this.openActionDialog('reject', row);
       },
     },
     {
@@ -161,7 +177,7 @@ export class PermissionRequestsListComponent implements OnInit {
         row.status === PermissionRequestStatus.Pending ||
         row.status === PermissionRequestStatus.Approved,
       onClick: (row) => {
-        this.openActionDialog('cancel', row.id);
+        this.openActionDialog('cancel', row);
       },
     },
   ];
@@ -202,8 +218,8 @@ export class PermissionRequestsListComponent implements OnInit {
         this.loading.set(false);
         this.messageService.add({
           severity: 'error',
-          summary: 'خطأ',
-          detail: 'فشل في تحميل طلبات الأذونات من الخادم',
+          summary: this.translate.instant('common.error'),
+          detail: this.translate.instant('leave.permissions.load_failed'),
         });
       },
     });
@@ -217,9 +233,21 @@ export class PermissionRequestsListComponent implements OnInit {
     this.loadRequests();
   }
 
-  openActionDialog(action: PermissionActionType, requestId: string): void {
+  getWarningText(row: PermissionRequestDto): string {
+    if (this.languageService.currentLang() === 'ar') {
+      return row.warningAlertsAr || row.warningAlerts || '';
+    }
+    return row.warningAlerts || row.warningAlertsAr || '';
+  }
+
+  openActionDialog(action: PermissionActionType, request: PermissionRequestDto | string): void {
+    const id = typeof request === 'string' ? request : request.id;
+    const req = typeof request === 'string' ? this.requests().find((r) => r.id === id) : request;
+    const warnings = req ? this.getWarningText(req) : null;
+
     this.currentAction.set(action);
-    this.currentRequestId.set(requestId);
+    this.currentRequestId.set(id);
+    this.currentRequestWarnings.set(warnings);
     this.actionDialogOpen.set(true);
   }
 
@@ -239,24 +267,34 @@ export class PermissionRequestsListComponent implements OnInit {
       next: () => {
         this.actionLoading.set(false);
         this.actionDialogOpen.set(false);
+        const detailMsg =
+          event.action === 'approve'
+            ? this.translate.instant('leave.actions.approve_permission_success')
+            : event.action === 'reject'
+            ? this.translate.instant('leave.actions.reject_permission_success')
+            : this.translate.instant('leave.actions.cancel_permission_success');
+
         this.messageService.add({
           severity: 'success',
-          summary: 'نجاح',
-          detail:
-            event.action === 'approve'
-              ? 'تمت الموافقة على طلب الإذن بنجاح'
-              : event.action === 'reject'
-              ? 'تم رفض طلب الإذن بنجاح'
-              : 'تم إلغاء طلب الإذن بنجاح',
+          summary: this.translate.instant('common.success'),
+          detail: detailMsg,
         });
         this.loadRequests();
       },
-      error: () => {
+      error: (err) => {
         this.actionLoading.set(false);
+        const isAr = this.languageService.currentLang() === 'ar';
+        const msg =
+          (isAr ? err?.error?.messageAr : err?.error?.message) ||
+          err?.error?.message ||
+          err?.error?.messageAr ||
+          err?.error?.detail ||
+          this.translate.instant('leave.actions.action_failed');
+
         this.messageService.add({
           severity: 'error',
-          summary: 'خطأ',
-          detail: 'حدث خطأ أثناء معالجة طلب الإذن',
+          summary: this.translate.instant('common.error'),
+          detail: msg,
         });
       },
     });
@@ -269,3 +307,4 @@ export class PermissionRequestsListComponent implements OnInit {
     return `${y}-${m}-${d}`;
   }
 }
+

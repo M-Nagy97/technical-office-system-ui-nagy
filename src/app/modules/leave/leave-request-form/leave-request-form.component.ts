@@ -9,7 +9,8 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
 import { DropdownModule } from 'primeng/dropdown';
 import { CalendarModule } from 'primeng/calendar';
 import { MessageService } from 'primeng/api';
-import { LeaveRequestService, LeaveTypeService, EmployeeService } from '../../../core/services';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { LeaveRequestService, LeaveTypeService, EmployeeService, LanguageService } from '../../../core/services';
 import { LeaveTypeDto } from '../../../core/services/leave-type.service';
 import { Employee } from '../../../core/models/employee.model';
 import { SubmitLeaveRequestCommand } from '../../../core/models/leave-request.model';
@@ -27,6 +28,7 @@ import { SubmitLeaveRequestCommand } from '../../../core/models/leave-request.mo
     InputTextareaModule,
     DropdownModule,
     CalendarModule,
+    TranslateModule,
   ],
   templateUrl: './leave-request-form.component.html',
   styleUrl: './leave-request-form.component.scss',
@@ -38,6 +40,8 @@ export class LeaveRequestFormComponent implements OnInit {
   private readonly leaveRequestService = inject(LeaveRequestService);
   private readonly leaveTypeService = inject(LeaveTypeService);
   private readonly employeeService = inject(EmployeeService);
+  private readonly translate = inject(TranslateService);
+  private readonly languageService = inject(LanguageService);
 
   readonly submitting = signal(false);
   readonly leaveTypes = signal<LeaveTypeDto[]>([]);
@@ -48,6 +52,10 @@ export class LeaveRequestFormComponent implements OnInit {
 
   // Signal for auto-computed total days
   readonly computedDays = signal<number | null>(null);
+
+  readonly leaveTypeOptionLabel = computed(() =>
+    this.languageService.currentLang() === 'en' ? 'name' : 'arabicName'
+  );
 
   ngOnInit(): void {
     this.initForm();
@@ -128,8 +136,8 @@ export class LeaveRequestFormComponent implements OnInit {
       this.form.markAllAsTouched();
       this.messageService.add({
         severity: 'warn',
-        summary: 'تنبيه',
-        detail: 'يرجى إكمال جميع الحقول المطلوبة بشكل صحيح',
+        summary: this.translate.instant('common.warning'),
+        detail: this.translate.instant('leave.requests.form_invalid_warn'),
       });
       return;
     }
@@ -138,8 +146,8 @@ export class LeaveRequestFormComponent implements OnInit {
     if (days !== null && days <= 0) {
       this.messageService.add({
         severity: 'warn',
-        summary: 'تنبيه',
-        detail: 'تاريخ النهاية يجب أن يكون مساوياً أو بعد تاريخ البداية',
+        summary: this.translate.instant('common.warning'),
+        detail: this.translate.instant('leave.requests.invalid_range_warn'),
       });
       return;
     }
@@ -157,21 +165,43 @@ export class LeaveRequestFormComponent implements OnInit {
     };
 
     this.leaveRequestService.submit(command).subscribe({
-      next: () => {
+      next: (res) => {
         this.submitting.set(false);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'نجاح',
-          detail: 'تم تقديم طلب الإجازة بنجاح',
-        });
+        const isAr = this.languageService.currentLang() === 'ar';
+        const alertMsg = (isAr ? res.warningAlertsAr : res.warningAlerts) || res.warningAlerts || res.warningAlertsAr;
+
+        if (alertMsg) {
+          this.messageService.add({
+            severity: 'warn',
+            summary: this.translate.instant('common.warning'),
+            detail: alertMsg,
+            life: 8000,
+          });
+        } else {
+          this.messageService.add({
+            severity: 'success',
+            summary: this.translate.instant('common.success'),
+            detail: this.translate.instant('leave.requests.submit_success'),
+          });
+        }
         this.router.navigate(['/leave/requests']);
       },
-      error: () => {
+      error: (err) => {
         this.submitting.set(false);
+        const isAr = this.languageService.currentLang() === 'ar';
+        const errorMsg =
+          (isAr ? err?.error?.messageAr : err?.error?.message) ||
+          err?.error?.message ||
+          err?.error?.messageAr ||
+          err?.error?.detail ||
+          err?.message ||
+          this.translate.instant('leave.requests.submit_failed');
+
         this.messageService.add({
           severity: 'error',
-          summary: 'خطأ',
-          detail: 'فشل في تقديم طلب الإجازة، يرجى المحاولة مرة أخرى',
+          summary: this.translate.instant('common.error'),
+          detail: errorMsg,
+          life: 7000,
         });
       },
     });
@@ -188,3 +218,4 @@ export class LeaveRequestFormComponent implements OnInit {
     return `${y}-${m}-${d}`;
   }
 }
+

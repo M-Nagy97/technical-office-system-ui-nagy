@@ -53,4 +53,12 @@ export class LeaveBalanceService {
       .post<ApiResult<boolean> | boolean>(`${this.baseUrl}/initialise`, payload)
       .pipe(map((res) => (typeof res === 'boolean' ? res : (res?.data ?? true))));
   }
+
+  /** DELETE /api/leave-balances/{id} */
+  deleteBalance(id: string): Observable<boolean> {
+    return this.http
+      .delete<ApiResult<boolean> | boolean>(`${this.baseUrl}/${id}`)
+      .pipe(map((res) => (typeof res === 'boolean' ? res : (res?.data ?? true))));
+  }
 }
+

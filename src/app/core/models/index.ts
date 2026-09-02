@@ -6,3 +6,4 @@ export * from './nav-item.model';
 export * from './leave-request.model';
 export * from './permission-request.model';
 export * from './leave-balance.model';
+export * from './policy-rule.model';

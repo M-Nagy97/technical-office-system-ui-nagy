@@ -9,7 +9,9 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { MessageService } from 'primeng/api';
-import { LeaveTypeService } from '../../../core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { CheckboxModule } from 'primeng/checkbox';
+import { LeaveTypeService, LanguageService } from '../../../core/services';
 
 @Component({
   selector: 'app-add-leave-type',
@@ -21,8 +23,8 @@ import { LeaveTypeService } from '../../../core';
     ButtonModule,
     InputTextModule,
     InputNumberModule,
-    InputSwitchModule,
-    InputTextareaModule,
+    CheckboxModule,
+    TranslateModule,
   ],
   templateUrl: './add-leave-type.component.html',
   styleUrl: './add-leave-type.component.scss',
@@ -33,6 +35,8 @@ export class AddLeaveTypeComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly messageService = inject(MessageService);
   private readonly leaveTypeService = inject(LeaveTypeService);
+  private readonly translate = inject(TranslateService);
+  readonly languageService = inject(LanguageService);
 
   readonly isEdit = signal(false);
   readonly editId = signal<string | null>(null);
@@ -53,6 +57,7 @@ export class AddLeaveTypeComponent implements OnInit {
       isPaid: [true],
       requiresDocument: [false],
       isActive: [true],
+      syncExistingBalances: [false],
     });
 
     this.form.get('isUnlimitedDays')?.valueChanges.subscribe((isUnlimited) => {
@@ -104,8 +109,8 @@ export class AddLeaveTypeComponent implements OnInit {
       this.form.markAllAsTouched();
       this.messageService.add({
         severity: 'warn',
-        summary: 'تنبيه',
-        detail: 'يرجى ملء جميع الحقول المطلوبة بشكل صحيح',
+        summary: this.translate.instant('common.warning'),
+        detail: this.translate.instant('leave.types.validation_warning'),
       });
       return;
     }
@@ -119,6 +124,7 @@ export class AddLeaveTypeComponent implements OnInit {
       isPaid: !!raw.isPaid,
       requiresDocument: !!raw.requiresDocument,
       isActive: raw.isActive !== undefined ? !!raw.isActive : true,
+      syncExistingBalances: !!raw.syncExistingBalances,
     };
     const id = this.editId();
 
@@ -132,17 +138,27 @@ export class AddLeaveTypeComponent implements OnInit {
         this.saving.set(false);
         this.messageService.add({
           severity: 'success',
-          summary: 'نجاح',
-          detail: this.isEdit() ? 'تم تحديث نوع الإجازة بنجاح' : 'تمت إضافة نوع الإجازة بنجاح',
+          summary: this.translate.instant('common.success'),
+          detail: this.isEdit()
+            ? this.translate.instant('leave.types.save_success_edit')
+            : this.translate.instant('leave.types.save_success_add'),
         });
         this.router.navigate(['/leave/types']);
       },
-      error: () => {
+      error: (err) => {
         this.saving.set(false);
+        const isAr = this.languageService.currentLang() === 'ar';
+        const msg =
+          (isAr ? err?.error?.messageAr : err?.error?.message) ||
+          err?.error?.message ||
+          err?.error?.messageAr ||
+          err?.error?.detail ||
+          this.translate.instant('leave.types.save_failed');
+
         this.messageService.add({
           severity: 'error',
-          summary: 'خطأ',
-          detail: 'حدث خطأ أثناء حفظ نوع الإجازة في الخادم',
+          summary: this.translate.instant('common.error'),
+          detail: msg,
         });
       },
     });
@@ -152,3 +168,4 @@ export class AddLeaveTypeComponent implements OnInit {
     this.router.navigate(['/leave/types']);
   }
 }
+

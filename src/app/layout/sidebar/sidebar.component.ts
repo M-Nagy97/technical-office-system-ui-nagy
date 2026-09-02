@@ -78,6 +78,7 @@ export class SidebarComponent implements OnInit {
         { label: 'nav.lookups', icon: 'pi pi-cog', section: true, module: 'leave' },
         { label: 'nav.leave_types_list', icon: 'pi pi-list', route: '/leave/types', module: 'leave' },
         { label: 'nav.add_leave_type', icon: 'pi pi-plus', route: '/leave/types/add', module: 'leave' },
+        { label: 'nav.policy_rules', icon: 'pi pi-sliders-h', route: '/leave/rules', module: 'leave' },
       ],
     },
     // الحضور والانصراف — معاملات + ترميزات

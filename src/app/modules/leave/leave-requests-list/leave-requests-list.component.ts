@@ -7,7 +7,10 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
 import { CalendarModule } from 'primeng/calendar';
+import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   SharedTableComponent,
   SharedTableColumn,
@@ -19,6 +22,7 @@ import {
   LeaveRequestService,
   LeaveTypeService,
   EmployeeService,
+  LanguageService,
 } from '../../../core/services';
 import {
   LeaveRequestDto,
@@ -45,10 +49,13 @@ import {
     InputTextModule,
     DropdownModule,
     CalendarModule,
+    TagModule,
+    TooltipModule,
     SharedTableComponent,
     SharedTableCellTemplateDirective,
     StatusBadgeComponent,
     LeaveActionDialogComponent,
+    TranslateModule,
   ],
   templateUrl: './leave-requests-list.component.html',
   styleUrl: './leave-requests-list.component.scss',
@@ -59,6 +66,8 @@ export class LeaveRequestsListComponent implements OnInit {
   private readonly leaveTypeService = inject(LeaveTypeService);
   private readonly employeeService = inject(EmployeeService);
   private readonly messageService = inject(MessageService);
+  private readonly translate = inject(TranslateService);
+  private readonly languageService = inject(LanguageService);
 
   readonly loading = signal(false);
   readonly requests = signal<LeaveRequestDto[]>([]);
@@ -76,16 +85,21 @@ export class LeaveRequestsListComponent implements OnInit {
   readonly actionDialogOpen = signal(false);
   readonly currentAction = signal<LeaveActionType | null>(null);
   readonly currentRequestId = signal('');
+  readonly currentRequestWarnings = signal<string | null>(null);
   readonly actionLoading = signal(false);
 
-  readonly statusOptions = [
-    { label: 'الكل', value: null },
-    { label: 'مسودة', value: LeaveRequestStatus.Draft },
-    { label: 'قيد الانتظار', value: LeaveRequestStatus.Pending },
-    { label: 'موافق عليه', value: LeaveRequestStatus.Approved },
-    { label: 'مرفوض', value: LeaveRequestStatus.Rejected },
-    { label: 'ملغي', value: LeaveRequestStatus.Cancelled },
-  ];
+  readonly statusOptions = computed(() => [
+    { label: this.translate.instant('leave.status.all'), value: null },
+    { label: this.translate.instant('leave.status.draft'), value: LeaveRequestStatus.Draft },
+    { label: this.translate.instant('leave.status.pending'), value: LeaveRequestStatus.Pending },
+    { label: this.translate.instant('leave.status.approved'), value: LeaveRequestStatus.Approved },
+    { label: this.translate.instant('leave.status.rejected'), value: LeaveRequestStatus.Rejected },
+    { label: this.translate.instant('leave.status.cancelled'), value: LeaveRequestStatus.Cancelled },
+  ]);
+
+  readonly leaveTypeOptionLabel = computed(() =>
+    this.languageService.currentLang() === 'en' ? 'name' : 'arabicName'
+  );
 
   readonly employeeMap = computed(() => {
     const map = new Map<string, string>();
@@ -98,19 +112,22 @@ export class LeaveRequestsListComponent implements OnInit {
   readonly columns: SharedTableColumn<LeaveRequestDto>[] = [
     {
       id: 'employee',
-      header: 'الموظف',
+      header: 'leave.requests.col_employee',
       width: '20%',
       valueGetter: (row) => row.employeeName || this.employeeMap().get(row.employeeId) || row.employeeId,
     },
     {
       id: 'leaveType',
-      header: 'نوع الإجازة',
+      header: 'leave.requests.col_type',
       width: '18%',
-      valueGetter: (row) => row.leaveTypeArabicName || row.leaveTypeName || '-',
+      valueGetter: (row) =>
+        this.languageService.currentLang() === 'en'
+          ? row.leaveTypeName || row.leaveTypeArabicName || '-'
+          : row.leaveTypeArabicName || row.leaveTypeName || '-',
     },
     {
       id: 'startDate',
-      header: 'من تاريخ',
+      header: 'leave.requests.col_from',
       field: 'startDate',
       sortableField: 'startDate',
       width: '13%',
@@ -118,7 +135,7 @@ export class LeaveRequestsListComponent implements OnInit {
     },
     {
       id: 'endDate',
-      header: 'إلى تاريخ',
+      header: 'leave.requests.col_to',
       field: 'endDate',
       sortableField: 'endDate',
       width: '13%',
@@ -126,15 +143,15 @@ export class LeaveRequestsListComponent implements OnInit {
     },
     {
       id: 'totalDays',
-      header: 'الأيام',
+      header: 'leave.requests.col_days',
       field: 'totalDays',
       sortableField: 'totalDays',
       width: '10%',
-      valueGetter: (row) => `${row.totalDays} يوم`,
+      valueGetter: (row) => this.translate.instant('leave.requests.days_count', { count: row.totalDays }),
     },
     {
       id: 'status',
-      header: 'الحالة',
+      header: 'leave.requests.col_status',
       width: '14%',
     },
   ];
@@ -154,7 +171,7 @@ export class LeaveRequestsListComponent implements OnInit {
       buttonClass: 'p-button-rounded p-button-text p-button-sm p-button-success',
       visible: (row) => row.status === LeaveRequestStatus.Pending,
       onClick: (row) => {
-        this.openActionDialog('approve', row.id);
+        this.openActionDialog('approve', row);
       },
     },
     {
@@ -163,7 +180,7 @@ export class LeaveRequestsListComponent implements OnInit {
       buttonClass: 'p-button-rounded p-button-text p-button-sm p-button-danger',
       visible: (row) => row.status === LeaveRequestStatus.Pending,
       onClick: (row) => {
-        this.openActionDialog('reject', row.id);
+        this.openActionDialog('reject', row);
       },
     },
     {
@@ -173,7 +190,7 @@ export class LeaveRequestsListComponent implements OnInit {
       visible: (row) =>
         row.status === LeaveRequestStatus.Pending || row.status === LeaveRequestStatus.Approved,
       onClick: (row) => {
-        this.openActionDialog('cancel', row.id);
+        this.openActionDialog('cancel', row);
       },
     },
   ];
@@ -223,8 +240,8 @@ export class LeaveRequestsListComponent implements OnInit {
         this.loading.set(false);
         this.messageService.add({
           severity: 'error',
-          summary: 'خطأ',
-          detail: 'فشل في تحميل طلبات الإجازات من الخادم',
+          summary: this.translate.instant('common.error'),
+          detail: this.translate.instant('leave.requests.load_failed'),
         });
       },
     });
@@ -239,9 +256,21 @@ export class LeaveRequestsListComponent implements OnInit {
     this.loadRequests();
   }
 
-  openActionDialog(action: LeaveActionType, requestId: string): void {
+  getWarningText(row: LeaveRequestDto): string {
+    if (this.languageService.currentLang() === 'ar') {
+      return row.warningAlertsAr || row.warningAlerts || '';
+    }
+    return row.warningAlerts || row.warningAlertsAr || '';
+  }
+
+  openActionDialog(action: LeaveActionType, request: LeaveRequestDto | string): void {
+    const id = typeof request === 'string' ? request : request.id;
+    const req = typeof request === 'string' ? this.requests().find((r) => r.id === id) : request;
+    const warnings = req ? this.getWarningText(req) : null;
+
     this.currentAction.set(action);
-    this.currentRequestId.set(requestId);
+    this.currentRequestId.set(id);
+    this.currentRequestWarnings.set(warnings);
     this.actionDialogOpen.set(true);
   }
 
@@ -261,24 +290,34 @@ export class LeaveRequestsListComponent implements OnInit {
       next: () => {
         this.actionLoading.set(false);
         this.actionDialogOpen.set(false);
+        const detailMsg =
+          event.action === 'approve'
+            ? this.translate.instant('leave.actions.approve_leave_success')
+            : event.action === 'reject'
+            ? this.translate.instant('leave.actions.reject_leave_success')
+            : this.translate.instant('leave.actions.cancel_leave_success');
+
         this.messageService.add({
           severity: 'success',
-          summary: 'نجاح',
-          detail:
-            event.action === 'approve'
-              ? 'تمت الموافقة على الطلب بنجاح'
-              : event.action === 'reject'
-              ? 'تم رفض الطلب بنجاح'
-              : 'تم إلغاء الطلب بنجاح',
+          summary: this.translate.instant('common.success'),
+          detail: detailMsg,
         });
         this.loadRequests();
       },
-      error: () => {
+      error: (err) => {
         this.actionLoading.set(false);
+        const isAr = this.languageService.currentLang() === 'ar';
+        const msg =
+          (isAr ? err?.error?.messageAr : err?.error?.message) ||
+          err?.error?.message ||
+          err?.error?.messageAr ||
+          err?.error?.detail ||
+          this.translate.instant('leave.actions.action_failed');
+
         this.messageService.add({
           severity: 'error',
-          summary: 'خطأ',
-          detail: 'حدث خطأ أثناء معالجة الطلب',
+          summary: this.translate.instant('common.error'),
+          detail: msg,
         });
       },
     });
@@ -291,3 +330,4 @@ export class LeaveRequestsListComponent implements OnInit {
     return `${y}-${m}-${d}`;
   }
 }
+

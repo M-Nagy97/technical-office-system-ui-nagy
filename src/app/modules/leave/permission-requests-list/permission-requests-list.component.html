@@ -2,13 +2,13 @@
   <p-card>
     <div class="header-toolbar flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
       <div class="page-title">
-        <h2 class="m-0 text-xl font-bold text-900">طلبات الأذونات</h2>
-        <span class="text-sm text-500">إدارة ومتابعة طلبات أذونات الخروج والتأخير وساعات الاستئذان</span>
+        <h2 class="m-0 text-xl font-bold text-900">{{ 'leave.permissions.title' | translate }}</h2>
+        <span class="text-sm text-500">{{ 'leave.permissions.subtitle' | translate }}</span>
       </div>
 
       <a
         pButton
-        label="طلب إذن جديد"
+        [label]="'leave.permissions.new_request' | translate"
         icon="pi pi-plus"
         routerLink="/leave/permissions/new"
         class="p-button-primary"
@@ -20,14 +20,14 @@
       <div class="grid p-fluid align-items-end">
         <!-- الموظف -->
         <div class="col-12 sm:col-6 md:col-4">
-          <label class="block text-sm font-medium mb-1">الموظف</label>
+          <label class="block text-sm font-medium mb-1">{{ 'leave.permissions.filter_employee' | translate }}</label>
           <p-dropdown
             [options]="employees()"
             [ngModel]="selectedEmployeeId()"
             (ngModelChange)="selectedEmployeeId.set($event)"
             optionLabel="fullName"
             optionValue="id"
-            placeholder="جميع الموظفين"
+            [placeholder]="'leave.permissions.all_employees' | translate"
             [showClear]="true"
             [filter]="true"
             filterBy="fullName,employeeNumber"
@@ -36,25 +36,25 @@
 
         <!-- الحالة -->
         <div class="col-12 sm:col-6 md:col-2">
-          <label class="block text-sm font-medium mb-1">الحالة</label>
+          <label class="block text-sm font-medium mb-1">{{ 'leave.permissions.filter_status' | translate }}</label>
           <p-dropdown
-            [options]="statusOptions"
+            [options]="statusOptions()"
             [ngModel]="selectedStatus()"
             (ngModelChange)="selectedStatus.set($event)"
             optionLabel="label"
             optionValue="value"
-            placeholder="الحالة"
+            [placeholder]="'leave.permissions.filter_status' | translate"
           ></p-dropdown>
         </div>
 
         <!-- من تاريخ -->
         <div class="col-12 sm:col-6 md:col-3">
-          <label class="block text-sm font-medium mb-1">من تاريخ</label>
+          <label class="block text-sm font-medium mb-1">{{ 'leave.permissions.from_date' | translate }}</label>
           <p-calendar
             [ngModel]="fromDate()"
             (ngModelChange)="fromDate.set($event)"
             dateFormat="yy-mm-dd"
-            placeholder="من تاريخ"
+            [placeholder]="'leave.permissions.from_date' | translate"
             [showIcon]="true"
             [showClear]="true"
           ></p-calendar>
@@ -62,12 +62,12 @@
 
         <!-- إلى تاريخ -->
         <div class="col-12 sm:col-6 md:col-3">
-          <label class="block text-sm font-medium mb-1">إلى تاريخ</label>
+          <label class="block text-sm font-medium mb-1">{{ 'leave.permissions.to_date' | translate }}</label>
           <p-calendar
             [ngModel]="toDate()"
             (ngModelChange)="toDate.set($event)"
             dateFormat="yy-mm-dd"
-            placeholder="إلى تاريخ"
+            [placeholder]="'leave.permissions.to_date' | translate"
             [showIcon]="true"
             [showClear]="true"
           ></p-calendar>
@@ -78,7 +78,7 @@
           <button
             pButton
             type="button"
-            label="تطبيق الفلتر"
+            [label]="'leave.permissions.apply_filter' | translate"
             icon="pi pi-filter"
             class="p-button-primary p-button-sm"
             (click)="loadRequests()"
@@ -86,7 +86,7 @@
           <button
             pButton
             type="button"
-            label="إعادة تعيين"
+            [label]="'leave.permissions.reset_filter' | translate"
             icon="pi pi-refresh"
             class="p-button-outlined p-button-secondary p-button-sm"
             (click)="resetFilters()"
@@ -101,15 +101,26 @@
       [loading]="loading()"
       [columns]="columns"
       [actions]="actions"
-      actionsColumnHeader="إجراءات"
+      actionsColumnHeader="leave.permissions.col_actions"
       actionsColumnWidth="12rem"
       [tableStyle]="{ 'min-width': '50rem' }"
-      [translateHeader]="false"
-      emptyMessage="لا توجد طلبات إذن مطابقة للبحث"
-      [translateEmptyMessage]="false"
+      [translateHeader]="true"
+      emptyMessage="leave.permissions.empty"
+      [translateEmptyMessage]="true"
     >
       <ng-template sharedTableCell="status" let-row>
-        <app-status-badge [status]="row.status" type="permission" />
+        <div class="flex align-items-center gap-2">
+          <app-status-badge [status]="row.status" type="permission" />
+          <p-tag
+            *ngIf="row.warningAlerts || row.warningAlertsAr"
+            severity="warning"
+            icon="pi pi-exclamation-triangle"
+            [value]="'leave.permissions.warning_tag' | translate"
+            [pTooltip]="getWarningText(row)"
+            tooltipPosition="top"
+            styleClass="cursor-pointer"
+          />
+        </div>
       </ng-template>
     </app-shared-table>
   </p-card>
@@ -120,6 +131,8 @@
   [(visible)]="actionDialogOpen"
   [action]="currentAction()"
   [requestId]="currentRequestId()"
+  [warningAlerts]="currentRequestWarnings()"
   [loading]="actionLoading()"
   (confirmed)="handleActionConfirm($event)"
 />
+

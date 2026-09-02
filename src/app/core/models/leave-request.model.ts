@@ -24,6 +24,8 @@ export interface LeaveRequestDto {
   approvedAt: string | null;
   rejectionReason: string | null;
   cancellationReason: string | null;
+  warningAlerts?: string | null;
+  warningAlertsAr?: string | null;
   createdDate?: string;
 }
 
@@ -34,6 +36,12 @@ export interface SubmitLeaveRequestCommand {
   endDate: string;
   reason?: string;
   attachmentUrl?: string;
+}
+
+export interface SubmitLeaveRequestResponse {
+  id: string;
+  warningAlerts?: string | null;
+  warningAlertsAr?: string | null;
 }
 
 export interface LeaveRequestFilter {

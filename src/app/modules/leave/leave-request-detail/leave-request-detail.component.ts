@@ -6,7 +6,8 @@ import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
-import { LeaveRequestService, EmployeeService } from '../../../core/services';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { LeaveRequestService, EmployeeService, LanguageService } from '../../../core/services';
 import { LeaveRequestDto, LeaveRequestStatus } from '../../../core/models/leave-request.model';
 import { StatusBadgeComponent } from '../../../shared';
 import {
@@ -26,6 +27,7 @@ import {
     DividerModule,
     StatusBadgeComponent,
     LeaveActionDialogComponent,
+    TranslateModule,
   ],
   templateUrl: './leave-request-detail.component.html',
   styleUrl: './leave-request-detail.component.scss',
@@ -36,6 +38,8 @@ export class LeaveRequestDetailComponent implements OnInit {
   private readonly leaveRequestService = inject(LeaveRequestService);
   private readonly employeeService = inject(EmployeeService);
   private readonly messageService = inject(MessageService);
+  private readonly translate = inject(TranslateService);
+  readonly languageService = inject(LanguageService);
 
   readonly loading = signal(false);
   readonly request = signal<LeaveRequestDto | null>(null);
@@ -71,8 +75,8 @@ export class LeaveRequestDetailComponent implements OnInit {
         this.loading.set(false);
         this.messageService.add({
           severity: 'error',
-          summary: 'خطأ',
-          detail: 'فشل في تحميل تفاصيل طلب الإجازة',
+          summary: this.translate.instant('common.error'),
+          detail: this.translate.instant('leave.requests.load_detail_failed'),
         });
       },
     });
@@ -114,26 +118,37 @@ export class LeaveRequestDetailComponent implements OnInit {
       next: () => {
         this.actionLoading.set(false);
         this.actionDialogOpen.set(false);
+        const detailMsg =
+          event.action === 'approve'
+            ? this.translate.instant('leave.actions.approve_leave_success')
+            : event.action === 'reject'
+            ? this.translate.instant('leave.actions.reject_leave_success')
+            : this.translate.instant('leave.actions.cancel_leave_success');
+
         this.messageService.add({
           severity: 'success',
-          summary: 'نجاح',
-          detail:
-            event.action === 'approve'
-              ? 'تمت الموافقة على الطلب بنجاح'
-              : event.action === 'reject'
-              ? 'تم رفض الطلب بنجاح'
-              : 'تم إلغاء الطلب بنجاح',
+          summary: this.translate.instant('common.success'),
+          detail: detailMsg,
         });
         this.loadRequest(req.id);
       },
-      error: () => {
+      error: (err) => {
         this.actionLoading.set(false);
+        const isAr = this.languageService.currentLang() === 'ar';
+        const msg =
+          (isAr ? err?.error?.messageAr : err?.error?.message) ||
+          err?.error?.message ||
+          err?.error?.messageAr ||
+          err?.error?.detail ||
+          this.translate.instant('leave.actions.action_failed');
+
         this.messageService.add({
           severity: 'error',
-          summary: 'خطأ',
-          detail: 'حدث خطأ أثناء معالجة الطلب',
+          summary: this.translate.instant('common.error'),
+          detail: msg,
         });
       },
     });
   }
 }
+

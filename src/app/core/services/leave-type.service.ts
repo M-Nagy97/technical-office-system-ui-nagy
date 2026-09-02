@@ -20,6 +20,7 @@ export interface CreateLeaveTypeCommand {
   requiresDocument: boolean;
   isPaid: boolean;
   isActive: boolean;
+  syncExistingBalances?: boolean;
 }
 
 export type CreateLeaveTypePayload = CreateLeaveTypeCommand;

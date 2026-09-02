@@ -1,36 +1,36 @@
 <div class="leave-type-form-container">
-  <p-card [header]="isEdit() ? 'تعديل نوع إجازة' : 'إضافة نوع إجازة جديد'">
+  <p-card [header]="(isEdit() ? 'leave.types.edit_title' : 'leave.types.create_title') | translate">
     <form [formGroup]="form" (ngSubmit)="submit()">
       <div class="form-grid">
         <div class="grid">
           <!-- اسم نوع الإجازة بالعربية -->
           <div class="col-12 md:col-6 field">
-            <label for="arabicName">اسم نوع الإجازة (بالعربية) <span class="required">*</span></label>
+            <label for="arabicName">{{ 'leave.types.field_arabic_name' | translate }} <span class="required">*</span></label>
             <input
               id="arabicName"
               type="text"
               pInputText
               formControlName="arabicName"
-              placeholder="مثال: إجازة اعتيادية"
+              [placeholder]="'leave.types.field_arabic_name_placeholder' | translate"
               class="w-full"
             />
             <small
               class="p-error"
               *ngIf="form.get('arabicName')?.invalid && form.get('arabicName')?.touched"
             >
-              اسم نوع الإجازة بالعربية مطلوب
+              {{ 'leave.types.field_arabic_name_req' | translate }}
             </small>
           </div>
 
           <!-- اسم نوع الإجازة بالإنجليزية -->
           <div class="col-12 md:col-6 field">
-            <label for="name">اسم نوع الإجازة (بالإنجليزية) <span class="required">*</span></label>
+            <label for="name">{{ 'leave.types.field_name' | translate }} <span class="required">*</span></label>
             <input
               id="name"
               type="text"
               pInputText
               formControlName="name"
-              placeholder="مثال: Annual Leave"
+              [placeholder]="'leave.types.field_name_placeholder' | translate"
               class="w-full text-left"
               dir="ltr"
             />
@@ -38,17 +38,17 @@
               class="p-error"
               *ngIf="form.get('name')?.invalid && form.get('name')?.touched"
             >
-              اسم نوع الإجازة بالإنجليزية مطلوب
+              {{ 'leave.types.field_name_req' | translate }}
             </small>
           </div>
 
           <!-- رصيد الأيام المسموح بها سنوياً -->
           <div class="col-12 md:col-6 field">
             <div class="flex justify-content-between align-items-center mb-2">
-              <label for="maxDaysPerYear" class="m-0">الحد الأقصى للأيام سنوياً <span class="required" *ngIf="!form.get('isUnlimitedDays')?.value">*</span></label>
+              <label for="maxDaysPerYear" class="m-0">{{ 'leave.types.field_max_days' | translate }} <span class="required" *ngIf="!form.get('isUnlimitedDays')?.value">*</span></label>
               <div class="flex align-items-center gap-2">
                 <p-inputSwitch id="isUnlimitedDays" formControlName="isUnlimitedDays" />
-                <label for="isUnlimitedDays" class="m-0 text-sm font-medium cursor-pointer">غير محدود</label>
+                <label for="isUnlimitedDays" class="m-0 text-sm font-medium cursor-pointer">{{ 'leave.types.field_unlimited' | translate }}</label>
               </div>
             </div>
             <p-inputNumber
@@ -56,14 +56,14 @@
               formControlName="maxDaysPerYear"
               [min]="1"
               [showButtons]="true"
-              placeholder="عدد الأيام"
+              [placeholder]="'leave.types.field_max_days_placeholder' | translate"
               class="w-full"
             />
             <small
               class="p-error"
               *ngIf="form.get('maxDaysPerYear')?.invalid && form.get('maxDaysPerYear')?.touched"
             >
-              عدد الأيام مطلوب ويجب أن يكون أكبر من 0
+              {{ 'leave.types.field_max_days_req' | translate }}
             </small>
           </div>
 
@@ -71,17 +71,24 @@
           <div class="col-12 md:col-6 field flex flex-column justify-content-center gap-3">
             <div class="flex align-items-center gap-2">
               <p-inputSwitch id="isPaid" formControlName="isPaid" />
-              <label for="isPaid" class="m-0 font-medium cursor-pointer">إجازة مدفوعة الأجر</label>
+              <label for="isPaid" class="m-0 font-medium cursor-pointer">{{ 'leave.types.field_is_paid' | translate }}</label>
             </div>
 
             <div class="flex align-items-center gap-2">
               <p-inputSwitch id="requiresDocument" formControlName="requiresDocument" />
-              <label for="requiresDocument" class="m-0 font-medium cursor-pointer">تتطلب إرفاق مستند رسمي / طبي</label>
+              <label for="requiresDocument" class="m-0 font-medium cursor-pointer">{{ 'leave.types.field_requires_doc' | translate }}</label>
             </div>
 
             <div class="flex align-items-center gap-2">
               <p-inputSwitch id="isActive" formControlName="isActive" />
-              <label for="isActive" class="m-0 font-medium cursor-pointer">نوع إجازة نشط</label>
+              <label for="isActive" class="m-0 font-medium cursor-pointer">{{ 'leave.types.field_is_active' | translate }}</label>
+            </div>
+
+            <div class="flex align-items-center gap-2" *ngIf="isEdit()">
+              <p-inputSwitch id="syncExistingBalances" formControlName="syncExistingBalances" />
+              <label for="syncExistingBalances" class="m-0 font-medium cursor-pointer text-primary">
+                {{ 'leave.types.field_sync_balances' | translate }}
+              </label>
             </div>
           </div>
         </div>
@@ -92,7 +99,7 @@
         <button
           pButton
           type="submit"
-          label="حفظ"
+          [label]="'leave.types.save_btn' | translate"
           icon="pi pi-check"
           [loading]="saving()"
           class="p-button-primary"
@@ -100,7 +107,7 @@
         <button
           pButton
           type="button"
-          label="إلغاء"
+          [label]="'common.cancel' | translate"
           icon="pi pi-times"
           (click)="cancel()"
           class="p-button-outlined p-button-secondary"
@@ -109,3 +116,4 @@
     </form>
   </p-card>
 </div>
+

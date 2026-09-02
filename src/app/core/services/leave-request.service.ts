@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment';
 import {
   LeaveRequestDto,
   SubmitLeaveRequestCommand,
+  SubmitLeaveRequestResponse,
   LeaveRequestFilter,
 } from '../models/leave-request.model';
 
@@ -50,12 +51,16 @@ export class LeaveRequestService {
   }
 
   /** POST /api/leave-requests */
-  submit(command: SubmitLeaveRequestCommand): Observable<string> {
-    return this.http.post<ApiResult<string> | string>(this.baseUrl, command).pipe(
+  submit(command: SubmitLeaveRequestCommand): Observable<SubmitLeaveRequestResponse> {
+    return this.http.post<ApiResult<SubmitLeaveRequestResponse> | SubmitLeaveRequestResponse>(this.baseUrl, command).pipe(
       map((res) => {
-        if (typeof res === 'string') return res;
-        if (res && 'data' in res && res.data) return String(res.data);
-        return '';
+        if (res && typeof res === 'object' && 'data' in res && res.data) {
+          return res.data;
+        }
+        if (res && typeof res === 'object' && 'id' in res) {
+          return res as SubmitLeaveRequestResponse;
+        }
+        return { id: String(res || '') };
       })
     );
   }

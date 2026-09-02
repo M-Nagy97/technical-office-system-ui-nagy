@@ -1,6 +1,7 @@
 import { Component, Input, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TagModule } from 'primeng/tag';
+import { TranslateModule, TranslatePipe } from '@ngx-translate/core';
 import { LeaveRequestStatus } from '../../../core/models/leave-request.model';
 import { PermissionRequestStatus } from '../../../core/models/permission-request.model';
 
@@ -9,9 +10,13 @@ type TagSeverity = 'success' | 'info' | 'warning' | 'danger' | 'secondary' | 'co
 @Component({
   selector: 'app-status-badge',
   standalone: true,
-  imports: [CommonModule, TagModule],
+  imports: [CommonModule, TagModule, TranslateModule, TranslatePipe],
   template: `
-    <p-tag [value]="label()" [severity]="severity()" [rounded]="rounded" [styleClass]="styleClass" />
+    @if (info().key) {
+      <p-tag [value]="info().key | translate" [severity]="info().severity" [rounded]="rounded" [styleClass]="styleClass" />
+    } @else {
+      <p-tag [value]="info().label" [severity]="info().severity" [rounded]="rounded" [styleClass]="styleClass" />
+    }
   `,
   styles: [
     `
@@ -39,30 +44,27 @@ export class StatusBadgeComponent {
   readonly info = computed(() => {
     const raw = this._status();
     if (raw === null || raw === undefined) {
-      return { label: '-', severity: undefined as TagSeverity };
+      return { key: '', label: '-', severity: undefined as TagSeverity };
     }
 
     const num = Number(raw);
 
     if (num === LeaveRequestStatus.Draft || raw === 'Draft' || raw === 'draft') {
-      return { label: 'مسودة', severity: 'info' as TagSeverity };
+      return { key: 'leave.status.draft', label: 'Draft', severity: 'info' as TagSeverity };
     }
     if (num === LeaveRequestStatus.Pending || raw === 'Pending' || raw === 'pending') {
-      return { label: 'قيد الانتظار', severity: 'warning' as TagSeverity };
+      return { key: 'leave.status.pending', label: 'Pending', severity: 'warning' as TagSeverity };
     }
     if (num === LeaveRequestStatus.Approved || raw === 'Approved' || raw === 'approved') {
-      return { label: 'موافق عليه', severity: 'success' as TagSeverity };
+      return { key: 'leave.status.approved', label: 'Approved', severity: 'success' as TagSeverity };
     }
     if (num === LeaveRequestStatus.Rejected || raw === 'Rejected' || raw === 'rejected') {
-      return { label: 'مرفوض', severity: 'danger' as TagSeverity };
+      return { key: 'leave.status.rejected', label: 'Rejected', severity: 'danger' as TagSeverity };
     }
     if (num === LeaveRequestStatus.Cancelled || raw === 'Cancelled' || raw === 'cancelled') {
-      return { label: 'ملغي', severity: 'secondary' as TagSeverity };
+      return { key: 'leave.status.cancelled', label: 'Cancelled', severity: 'secondary' as TagSeverity };
     }
 
-    return { label: String(raw), severity: undefined as TagSeverity };
+    return { key: '', label: String(raw), severity: undefined as TagSeverity };
   });
-
-  readonly label = computed(() => this.info().label);
-  readonly severity = computed(() => this.info().severity);
 }

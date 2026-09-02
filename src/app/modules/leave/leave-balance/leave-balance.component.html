@@ -2,13 +2,13 @@
   <p-card>
     <div class="header-toolbar flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
       <div class="page-title">
-        <h2 class="m-0 text-xl font-bold text-900">أرصدة الإجازات</h2>
-        <span class="text-sm text-500">عرض ومتابعة الرصيد المسموح والمستخدم والمتبقي لكل نوع إجازة</span>
+        <h2 class="m-0 text-xl font-bold text-900">{{ 'leave.balances.title' | translate }}</h2>
+        <span class="text-sm text-500">{{ 'leave.balances.subtitle' | translate }}</span>
       </div>
 
       <button
         pButton
-        label="تهيئة رصيد إجازة (مسؤول)"
+        [label]="'leave.balances.init_btn' | translate"
         icon="pi pi-cog"
         class="p-button-outlined p-button-primary p-button-sm"
         (click)="openInitDialog()"
@@ -19,21 +19,21 @@
     <div class="selector-section p-3 border-round surface-ground mb-4">
       <div class="grid p-fluid align-items-end">
         <div class="col-12 sm:col-8 md:col-6">
-          <label class="block text-sm font-medium mb-1">اختر الموظف لعرض رصيده</label>
+          <label class="block text-sm font-medium mb-1">{{ 'leave.balances.filter_employee' | translate }}</label>
           <p-dropdown
             [options]="employees()"
             [ngModel]="selectedEmployeeId()"
             (ngModelChange)="onEmployeeChange($event)"
             optionLabel="fullName"
             optionValue="id"
-            placeholder="اختر الموظف"
+            [placeholder]="'leave.balances.select_employee' | translate"
             [filter]="true"
             filterBy="fullName,employeeNumber"
           ></p-dropdown>
         </div>
 
         <div class="col-12 sm:col-4 md:col-3">
-          <label class="block text-sm font-medium mb-1">السنة</label>
+          <label class="block text-sm font-medium mb-1">{{ 'leave.balances.year' | translate }}</label>
           <p-dropdown
             [options]="yearOptions()"
             [ngModel]="selectedYear()"
@@ -48,7 +48,7 @@
     <!-- Loading State -->
     <div *ngIf="loading()" class="text-center py-6">
       <i class="pi pi-spin pi-spinner text-4xl text-primary mb-2"></i>
-      <p class="text-500 m-0">جاري تحميل أرصدة الإجازات...</p>
+      <p class="text-500 m-0">{{ 'leave.balances.loading' | translate }}</p>
     </div>
 
     <!-- Empty State -->
@@ -57,8 +57,8 @@
       class="text-center py-6 border-round surface-50"
     >
       <i class="pi pi-folder-open text-4xl text-400 mb-2"></i>
-      <p class="text-600 font-medium m-0">لا توجد أرصدة إجازات مسجلة لهذا الموظف في سنة {{ selectedYear() }}</p>
-      <small class="text-500 block mt-1">يمكنك استخدام زر "تهيئة رصيد إجازة" لإضافة رصيد جديد للموظف.</small>
+      <p class="text-600 font-medium m-0">{{ 'leave.balances.empty' | translate: { year: selectedYear() } }}</p>
+      <small class="text-500 block mt-1">{{ 'leave.balances.empty_hint' | translate }}</small>
     </div>
 
     <!-- Balance Cards Grid -->
@@ -67,28 +67,41 @@
         <p-card [styleClass]="'balance-card shadow-1 border-1 surface-border h-full'">
           <div class="flex justify-content-between align-items-start mb-3">
             <div>
-              <h3 class="m-0 text-lg font-bold text-900">{{ item.leaveTypeArabicName || item.leaveTypeName }}</h3>
-              <span class="text-xs text-500">سنة {{ item.year }}</span>
+              <h3 class="m-0 text-lg font-bold text-900">
+                {{ (languageService.currentLang() === 'en' ? (item.leaveTypeName || item.leaveTypeArabicName) : (item.leaveTypeArabicName || item.leaveTypeName)) }}
+              </h3>
+              <span class="text-xs text-500">{{ 'leave.balances.year_label' | translate: { year: item.year } }}</span>
             </div>
-            <p-tag
-              [value]="item.remainingDays > 0 ? 'متبقي ' + item.remainingDays + ' يوم' : 'مستنفذ'"
-              [severity]="item.remainingDays > 5 ? 'success' : item.remainingDays > 0 ? 'warning' : 'danger'"
-            ></p-tag>
+            <div class="flex align-items-center gap-2">
+              <p-tag
+                [value]="item.remainingDays > 0 ? ('leave.balances.remaining_tag' | translate: { days: item.remainingDays }) : ('leave.balances.exhausted_tag' | translate)"
+                [severity]="item.remainingDays > 5 ? 'success' : item.remainingDays > 0 ? 'warning' : 'danger'"
+              ></p-tag>
+              <button
+                pButton
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-danger p-button-text p-button-sm"
+                [disabled]="item.usedDays > 0"
+                [pTooltip]="item.usedDays > 0 ? ('leave.balances.cannot_delete_tooltip' | translate) : ('leave.balances.delete_tooltip' | translate)"
+                tooltipPosition="top"
+                (click)="deleteBalance(item)"
+              ></button>
+            </div>
           </div>
 
           <div class="balance-stats my-3 flex justify-content-around text-center py-2 border-round surface-50">
             <div>
-              <span class="block text-xs text-500 font-medium">المسموح</span>
+              <span class="block text-xs text-500 font-medium">{{ 'leave.balances.allowed' | translate }}</span>
               <span class="text-lg font-bold text-700">{{ item.allowedDays }}</span>
             </div>
             <div class="border-left-1 surface-border"></div>
             <div>
-              <span class="block text-xs text-500 font-medium">المستخدم</span>
+              <span class="block text-xs text-500 font-medium">{{ 'leave.balances.used' | translate }}</span>
               <span class="text-lg font-bold text-orange-600">{{ item.usedDays }}</span>
             </div>
             <div class="border-left-1 surface-border"></div>
             <div>
-              <span class="block text-xs text-500 font-medium">المتبقي</span>
+              <span class="block text-xs text-500 font-medium">{{ 'leave.balances.remaining' | translate }}</span>
               <span class="text-lg font-bold text-green-600">{{ item.remainingDays }}</span>
             </div>
           </div>
@@ -96,7 +109,7 @@
           <!-- Progress Bar -->
           <div class="mt-3">
             <div class="flex justify-content-between text-xs text-600 mb-1">
-              <span>نسبة الاستهلاك</span>
+              <span>{{ 'leave.balances.consumption_rate' | translate }}</span>
               <span>{{ getUsagePercent(item) }}%</span>
             </div>
             <p-progressBar
@@ -114,7 +127,7 @@
 <!-- Admin Initialize Balance Dialog -->
 <p-dialog
   [(visible)]="initDialogOpen"
-  header="تهيئة رصيد إجازة لموظف"
+  [header]="'leave.balances.init_dialog_title' | translate"
   [modal]="true"
   [style]="{ width: '480px' }"
   [draggable]="false"
@@ -124,14 +137,14 @@
     <div class="grid p-fluid">
       <!-- الموظف -->
       <div class="col-12 field">
-        <label for="initEmployeeId" class="font-medium">الموظف <span class="text-red-500">*</span></label>
+        <label for="initEmployeeId" class="font-medium">{{ 'leave.balances.field_employee' | translate }} <span class="text-red-500">*</span></label>
         <p-dropdown
           id="initEmployeeId"
           formControlName="employeeId"
           [options]="employees()"
           optionLabel="fullName"
           optionValue="id"
-          placeholder="اختر الموظف"
+          [placeholder]="'leave.balances.select_employee' | translate"
           [filter]="true"
           filterBy="fullName,employeeNumber"
         ></p-dropdown>
@@ -139,32 +152,32 @@
           class="p-error block mt-1"
           *ngIf="initForm.get('employeeId')?.invalid && initForm.get('employeeId')?.touched"
         >
-          الموظف مطلوب
+          {{ 'leave.balances.field_employee_req' | translate }}
         </small>
       </div>
 
       <!-- نوع الإجازة -->
       <div class="col-12 field">
-        <label for="initLeaveTypeId" class="font-medium">نوع الإجازة <span class="text-red-500">*</span></label>
+        <label for="initLeaveTypeId" class="font-medium">{{ 'leave.balances.field_leave_type' | translate }} <span class="text-red-500">*</span></label>
         <p-dropdown
           id="initLeaveTypeId"
           formControlName="leaveTypeId"
           [options]="leaveTypes()"
-          optionLabel="arabicName"
+          [optionLabel]="leaveTypeOptionLabel()"
           optionValue="id"
-          placeholder="اختر نوع الإجازة"
+          [placeholder]="'leave.balances.select_leave_type' | translate"
         ></p-dropdown>
         <small
           class="p-error block mt-1"
           *ngIf="initForm.get('leaveTypeId')?.invalid && initForm.get('leaveTypeId')?.touched"
         >
-          نوع الإجازة مطلوب
+          {{ 'leave.balances.field_leave_type_req' | translate }}
         </small>
       </div>
 
       <!-- السنة -->
       <div class="col-12 sm:col-6 field">
-        <label for="initYear" class="font-medium">السنة <span class="text-red-500">*</span></label>
+        <label for="initYear" class="font-medium">{{ 'leave.balances.year' | translate }} <span class="text-red-500">*</span></label>
         <p-dropdown
           id="initYear"
           formControlName="year"
@@ -176,7 +189,7 @@
 
       <!-- الرصيد المسموح (بالأيام) -->
       <div class="col-12 sm:col-6 field">
-        <label for="initAllowedDays" class="font-medium">الرصيد المسموح (أيام) <span class="text-red-500">*</span></label>
+        <label for="initAllowedDays" class="font-medium">{{ 'leave.balances.field_allowed_days' | translate }} <span class="text-red-500">*</span></label>
         <p-inputNumber
           id="initAllowedDays"
           formControlName="allowedDays"
@@ -187,7 +200,7 @@
           class="p-error block mt-1"
           *ngIf="initForm.get('allowedDays')?.invalid && initForm.get('allowedDays')?.touched"
         >
-          عدد الأيام مطلوب
+          {{ 'leave.balances.field_allowed_days_req' | translate }}
         </small>
       </div>
     </div>
@@ -196,7 +209,7 @@
       <button
         pButton
         type="button"
-        label="إلغاء"
+        [label]="'common.cancel' | translate"
         icon="pi pi-times"
         class="p-button-outlined p-button-secondary"
         (click)="initDialogOpen.set(false)"
@@ -204,7 +217,7 @@
       <button
         pButton
         type="submit"
-        label="حفظ وتهيئة"
+        [label]="'leave.balances.init_save_btn' | translate"
         icon="pi pi-check"
         [loading]="initSaving()"
         class="p-button-primary"
@@ -212,3 +225,14 @@
     </div>
   </form>
 </p-dialog>
+
+<!-- Confirmation Dialog for Deletion -->
+<p-confirmDialog
+  [style]="{ width: '450px' }"
+  [acceptLabel]="'leave.balances.confirm_delete_btn' | translate"
+  [rejectLabel]="'common.cancel' | translate"
+  acceptButtonStyleClass="p-button-danger"
+  rejectButtonStyleClass="p-button-outlined p-button-secondary"
+></p-confirmDialog>
+
+

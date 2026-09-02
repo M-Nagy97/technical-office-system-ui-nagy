@@ -6,12 +6,13 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   SharedTableComponent,
   SharedTableColumn,
   SharedTableAction,
 } from '../../../shared';
-import { LeaveTypeService, LeaveTypeDto } from '../../../core';
+import { LeaveTypeService, LeaveTypeDto, LanguageService } from '../../../core';
 
 @Component({
   selector: 'app-leave-list',
@@ -24,6 +25,7 @@ import { LeaveTypeService, LeaveTypeDto } from '../../../core';
     InputTextModule,
     ConfirmDialogModule,
     SharedTableComponent,
+    TranslateModule,
   ],
   providers: [ConfirmationService],
   templateUrl: './leave-list.component.html',
@@ -34,6 +36,8 @@ export class LeaveListComponent implements OnInit {
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
   private readonly leaveTypeService = inject(LeaveTypeService);
+  private readonly translate = inject(TranslateService);
+  private readonly languageService = inject(LanguageService);
 
   readonly loading = signal(false);
   readonly searchText = signal('');
@@ -51,33 +55,41 @@ export class LeaveListComponent implements OnInit {
   });
 
   readonly columns: SharedTableColumn<LeaveTypeDto>[] = [
-    { id: 'arabicName', header: 'نوع الإجازة', field: 'arabicName', sortableField: 'arabicName', width: '25%' },
-    { id: 'name', header: 'الاسم بالإنجليزية', field: 'name', sortableField: 'name', width: '20%' },
+    { id: 'arabicName', header: 'leave.types.col_arabic_name', field: 'arabicName', sortableField: 'arabicName', width: '25%' },
+    { id: 'name', header: 'leave.types.col_name', field: 'name', sortableField: 'name', width: '20%' },
     {
       id: 'maxDaysPerYear',
-      header: 'الحد الأقصى للأيام',
+      header: 'leave.types.col_max_days',
       field: 'maxDaysPerYear',
       sortableField: 'maxDaysPerYear',
       width: '15%',
-      valueGetter: (row) => (row.maxDaysPerYear != null ? `${row.maxDaysPerYear} يوم` : 'غير محدود'),
+      valueGetter: (row) =>
+        row.maxDaysPerYear != null
+          ? this.translate.instant('leave.types.days_count', { count: row.maxDaysPerYear })
+          : this.translate.instant('leave.types.unlimited'),
     },
     {
       id: 'isPaid',
-      header: 'مدفوعة الأجر',
+      header: 'leave.types.col_paid',
       width: '12%',
-      valueGetter: (row) => (row.isPaid ? 'نعم' : 'لا'),
+      valueGetter: (row) =>
+        row.isPaid ? this.translate.instant('leave.types.yes') : this.translate.instant('leave.types.no'),
     },
     {
       id: 'requiresDocument',
-      header: 'تتطلب مستند',
+      header: 'leave.types.col_requires_doc',
       width: '13%',
-      valueGetter: (row) => (row.requiresDocument ? 'نعم' : 'لا'),
+      valueGetter: (row) =>
+        row.requiresDocument ? this.translate.instant('leave.types.yes') : this.translate.instant('leave.types.no'),
     },
     {
       id: 'isActive',
-      header: 'الحالة',
+      header: 'leave.types.col_status',
       width: '15%',
-      valueGetter: (row) => (row.isActive ? 'نشط' : 'غير نشط'),
+      valueGetter: (row) =>
+        row.isActive
+          ? this.translate.instant('leave.types.status_active')
+          : this.translate.instant('leave.types.status_inactive'),
     },
   ];
 
@@ -95,12 +107,16 @@ export class LeaveListComponent implements OnInit {
       icon: 'pi pi-trash',
       buttonClass: 'p-button-rounded p-button-text p-button-sm p-button-danger',
       onClick: (row) => {
+        const name =
+          this.languageService.currentLang() === 'ar'
+            ? row.arabicName || row.name
+            : row.name || row.arabicName;
         this.confirmationService.confirm({
-          message: `هل أنت متأكد من رغبتك في حذف "${row.arabicName || row.name}"؟`,
-          header: 'تأكيد الحذف',
+          message: this.translate.instant('leave.types.delete_confirm_msg', { name }),
+          header: this.translate.instant('leave.types.delete_confirm_title'),
           icon: 'pi pi-exclamation-triangle',
-          acceptLabel: 'نعم، احذف',
-          rejectLabel: 'إلغاء',
+          acceptLabel: this.translate.instant('leave.types.confirm_delete_btn'),
+          rejectLabel: this.translate.instant('leave.types.cancel_btn'),
           accept: () => this.deleteLeaveType(row.id),
         });
       },
@@ -122,8 +138,8 @@ export class LeaveListComponent implements OnInit {
         this.loading.set(false);
         this.messageService.add({
           severity: 'error',
-          summary: 'خطأ',
-          detail: 'فشل في تحميل أنواع الإجازات من الخادم',
+          summary: this.translate.instant('common.error'),
+          detail: this.translate.instant('leave.types.load_failed'),
         });
       },
     });
@@ -134,18 +150,27 @@ export class LeaveListComponent implements OnInit {
       next: () => {
         this.messageService.add({
           severity: 'success',
-          summary: 'نجاح',
-          detail: 'تم حذف نوع الإجازة بنجاح',
+          summary: this.translate.instant('common.success'),
+          detail: this.translate.instant('leave.types.delete_success'),
         });
         this.loadData();
       },
-      error: () => {
+      error: (err) => {
+        const isAr = this.languageService.currentLang() === 'ar';
+        const msg =
+          (isAr ? err?.error?.messageAr : err?.error?.message) ||
+          err?.error?.message ||
+          err?.error?.messageAr ||
+          err?.error?.detail ||
+          this.translate.instant('leave.types.delete_failed');
+
         this.messageService.add({
           severity: 'error',
-          summary: 'خطأ',
-          detail: 'فشل في حذف نوع الإجازة من الخادم',
+          summary: this.translate.instant('common.error'),
+          detail: msg,
         });
       },
     });
   }
 }
+

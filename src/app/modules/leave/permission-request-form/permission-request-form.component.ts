@@ -9,7 +9,8 @@ import { DropdownModule } from 'primeng/dropdown';
 import { CalendarModule } from 'primeng/calendar';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { MessageService } from 'primeng/api';
-import { PermissionRequestService, EmployeeService } from '../../../core/services';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { PermissionRequestService, EmployeeService, LanguageService } from '../../../core/services';
 import { Employee } from '../../../core/models/employee.model';
 import {
   PermissionDurationType,
@@ -30,6 +31,7 @@ import {
     DropdownModule,
     CalendarModule,
     RadioButtonModule,
+    TranslateModule,
   ],
   templateUrl: './permission-request-form.component.html',
   styleUrl: './permission-request-form.component.scss',
@@ -40,6 +42,8 @@ export class PermissionRequestFormComponent implements OnInit {
   private readonly messageService = inject(MessageService);
   private readonly permissionRequestService = inject(PermissionRequestService);
   private readonly employeeService = inject(EmployeeService);
+  private readonly translate = inject(TranslateService);
+  readonly languageService = inject(LanguageService);
 
   readonly submitting = signal(false);
   readonly employees = signal<Employee[]>([]);
@@ -104,8 +108,8 @@ export class PermissionRequestFormComponent implements OnInit {
       this.form.markAllAsTouched();
       this.messageService.add({
         severity: 'warn',
-        summary: 'تنبيه',
-        detail: 'يرجى إكمال جميع الحقول المطلوبة بشكل صحيح',
+        summary: this.translate.instant('common.warning'),
+        detail: this.translate.instant('leave.permissions.form_invalid_warn'),
       });
       return;
     }
@@ -133,21 +137,43 @@ export class PermissionRequestFormComponent implements OnInit {
     };
 
     this.permissionRequestService.submit(command).subscribe({
-      next: () => {
+      next: (res) => {
         this.submitting.set(false);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'نجاح',
-          detail: 'تم تقديم طلب الإذن بنجاح',
-        });
+        const isAr = this.languageService.currentLang() === 'ar';
+        const alertMsg = (isAr ? res.warningAlertsAr : res.warningAlerts) || res.warningAlerts || res.warningAlertsAr;
+
+        if (alertMsg) {
+          this.messageService.add({
+            severity: 'warn',
+            summary: this.translate.instant('common.warning'),
+            detail: alertMsg,
+            life: 8000,
+          });
+        } else {
+          this.messageService.add({
+            severity: 'success',
+            summary: this.translate.instant('common.success'),
+            detail: this.translate.instant('leave.permissions.submit_success'),
+          });
+        }
         this.router.navigate(['/leave/permissions']);
       },
-      error: () => {
+      error: (err) => {
         this.submitting.set(false);
+        const isAr = this.languageService.currentLang() === 'ar';
+        const errorMsg =
+          (isAr ? err?.error?.messageAr : err?.error?.message) ||
+          err?.error?.message ||
+          err?.error?.messageAr ||
+          err?.error?.detail ||
+          err?.message ||
+          this.translate.instant('leave.permissions.submit_failed');
+
         this.messageService.add({
           severity: 'error',
-          summary: 'خطأ',
-          detail: 'فشل في تقديم طلب الإذن، يرجى المحاولة مرة أخرى',
+          summary: this.translate.instant('common.error'),
+          detail: errorMsg,
+          life: 7000,
         });
       },
     });
@@ -175,3 +201,4 @@ export class PermissionRequestFormComponent implements OnInit {
     return String(val);
   }
 }
+

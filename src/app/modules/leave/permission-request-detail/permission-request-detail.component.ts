@@ -6,7 +6,8 @@ import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
-import { PermissionRequestService, EmployeeService } from '../../../core/services';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { PermissionRequestService, EmployeeService, LanguageService } from '../../../core/services';
 import {
   PermissionRequestDto,
   PermissionRequestStatus,
@@ -31,6 +32,7 @@ import {
     DividerModule,
     StatusBadgeComponent,
     PermissionActionDialogComponent,
+    TranslateModule,
   ],
   templateUrl: './permission-request-detail.component.html',
   styleUrl: './permission-request-detail.component.scss',
@@ -41,6 +43,8 @@ export class PermissionRequestDetailComponent implements OnInit {
   private readonly permissionRequestService = inject(PermissionRequestService);
   private readonly employeeService = inject(EmployeeService);
   private readonly messageService = inject(MessageService);
+  private readonly translate = inject(TranslateService);
+  readonly languageService = inject(LanguageService);
 
   readonly loading = signal(false);
   readonly request = signal<PermissionRequestDto | null>(null);
@@ -78,8 +82,8 @@ export class PermissionRequestDetailComponent implements OnInit {
         this.loading.set(false);
         this.messageService.add({
           severity: 'error',
-          summary: 'خطأ',
-          detail: 'فشل في تحميل تفاصيل طلب الإذن',
+          summary: this.translate.instant('common.error'),
+          detail: this.translate.instant('leave.permissions.load_detail_failed'),
         });
       },
     });
@@ -121,26 +125,37 @@ export class PermissionRequestDetailComponent implements OnInit {
       next: () => {
         this.actionLoading.set(false);
         this.actionDialogOpen.set(false);
+        const detailMsg =
+          event.action === 'approve'
+            ? this.translate.instant('leave.actions.approve_permission_success')
+            : event.action === 'reject'
+            ? this.translate.instant('leave.actions.reject_permission_success')
+            : this.translate.instant('leave.actions.cancel_permission_success');
+
         this.messageService.add({
           severity: 'success',
-          summary: 'نجاح',
-          detail:
-            event.action === 'approve'
-              ? 'تمت الموافقة على طلب الإذن بنجاح'
-              : event.action === 'reject'
-              ? 'تم رفض طلب الإذن بنجاح'
-              : 'تم إلغاء طلب الإذن بنجاح',
+          summary: this.translate.instant('common.success'),
+          detail: detailMsg,
         });
         this.loadRequest(req.id);
       },
-      error: () => {
+      error: (err) => {
         this.actionLoading.set(false);
+        const isAr = this.languageService.currentLang() === 'ar';
+        const msg =
+          (isAr ? err?.error?.messageAr : err?.error?.message) ||
+          err?.error?.message ||
+          err?.error?.messageAr ||
+          err?.error?.detail ||
+          this.translate.instant('leave.actions.action_failed');
+
         this.messageService.add({
           severity: 'error',
-          summary: 'خطأ',
-          detail: 'حدث خطأ أثناء معالجة طلب الإذن',
+          summary: this.translate.instant('common.error'),
+          detail: msg,
         });
       },
     });
   }
 }
+
