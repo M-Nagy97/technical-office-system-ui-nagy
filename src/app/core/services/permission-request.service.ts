@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
@@ -8,6 +8,8 @@ import {
   SubmitPermissionRequestResponse,
   PermissionRequestFilter,
 } from '../models/permission-request.model';
+import { PolicyEvaluationResultDto } from '../models/policy-evaluation.model';
+import { SKIP_GLOBAL_ERROR_NOTIFICATION } from '../interceptors/error.interceptor';
 
 interface ApiResult<T> {
   success?: boolean;
@@ -21,6 +23,8 @@ interface ApiResult<T> {
 export class PermissionRequestService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiBaseUrl.replace(/\/$/, '')}/api/permission-requests`;
+
+  private readonly skipToastContext = new HttpContext().set(SKIP_GLOBAL_ERROR_NOTIFICATION, true);
 
   /** GET /api/permission-requests */
   getAll(filter?: PermissionRequestFilter): Observable<PermissionRequestDto[]> {
@@ -47,6 +51,24 @@ export class PermissionRequestService {
     return this.http.get<ApiResult<PermissionRequestDto> | PermissionRequestDto>(`${this.baseUrl}/${id}`).pipe(
       map((res) => ('data' in res && res.data ? res.data : (res as PermissionRequestDto)))
     );
+  }
+
+  /** POST /api/permission-requests/evaluate */
+  evaluate(command: SubmitPermissionRequestCommand): Observable<PolicyEvaluationResultDto> {
+    return this.http
+      .post<ApiResult<PolicyEvaluationResultDto> | PolicyEvaluationResultDto>(
+        `${this.baseUrl}/evaluate`,
+        command,
+        { context: this.skipToastContext }
+      )
+      .pipe(
+        map((res) => {
+          if (res && typeof res === 'object' && 'data' in res && res.data) {
+            return this.normalizeEvaluation(res.data);
+          }
+          return this.normalizeEvaluation(res as PolicyEvaluationResultDto);
+        })
+      );
   }
 
   /** POST /api/permission-requests */
@@ -88,5 +110,14 @@ export class PermissionRequestService {
         reason: cancellationReason || null,
       })
       .pipe(map((res) => (typeof res === 'boolean' ? res : (res?.data ?? true))));
+  }
+
+  private normalizeEvaluation(raw: PolicyEvaluationResultDto | null | undefined): PolicyEvaluationResultDto {
+    return {
+      hasErrors: !!raw?.hasErrors,
+      hasWarnings: !!raw?.hasWarnings,
+      errors: raw?.errors ?? [],
+      warnings: raw?.warnings ?? [],
+    };
   }
 }

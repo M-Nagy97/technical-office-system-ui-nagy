@@ -939,6 +939,20 @@
       "cancel_permission_success": "Permission request cancelled successfully",
       "cancel_perm_success": "Permission request cancelled successfully",
       "action_failed": "Error occurred while processing request"
+    },
+    "policy_dialog": {
+      "error_title": "Policy Rule Error",
+      "warning_title": "Policy Rule Warning",
+      "error_heading": "This request cannot be submitted",
+      "warning_heading": "Please review policy alerts before proceeding",
+      "error_sub": "Fix the issues below, then try again.",
+      "warning_sub": "You can proceed with the request or go back to edit.",
+      "error_banner_title": "Policy Error:",
+      "generic_message": "A policy rule was triggered.",
+      "close_btn": "Close",
+      "cancel_btn": "Cancel",
+      "proceed_btn": "Proceed",
+      "evaluate_failed": "Failed to evaluate policy rules"
     }
   }
 }

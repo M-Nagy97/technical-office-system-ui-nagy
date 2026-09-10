@@ -1,4 +1,6 @@
 <div class="policy-rules-container">
+  <p-confirmDialog></p-confirmDialog>
+
   <p-card>
     <div class="header-toolbar flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
       <div class="page-title">
@@ -26,11 +28,12 @@
         >
           <ng-template pTemplate="header">
             <tr>
-              <th style="width: 25%">{{ 'leave.rules.col_rule_name' | translate }}</th>
-              <th style="width: 20%">{{ 'leave.rules.col_leave_type' | translate }}</th>
-              <th style="width: 15%">{{ 'leave.rules.col_severity' | translate }}</th>
-              <th style="width: 25%">{{ 'leave.rules.col_message' | translate }}</th>
-              <th style="width: 15%" class="text-center">{{ 'leave.rules.col_status' | translate }}</th>
+              <th style="width: 22%">{{ 'leave.rules.col_rule_code' | translate }}</th>
+              <th style="width: 16%">{{ 'leave.rules.col_leave_type' | translate }}</th>
+              <th style="width: 12%">{{ 'leave.rules.col_severity' | translate }}</th>
+              <th style="width: 22%">{{ 'leave.rules.col_error_msg' | translate }}</th>
+              <th style="width: 14%" class="text-center">{{ 'leave.rules.col_status' | translate }}</th>
+              <th style="width: 14%" class="text-center">{{ 'leave.rules.col_actions' | translate }}</th>
             </tr>
           </ng-template>
           <ng-template pTemplate="body" let-rule>
@@ -74,18 +77,44 @@
                     [ngModel]="rule.isEnabled"
                     (ngModelChange)="toggleRule(rule, $event)"
                   ></p-inputSwitch>
-                  <span class="text-xs font-semibold" [class.text-green-600]="rule.isEnabled" [class.text-500]="!rule.isEnabled">
-                    {{ rule.isEnabled ? ('leave.rules.status_enabled' | translate) : ('leave.rules.status_disabled' | translate) }}
+                  <span
+                    class="text-xs font-semibold"
+                    [class.text-green-600]="rule.isEnabled"
+                    [class.text-500]="!rule.isEnabled"
+                  >
+                    {{
+                      rule.isEnabled
+                        ? ('leave.rules.status_enabled' | translate)
+                        : ('leave.rules.status_disabled' | translate)
+                    }}
                   </span>
                 </div>
+              </td>
+              <td class="text-center">
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-pencil"
+                  class="p-button-rounded p-button-text p-button-sm"
+                  [pTooltip]="'leave.rules.edit_tooltip' | translate"
+                  (click)="openEditDialog(rule)"
+                ></button>
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-trash"
+                  class="p-button-rounded p-button-text p-button-sm p-button-danger"
+                  [pTooltip]="'leave.rules.delete_tooltip' | translate"
+                  (click)="confirmDelete(rule)"
+                ></button>
               </td>
             </tr>
           </ng-template>
           <ng-template pTemplate="emptymessage">
             <tr>
-              <td colspan="5" class="text-center py-5 text-500">
+              <td colspan="6" class="text-center py-5 text-500">
                 <i class="pi pi-info-circle text-2xl mb-2 block"></i>
-                {{ 'leave.rules.empty' | translate }}
+                {{ 'leave.rules.empty_leaves' | translate }}
               </td>
             </tr>
           </ng-template>
@@ -102,10 +131,11 @@
         >
           <ng-template pTemplate="header">
             <tr>
-              <th style="width: 30%">{{ 'leave.rules.col_rule_name' | translate }}</th>
-              <th style="width: 15%">{{ 'leave.rules.col_severity' | translate }}</th>
-              <th style="width: 40%">{{ 'leave.rules.col_message' | translate }}</th>
-              <th style="width: 15%" class="text-center">{{ 'leave.rules.col_status' | translate }}</th>
+              <th style="width: 26%">{{ 'leave.rules.col_rule_code' | translate }}</th>
+              <th style="width: 14%">{{ 'leave.rules.col_severity' | translate }}</th>
+              <th style="width: 32%">{{ 'leave.rules.col_error_msg' | translate }}</th>
+              <th style="width: 14%" class="text-center">{{ 'leave.rules.col_status' | translate }}</th>
+              <th style="width: 14%" class="text-center">{{ 'leave.rules.col_actions' | translate }}</th>
             </tr>
           </ng-template>
           <ng-template pTemplate="body" let-rule>
@@ -139,18 +169,44 @@
                     [ngModel]="rule.isEnabled"
                     (ngModelChange)="toggleRule(rule, $event)"
                   ></p-inputSwitch>
-                  <span class="text-xs font-semibold" [class.text-green-600]="rule.isEnabled" [class.text-500]="!rule.isEnabled">
-                    {{ rule.isEnabled ? ('leave.rules.status_enabled' | translate) : ('leave.rules.status_disabled' | translate) }}
+                  <span
+                    class="text-xs font-semibold"
+                    [class.text-green-600]="rule.isEnabled"
+                    [class.text-500]="!rule.isEnabled"
+                  >
+                    {{
+                      rule.isEnabled
+                        ? ('leave.rules.status_enabled' | translate)
+                        : ('leave.rules.status_disabled' | translate)
+                    }}
                   </span>
                 </div>
+              </td>
+              <td class="text-center">
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-pencil"
+                  class="p-button-rounded p-button-text p-button-sm"
+                  [pTooltip]="'leave.rules.edit_tooltip' | translate"
+                  (click)="openEditDialog(rule)"
+                ></button>
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-trash"
+                  class="p-button-rounded p-button-text p-button-sm p-button-danger"
+                  [pTooltip]="'leave.rules.delete_tooltip' | translate"
+                  (click)="confirmDelete(rule)"
+                ></button>
               </td>
             </tr>
           </ng-template>
           <ng-template pTemplate="emptymessage">
             <tr>
-              <td colspan="4" class="text-center py-5 text-500">
+              <td colspan="5" class="text-center py-5 text-500">
                 <i class="pi pi-info-circle text-2xl mb-2 block"></i>
-                {{ 'leave.rules.empty' | translate }}
+                {{ 'leave.rules.empty_permissions' | translate }}
               </td>
             </tr>
           </ng-template>
@@ -160,18 +216,18 @@
   </p-card>
 </div>
 
-<!-- Add Rule Dialog -->
+<!-- Add / Edit Rule Dialog -->
 <p-dialog
-  [(visible)]="addDialogOpen"
-  [header]="'leave.rules.add_rule_title' | translate"
+  [visible]="dialogOpen()"
+  (visibleChange)="dialogOpen.set($event)"
+  [header]="dialogTitleKey() | translate"
   [modal]="true"
-  [style]="{ width: '550px' }"
+  [style]="{ width: '620px' }"
   [draggable]="false"
   [resizable]="false"
 >
-  <form [formGroup]="ruleForm" (ngSubmit)="submitAddRule()" class="py-2">
+  <form [formGroup]="ruleForm" (ngSubmit)="submitRule()" class="py-2">
     <div class="grid p-fluid">
-      <!-- Target Scope -->
       <div class="col-12 field">
         <label class="font-medium">{{ 'leave.rules.field_scope' | translate }} <span class="text-red-500">*</span></label>
         <p-dropdown
@@ -183,21 +239,24 @@
         ></p-dropdown>
       </div>
 
-      <!-- Catalog Template Selection -->
-      <div class="col-12 field">
-        <label class="font-medium">{{ 'leave.rules.field_template' | translate }} <span class="text-red-500">*</span></label>
+      <div class="col-12 field" *ngIf="!isEditMode()">
+        <label class="font-medium">{{ 'leave.rules.catalog_label' | translate }} <span class="text-red-500">*</span></label>
         <p-dropdown
           formControlName="ruleCode"
           [options]="filteredCatalog()"
-          optionLabel="name"
+          optionLabel="displayName"
           optionValue="ruleCode"
-          [placeholder]="'leave.rules.select_template' | translate"
+          [placeholder]="'leave.rules.catalog_placeholder' | translate"
           (onChange)="onTemplateSelected($event.value)"
         ></p-dropdown>
       </div>
 
-      <!-- Leave Type (if Scope == Leave) -->
-      <div class="col-12 field" *ngIf="ruleForm.get('scope')?.value === 0">
+      <div class="col-12 field" *ngIf="isEditMode()">
+        <label class="font-medium">{{ 'leave.rules.field_rule_code' | translate }}</label>
+        <input pInputText formControlName="ruleCode" />
+      </div>
+
+      <div class="col-12 field" *ngIf="ruleForm.getRawValue().scope === 0">
         <label class="font-medium">{{ 'leave.rules.field_leave_type' | translate }}</label>
         <p-dropdown
           formControlName="leaveTypeId"
@@ -209,31 +268,82 @@
         ></p-dropdown>
       </div>
 
-      <!-- Severity Selection -->
       <div class="col-12 field">
         <label class="font-medium">{{ 'leave.rules.field_severity' | translate }} <span class="text-red-500">*</span></label>
         <div class="flex gap-4 mt-1">
           <div class="flex align-items-center">
             <p-radioButton [value]="0" formControlName="severity" inputId="sevError"></p-radioButton>
-            <label for="sevError" class="ml-2 cursor-pointer text-danger font-medium">{{ 'leave.rules.severity_error_option' | translate }}</label>
+            <label for="sevError" class="ml-2 cursor-pointer font-medium">{{
+              'leave.rules.severity_error_option' | translate
+            }}</label>
           </div>
           <div class="flex align-items-center">
             <p-radioButton [value]="1" formControlName="severity" inputId="sevWarning"></p-radioButton>
-            <label for="sevWarning" class="ml-2 cursor-pointer text-warning font-medium">{{ 'leave.rules.severity_warning_option' | translate }}</label>
+            <label for="sevWarning" class="ml-2 cursor-pointer font-medium">{{
+              'leave.rules.severity_warning_option' | translate
+            }}</label>
           </div>
         </div>
       </div>
 
-      <!-- Error Message En -->
-      <div class="col-12 field">
-        <label class="font-medium">{{ 'leave.rules.field_msg_en' | translate }} <span class="text-red-500">*</span></label>
-        <input pInputText formControlName="errorMessage" [placeholder]="'leave.rules.field_msg_en_placeholder' | translate" />
+      <!-- Structured parameters -->
+      <div class="col-12" *ngIf="paramFields().length">
+        <label class="font-medium mb-2 block">{{ 'leave.rules.field_parameters' | translate }}</label>
+        <div class="grid">
+          <div class="col-12 md:col-6 field" *ngFor="let field of paramFields()">
+            <label class="text-sm font-medium">
+              {{ getParamLabel(field) }}
+              <span class="text-500" *ngIf="getParamSuffix(field)"> ({{ getParamSuffix(field) }})</span>
+            </label>
+
+            <p-inputNumber
+              *ngIf="field.type === 'number'"
+              [ngModel]="paramValues()[field.key]"
+              [ngModelOptions]="{ standalone: true }"
+              (ngModelChange)="onParamChange(field.key, $event)"
+              [min]="field.min ?? undefined"
+              [max]="field.max ?? undefined"
+              [step]="field.step ?? 1"
+              [showButtons]="true"
+            ></p-inputNumber>
+
+            <div class="flex align-items-center gap-2 mt-1" *ngIf="field.type === 'boolean'">
+              <p-inputSwitch
+                [ngModel]="!!paramValues()[field.key]"
+                [ngModelOptions]="{ standalone: true }"
+                (ngModelChange)="onParamChange(field.key, $event)"
+              ></p-inputSwitch>
+            </div>
+
+            <p-dropdown
+              *ngIf="field.type === 'select'"
+              [options]="getSelectOptions(field)"
+              optionLabel="label"
+              optionValue="value"
+              [ngModel]="paramValues()[field.key]"
+              [ngModelOptions]="{ standalone: true }"
+              (ngModelChange)="onParamChange(field.key, $event)"
+            ></p-dropdown>
+          </div>
+        </div>
       </div>
 
-      <!-- Error Message Ar -->
       <div class="col-12 field">
-        <label class="font-medium">{{ 'leave.rules.field_msg_ar' | translate }} <span class="text-red-500">*</span></label>
-        <input pInputText formControlName="errorMessageAr" [placeholder]="'leave.rules.field_msg_ar_placeholder' | translate" />
+        <label class="font-medium">{{ 'leave.rules.field_error_msg_en' | translate }} <span class="text-red-500">*</span></label>
+        <input
+          pInputText
+          formControlName="errorMessage"
+          [placeholder]="'leave.rules.field_error_msg_en_placeholder' | translate"
+        />
+      </div>
+
+      <div class="col-12 field">
+        <label class="font-medium">{{ 'leave.rules.field_error_msg_ar' | translate }} <span class="text-red-500">*</span></label>
+        <input
+          pInputText
+          formControlName="errorMessageAr"
+          [placeholder]="'leave.rules.field_error_msg_ar_placeholder' | translate"
+        />
       </div>
     </div>
 
@@ -244,12 +354,12 @@
         [label]="'common.cancel' | translate"
         icon="pi pi-times"
         class="p-button-outlined p-button-secondary"
-        (click)="addDialogOpen.set(false)"
+        (click)="dialogOpen.set(false)"
       ></button>
       <button
         pButton
         type="submit"
-        [label]="'leave.rules.save_btn' | translate"
+        [label]="'leave.rules.save_rule_btn' | translate"
         icon="pi pi-check"
         [loading]="saving()"
         class="p-button-primary"

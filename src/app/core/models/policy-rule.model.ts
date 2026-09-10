@@ -28,7 +28,9 @@ export interface RuleCatalogItemDto {
   scope: RuleTargetScope;
   ruleCode: string;
   name: string;
+  nameAr?: string;
   description: string;
+  descriptionAr?: string;
   defaultParametersJson: string;
   defaultSeverity: RuleSeverity;
   defaultErrorMessage: string;
@@ -54,6 +56,5 @@ export interface UpdatePolicyRuleCommand {
   parametersJson: string;
   errorMessage: string;
   errorMessageAr: string;
-  leaveTypeId?: string | null;
   isEnabled: boolean;
 }

@@ -14,6 +14,11 @@ import { LeaveRequestService, LeaveTypeService, EmployeeService, LanguageService
 import { LeaveTypeDto } from '../../../core/services/leave-type.service';
 import { Employee } from '../../../core/models/employee.model';
 import { SubmitLeaveRequestCommand } from '../../../core/models/leave-request.model';
+import { PolicyEvaluationIssueDto } from '../../../core/models/policy-evaluation.model';
+import {
+  PolicyEvaluationDialogComponent,
+  PolicyEvaluationDialogMode,
+} from '../policy-evaluation-dialog/policy-evaluation-dialog.component';
 
 @Component({
   selector: 'app-leave-request-form',
@@ -29,6 +34,7 @@ import { SubmitLeaveRequestCommand } from '../../../core/models/leave-request.mo
     DropdownModule,
     CalendarModule,
     TranslateModule,
+    PolicyEvaluationDialogComponent,
   ],
   templateUrl: './leave-request-form.component.html',
   styleUrl: './leave-request-form.component.scss',
@@ -44,13 +50,20 @@ export class LeaveRequestFormComponent implements OnInit {
   private readonly languageService = inject(LanguageService);
 
   readonly submitting = signal(false);
+  readonly evaluating = signal(false);
   readonly leaveTypes = signal<LeaveTypeDto[]>([]);
   readonly employees = signal<Employee[]>([]);
   readonly requiresDocument = signal(false);
 
+  readonly policyDialogVisible = signal(false);
+  readonly policyDialogMode = signal<PolicyEvaluationDialogMode>('warning');
+  readonly policyDialogMessages = signal<string[]>([]);
+  readonly policyDialogLoading = signal(false);
+
+  private pendingCommand: SubmitLeaveRequestCommand | null = null;
+
   form!: FormGroup;
 
-  // Signal for auto-computed total days
   readonly computedDays = signal<number | null>(null);
 
   readonly leaveTypeOptionLabel = computed(() =>
@@ -73,7 +86,6 @@ export class LeaveRequestFormComponent implements OnInit {
       attachmentUrl: [''],
     });
 
-    // React to leave type changes to toggle document requirement
     this.form.get('leaveTypeId')?.valueChanges.subscribe((typeId) => {
       const type = this.leaveTypes().find((t) => t.id === typeId);
       const reqDoc = type?.requiresDocument ?? false;
@@ -88,7 +100,6 @@ export class LeaveRequestFormComponent implements OnInit {
       attachCtrl?.updateValueAndValidity();
     });
 
-    // React to date changes to calculate total days
     this.form.get('startDate')?.valueChanges.subscribe(() => this.calcDays());
     this.form.get('endDate')?.valueChanges.subscribe(() => this.calcDays());
   }
@@ -125,7 +136,6 @@ export class LeaveRequestFormComponent implements OnInit {
   private loadLeaveTypes(): void {
     this.leaveTypeService.getAll().subscribe({
       next: (types) => {
-        // filter active types
         this.leaveTypes.set(types.filter((t) => t.isActive));
       },
     });
@@ -152,10 +162,76 @@ export class LeaveRequestFormComponent implements OnInit {
       return;
     }
 
-    this.submitting.set(true);
-    const val = this.form.value;
+    const command = this.buildCommand();
+    this.pendingCommand = command;
+    this.evaluating.set(true);
 
-    const command: SubmitLeaveRequestCommand = {
+    this.leaveRequestService.evaluate(command).subscribe({
+      next: (result) => {
+        this.evaluating.set(false);
+
+        if (result.hasErrors) {
+          this.openPolicyDialog('error', result.errors);
+          return;
+        }
+
+        if (result.hasWarnings) {
+          this.openPolicyDialog('warning', result.warnings);
+          return;
+        }
+
+        this.createRequest(command);
+      },
+      error: (err) => {
+        this.evaluating.set(false);
+        this.pendingCommand = null;
+        const isAr = this.languageService.currentLang() === 'ar';
+        const msg =
+          (isAr ? err?.error?.messageAr : err?.error?.message) ||
+          err?.error?.message ||
+          err?.error?.messageAr ||
+          this.translate.instant('leave.policy_dialog.evaluate_failed');
+        this.messageService.add({
+          severity: 'error',
+          summary: this.translate.instant('common.error'),
+          detail: msg,
+        });
+      },
+    });
+  }
+
+  onPolicyProceed(): void {
+    if (!this.pendingCommand || this.policyDialogMode() === 'error') return;
+    this.policyDialogLoading.set(true);
+    this.createRequest(this.pendingCommand, true);
+  }
+
+  onPolicyDialogClosed(): void {
+    if (!this.policyDialogLoading()) {
+      this.pendingCommand = null;
+    }
+    this.policyDialogVisible.set(false);
+  }
+
+  cancel(): void {
+    this.router.navigate(['/leave/requests']);
+  }
+
+  private openPolicyDialog(mode: PolicyEvaluationDialogMode, issues: PolicyEvaluationIssueDto[]): void {
+    this.policyDialogMode.set(mode);
+    this.policyDialogMessages.set(this.localizeIssues(issues));
+    this.policyDialogLoading.set(false);
+    this.policyDialogVisible.set(true);
+  }
+
+  private localizeIssues(issues: PolicyEvaluationIssueDto[]): string[] {
+    const isAr = this.languageService.currentLang() === 'ar';
+    return issues.map((i) => (isAr ? i.messageAr || i.message : i.message || i.messageAr)).filter(Boolean);
+  }
+
+  private buildCommand(): SubmitLeaveRequestCommand {
+    const val = this.form.value;
+    return {
       employeeId: val.employeeId,
       leaveTypeId: val.leaveTypeId,
       startDate: this.formatDate(val.startDate),
@@ -163,52 +239,32 @@ export class LeaveRequestFormComponent implements OnInit {
       reason: val.reason?.trim() || undefined,
       attachmentUrl: val.attachmentUrl?.trim() || undefined,
     };
-
-    this.leaveRequestService.submit(command).subscribe({
-      next: (res) => {
-        this.submitting.set(false);
-        const isAr = this.languageService.currentLang() === 'ar';
-        const alertMsg = (isAr ? res.warningAlertsAr : res.warningAlerts) || res.warningAlerts || res.warningAlertsAr;
-
-        if (alertMsg) {
-          this.messageService.add({
-            severity: 'warn',
-            summary: this.translate.instant('common.warning'),
-            detail: alertMsg,
-            life: 8000,
-          });
-        } else {
-          this.messageService.add({
-            severity: 'success',
-            summary: this.translate.instant('common.success'),
-            detail: this.translate.instant('leave.requests.submit_success'),
-          });
-        }
-        this.router.navigate(['/leave/requests']);
-      },
-      error: (err) => {
-        this.submitting.set(false);
-        const isAr = this.languageService.currentLang() === 'ar';
-        const errorMsg =
-          (isAr ? err?.error?.messageAr : err?.error?.message) ||
-          err?.error?.message ||
-          err?.error?.messageAr ||
-          err?.error?.detail ||
-          err?.message ||
-          this.translate.instant('leave.requests.submit_failed');
-
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translate.instant('common.error'),
-          detail: errorMsg,
-          life: 7000,
-        });
-      },
-    });
   }
 
-  cancel(): void {
-    this.router.navigate(['/leave/requests']);
+  private createRequest(command: SubmitLeaveRequestCommand, fromDialog = false): void {
+    this.submitting.set(true);
+    this.leaveRequestService.submit(command).subscribe({
+      next: () => {
+        this.submitting.set(false);
+        this.policyDialogLoading.set(false);
+        this.policyDialogVisible.set(false);
+        this.pendingCommand = null;
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translate.instant('common.success'),
+          detail: this.translate.instant('leave.requests.submit_success'),
+        });
+        this.router.navigate(['/leave/requests']);
+      },
+      error: () => {
+        this.submitting.set(false);
+        this.policyDialogLoading.set(false);
+        if (fromDialog) {
+          this.policyDialogVisible.set(false);
+        }
+        this.pendingCommand = null;
+      },
+    });
   }
 
   private formatDate(date: Date): string {
@@ -218,4 +274,3 @@ export class LeaveRequestFormComponent implements OnInit {
     return `${y}-${m}-${d}`;
   }
 }
-

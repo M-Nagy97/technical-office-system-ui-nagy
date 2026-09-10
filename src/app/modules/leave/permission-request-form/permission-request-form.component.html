@@ -162,7 +162,7 @@
           type="submit"
           [label]="'leave.permissions.submit_btn' | translate"
           icon="pi pi-send"
-          [loading]="submitting()"
+          [loading]="submitting() || evaluating()"
           class="p-button-primary"
         ></button>
         <button
@@ -177,4 +177,14 @@
     </form>
   </p-card>
 </div>
+
+<app-policy-evaluation-dialog
+  [visible]="policyDialogVisible()"
+  (visibleChange)="policyDialogVisible.set($event)"
+  [mode]="policyDialogMode()"
+  [messages]="policyDialogMessages()"
+  [loading]="policyDialogLoading()"
+  (proceed)="onPolicyProceed()"
+  (cancelled)="onPolicyDialogClosed()"
+></app-policy-evaluation-dialog>
 

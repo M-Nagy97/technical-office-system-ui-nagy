@@ -28,8 +28,10 @@ interface ValidationErrorsDictionary {
 interface BackendErrorPayload {
   success?: boolean;
   message?: string | null;
+  messageAr?: string | null;
   error?: {
     message?: string | null;
+    messageAr?: string | null;
     innerException?: { message?: string | null };
     stackTrace?: string | null;
   };
@@ -75,17 +77,22 @@ function extractErrorMessage(error: HttpErrorResponse, lang: 'ar' | 'en'): strin
     }
   }
 
-  // 2. Check if backend returned Clean Architecture ApiResult `message`
-  if (payload && typeof payload === 'object' && typeof payload.message === 'string' && payload.message.trim()) {
-    return payload.message.trim();
+  // 2. Prefer bilingual ApiResult / BusinessRule messages
+  if (payload && typeof payload === 'object') {
+    const localized =
+      (isAr ? payload.messageAr : payload.message) ||
+      payload.message ||
+      payload.messageAr ||
+      (isAr ? payload.error?.messageAr : payload.error?.message) ||
+      payload.error?.message ||
+      payload.error?.messageAr;
+
+    if (typeof localized === 'string' && localized.trim()) {
+      return localized.trim();
+    }
   }
 
-  // 3. Check if backend returned Clean Architecture Exception `error.message`
-  if (payload && typeof payload === 'object' && payload.error?.message) {
-    return payload.error.message.trim();
-  }
-
-  // 4. Check ProblemDetails detail or title
+  // 3. Check ProblemDetails detail or title
   if (payload && typeof payload === 'object') {
     if (typeof payload.detail === 'string' && payload.detail.trim()) {
       return payload.detail.trim();
@@ -95,12 +102,12 @@ function extractErrorMessage(error: HttpErrorResponse, lang: 'ar' | 'en'): strin
     }
   }
 
-  // 5. Check if error payload is a raw string
+  // 4. Check if error payload is a raw string
   if (typeof payload === 'string' && payload.trim() && !payload.trim().startsWith('<!DOCTYPE html>')) {
     return payload.trim();
   }
 
-  // 6. Status-based fallbacks with Arabic & English support
+  // 5. Status-based fallbacks with Arabic & English support
   switch (error.status) {
     case 0:
       return isAr

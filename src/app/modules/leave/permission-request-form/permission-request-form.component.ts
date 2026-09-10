@@ -17,6 +17,11 @@ import {
   HalfDayPeriod,
   SubmitPermissionRequestCommand,
 } from '../../../core/models/permission-request.model';
+import { PolicyEvaluationIssueDto } from '../../../core/models/policy-evaluation.model';
+import {
+  PolicyEvaluationDialogComponent,
+  PolicyEvaluationDialogMode,
+} from '../policy-evaluation-dialog/policy-evaluation-dialog.component';
 
 @Component({
   selector: 'app-permission-request-form',
@@ -32,6 +37,7 @@ import {
     CalendarModule,
     RadioButtonModule,
     TranslateModule,
+    PolicyEvaluationDialogComponent,
   ],
   templateUrl: './permission-request-form.component.html',
   styleUrl: './permission-request-form.component.scss',
@@ -46,7 +52,15 @@ export class PermissionRequestFormComponent implements OnInit {
   readonly languageService = inject(LanguageService);
 
   readonly submitting = signal(false);
+  readonly evaluating = signal(false);
   readonly employees = signal<Employee[]>([]);
+
+  readonly policyDialogVisible = signal(false);
+  readonly policyDialogMode = signal<PolicyEvaluationDialogMode>('warning');
+  readonly policyDialogMessages = signal<string[]>([]);
+  readonly policyDialogLoading = signal(false);
+
+  private pendingCommand: SubmitPermissionRequestCommand | null = null;
 
   readonly PermissionDurationType = PermissionDurationType;
   readonly HalfDayPeriod = HalfDayPeriod;
@@ -114,10 +128,76 @@ export class PermissionRequestFormComponent implements OnInit {
       return;
     }
 
-    this.submitting.set(true);
-    const val = this.form.value;
+    const command = this.buildCommand();
+    this.pendingCommand = command;
+    this.evaluating.set(true);
 
-    const command: SubmitPermissionRequestCommand = {
+    this.permissionRequestService.evaluate(command).subscribe({
+      next: (result) => {
+        this.evaluating.set(false);
+
+        if (result.hasErrors) {
+          this.openPolicyDialog('error', result.errors);
+          return;
+        }
+
+        if (result.hasWarnings) {
+          this.openPolicyDialog('warning', result.warnings);
+          return;
+        }
+
+        this.createRequest(command);
+      },
+      error: (err) => {
+        this.evaluating.set(false);
+        this.pendingCommand = null;
+        const isAr = this.languageService.currentLang() === 'ar';
+        const msg =
+          (isAr ? err?.error?.messageAr : err?.error?.message) ||
+          err?.error?.message ||
+          err?.error?.messageAr ||
+          this.translate.instant('leave.policy_dialog.evaluate_failed');
+        this.messageService.add({
+          severity: 'error',
+          summary: this.translate.instant('common.error'),
+          detail: msg,
+        });
+      },
+    });
+  }
+
+  onPolicyProceed(): void {
+    if (!this.pendingCommand || this.policyDialogMode() === 'error') return;
+    this.policyDialogLoading.set(true);
+    this.createRequest(this.pendingCommand, true);
+  }
+
+  onPolicyDialogClosed(): void {
+    if (!this.policyDialogLoading()) {
+      this.pendingCommand = null;
+    }
+    this.policyDialogVisible.set(false);
+  }
+
+  cancel(): void {
+    this.router.navigate(['/leave/permissions']);
+  }
+
+  private openPolicyDialog(mode: PolicyEvaluationDialogMode, issues: PolicyEvaluationIssueDto[]): void {
+    this.policyDialogMode.set(mode);
+    this.policyDialogMessages.set(this.localizeIssues(issues));
+    this.policyDialogLoading.set(false);
+    this.policyDialogVisible.set(true);
+  }
+
+  private localizeIssues(issues: PolicyEvaluationIssueDto[]): string[] {
+    const isAr = this.languageService.currentLang() === 'ar';
+    return issues.map((i) => (isAr ? i.messageAr || i.message : i.message || i.messageAr)).filter(Boolean);
+  }
+
+  private buildCommand(): SubmitPermissionRequestCommand {
+    const val = this.form.value;
+    return {
       employeeId: val.employeeId,
       date: this.formatDate(val.date),
       durationType: Number(val.durationType),
@@ -135,52 +215,32 @@ export class PermissionRequestFormComponent implements OnInit {
           : undefined,
       reason: val.reason?.trim() || undefined,
     };
-
-    this.permissionRequestService.submit(command).subscribe({
-      next: (res) => {
-        this.submitting.set(false);
-        const isAr = this.languageService.currentLang() === 'ar';
-        const alertMsg = (isAr ? res.warningAlertsAr : res.warningAlerts) || res.warningAlerts || res.warningAlertsAr;
-
-        if (alertMsg) {
-          this.messageService.add({
-            severity: 'warn',
-            summary: this.translate.instant('common.warning'),
-            detail: alertMsg,
-            life: 8000,
-          });
-        } else {
-          this.messageService.add({
-            severity: 'success',
-            summary: this.translate.instant('common.success'),
-            detail: this.translate.instant('leave.permissions.submit_success'),
-          });
-        }
-        this.router.navigate(['/leave/permissions']);
-      },
-      error: (err) => {
-        this.submitting.set(false);
-        const isAr = this.languageService.currentLang() === 'ar';
-        const errorMsg =
-          (isAr ? err?.error?.messageAr : err?.error?.message) ||
-          err?.error?.message ||
-          err?.error?.messageAr ||
-          err?.error?.detail ||
-          err?.message ||
-          this.translate.instant('leave.permissions.submit_failed');
-
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translate.instant('common.error'),
-          detail: errorMsg,
-          life: 7000,
-        });
-      },
-    });
   }
 
-  cancel(): void {
-    this.router.navigate(['/leave/permissions']);
+  private createRequest(command: SubmitPermissionRequestCommand, fromDialog = false): void {
+    this.submitting.set(true);
+    this.permissionRequestService.submit(command).subscribe({
+      next: () => {
+        this.submitting.set(false);
+        this.policyDialogLoading.set(false);
+        this.policyDialogVisible.set(false);
+        this.pendingCommand = null;
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translate.instant('common.success'),
+          detail: this.translate.instant('leave.permissions.submit_success'),
+        });
+        this.router.navigate(['/leave/permissions']);
+      },
+      error: () => {
+        this.submitting.set(false);
+        this.policyDialogLoading.set(false);
+        if (fromDialog) {
+          this.policyDialogVisible.set(false);
+        }
+        this.pendingCommand = null;
+      },
+    });
   }
 
   private formatDate(date: Date): string {
@@ -201,4 +261,3 @@ export class PermissionRequestFormComponent implements OnInit {
     return String(val);
   }
 }
-

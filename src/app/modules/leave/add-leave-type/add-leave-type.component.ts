@@ -11,7 +11,7 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
 import { MessageService } from 'primeng/api';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CheckboxModule } from 'primeng/checkbox';
-import { LeaveTypeService, LanguageService } from '../../../core/services';
+import { LeaveTypeService } from '../../../core/services';
 
 @Component({
   selector: 'app-add-leave-type',
@@ -36,7 +36,6 @@ export class AddLeaveTypeComponent implements OnInit {
   private readonly messageService = inject(MessageService);
   private readonly leaveTypeService = inject(LeaveTypeService);
   private readonly translate = inject(TranslateService);
-  readonly languageService = inject(LanguageService);
 
   readonly isEdit = signal(false);
   readonly editId = signal<string | null>(null);
@@ -145,21 +144,8 @@ export class AddLeaveTypeComponent implements OnInit {
         });
         this.router.navigate(['/leave/types']);
       },
-      error: (err) => {
+      error: () => {
         this.saving.set(false);
-        const isAr = this.languageService.currentLang() === 'ar';
-        const msg =
-          (isAr ? err?.error?.messageAr : err?.error?.message) ||
-          err?.error?.message ||
-          err?.error?.messageAr ||
-          err?.error?.detail ||
-          this.translate.instant('leave.types.save_failed');
-
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translate.instant('common.error'),
-          detail: msg,
-        });
       },
     });
   }

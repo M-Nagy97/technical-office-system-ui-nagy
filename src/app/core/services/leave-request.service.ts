@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
@@ -8,6 +8,8 @@ import {
   SubmitLeaveRequestResponse,
   LeaveRequestFilter,
 } from '../models/leave-request.model';
+import { PolicyEvaluationResultDto } from '../models/policy-evaluation.model';
+import { SKIP_GLOBAL_ERROR_NOTIFICATION } from '../interceptors/error.interceptor';
 
 interface ApiResult<T> {
   success?: boolean;
@@ -21,6 +23,8 @@ interface ApiResult<T> {
 export class LeaveRequestService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiBaseUrl.replace(/\/$/, '')}/api/leave-requests`;
+
+  private readonly skipToastContext = new HttpContext().set(SKIP_GLOBAL_ERROR_NOTIFICATION, true);
 
   /** GET /api/leave-requests */
   getAll(filter?: LeaveRequestFilter): Observable<LeaveRequestDto[]> {
@@ -50,19 +54,39 @@ export class LeaveRequestService {
     );
   }
 
+  /** POST /api/leave-requests/evaluate */
+  evaluate(command: SubmitLeaveRequestCommand): Observable<PolicyEvaluationResultDto> {
+    return this.http
+      .post<ApiResult<PolicyEvaluationResultDto> | PolicyEvaluationResultDto>(
+        `${this.baseUrl}/evaluate`,
+        command,
+        { context: this.skipToastContext }
+      )
+      .pipe(
+        map((res) => {
+          if (res && typeof res === 'object' && 'data' in res && res.data) {
+            return this.normalizeEvaluation(res.data);
+          }
+          return this.normalizeEvaluation(res as PolicyEvaluationResultDto);
+        })
+      );
+  }
+
   /** POST /api/leave-requests */
   submit(command: SubmitLeaveRequestCommand): Observable<SubmitLeaveRequestResponse> {
-    return this.http.post<ApiResult<SubmitLeaveRequestResponse> | SubmitLeaveRequestResponse>(this.baseUrl, command).pipe(
-      map((res) => {
-        if (res && typeof res === 'object' && 'data' in res && res.data) {
-          return res.data;
-        }
-        if (res && typeof res === 'object' && 'id' in res) {
-          return res as SubmitLeaveRequestResponse;
-        }
-        return { id: String(res || '') };
-      })
-    );
+    return this.http
+      .post<ApiResult<SubmitLeaveRequestResponse> | SubmitLeaveRequestResponse>(this.baseUrl, command)
+      .pipe(
+        map((res) => {
+          if (res && typeof res === 'object' && 'data' in res && res.data) {
+            return res.data;
+          }
+          if (res && typeof res === 'object' && 'id' in res) {
+            return res as SubmitLeaveRequestResponse;
+          }
+          return { id: String(res || '') };
+        })
+      );
   }
 
   /** PUT /api/leave-requests/{id}/approve */
@@ -89,5 +113,14 @@ export class LeaveRequestService {
         reason: cancellationReason || null,
       })
       .pipe(map((res) => (typeof res === 'boolean' ? res : (res?.data ?? true))));
+  }
+
+  private normalizeEvaluation(raw: PolicyEvaluationResultDto | null | undefined): PolicyEvaluationResultDto {
+    return {
+      hasErrors: !!raw?.hasErrors,
+      hasWarnings: !!raw?.hasWarnings,
+      errors: raw?.errors ?? [],
+      warnings: raw?.warnings ?? [],
+    };
   }
 }

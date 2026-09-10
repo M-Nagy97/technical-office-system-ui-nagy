@@ -136,11 +136,6 @@ export class LeaveListComponent implements OnInit {
       },
       error: () => {
         this.loading.set(false);
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translate.instant('common.error'),
-          detail: this.translate.instant('leave.types.load_failed'),
-        });
       },
     });
   }
@@ -154,21 +149,6 @@ export class LeaveListComponent implements OnInit {
           detail: this.translate.instant('leave.types.delete_success'),
         });
         this.loadData();
-      },
-      error: (err) => {
-        const isAr = this.languageService.currentLang() === 'ar';
-        const msg =
-          (isAr ? err?.error?.messageAr : err?.error?.message) ||
-          err?.error?.message ||
-          err?.error?.messageAr ||
-          err?.error?.detail ||
-          this.translate.instant('leave.types.delete_failed');
-
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translate.instant('common.error'),
-          detail: msg,
-        });
       },
     });
   }

@@ -1,0 +1,88 @@
+<p-dialog
+  [visible]="visible"
+  (visibleChange)="onVisibleChange($event)"
+  [header]="title()"
+  [modal]="true"
+  [style]="{ width: '450px' }"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="!loading"
+  styleClass="policy-eval-p-dialog"
+>
+  <div class="policy-eval-dialog py-2">
+    <div
+      class="status-row"
+      [class.status-row--error]="isError()"
+      [class.status-row--warning]="!isError()"
+    >
+      <i
+        class="status-icon pi"
+        [class.pi-times-circle]="isError()"
+        [class.pi-exclamation-triangle]="!isError()"
+      ></i>
+      <div>
+        <p class="status-title">{{ heading() }}</p>
+        <small class="status-sub">
+          {{
+            (isError() ? 'leave.policy_dialog.error_sub' : 'leave.policy_dialog.warning_sub')
+              | translate
+          }}
+        </small>
+      </div>
+    </div>
+
+    <div
+      class="alert-banner"
+      [class.alert-banner--error]="isError()"
+      [class.alert-banner--warning]="!isError()"
+    >
+      <i
+        class="alert-banner__icon pi"
+        [class.pi-times-circle]="isError()"
+        [class.pi-exclamation-triangle]="!isError()"
+      ></i>
+      <div class="alert-banner__body">
+        <div class="alert-banner__title">
+          {{
+            (isError()
+              ? 'leave.policy_dialog.error_banner_title'
+              : 'leave.actions.policy_warning_title'
+            ) | translate
+          }}
+        </div>
+        <div class="alert-banner__text" *ngIf="joinedMessages(); else noMessages">
+          {{ joinedMessages() }}
+        </div>
+        <ng-template #noMessages>
+          <div class="alert-banner__text">
+            {{ 'leave.policy_dialog.generic_message' | translate }}
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="policy-eval-dialog__footer">
+      <button
+        pButton
+        type="button"
+        [label]="(isError() ? 'leave.policy_dialog.close_btn' : 'leave.actions.back_btn') | translate"
+        icon="pi pi-times"
+        class="p-button-outlined p-button-secondary"
+        (click)="onClose()"
+        [disabled]="loading"
+      ></button>
+      <button
+        *ngIf="!isError()"
+        pButton
+        type="button"
+        [label]="'leave.policy_dialog.proceed_btn' | translate"
+        [icon]="loading ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
+        class="p-button-warning"
+        (click)="onProceed()"
+        [loading]="loading"
+      ></button>
+    </div>
+  </ng-template>
+</p-dialog>

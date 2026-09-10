@@ -138,11 +138,6 @@ export class LeaveBalanceComponent implements OnInit {
       },
       error: () => {
         this.loading.set(false);
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translate.instant('common.error'),
-          detail: this.translate.instant('leave.balances.load_failed'),
-        });
       },
     });
   }
@@ -203,21 +198,8 @@ export class LeaveBalanceComponent implements OnInit {
             this.loadBalances();
           }
         },
-        error: (err) => {
+        error: () => {
           this.initSaving.set(false);
-          const isAr = this.languageService.currentLang() === 'ar';
-          const msg =
-            (isAr ? err?.error?.messageAr : err?.error?.message) ||
-            err?.error?.message ||
-            err?.error?.messageAr ||
-            err?.error?.detail ||
-            this.translate.instant('leave.balances.init_failed');
-
-          this.messageService.add({
-            severity: 'error',
-            summary: this.translate.instant('common.error'),
-            detail: msg,
-          });
         },
       });
   }
@@ -253,21 +235,6 @@ export class LeaveBalanceComponent implements OnInit {
               detail: this.translate.instant('leave.balances.delete_success'),
             });
             this.loadBalances();
-          },
-          error: (err) => {
-            const isAr = this.languageService.currentLang() === 'ar';
-            const msg =
-              (isAr ? err?.error?.messageAr : err?.error?.message) ||
-              err?.error?.message ||
-              err?.error?.messageAr ||
-              err?.error?.detail ||
-              this.translate.instant('leave.balances.delete_failed');
-
-            this.messageService.add({
-              severity: 'error',
-              summary: this.translate.instant('common.error'),
-              detail: msg,
-            });
           },
         });
       },

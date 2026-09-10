@@ -939,6 +939,20 @@
       "cancel_permission_success": "تم إلغاء طلب الإذن بنجاح",
       "cancel_perm_success": "تم إلغاء طلب الإذن بنجاح",
       "action_failed": "حدث خطأ أثناء معالجة الطلب"
+    },
+    "policy_dialog": {
+      "error_title": "خطأ في قواعد السياسة",
+      "warning_title": "تنبيه قواعد السياسة",
+      "error_heading": "لا يمكن تقديم هذا الطلب",
+      "warning_heading": "يرجى مراجعة تنبيهات السياسة قبل المتابعة",
+      "error_sub": "صحّح المشكلات أدناه ثم حاول مرة أخرى.",
+      "warning_sub": "يمكنك المتابعة بالطلب أو الرجوع للتعديل.",
+      "error_banner_title": "خطأ السياسة:",
+      "generic_message": "تم تفعيل قاعدة سياسة.",
+      "close_btn": "إغلاق",
+      "cancel_btn": "إلغاء",
+      "proceed_btn": "متابعة",
+      "evaluate_failed": "فشل تقييم قواعد السياسة"
     }
   }
 }

@@ -11,7 +11,10 @@ import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { InputTextModule } from 'primeng/inputtext';
-import { MessageService } from 'primeng/api';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { TooltipModule } from 'primeng/tooltip';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PolicyRuleService, LeaveTypeService, LanguageService } from '../../../core/services';
 import {
@@ -20,8 +23,15 @@ import {
   RuleTargetScope,
   RuleSeverity,
   CreatePolicyRuleCommand,
+  UpdatePolicyRuleCommand,
 } from '../../../core/models/policy-rule.model';
 import { LeaveTypeDto } from '../../../core/services/leave-type.service';
+import {
+  ParamFieldSchema,
+  buildParamFieldsFromValues,
+  mergeRuleParameters,
+  serializeParametersObject,
+} from './param-schema.registry';
 
 @Component({
   selector: 'app-policy-rules',
@@ -40,8 +50,12 @@ import { LeaveTypeDto } from '../../../core/services/leave-type.service';
     DropdownModule,
     RadioButtonModule,
     InputTextModule,
+    InputNumberModule,
+    ConfirmDialogModule,
+    TooltipModule,
     TranslateModule,
   ],
+  providers: [ConfirmationService],
   templateUrl: './policy-rules.component.html',
   styleUrl: './policy-rules.component.scss',
 })
@@ -50,6 +64,7 @@ export class PolicyRulesComponent implements OnInit {
   private readonly policyRuleService = inject(PolicyRuleService);
   private readonly leaveTypeService = inject(LeaveTypeService);
   private readonly messageService = inject(MessageService);
+  private readonly confirmationService = inject(ConfirmationService);
   private readonly translate = inject(TranslateService);
   readonly languageService = inject(LanguageService);
 
@@ -60,7 +75,12 @@ export class PolicyRulesComponent implements OnInit {
   readonly leaveTypes = signal<LeaveTypeDto[]>([]);
 
   activeTabIndex = 0;
-  readonly addDialogOpen = signal(false);
+  readonly dialogOpen = signal(false);
+  readonly isEditMode = signal(false);
+  readonly editingRuleId = signal<string | null>(null);
+  readonly paramFields = signal<ParamFieldSchema[]>([]);
+  readonly paramValues = signal<Record<string, unknown>>({});
+
   ruleForm!: FormGroup;
 
   readonly leaveRules = computed(() =>
@@ -82,8 +102,18 @@ export class PolicyRulesComponent implements OnInit {
 
   readonly filteredCatalog = computed(() => {
     const scope = this.ruleForm?.get('scope')?.value ?? RuleTargetScope.Leave;
-    return this.catalog().filter((c) => c.scope === scope);
+    const isAr = this.languageService.currentLang() === 'ar';
+    return this.catalog()
+      .filter((c) => c.scope === scope)
+      .map((c) => ({
+        ...c,
+        displayName: isAr ? c.nameAr || c.name : c.name,
+      }));
   });
+
+  readonly dialogTitleKey = computed(() =>
+    this.isEditMode() ? 'leave.rules.dialog_edit_title' : 'leave.rules.dialog_create_title'
+  );
 
   ngOnInit(): void {
     this.initForm();
@@ -99,9 +129,9 @@ export class PolicyRulesComponent implements OnInit {
       description: [''],
       leaveTypeId: [null],
       severity: [RuleSeverity.Warning, [Validators.required]],
-      parametersJson: ['{}'],
       errorMessage: ['', [Validators.required]],
       errorMessageAr: ['', [Validators.required]],
+      isEnabled: [true],
     });
   }
 
@@ -114,11 +144,6 @@ export class PolicyRulesComponent implements OnInit {
       },
       error: () => {
         this.loading.set(false);
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translate.instant('common.error'),
-          detail: 'Failed to load policy rules.',
-        });
       },
     });
   }
@@ -142,21 +167,51 @@ export class PolicyRulesComponent implements OnInit {
   }
 
   openAddDialog(): void {
+    this.isEditMode.set(false);
+    this.editingRuleId.set(null);
     this.initForm();
+    this.paramFields.set([]);
+    this.paramValues.set({});
     this.ruleForm.patchValue({
       scope: this.activeTabIndex === 0 ? RuleTargetScope.Leave : RuleTargetScope.Permission,
     });
-    this.addDialogOpen.set(true);
+    this.ruleForm.get('scope')?.enable();
+    this.ruleForm.get('ruleCode')?.enable();
+    this.ruleForm.get('leaveTypeId')?.enable();
+    this.dialogOpen.set(true);
+  }
+
+  openEditDialog(rule: PolicyRuleDto): void {
+    this.isEditMode.set(true);
+    this.editingRuleId.set(rule.id);
+    this.initForm();
+    this.ruleForm.patchValue({
+      scope: rule.scope,
+      ruleCode: rule.ruleCode,
+      description: rule.description,
+      leaveTypeId: rule.leaveTypeId ?? null,
+      severity: rule.severity,
+      errorMessage: rule.errorMessage,
+      errorMessageAr: rule.errorMessageAr,
+      isEnabled: rule.isEnabled,
+    });
+    this.ruleForm.get('scope')?.disable();
+    this.ruleForm.get('ruleCode')?.disable();
+    this.ruleForm.get('leaveTypeId')?.disable();
+    this.applyParametersJson(rule.parametersJson, rule.ruleCode);
+    this.dialogOpen.set(true);
   }
 
   onScopeChanged(): void {
     this.ruleForm.patchValue({
       ruleCode: '',
       leaveTypeId: null,
-      parametersJson: '{}',
+      description: '',
       errorMessage: '',
       errorMessageAr: '',
     });
+    this.paramFields.set([]);
+    this.paramValues.set({});
   }
 
   onTemplateSelected(ruleCode: string): void {
@@ -166,10 +221,45 @@ export class PolicyRulesComponent implements OnInit {
     this.ruleForm.patchValue({
       description: item.description,
       severity: item.defaultSeverity,
-      parametersJson: item.defaultParametersJson,
       errorMessage: item.defaultErrorMessage,
       errorMessageAr: item.defaultErrorMessageAr,
     });
+    this.applyParametersJson(item.defaultParametersJson, ruleCode);
+  }
+
+  private applyParametersJson(parametersJson: string | null | undefined, ruleCode?: string): void {
+    const catalogItem = ruleCode
+      ? this.catalog().find((c) => c.ruleCode === ruleCode)
+      : undefined;
+    const merged = mergeRuleParameters(
+      parametersJson,
+      ruleCode,
+      catalogItem?.defaultParametersJson
+    );
+    this.paramValues.set(merged);
+    this.paramFields.set(buildParamFieldsFromValues(merged));
+  }
+
+  onParamChange(key: string, value: unknown): void {
+    this.paramValues.update((current) => ({ ...current, [key]: value }));
+  }
+
+  getParamLabel(field: ParamFieldSchema): string {
+    return this.languageService.currentLang() === 'ar' ? field.labelAr : field.labelEn;
+  }
+
+  getParamSuffix(field: ParamFieldSchema): string {
+    if (this.languageService.currentLang() === 'ar') {
+      return field.suffixAr || '';
+    }
+    return field.suffixEn || '';
+  }
+
+  getSelectOptions(field: ParamFieldSchema) {
+    return (field.options || []).map((o) => ({
+      label: this.languageService.currentLang() === 'ar' ? o.labelAr : o.labelEn,
+      value: o.value,
+    }));
   }
 
   toggleRule(rule: PolicyRuleDto, newState: boolean): void {
@@ -181,73 +271,113 @@ export class PolicyRulesComponent implements OnInit {
         this.messageService.add({
           severity: 'success',
           summary: this.translate.instant('common.success'),
-          detail: `Rule ${rule.ruleCode} ${newState ? 'enabled' : 'disabled'} successfully.`,
+          detail: this.translate.instant(
+            newState ? 'leave.rules.toggle_enabled_success' : 'leave.rules.toggle_disabled_success'
+          ),
         });
       },
-      error: (err) => {
+      error: () => {
         rule.isEnabled = oldState;
-        const isAr = this.languageService.currentLang() === 'ar';
-        const msg =
-          (isAr ? err?.error?.messageAr : err?.error?.message) ||
-          err?.error?.message ||
-          err?.error?.messageAr ||
-          'Failed to update rule status.';
-
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translate.instant('common.error'),
-          detail: msg,
-        });
       },
     });
   }
 
-  submitAddRule(): void {
+  confirmDelete(rule: PolicyRuleDto): void {
+    this.confirmationService.confirm({
+      header: this.translate.instant('leave.rules.delete_confirm_title'),
+      message: this.translate.instant('leave.rules.delete_confirm_msg', { name: rule.ruleCode }),
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: this.translate.instant('leave.rules.confirm_delete_btn'),
+      rejectLabel: this.translate.instant('common.cancel'),
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => this.deleteRule(rule),
+    });
+  }
+
+  private deleteRule(rule: PolicyRuleDto): void {
+    this.policyRuleService.deleteRule(rule.id).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translate.instant('common.success'),
+          detail: this.translate.instant('leave.rules.delete_success'),
+        });
+        this.loadRules();
+      },
+    });
+  }
+
+  submitRule(): void {
     if (this.ruleForm.invalid) {
       this.ruleForm.markAllAsTouched();
+      this.messageService.add({
+        severity: 'warn',
+        summary: this.translate.instant('common.warning'),
+        detail: this.translate.instant('leave.rules.form_invalid_warn'),
+      });
       return;
     }
 
+    const raw = this.ruleForm.getRawValue();
+    const parametersJson = serializeParametersObject(this.paramValues());
+
     this.saving.set(true);
-    const val = this.ruleForm.value;
+
+    if (this.isEditMode()) {
+      const id = this.editingRuleId()!;
+      const command: UpdatePolicyRuleCommand = {
+        id,
+        description: raw.description || raw.ruleCode,
+        severity: raw.severity,
+        parametersJson,
+        errorMessage: raw.errorMessage,
+        errorMessageAr: raw.errorMessageAr,
+        isEnabled: raw.isEnabled,
+      };
+
+      this.policyRuleService.updateRule(id, command).subscribe({
+        next: () => {
+          this.saving.set(false);
+          this.dialogOpen.set(false);
+          this.messageService.add({
+            severity: 'success',
+            summary: this.translate.instant('common.success'),
+            detail: this.translate.instant('leave.rules.update_success'),
+          });
+          this.loadRules();
+        },
+        error: () => {
+          this.saving.set(false);
+        },
+      });
+      return;
+    }
 
     const command: CreatePolicyRuleCommand = {
-      scope: val.scope,
-      ruleCode: val.ruleCode,
-      description: val.description || val.ruleCode,
-      severity: val.severity,
-      parametersJson: val.parametersJson || '{}',
-      errorMessage: val.errorMessage,
-      errorMessageAr: val.errorMessageAr,
-      leaveTypeId: val.scope === RuleTargetScope.Leave ? val.leaveTypeId : null,
-      isEnabled: true,
+      scope: raw.scope,
+      ruleCode: raw.ruleCode,
+      description: raw.description || raw.ruleCode,
+      severity: raw.severity,
+      parametersJson,
+      errorMessage: raw.errorMessage,
+      errorMessageAr: raw.errorMessageAr,
+      leaveTypeId: raw.scope === RuleTargetScope.Leave ? raw.leaveTypeId : null,
+      isEnabled: raw.isEnabled ?? true,
     };
 
     this.policyRuleService.createRule(command).subscribe({
       next: () => {
         this.saving.set(false);
-        this.addDialogOpen.set(false);
+        this.dialogOpen.set(false);
         this.messageService.add({
           severity: 'success',
           summary: this.translate.instant('common.success'),
-          detail: 'Policy rule created successfully.',
+          detail: this.translate.instant('leave.rules.create_success'),
         });
         this.loadRules();
       },
-      error: (err) => {
+      error: () => {
         this.saving.set(false);
-        const isAr = this.languageService.currentLang() === 'ar';
-        const msg =
-          (isAr ? err?.error?.messageAr : err?.error?.message) ||
-          err?.error?.message ||
-          err?.error?.messageAr ||
-          'Failed to create policy rule.';
-
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translate.instant('common.error'),
-          detail: msg,
-        });
       },
     });
   }
@@ -256,6 +386,6 @@ export class PolicyRulesComponent implements OnInit {
     if (!typeId) return '-';
     const type = this.leaveTypes().find((t) => t.id === typeId);
     if (!type) return typeId;
-    return this.languageService.currentLang() === 'en' ? type.name : (type.arabicName || type.name);
+    return this.languageService.currentLang() === 'en' ? type.name : type.arabicName || type.name;
   }
 }

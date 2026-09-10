@@ -48,21 +48,57 @@ export class StatusBadgeComponent {
     }
 
     const num = Number(raw);
+    const type = this._type();
 
-    if (num === LeaveRequestStatus.Draft || raw === 'Draft' || raw === 'draft') {
-      return { key: 'leave.status.draft', label: 'Draft', severity: 'info' as TagSeverity };
+    if (typeof raw === 'string') {
+      const lower = raw.toLowerCase();
+      if (lower === 'draft') {
+        return { key: 'leave.status.draft', label: 'Draft', severity: 'info' as TagSeverity };
+      }
+      if (lower === 'pending') {
+        return { key: 'leave.status.pending', label: 'Pending', severity: 'warning' as TagSeverity };
+      }
+      if (lower === 'approved') {
+        return { key: 'leave.status.approved', label: 'Approved', severity: 'success' as TagSeverity };
+      }
+      if (lower === 'rejected') {
+        return { key: 'leave.status.rejected', label: 'Rejected', severity: 'danger' as TagSeverity };
+      }
+      if (lower === 'cancelled') {
+        return { key: 'leave.status.cancelled', label: 'Cancelled', severity: 'secondary' as TagSeverity };
+      }
     }
-    if (num === LeaveRequestStatus.Pending || raw === 'Pending' || raw === 'pending') {
-      return { key: 'leave.status.pending', label: 'Pending', severity: 'warning' as TagSeverity };
-    }
-    if (num === LeaveRequestStatus.Approved || raw === 'Approved' || raw === 'approved') {
-      return { key: 'leave.status.approved', label: 'Approved', severity: 'success' as TagSeverity };
-    }
-    if (num === LeaveRequestStatus.Rejected || raw === 'Rejected' || raw === 'rejected') {
-      return { key: 'leave.status.rejected', label: 'Rejected', severity: 'danger' as TagSeverity };
-    }
-    if (num === LeaveRequestStatus.Cancelled || raw === 'Cancelled' || raw === 'cancelled') {
-      return { key: 'leave.status.cancelled', label: 'Cancelled', severity: 'secondary' as TagSeverity };
+
+    if (type === 'permission') {
+      if (num === PermissionRequestStatus.Pending) {
+        return { key: 'leave.status.pending', label: 'Pending', severity: 'warning' as TagSeverity };
+      }
+      if (num === PermissionRequestStatus.Approved) {
+        return { key: 'leave.status.approved', label: 'Approved', severity: 'success' as TagSeverity };
+      }
+      if (num === PermissionRequestStatus.Rejected) {
+        return { key: 'leave.status.rejected', label: 'Rejected', severity: 'danger' as TagSeverity };
+      }
+      if (num === PermissionRequestStatus.Cancelled) {
+        return { key: 'leave.status.cancelled', label: 'Cancelled', severity: 'secondary' as TagSeverity };
+      }
+    } else {
+      // leave (and general): include Draft
+      if (num === LeaveRequestStatus.Draft) {
+        return { key: 'leave.status.draft', label: 'Draft', severity: 'info' as TagSeverity };
+      }
+      if (num === LeaveRequestStatus.Pending) {
+        return { key: 'leave.status.pending', label: 'Pending', severity: 'warning' as TagSeverity };
+      }
+      if (num === LeaveRequestStatus.Approved) {
+        return { key: 'leave.status.approved', label: 'Approved', severity: 'success' as TagSeverity };
+      }
+      if (num === LeaveRequestStatus.Rejected) {
+        return { key: 'leave.status.rejected', label: 'Rejected', severity: 'danger' as TagSeverity };
+      }
+      if (num === LeaveRequestStatus.Cancelled) {
+        return { key: 'leave.status.cancelled', label: 'Cancelled', severity: 'secondary' as TagSeverity };
+      }
     }
 
     return { key: '', label: String(raw), severity: undefined as TagSeverity };

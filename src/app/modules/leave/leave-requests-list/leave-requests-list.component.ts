@@ -238,11 +238,6 @@ export class LeaveRequestsListComponent implements OnInit {
       },
       error: () => {
         this.loading.set(false);
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translate.instant('common.error'),
-          detail: this.translate.instant('leave.requests.load_failed'),
-        });
       },
     });
   }
@@ -304,21 +299,8 @@ export class LeaveRequestsListComponent implements OnInit {
         });
         this.loadRequests();
       },
-      error: (err) => {
+      error: () => {
         this.actionLoading.set(false);
-        const isAr = this.languageService.currentLang() === 'ar';
-        const msg =
-          (isAr ? err?.error?.messageAr : err?.error?.message) ||
-          err?.error?.message ||
-          err?.error?.messageAr ||
-          err?.error?.detail ||
-          this.translate.instant('leave.actions.action_failed');
-
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translate.instant('common.error'),
-          detail: msg,
-        });
       },
     });
   }
