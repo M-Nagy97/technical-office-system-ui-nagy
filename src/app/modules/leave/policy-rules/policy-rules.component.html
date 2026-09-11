@@ -249,6 +249,9 @@
           [placeholder]="'leave.rules.catalog_placeholder' | translate"
           (onChange)="onTemplateSelected($event.value)"
         ></p-dropdown>
+        <small class="text-500 block mt-1" *ngIf="ruleForm.getRawValue().ruleCode">
+          {{ ruleForm.getRawValue().ruleCode }}
+        </small>
       </div>
 
       <div class="col-12 field" *ngIf="isEditMode()">
@@ -286,11 +289,31 @@
         </div>
       </div>
 
+      <!-- MatchMode: always full-width radios when present -->
+      <div class="col-12 field" *ngIf="showMatchModeRadios()">
+        <label class="font-medium mb-2 block">طريقة احتساب التزامن / Concurrency match mode</label>
+        <div class="flex flex-column gap-2 p-3 border-1 surface-border border-round surface-50">
+          <div class="flex align-items-center" *ngFor="let opt of matchModeOptions">
+            <p-radioButton
+              name="matchMode"
+              [value]="opt.value"
+              [ngModel]="paramValues()['MatchMode']"
+              [ngModelOptions]="{ standalone: true }"
+              (ngModelChange)="onParamChange('MatchMode', $event)"
+              [inputId]="'matchMode_' + opt.value"
+            ></p-radioButton>
+            <label [for]="'matchMode_' + opt.value" class="ml-2 cursor-pointer font-medium">
+              {{ getMatchModeLabel(opt) }}
+            </label>
+          </div>
+        </div>
+      </div>
+
       <!-- Structured parameters -->
-      <div class="col-12" *ngIf="paramFields().length">
+      <div class="col-12" *ngIf="editorParamFields().length">
         <label class="font-medium mb-2 block">{{ 'leave.rules.field_parameters' | translate }}</label>
         <div class="grid">
-          <div class="col-12 md:col-6 field" *ngFor="let field of paramFields()">
+          <div class="col-12 md:col-6 field" *ngFor="let field of editorParamFields()">
             <label class="text-sm font-medium">
               {{ getParamLabel(field) }}
               <span class="text-500" *ngIf="getParamSuffix(field)"> ({{ getParamSuffix(field) }})</span>
@@ -320,6 +343,7 @@
               [options]="getSelectOptions(field)"
               optionLabel="label"
               optionValue="value"
+              appendTo="body"
               [ngModel]="paramValues()[field.key]"
               [ngModelOptions]="{ standalone: true }"
               (ngModelChange)="onParamChange(field.key, $event)"

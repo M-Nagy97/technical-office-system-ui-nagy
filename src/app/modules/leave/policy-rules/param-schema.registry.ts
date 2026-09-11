@@ -38,6 +38,7 @@ const RULE_CODE_DEFAULT_PARAMS: Record<string, Record<string, unknown>> = {
     MaxConcurrentEmployees: 2,
     CountPending: true,
     IncludeChildDepartments: false,
+    MatchMode: 'ByDayAndTime',
   },
 };
 
@@ -68,6 +69,15 @@ const PARAM_KEY_REGISTRY: Record<string, Omit<ParamFieldSchema, 'key'>> = {
     labelEn: 'Include child departments',
     labelAr: 'تضمين الأقسام / الوحدات الفرعية',
     type: 'boolean',
+  },
+  MatchMode: {
+    labelEn: 'Concurrency match mode',
+    labelAr: 'طريقة احتساب التزامن',
+    type: 'select',
+    options: [
+      { labelEn: 'Per day', labelAr: 'حسب اليوم', value: 'ByDay' },
+      { labelEn: 'Per day and time', labelAr: 'حسب اليوم والوقت', value: 'ByDayAndTime' },
+    ],
   },
   MinMonths: {
     labelEn: 'Minimum service months',
@@ -135,7 +145,24 @@ export function mergeRuleParameters(
 }
 
 export function buildParamFieldsFromValues(values: Record<string, unknown>): ParamFieldSchema[] {
-  return Object.keys(values).map((key) => toParamField(key, values[key]));
+  const preferredOrder = [
+    'MaxConcurrentEmployees',
+    'MatchMode',
+    'CountPending',
+    'IncludeChildDepartments',
+    'RequiredGenderId',
+    'MinMonths',
+    'MinDaysInAdvance',
+    'MaxDays',
+    'MaxCount',
+    'MaxHours',
+  ];
+  const keys = Object.keys(values);
+  const ordered = [
+    ...preferredOrder.filter((key) => keys.includes(key)),
+    ...keys.filter((key) => !preferredOrder.includes(key)),
+  ];
+  return ordered.map((key) => toParamField(key, values[key]));
 }
 
 function toParamField(key: string, value: unknown): ParamFieldSchema {
@@ -164,7 +191,11 @@ function toParamField(key: string, value: unknown): ParamFieldSchema {
     key,
     labelEn: key,
     labelAr: key,
-    type: 'number',
+    type: typeof value === 'string' ? 'select' : 'number',
+    options:
+      typeof value === 'string'
+        ? [{ labelEn: value, labelAr: value, value }]
+        : undefined,
   };
 }
 

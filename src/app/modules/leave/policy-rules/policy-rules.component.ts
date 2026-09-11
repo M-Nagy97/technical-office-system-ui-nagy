@@ -80,15 +80,17 @@ export class PolicyRulesComponent implements OnInit {
   readonly editingRuleId = signal<string | null>(null);
   readonly paramFields = signal<ParamFieldSchema[]>([]);
   readonly paramValues = signal<Record<string, unknown>>({});
+  /** Drives catalog filtering (form scope alone is not tracked by computed). */
+  readonly selectedScope = signal<RuleTargetScope>(RuleTargetScope.Leave);
 
   ruleForm!: FormGroup;
 
   readonly leaveRules = computed(() =>
-    this.rules().filter((r) => r.scope === RuleTargetScope.Leave)
+    this.rules().filter((r) => Number(r.scope) === RuleTargetScope.Leave)
   );
 
   readonly permissionRules = computed(() =>
-    this.rules().filter((r) => r.scope === RuleTargetScope.Permission)
+    this.rules().filter((r) => Number(r.scope) === RuleTargetScope.Permission)
   );
 
   readonly scopeOptions = [
@@ -101,15 +103,30 @@ export class PolicyRulesComponent implements OnInit {
   );
 
   readonly filteredCatalog = computed(() => {
-    const scope = this.ruleForm?.get('scope')?.value ?? RuleTargetScope.Leave;
+    const scope = Number(this.selectedScope());
     const isAr = this.languageService.currentLang() === 'ar';
     return this.catalog()
-      .filter((c) => c.scope === scope)
+      .filter((c) => Number(c.scope) === scope)
       .map((c) => ({
         ...c,
-        displayName: isAr ? c.nameAr || c.name : c.name,
+        displayName: `${isAr ? c.nameAr || c.name : c.name} (${c.ruleCode})`,
       }));
   });
+
+  /** Shown when MatchMode is part of the active rule parameters. */
+  readonly showMatchModeRadios = computed(() =>
+    Object.prototype.hasOwnProperty.call(this.paramValues(), 'MatchMode')
+  );
+
+  readonly matchModeOptions = [
+    { labelEn: 'Per day', labelAr: 'حسب اليوم فقط', value: 'ByDay' },
+    { labelEn: 'Per day and time', labelAr: 'حسب اليوم والوقت', value: 'ByDayAndTime' },
+  ];
+
+  /** Dynamic fields excluding MatchMode (rendered as radios above). */
+  readonly editorParamFields = computed(() =>
+    this.paramFields().filter((field) => field.key !== 'MatchMode')
+  );
 
   readonly dialogTitleKey = computed(() =>
     this.isEditMode() ? 'leave.rules.dialog_edit_title' : 'leave.rules.dialog_create_title'
@@ -172,9 +189,10 @@ export class PolicyRulesComponent implements OnInit {
     this.initForm();
     this.paramFields.set([]);
     this.paramValues.set({});
-    this.ruleForm.patchValue({
-      scope: this.activeTabIndex === 0 ? RuleTargetScope.Leave : RuleTargetScope.Permission,
-    });
+    const scope =
+      this.activeTabIndex === 0 ? RuleTargetScope.Leave : RuleTargetScope.Permission;
+    this.selectedScope.set(scope);
+    this.ruleForm.patchValue({ scope });
     this.ruleForm.get('scope')?.enable();
     this.ruleForm.get('ruleCode')?.enable();
     this.ruleForm.get('leaveTypeId')?.enable();
@@ -185,8 +203,10 @@ export class PolicyRulesComponent implements OnInit {
     this.isEditMode.set(true);
     this.editingRuleId.set(rule.id);
     this.initForm();
+    const scope = Number(rule.scope) as RuleTargetScope;
+    this.selectedScope.set(scope);
     this.ruleForm.patchValue({
-      scope: rule.scope,
+      scope,
       ruleCode: rule.ruleCode,
       description: rule.description,
       leaveTypeId: rule.leaveTypeId ?? null,
@@ -203,6 +223,8 @@ export class PolicyRulesComponent implements OnInit {
   }
 
   onScopeChanged(): void {
+    const scope = Number(this.ruleForm.get('scope')?.value) as RuleTargetScope;
+    this.selectedScope.set(scope);
     this.ruleForm.patchValue({
       ruleCode: '',
       leaveTypeId: null,
@@ -214,11 +236,15 @@ export class PolicyRulesComponent implements OnInit {
     this.paramValues.set({});
   }
 
-  onTemplateSelected(ruleCode: string): void {
+  onTemplateSelected(value: string | { ruleCode?: string }): void {
+    const ruleCode = typeof value === 'string' ? value : value?.ruleCode;
+    if (!ruleCode) return;
+
     const item = this.catalog().find((c) => c.ruleCode === ruleCode);
     if (!item) return;
 
     this.ruleForm.patchValue({
+      ruleCode,
       description: item.description,
       severity: item.defaultSeverity,
       errorMessage: item.defaultErrorMessage,
@@ -236,8 +262,18 @@ export class PolicyRulesComponent implements OnInit {
       ruleCode,
       catalogItem?.defaultParametersJson
     );
+
+    // Always surface MatchMode for permission department concurrency.
+    if (ruleCode === 'DEPARTMENT_PERMISSION_CONCURRENCY' && merged['MatchMode'] == null) {
+      merged['MatchMode'] = 'ByDayAndTime';
+    }
+
     this.paramValues.set(merged);
     this.paramFields.set(buildParamFieldsFromValues(merged));
+  }
+
+  getMatchModeLabel(option: { labelEn: string; labelAr: string }): string {
+    return this.languageService.currentLang() === 'ar' ? option.labelAr : option.labelEn;
   }
 
   onParamChange(key: string, value: unknown): void {
