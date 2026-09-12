@@ -1,0 +1,164 @@
+<div class="permission-request-detail-container">
+  <div class="mb-3 flex justify-content-between align-items-center">
+    <a
+      pButton
+      [label]="'leave.permissions.back_to_list' | translate"
+      [icon]="languageService.isRtl() ? 'pi pi-arrow-right' : 'pi pi-arrow-left'"
+      routerLink="/leave/permissions"
+      class="p-button-outlined p-button-secondary p-button-sm"
+    ></a>
+
+    <div class="actions flex gap-2" *ngIf="request()">
+      <button
+        *ngIf="request()!.status === PermissionRequestStatus.Pending"
+        pButton
+        [label]="'leave.permissions.approve' | translate"
+        icon="pi pi-check"
+        class="p-button-success p-button-sm"
+        (click)="openActionDialog('approve')"
+      ></button>
+      <button
+        *ngIf="request()!.status === PermissionRequestStatus.Pending"
+        pButton
+        [label]="'leave.permissions.reject' | translate"
+        icon="pi pi-times"
+        class="p-button-danger p-button-sm"
+        (click)="openActionDialog('reject')"
+      ></button>
+      <button
+        *ngIf="request()!.status === PermissionRequestStatus.Pending || request()!.status === PermissionRequestStatus.Approved"
+        pButton
+        [label]="'leave.permissions.cancel' | translate"
+        icon="pi pi-ban"
+        class="p-button-secondary p-button-sm"
+        (click)="openActionDialog('cancel')"
+      ></button>
+    </div>
+  </div>
+
+  <p-card *ngIf="request() as req">
+    <ng-template pTemplate="header">
+      <div class="p-3 border-bottom-1 surface-border flex justify-content-between align-items-center">
+        <div>
+          <h2 class="m-0 text-xl font-bold text-900">{{ 'leave.permissions.detail_title' | translate }}</h2>
+          <span class="text-sm text-500">{{ 'leave.permissions.request_id' | translate }}: {{ req.id }}</span>
+        </div>
+        <app-status-badge [status]="req.status" type="permission" />
+      </div>
+    </ng-template>
+
+    <div class="grid p-fluid">
+      <!-- بيانات الموظف والتاريخ -->
+      <div class="col-12 md:col-6">
+        <label class="text-500 text-sm block">{{ 'leave.permissions.employee' | translate }}</label>
+        <span class="text-900 font-semibold text-lg">{{ req.employeeName || employeeName() || req.employeeId }}</span>
+      </div>
+
+      <div class="col-12 md:col-6">
+        <label class="text-500 text-sm block">{{ 'leave.permissions.date' | translate }}</label>
+        <span class="text-900 font-semibold text-lg">{{ req.date }}</span>
+      </div>
+
+      <div class="col-12 md:col-6">
+        <label class="text-500 text-sm block">{{ 'leave.permissions.duration_type' | translate }}</label>
+        <span class="text-900 font-medium">
+          {{ (req.durationType === PermissionDurationType.HalfDay ? 'leave.permissions.duration_half_day' : 'leave.permissions.duration_custom_time') | translate }}
+        </span>
+      </div>
+
+      <!-- تفاصيل المدة -->
+      <div class="col-12 md:col-6">
+        <label class="text-500 text-sm block">{{ 'leave.permissions.time_or_period' | translate }}</label>
+        <span class="text-primary font-bold text-lg">
+          <ng-container *ngIf="req.durationType === PermissionDurationType.HalfDay">
+            {{ (req.halfDayPeriod === HalfDayPeriod.Afternoon ? 'leave.permissions.period_afternoon_desc' : 'leave.permissions.period_morning_desc') | translate }}
+          </ng-container>
+          <ng-container *ngIf="req.durationType === PermissionDurationType.TimeRange">
+            {{ 'leave.permissions.time_range' | translate: { from: req.fromTime || '--', to: req.toTime || '--' } }}
+          </ng-container>
+        </span>
+      </div>
+
+      <div class="col-12 md:col-6" *ngIf="req.createdDate">
+        <label class="text-500 text-sm block">{{ 'leave.permissions.created_date' | translate }}</label>
+        <span class="text-900">{{ req.createdDate }}</span>
+      </div>
+
+      <!-- سبب الإذن -->
+      <div class="col-12" *ngIf="req.reason">
+        <label class="text-500 text-sm block">{{ 'leave.permissions.reason' | translate }}</label>
+        <div class="p-3 border-round surface-50 text-800 mt-1">
+          {{ req.reason }}
+        </div>
+      </div>
+
+      <!-- Policy Warning Alert Banner -->
+      <div class="col-12" *ngIf="req.warningAlerts || req.warningAlertsAr">
+        <div class="p-3 border-round surface-orange-50 border-1 border-orange-300 text-orange-900 flex align-items-start gap-2">
+          <i class="pi pi-exclamation-triangle text-xl text-orange-600 mt-1 flex-shrink-0"></i>
+          <div>
+            <div class="font-bold text-sm">{{ 'leave.permissions.policy_warning' | translate }}</div>
+            <div class="text-sm mt-1 white-space-pre-line">{{ (languageService.currentLang() === 'ar' ? (req.warningAlertsAr || req.warningAlerts) : (req.warningAlerts || req.warningAlertsAr)) }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- معلومات الاعتماد والتدقيق -->
+    <ng-container *ngIf="req.approvedAt || req.rejectionReason || req.cancellationReason">
+      <p-divider />
+
+      <div class="audit-section">
+        <!-- بيانات الموافقة -->
+        <div *ngIf="req.approvedAt" class="p-3 border-round surface-green-50 border-1 border-green-200 mb-3">
+          <div class="flex align-items-center gap-2 text-green-700 font-bold mb-1">
+            <i class="pi pi-check-circle"></i>
+            <span>{{ 'leave.permissions.approved_box_title' | translate }}</span>
+          </div>
+          <div class="text-sm text-700">
+            <span *ngIf="req.approvedByUserId">{{ 'leave.permissions.approved_by' | translate }} {{ req.approvedByUserId }} | </span>
+            <span>{{ 'leave.permissions.approved_date' | translate }} {{ req.approvedAt }}</span>
+          </div>
+        </div>
+
+        <!-- بيانات الرفض -->
+        <div *ngIf="req.rejectionReason" class="p-3 border-round surface-red-50 border-1 border-red-200 mb-3">
+          <div class="flex align-items-center gap-2 text-red-700 font-bold mb-1">
+            <i class="pi pi-times-circle"></i>
+            <span>{{ 'leave.permissions.rejected_box_title' | translate }}</span>
+          </div>
+          <div class="text-sm text-800">
+            <strong>{{ 'leave.permissions.rejection_reason' | translate }} </strong>
+            {{ req.rejectionReason }}
+          </div>
+        </div>
+
+        <!-- بيانات الإلغاء -->
+        <div *ngIf="req.cancellationReason" class="p-3 border-round surface-50 border-1 surface-border">
+          <div class="flex align-items-center gap-2 text-600 font-bold mb-1">
+            <i class="pi pi-ban"></i>
+            <span>{{ 'leave.permissions.cancelled_box_title' | translate }}</span>
+          </div>
+          <div class="text-sm text-700">
+            <strong>{{ 'leave.permissions.cancellation_reason' | translate }} </strong>
+            {{ req.cancellationReason }}
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </p-card>
+</div>
+
+<!-- Action Dialog -->
+<app-request-action-dialog
+  *ngIf="request()"
+  i18nVariant="perm"
+  [visible]="actionDialogOpen()"
+  (visibleChange)="actionDialogOpen.set($event)"
+  [action]="currentAction()"
+  [requestId]="request()!.id"
+  [warningAlerts]="request()?.warningAlerts"
+  [loading]="actionLoading()"
+  (confirmed)="handleActionConfirm($event)"
+/>
+

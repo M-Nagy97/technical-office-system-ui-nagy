@@ -1,0 +1,172 @@
+<div class="leave-request-form-container">
+  <p-card [header]="'leave.requests.create_title' | translate">
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="grid p-fluid">
+        <!-- الموظف -->
+        <div class="col-12 md:col-6 field">
+          <label for="employeeId" class="font-medium">{{ 'leave.requests.field_employee' | translate }} <span class="text-red-500">*</span></label>
+          <p-dropdown
+            id="employeeId"
+            formControlName="employeeId"
+            [options]="employees()"
+            optionLabel="fullName"
+            optionValue="id"
+            [placeholder]="'leave.requests.field_employee_placeholder' | translate"
+            [filter]="true"
+            filterBy="fullName,employeeNumber"
+            [showClear]="true"
+          ></p-dropdown>
+          <small
+            class="p-error block mt-1"
+            *ngIf="form.get('employeeId')?.invalid && form.get('employeeId')?.touched"
+          >
+            {{ 'leave.requests.field_employee_req' | translate }}
+          </small>
+        </div>
+
+        <!-- نوع الإجازة -->
+        <div class="col-12 md:col-6 field">
+          <label for="leaveTypeId" class="font-medium">{{ 'leave.requests.field_leave_type' | translate }} <span class="text-red-500">*</span></label>
+          <p-dropdown
+            id="leaveTypeId"
+            formControlName="leaveTypeId"
+            [options]="leaveTypes()"
+            [optionLabel]="leaveTypeOptionLabel()"
+            optionValue="id"
+            [placeholder]="'leave.requests.field_leave_type_placeholder' | translate"
+            [showClear]="true"
+          ></p-dropdown>
+          <small
+            class="p-error block mt-1"
+            *ngIf="form.get('leaveTypeId')?.invalid && form.get('leaveTypeId')?.touched"
+          >
+            {{ 'leave.requests.field_leave_type_req' | translate }}
+          </small>
+        </div>
+
+        <!-- تاريخ البداية -->
+        <div class="col-12 md:col-6 field">
+          <label for="startDate" class="font-medium">{{ 'leave.requests.field_start_date' | translate }} <span class="text-red-500">*</span></label>
+          <p-calendar
+            id="startDate"
+            formControlName="startDate"
+            dateFormat="yy-mm-dd"
+            [placeholder]="'leave.requests.field_start_date_placeholder' | translate"
+            [showIcon]="true"
+          ></p-calendar>
+          <small
+            class="p-error block mt-1"
+            *ngIf="form.get('startDate')?.invalid && form.get('startDate')?.touched"
+          >
+            {{ 'leave.requests.field_start_date_req' | translate }}
+          </small>
+        </div>
+
+        <!-- تاريخ النهاية -->
+        <div class="col-12 md:col-6 field">
+          <label for="endDate" class="font-medium">{{ 'leave.requests.field_end_date' | translate }} <span class="text-red-500">*</span></label>
+          <p-calendar
+            id="endDate"
+            formControlName="endDate"
+            dateFormat="yy-mm-dd"
+            [placeholder]="'leave.requests.field_end_date_placeholder' | translate"
+            [showIcon]="true"
+          ></p-calendar>
+          <small
+            class="p-error block mt-1"
+            *ngIf="form.get('endDate')?.invalid && form.get('endDate')?.touched"
+          >
+            {{ 'leave.requests.field_end_date_req' | translate }}
+          </small>
+        </div>
+
+        <!-- إجمالي الأيام (محسوب تلقائياً) -->
+        <div class="col-12 field">
+          <div class="p-3 border-round surface-50 flex align-items-center justify-content-between">
+            <span class="font-medium text-700">{{ 'leave.requests.computed_total_days' | translate }}</span>
+            <span
+              class="text-xl font-bold"
+              [class.text-primary]="computedDays() !== null && computedDays()! > 0"
+              [class.text-red-500]="computedDays() === 0"
+            >
+              <ng-container *ngIf="computedDays() === null">--</ng-container>
+              <ng-container *ngIf="computedDays() !== null && computedDays()! > 0">
+                {{ 'leave.requests.days_count' | translate: { count: computedDays() } }}
+              </ng-container>
+              <ng-container *ngIf="computedDays() === 0">
+                {{ 'leave.requests.invalid_date_order' | translate }}
+              </ng-container>
+            </span>
+          </div>
+        </div>
+
+        <!-- مستند مرفق (يظهر ويتطلب فقط إذا كان نوع الإجازة يتطلب مستنداً) -->
+        <div class="col-12 field" *ngIf="requiresDocument()">
+          <label for="attachmentUrl" class="font-medium">
+            {{ 'leave.requests.field_attachment' | translate }} <span class="text-red-500">*</span>
+          </label>
+          <div class="p-inputgroup">
+            <span class="p-inputgroup-addon"><i class="pi pi-link"></i></span>
+            <input
+              id="attachmentUrl"
+              type="text"
+              pInputText
+              formControlName="attachmentUrl"
+              [placeholder]="'leave.requests.field_attachment_placeholder' | translate"
+            />
+          </div>
+          <small
+            class="p-error block mt-1"
+            *ngIf="form.get('attachmentUrl')?.invalid && form.get('attachmentUrl')?.touched"
+          >
+            {{ 'leave.requests.field_attachment_req' | translate }}
+          </small>
+        </div>
+
+        <!-- السبب / ملاحظات -->
+        <div class="col-12 field">
+          <label for="reason" class="font-medium">{{ 'leave.requests.field_reason' | translate }}</label>
+          <textarea
+            id="reason"
+            pInputTextarea
+            formControlName="reason"
+            rows="3"
+            [placeholder]="'leave.requests.field_reason_placeholder' | translate"
+            class="w-full"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="form-actions mt-4 flex gap-2">
+        <button
+          pButton
+          type="submit"
+          [label]="'leave.requests.submit_btn' | translate"
+          icon="pi pi-send"
+          [loading]="evaluateSubmit.submitting() || evaluateSubmit.evaluating()"
+          class="p-button-primary"
+        ></button>
+        <button
+          pButton
+          type="button"
+          [label]="'common.cancel' | translate"
+          icon="pi pi-times"
+          (click)="cancel()"
+          class="p-button-outlined p-button-secondary"
+        ></button>
+      </div>
+    </form>
+  </p-card>
+</div>
+
+<app-policy-evaluation-dialog
+  [visible]="evaluateSubmit.policyDialogVisible()"
+  (visibleChange)="evaluateSubmit.policyDialogVisible.set($event)"
+  [mode]="evaluateSubmit.policyDialogMode()"
+  [messages]="evaluateSubmit.policyDialogMessages()"
+  [loading]="evaluateSubmit.policyDialogLoading()"
+  (proceed)="evaluateSubmit.onPolicyProceed()"
+  (cancelled)="evaluateSubmit.onPolicyDialogClosed()"
+></app-policy-evaluation-dialog>
+
