@@ -134,6 +134,26 @@
     "success": "تم",
     "open": "فتح"
   },
+  "document_preview": {
+    "default_header": "معاينة المستند",
+    "national_id_header": "وثيقة الرقم القومي",
+    "open_button": "وثيقة الرقم القومي",
+    "doc_number": "رقم الوثيقة",
+    "issue_date": "تاريخ الإصدار",
+    "expiry_date": "تاريخ الانتهاء",
+    "empty": "لا توجد وثيقة مرفقة.",
+    "preview_unavailable": "معاينة الملف غير متاحة لهذا النوع. يمكنك فتح الملف أو تحميله.",
+    "open_file": "فتح الملف",
+    "print": "طباعة",
+    "download": "تحميل",
+    "close": "إغلاق",
+    "no_doc_print": "لا توجد وثيقة للطباعة",
+    "no_doc_download": "لا توجد وثيقة للتحميل",
+    "print_window_blocked": "تعذّر فتح نافذة الطباعة",
+    "open_file_failed": "تعذّر فتح الملف للطباعة",
+    "download_success": "تم تحميل الوثيقة",
+    "download_fallback": "تم فتح الوثيقة في تبويب جديد — احفظها من المتصفح"
+  },
   "not_found": {
     "title": "404",
     "message": "الصفحة المطلوبة غير موجودة.",

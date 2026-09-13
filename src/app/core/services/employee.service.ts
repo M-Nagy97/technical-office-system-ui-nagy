@@ -120,6 +120,8 @@ export class EmployeeService {
               educationLevel: emp.educationLevel || local.educationLevel,
               educationField: emp.educationField || local.educationField,
               graduationYear: emp.graduationYear || local.graduationYear,
+              photo: emp.photo || local.photo,
+              documents: emp.documents?.length ? emp.documents : local.documents,
             };
             this.employeesState.update((list) =>
               list.map((e) => (e.id === id ? finalEmp : e))

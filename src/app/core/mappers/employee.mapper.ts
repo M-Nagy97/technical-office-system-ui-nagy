@@ -2,6 +2,11 @@ import { Employee, EmployeeDocument, EmployeeStatus } from '../models/employee.m
 import { EmployeeDto } from '../api/generated/model/employeeDto';
 import { CreateEmployeeCommand } from '../api/generated/model/createEmployeeCommand';
 import { UpdateEmployeeCommand } from '../api/generated/model/updateEmployeeCommand';
+import {
+  isImageMediaUrl,
+  resolveMediaUrl,
+  toStorageFileUrl,
+} from '../utils/media-url.util';
 
 const STATUS_ID_MAP: Record<number, EmployeeStatus> = {
   1: 'active',
@@ -130,7 +135,7 @@ export class EmployeeMapper {
       documentTypeId: doc.documentTypeId,
       type: 'other' as const,
       name: doc.documentNumber ?? '',
-      fileUrl: doc.fileUrl ?? '',
+      fileUrl: resolveMediaUrl(doc.fileUrl),
       uploadDate: doc.issueDate ? new Date(doc.issueDate) : new Date(0),
       expiryDate: doc.expiryDate ? new Date(doc.expiryDate) : undefined,
     }));
@@ -140,6 +145,10 @@ export class EmployeeMapper {
     const nationalId = nationalIdDoc?.documentNumber ?? '';
 
     const nationality = (dto.nationalityId && ID_TO_NATIONALITY[dto.nationalityId]) || 'مصري';
+
+    const photo =
+      documents.find((d) => isImageMediaUrl(d.fileUrl))?.fileUrl
+      ?? undefined;
 
     return {
       id: dto.id ?? '',
@@ -160,7 +169,7 @@ export class EmployeeMapper {
       alternatePhone: primaryContact?.emergencyPhone || (primaryContact?.phone && primaryContact?.phone !== primaryContact?.mobile ? primaryContact.phone : undefined),
       email: primaryContact?.email ?? undefined,
       address: primaryAddress?.addressLine ?? '',
-      photo: undefined,
+      photo,
       appointmentDate: dto.hireDate ? new Date(dto.hireDate) : new Date(),
       appointmentDecisionNumber: '',
       appointmentDecisionDate: dto.hireDate ? new Date(dto.hireDate) : new Date(),
@@ -216,7 +225,7 @@ export class EmployeeMapper {
       documentNumber: employee.nationalId,
       issueDate: parseDate(natDoc?.uploadDate || employee.appointmentDate || employee.birthDate || new Date()),
       expiryDate: parseDate(natDoc?.expiryDate || new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000)),
-      fileUrl: natDoc?.fileUrl || 'https://example.com/doc.pdf',
+      fileUrl: toStorageFileUrl(natDoc?.fileUrl) || 'https://example.com/doc.pdf',
     }] : [];
 
     const otherDocsPayload = (employee.documents || [])
@@ -224,7 +233,7 @@ export class EmployeeMapper {
       .map((doc) => ({
         documentTypeId: doc.documentTypeId || 'dce167b1-ee8f-4d86-bdd3-477446980566',
         documentNumber: doc.documentNumber || doc.name || doc.id || 'DOC',
-        fileUrl: doc.fileUrl || 'https://example.com/doc.pdf',
+        fileUrl: toStorageFileUrl(doc.fileUrl) || 'https://example.com/doc.pdf',
         issueDate: parseDate(doc.uploadDate) || parseDate(new Date()),
         expiryDate: parseDate(doc.expiryDate) || parseDate(new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000)),
       }));
@@ -309,7 +318,7 @@ export class EmployeeMapper {
       documentNumber: employee.nationalId,
       issueDate: parseDate(natDoc?.uploadDate || employee.appointmentDate || employee.birthDate || new Date()),
       expiryDate: parseDate(natDoc?.expiryDate || new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000)),
-      fileUrl: natDoc?.fileUrl || 'https://example.com/doc.pdf',
+      fileUrl: toStorageFileUrl(natDoc?.fileUrl) || 'https://example.com/doc.pdf',
     }] : [];
 
     const otherDocsPayload = (employee.documents || [])
@@ -317,7 +326,7 @@ export class EmployeeMapper {
       .map((doc) => ({
         documentTypeId: doc.documentTypeId || 'dce167b1-ee8f-4d86-bdd3-477446980566',
         documentNumber: doc.documentNumber || doc.name || doc.id || 'DOC',
-        fileUrl: doc.fileUrl || 'https://example.com/doc.pdf',
+        fileUrl: toStorageFileUrl(doc.fileUrl) || 'https://example.com/doc.pdf',
         issueDate: parseDate(doc.uploadDate) || parseDate(new Date()),
         expiryDate: parseDate(doc.expiryDate) || parseDate(new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000)),
       }));

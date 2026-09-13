@@ -132,9 +132,14 @@
                     <td style="padding: 0.75rem;">{{ formatDateOrDash(doc.expiryDate) }}</td>
                     <td style="padding: 0.75rem;">
                       @if (doc.fileUrl && doc.fileUrl !== 'https://example.com/doc.pdf') {
-                        <a [href]="doc.fileUrl" target="_blank" rel="noopener noreferrer" class="p-button p-button-sm p-button-link" style="padding: 0;">
-                          <i class="pi pi-external-link" style="margin-left: 0.25rem;"></i> فتح الملف
-                        </a>
+                        <button
+                          pButton
+                          type="button"
+                          [label]="'document_preview.open_file' | translate"
+                          icon="pi pi-eye"
+                          class="p-button-text p-button-sm"
+                          (click)="openDocumentPreview(doc)"
+                        ></button>
                       } @else if (doc.fileUrl) {
                         <span class="text-secondary" style="font-size: 0.875rem;">{{ doc.fileUrl }}</span>
                       } @else {
@@ -150,12 +155,27 @@
           }
           <div class="flex gap-2">
             <a pButton label="تعديل المستندات والبيانات" icon="pi pi-pencil" [routerLink]="['/employees', emp.id, 'edit']" class="p-button-outlined p-button-sm"></a>
-            <a pButton label="مستندات التعيين" icon="pi pi-file" routerLink="/employees/documents" [queryParams]="{ employeeId: emp.id }" class="p-button-text p-button-sm"></a>
+            <button
+              pButton
+              type="button"
+              [label]="'document_preview.open_button' | translate"
+              icon="pi pi-id-card"
+              class="p-button-text p-button-sm"
+              (click)="openNatIdDialog()"
+            ></button>
           </div>
         </div>
       </p-tabPanel>
     </p-tabView>
   </div>
+
+  <app-document-preview-dialog
+    [visible]="documentPreviewVisible()"
+    (visibleChange)="documentPreviewVisible.set($event)"
+    [document]="previewDocument()"
+    [headerKey]="previewHeaderKey()"
+    [downloadFileName]="previewDownloadFileName()"
+  />
 } @else if (loading()) {
   <p>جاري التحميل...</p>
 } @else {
