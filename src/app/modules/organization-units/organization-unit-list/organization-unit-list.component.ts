@@ -4,9 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
-import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { RippleModule } from 'primeng/ripple';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -24,13 +22,12 @@ import { SharedTableAction, SharedTableColumn } from '../../../shared/components
     CardModule,
     ButtonModule,
     InputTextModule,
-    ConfirmDialogModule,
     ConfirmPopupModule,
-    ToastModule,
     TooltipModule,
     RippleModule,
     SharedTableComponent,
   ],
+  providers: [ConfirmationService],
   templateUrl: './organization-unit-list.component.html',
   styleUrl: './organization-unit-list.component.scss',
 })
@@ -104,11 +101,6 @@ export class OrganizationUnitListComponent implements OnInit {
       },
       error: () => {
         this.loading.set(false);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'خطأ',
-          detail: 'حدث خطأ أثناء تحميل البيانات',
-        });
       },
     });
   }
@@ -148,13 +140,8 @@ export class OrganizationUnitListComponent implements OnInit {
           });
         }
       },
-      error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'خطأ',
-          detail: 'حدث خطأ أثناء الحذف',
-        });
-      },
+      // Global error interceptor already shows the API message (incl. business rules).
+      error: () => undefined,
     });
   }
 }
