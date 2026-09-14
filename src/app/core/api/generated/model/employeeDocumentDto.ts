@@ -12,6 +12,7 @@
 
 
 export interface EmployeeDocumentDto { 
+    id?: string;
     documentTypeId?: string;
     documentNumber?: string | null;
     issueDate?: string;

@@ -30,6 +30,7 @@ export class DashboardComponent implements OnInit {
   readonly today = signal<Date>(new Date());
 
   ngOnInit(): void {
+    this.employeeService.fetchAll().subscribe();
     this.attendanceService.ensureRecordsForDate(new Date());
   }
 

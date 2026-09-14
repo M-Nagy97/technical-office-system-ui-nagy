@@ -1,4 +1,4 @@
-import { Employee, EmployeeDocument, EmployeeStatus } from '../models/employee.model';
+import { Employee, EmployeeDocument, EmployeeStatus, EmploymentType } from '../models/employee.model';
 import { EmployeeDto } from '../api/generated/model/employeeDto';
 import { CreateEmployeeCommand } from '../api/generated/model/createEmployeeCommand';
 import { UpdateEmployeeCommand } from '../api/generated/model/updateEmployeeCommand';
@@ -7,6 +7,12 @@ import {
   resolveMediaUrl,
   toStorageFileUrl,
 } from '../utils/media-url.util';
+import {
+  NATIONAL_ID_DOCUMENT_TYPE_ID,
+  isPersistedDocumentId,
+  mapDocumentType,
+  truncateDocumentNumber,
+} from './employee-document-types';
 
 const STATUS_ID_MAP: Record<number, EmployeeStatus> = {
   1: 'active',
@@ -20,6 +26,18 @@ const STATUS_TO_ID_MAP: Record<EmployeeStatus, number> = {
   suspended: 2,
   terminated: 3,
   retired: 4,
+};
+
+const EMPLOYMENT_TYPE_TO_ID: Record<EmploymentType, number> = {
+  permanent: 1,
+  temporary: 2,
+  contract: 3,
+};
+
+const ID_TO_EMPLOYMENT_TYPE: Record<number, EmploymentType> = {
+  1: 'permanent',
+  2: 'temporary',
+  3: 'contract',
 };
 
 const GENDER_TO_ID: Record<string, number> = {
@@ -56,7 +74,6 @@ const NATIONALITY_TO_ID: Record<string, number> = {
   'سوداني': 209,
   'يمني': 244,
   'عراقي': 106,
-  'أخرى': 64,
 };
 
 const ID_TO_NATIONALITY: Record<number, string> = {
@@ -71,84 +88,204 @@ const ID_TO_NATIONALITY: Record<number, string> = {
   106: 'عراقي',
 };
 
+function parseDate(d: Date | string | null | undefined): string | undefined {
+  if (!d) return undefined;
+  const parsed = d instanceof Date ? d : new Date(d);
+  return isNaN(parsed.getTime()) ? undefined : parsed.toISOString();
+}
+
+function buildDocumentPayloads(employee: Partial<Employee>) {
+  const natDoc = (employee.documents || []).find(
+    (d) =>
+      d.documentTypeId === NATIONAL_ID_DOCUMENT_TYPE_ID ||
+      (d.documentNumber && d.documentNumber === employee.nationalId)
+  );
+
+  const nationalIdDocPayload =
+    employee.nationalId && natDoc?.fileUrl
+      ? [
+          {
+            id: isPersistedDocumentId(natDoc.id) ? natDoc.id : undefined,
+            documentTypeId: NATIONAL_ID_DOCUMENT_TYPE_ID,
+            documentNumber: truncateDocumentNumber(employee.nationalId),
+            issueDate: parseDate(natDoc.uploadDate || employee.birthDate),
+            expiryDate: parseDate(natDoc.expiryDate),
+            fileUrl: toStorageFileUrl(natDoc.fileUrl) || '',
+          },
+        ]
+      : employee.nationalId
+        ? [
+            {
+              id: isPersistedDocumentId(natDoc?.id) ? natDoc!.id : undefined,
+              documentTypeId: NATIONAL_ID_DOCUMENT_TYPE_ID,
+              documentNumber: truncateDocumentNumber(employee.nationalId),
+              issueDate: parseDate(natDoc?.uploadDate || employee.birthDate || new Date()),
+              expiryDate: parseDate(natDoc?.expiryDate || new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000)),
+              fileUrl: toStorageFileUrl(natDoc?.fileUrl) || '',
+            },
+          ]
+        : [];
+
+  const otherDocsPayload = (employee.documents || [])
+    .filter((doc) => doc !== natDoc && doc.documentTypeId && doc.documentTypeId !== NATIONAL_ID_DOCUMENT_TYPE_ID)
+    .filter((doc) => doc.documentNumber || doc.name)
+    .map((doc) => ({
+      id: isPersistedDocumentId(doc.id) ? doc.id : undefined,
+      documentTypeId: doc.documentTypeId!,
+      documentNumber: truncateDocumentNumber(doc.documentNumber || doc.name, 'DOC'),
+      fileUrl: toStorageFileUrl(doc.fileUrl) || '',
+      issueDate: parseDate(doc.uploadDate) || parseDate(new Date()),
+      expiryDate: parseDate(doc.expiryDate) || parseDate(new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000)),
+    }));
+
+  return [...nationalIdDocPayload, ...otherDocsPayload].filter((d) => d.documentTypeId);
+}
+
+function buildCommandBody(employee: Partial<Employee>) {
+  const mainPhone = employee.phone?.trim() || null;
+  const altPhone = employee.alternatePhone?.trim() || null;
+  const email = employee.email?.trim() || null;
+  const hasContact = Boolean(mainPhone || altPhone || email);
+  const hasEducation = Boolean(
+    employee.educationLevel?.trim() || employee.educationField?.trim() || employee.graduationYear
+  );
+  const contactId = isPersistedDocumentId(employee.contactId) ? employee.contactId : undefined;
+  const addressId = isPersistedDocumentId(employee.addressId) ? employee.addressId : undefined;
+  const educationId = isPersistedDocumentId(employee.educationId) ? employee.educationId : undefined;
+
+  return {
+    firstName: employee.firstName ?? null,
+    lastName: employee.lastName ?? null,
+    arabicName: employee.fullName ?? null,
+    birthDate: parseDate(employee.birthDate),
+    genderId: employee.gender ? GENDER_TO_ID[employee.gender] : 1,
+    nationalityId: employee.nationality ? (NATIONALITY_TO_ID[employee.nationality] ?? 64) : 64,
+    maritalStatusId: employee.maritalStatus ? MARITAL_STATUS_TO_ID[employee.maritalStatus] : 1,
+    hireDate: parseDate(employee.appointmentDate),
+    statusId: employee.status ? STATUS_TO_ID_MAP[employee.status] : 1,
+    birthPlace: employee.birthPlace?.trim() || null,
+    religion: employee.religion?.trim() || null,
+    appointmentDecisionNumber: employee.appointmentDecisionNumber?.trim() || null,
+    appointmentDecisionDate: parseDate(employee.appointmentDecisionDate),
+    employmentTypeId: employee.employmentType
+      ? EMPLOYMENT_TYPE_TO_ID[employee.employmentType]
+      : 1,
+    // null ⇒ backend skips sync (empty [] deletes all orphans and can throw concurrency errors)
+    contacts: hasContact
+      ? [
+          {
+            ...(contactId ? { id: contactId } : {}),
+            mobile: mainPhone || '',
+            phone: altPhone || '',
+            email: email || '',
+            emergencyContactName: null,
+            emergencyPhone: altPhone || null,
+          },
+        ]
+      : null,
+    addresses: employee.address
+      ? [
+          {
+            ...(addressId ? { id: addressId } : {}),
+            countryId: 64,
+            cityId: 1,
+            addressLine: employee.address,
+            postalCode: null,
+            isPrimary: true,
+          },
+        ]
+      : null,
+    experiences: null,
+    educations: hasEducation
+      ? [
+          {
+            ...(educationId ? { id: educationId } : {}),
+            degree: employee.educationLevel?.trim() || null,
+            university: employee.educationField?.trim() || null,
+            graduationYear: employee.graduationYear ? Number(employee.graduationYear) : null,
+            grade: null,
+          },
+        ]
+      : null,
+    documents: buildDocumentPayloads(employee),
+  };
+}
+
 export class EmployeeMapper {
   static toDomain(dto: EmployeeDto): Employee {
     const primaryContact = dto.contacts && dto.contacts.length > 0 ? dto.contacts[0] : null;
     const primaryAddress = dto.addresses && Array.isArray(dto.addresses)
       ? (dto.addresses.find((a) => a.isPrimary) || dto.addresses[0])
       : null;
-    const firstExperience = dto.experiences && dto.experiences.length > 0 ? dto.experiences[0] : null;
     const firstEducation = dto.educations && dto.educations.length > 0 ? dto.educations[0] : null;
+    const contactIdRaw = (primaryContact as { id?: string } | null)?.id;
+    const addressIdRaw = (primaryAddress as { id?: string } | null)?.id;
+    const educationIdRaw = (firstEducation as { id?: string } | null)?.id;
+
+    const currentPosition = dto.currentPosition;
 
     const fullName = dto.arabicName?.trim()
       || [dto.firstName, dto.lastName].filter(Boolean).join(' ').trim()
       || '—';
 
+    // Keep API first/last names; derive middle names from Arabic full name when present.
     let firstName = dto.firstName?.trim() ?? '';
     let secondName = '';
     let thirdName = '';
     let lastName = dto.lastName?.trim() ?? '';
-
-    if (fullName && fullName !== '—') {
-      const nameParts = fullName.split(/\s+/).filter(Boolean);
+    if (dto.arabicName?.trim()) {
+      const nameParts = dto.arabicName.trim().split(/\s+/).filter(Boolean);
       if (nameParts.length >= 4) {
-        firstName = nameParts[0];
         secondName = nameParts[1];
         thirdName = nameParts[2];
-        lastName = nameParts.slice(3).join(' ');
       } else if (nameParts.length === 3) {
-        firstName = nameParts[0];
         secondName = nameParts[1];
-        thirdName = '';
-        lastName = nameParts[2];
-      } else if (nameParts.length === 2) {
-        firstName = nameParts[0];
-        secondName = '';
-        thirdName = '';
-        lastName = nameParts[1];
-      } else if (nameParts.length === 1) {
-        firstName = nameParts[0];
       }
     }
 
-    const status: EmployeeStatus = (dto.statusId != null && STATUS_ID_MAP[dto.statusId])
-      ? STATUS_ID_MAP[dto.statusId]
-      : 'active';
+    const status: EmployeeStatus =
+      dto.statusId != null && STATUS_ID_MAP[dto.statusId] ? STATUS_ID_MAP[dto.statusId] : 'active';
+
+    const employmentTypeId = dto.employmentTypeId;
+    const employmentType: EmploymentType =
+      employmentTypeId != null && ID_TO_EMPLOYMENT_TYPE[employmentTypeId]
+        ? ID_TO_EMPLOYMENT_TYPE[employmentTypeId]
+        : 'permanent';
 
     const gender: 'male' | 'female' = (dto.genderId && ID_TO_GENDER[dto.genderId]) || 'male';
     const maritalStatus: 'single' | 'married' | 'divorced' | 'widowed' =
       (dto.maritalStatusId && ID_TO_MARITAL_STATUS[dto.maritalStatusId]) || 'single';
 
-    let department = '';
-    let section = '';
-    let workLocation = '';
-    if (firstExperience?.company) {
-      const compParts = firstExperience.company.split(' / ').map((s) => s.trim());
-      department = compParts[0] || '';
-      section = compParts[1] || '';
-      workLocation = compParts[2] || '';
-    }
-
     const documents: EmployeeDocument[] = (dto.documents || []).map((doc, idx) => ({
-      id: doc.documentNumber || `doc-${idx}`,
+      id: isPersistedDocumentId(doc.id) ? doc.id!.trim() : `doc-${idx}`,
       documentNumber: doc.documentNumber ?? '',
       documentTypeId: doc.documentTypeId,
-      type: 'other' as const,
+      type: mapDocumentType(doc.documentTypeId),
       name: doc.documentNumber ?? '',
       fileUrl: resolveMediaUrl(doc.fileUrl),
       uploadDate: doc.issueDate ? new Date(doc.issueDate) : new Date(0),
       expiryDate: doc.expiryDate ? new Date(doc.expiryDate) : undefined,
     }));
 
-    const nationalIdDoc = (dto.documents || []).find((d) => d.documentNumber && /^\d{14}$/.test(d.documentNumber))
-      || (dto.documents && dto.documents.length > 0 ? dto.documents[0] : null);
+    const nationalIdDoc =
+      documents.find((d) => d.documentTypeId === NATIONAL_ID_DOCUMENT_TYPE_ID) ||
+      documents.find((d) => d.documentNumber && /^\d{14}$/.test(d.documentNumber)) ||
+      null;
     const nationalId = nationalIdDoc?.documentNumber ?? '';
 
-    const nationality = (dto.nationalityId && ID_TO_NATIONALITY[dto.nationalityId]) || 'مصري';
+    const nationality =
+      dto.nationalityId != null && ID_TO_NATIONALITY[dto.nationalityId]
+        ? ID_TO_NATIONALITY[dto.nationalityId]
+        : dto.nationalityId === 0
+          ? 'أخرى'
+          : 'مصري';
 
-    const photo =
-      documents.find((d) => isImageMediaUrl(d.fileUrl))?.fileUrl
-      ?? undefined;
+    const photo = documents.find((d) => isImageMediaUrl(d.fileUrl) && d.documentTypeId !== NATIONAL_ID_DOCUMENT_TYPE_ID)?.fileUrl;
+
+    const birthPlace = dto.birthPlace ?? '';
+    const religion = dto.religion ?? '';
+    const appointmentDecisionNumber = dto.appointmentDecisionNumber ?? '';
+    const appointmentDecisionDateRaw = dto.appointmentDecisionDate;
 
     return {
       id: dto.id ?? '',
@@ -160,25 +297,38 @@ export class EmployeeMapper {
       lastName,
       nationalId,
       gender,
-      birthDate: dto.birthDate ? new Date(dto.birthDate) : new Date(),
-      birthPlace: '',
+      birthDate: dto.birthDate ? new Date(dto.birthDate) : new Date(0),
+      birthPlace,
       nationality,
-      religion: '',
+      religion,
       maritalStatus,
       phone: primaryContact?.mobile ?? primaryContact?.phone ?? '',
-      alternatePhone: primaryContact?.emergencyPhone || (primaryContact?.phone && primaryContact?.phone !== primaryContact?.mobile ? primaryContact.phone : undefined),
+      alternatePhone:
+        primaryContact?.emergencyPhone &&
+        primaryContact.emergencyPhone !== (primaryContact?.mobile ?? primaryContact?.phone)
+          ? primaryContact.emergencyPhone
+          : primaryContact?.phone && primaryContact.phone !== primaryContact.mobile
+            ? primaryContact.phone
+            : undefined,
       email: primaryContact?.email ?? undefined,
       address: primaryAddress?.addressLine ?? '',
+      contactId: isPersistedDocumentId(contactIdRaw) ? contactIdRaw!.trim() : undefined,
+      addressId: isPersistedDocumentId(addressIdRaw) ? addressIdRaw!.trim() : undefined,
+      educationId: isPersistedDocumentId(educationIdRaw) ? educationIdRaw!.trim() : undefined,
       photo,
-      appointmentDate: dto.hireDate ? new Date(dto.hireDate) : new Date(),
-      appointmentDecisionNumber: '',
-      appointmentDecisionDate: dto.hireDate ? new Date(dto.hireDate) : new Date(),
-      jobTitle: firstExperience?.jobTitle ?? '',
-      jobGrade: '',
-      department,
-      section,
-      workLocation,
-      employmentType: 'permanent',
+      appointmentDate: dto.hireDate ? new Date(dto.hireDate) : new Date(0),
+      appointmentDecisionNumber,
+      appointmentDecisionDate: appointmentDecisionDateRaw
+        ? new Date(appointmentDecisionDateRaw)
+        : dto.hireDate
+          ? new Date(dto.hireDate)
+          : new Date(0),
+      jobTitle: currentPosition?.jobPositionName ?? currentPosition?.jobPositionId ?? '',
+      jobGrade: currentPosition?.jobGradeName ?? currentPosition?.jobGradeId ?? '',
+      department: currentPosition?.organizationUnitName ?? currentPosition?.organizationUnitId ?? '',
+      section: '',
+      workLocation: '',
+      employmentType,
       status,
       educationLevel: firstEducation?.degree ?? '',
       educationField: firstEducation?.university ?? '',
@@ -195,188 +345,16 @@ export class EmployeeMapper {
   }
 
   static toCreateCommand(employee: Partial<Employee>): CreateEmployeeCommand {
-    const mainPhone = employee.phone?.trim() || null;
-    const altPhone = employee.alternatePhone?.trim() || null;
-    const email = employee.email?.trim() || null;
-
-    const hasContact = Boolean(mainPhone || altPhone || email);
-
-    const parseDate = (d: any) => {
-      if (!d) return undefined;
-      const parsed = d instanceof Date ? d : new Date(d);
-      return isNaN(parsed.getTime()) ? undefined : parsed.toISOString();
-    };
-
-    const companyName = [employee.department, employee.section, employee.workLocation].filter(Boolean).join(' / ')
-      || employee.jobTitle?.trim()
-      || 'الشركة';
-
-    const hasExperience = Boolean(employee.jobTitle?.trim() || employee.department?.trim());
-    const hasEducation = Boolean(employee.educationLevel?.trim() || employee.educationField?.trim() || employee.graduationYear);
-
-    const natDoc = (employee.documents || []).find(
-      (d) => (d.documentNumber && d.documentNumber === employee.nationalId) ||
-             (d.name && d.name === employee.nationalId) ||
-             d.documentTypeId === 'dce167b1-ee8f-4d86-bdd3-477446980566'
-    );
-
-    const nationalIdDocPayload = employee.nationalId ? [{
-      documentTypeId: natDoc?.documentTypeId || 'dce167b1-ee8f-4d86-bdd3-477446980566',
-      documentNumber: employee.nationalId,
-      issueDate: parseDate(natDoc?.uploadDate || employee.appointmentDate || employee.birthDate || new Date()),
-      expiryDate: parseDate(natDoc?.expiryDate || new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000)),
-      fileUrl: toStorageFileUrl(natDoc?.fileUrl) || 'https://example.com/doc.pdf',
-    }] : [];
-
-    const otherDocsPayload = (employee.documents || [])
-      .filter((doc) => doc !== natDoc && (doc.name || doc.id || doc.documentNumber))
-      .map((doc) => ({
-        documentTypeId: doc.documentTypeId || 'dce167b1-ee8f-4d86-bdd3-477446980566',
-        documentNumber: doc.documentNumber || doc.name || doc.id || 'DOC',
-        fileUrl: toStorageFileUrl(doc.fileUrl) || 'https://example.com/doc.pdf',
-        issueDate: parseDate(doc.uploadDate) || parseDate(new Date()),
-        expiryDate: parseDate(doc.expiryDate) || parseDate(new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000)),
-      }));
-
     return {
-      employeeCode: employee.employeeNumber ?? null,
-      firstName: employee.firstName ?? null,
-      lastName: employee.lastName ?? null,
-      arabicName: employee.fullName ?? null,
-      birthDate: parseDate(employee.birthDate),
-      genderId: employee.gender ? GENDER_TO_ID[employee.gender] : 1,
-      nationalityId: employee.nationality ? (NATIONALITY_TO_ID[employee.nationality] ?? 64) : 64,
-      maritalStatusId: employee.maritalStatus ? MARITAL_STATUS_TO_ID[employee.maritalStatus] : 1,
-      hireDate: parseDate(employee.appointmentDate),
-      statusId: employee.status ? STATUS_TO_ID_MAP[employee.status] : 1,
-      contacts: hasContact ? [
-        {
-          mobile: mainPhone || altPhone || '',
-          phone: altPhone || mainPhone || '',
-          email: email || '',
-          emergencyContactName: 'جهة اتصال الطوارئ',
-          emergencyPhone: altPhone || mainPhone || '',
-        },
-      ] : [],
-      addresses: employee.address ? [
-        {
-          countryId: 64,
-          cityId: 1,
-          addressLine: employee.address,
-          postalCode: '44621',
-          isPrimary: true,
-        },
-      ] : [],
-      experiences: hasExperience ? [
-        {
-          jobTitle: employee.jobTitle?.trim() || employee.department?.trim() || 'موظف',
-          company: companyName,
-          startDate: parseDate(employee.appointmentDate || new Date()),
-          endDate: parseDate(new Date()),
-        },
-      ] : [],
-      educations: hasEducation ? [
-        {
-          degree: employee.educationLevel?.trim() || 'مؤهل',
-          university: employee.educationField?.trim() || 'جامعة',
-          graduationYear: Number(employee.graduationYear) || new Date().getFullYear(),
-          grade: 'جيد',
-        },
-      ] : [],
-      documents: [...nationalIdDocPayload, ...otherDocsPayload],
-    };
+      employeeCode: employee.employeeNumber?.trim() || null,
+      ...buildCommandBody(employee),
+    } as CreateEmployeeCommand;
   }
 
   static toUpdateCommand(id: string, employee: Partial<Employee>): UpdateEmployeeCommand {
-    const mainPhone = employee.phone?.trim() || null;
-    const altPhone = employee.alternatePhone?.trim() || null;
-    const email = employee.email?.trim() || null;
-
-    const hasContact = Boolean(mainPhone || altPhone || email);
-
-    const parseDate = (d: any) => {
-      if (!d) return undefined;
-      const parsed = d instanceof Date ? d : new Date(d);
-      return isNaN(parsed.getTime()) ? undefined : parsed.toISOString();
-    };
-
-    const companyName = [employee.department, employee.section, employee.workLocation].filter(Boolean).join(' / ')
-      || employee.jobTitle?.trim()
-      || 'الشركة';
-
-    const hasExperience = Boolean(employee.jobTitle?.trim() || employee.department?.trim());
-    const hasEducation = Boolean(employee.educationLevel?.trim() || employee.educationField?.trim() || employee.graduationYear);
-
-    const natDoc = (employee.documents || []).find(
-      (d) => (d.documentNumber && d.documentNumber === employee.nationalId) ||
-             (d.name && d.name === employee.nationalId) ||
-             d.documentTypeId === 'dce167b1-ee8f-4d86-bdd3-477446980566'
-    );
-
-    const nationalIdDocPayload = employee.nationalId ? [{
-      documentTypeId: natDoc?.documentTypeId || 'dce167b1-ee8f-4d86-bdd3-477446980566',
-      documentNumber: employee.nationalId,
-      issueDate: parseDate(natDoc?.uploadDate || employee.appointmentDate || employee.birthDate || new Date()),
-      expiryDate: parseDate(natDoc?.expiryDate || new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000)),
-      fileUrl: toStorageFileUrl(natDoc?.fileUrl) || 'https://example.com/doc.pdf',
-    }] : [];
-
-    const otherDocsPayload = (employee.documents || [])
-      .filter((doc) => doc !== natDoc && (doc.name || doc.id || doc.documentNumber))
-      .map((doc) => ({
-        documentTypeId: doc.documentTypeId || 'dce167b1-ee8f-4d86-bdd3-477446980566',
-        documentNumber: doc.documentNumber || doc.name || doc.id || 'DOC',
-        fileUrl: toStorageFileUrl(doc.fileUrl) || 'https://example.com/doc.pdf',
-        issueDate: parseDate(doc.uploadDate) || parseDate(new Date()),
-        expiryDate: parseDate(doc.expiryDate) || parseDate(new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000)),
-      }));
-
     return {
       id,
-      firstName: employee.firstName ?? null,
-      lastName: employee.lastName ?? null,
-      arabicName: employee.fullName ?? null,
-      birthDate: parseDate(employee.birthDate),
-      genderId: employee.gender ? GENDER_TO_ID[employee.gender] : undefined,
-      nationalityId: employee.nationality ? (NATIONALITY_TO_ID[employee.nationality] ?? 64) : undefined,
-      maritalStatusId: employee.maritalStatus ? MARITAL_STATUS_TO_ID[employee.maritalStatus] : undefined,
-      hireDate: parseDate(employee.appointmentDate),
-      statusId: employee.status ? STATUS_TO_ID_MAP[employee.status] : undefined,
-      contacts: hasContact ? [
-        {
-          mobile: mainPhone || altPhone || '',
-          phone: altPhone || mainPhone || '',
-          email: email || '',
-          emergencyContactName: 'جهة اتصال الطوارئ',
-          emergencyPhone: altPhone || mainPhone || '',
-        },
-      ] : [],
-      addresses: employee.address ? [
-        {
-          countryId: 64,
-          cityId: 1,
-          addressLine: employee.address,
-          postalCode: '44621',
-          isPrimary: true,
-        },
-      ] : [],
-      experiences: hasExperience ? [
-        {
-          jobTitle: employee.jobTitle?.trim() || employee.department?.trim() || 'موظف',
-          company: companyName,
-          startDate: parseDate(employee.appointmentDate || new Date()),
-          endDate: parseDate(new Date()),
-        },
-      ] : [],
-      educations: hasEducation ? [
-        {
-          degree: employee.educationLevel?.trim() || 'مؤهل',
-          university: employee.educationField?.trim() || 'جامعة',
-          graduationYear: Number(employee.graduationYear) || new Date().getFullYear(),
-          grade: 'جيد',
-        },
-      ] : [],
-      documents: [...nationalIdDocPayload, ...otherDocsPayload],
-    };
+      ...buildCommandBody(employee),
+    } as UpdateEmployeeCommand;
   }
 }

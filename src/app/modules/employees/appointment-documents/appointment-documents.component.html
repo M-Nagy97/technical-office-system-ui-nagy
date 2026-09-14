@@ -44,6 +44,7 @@
       [value]="filteredRows()"
       [columns]="columns"
       [actions]="actions"
+      [loading]="loading()"
       actionsColumnHeader="إجراءات"
       actionsColumnWidth="8rem"
       styleClass="p-datatable-sm p-datatable-striped"
@@ -60,59 +61,59 @@
   [visible]="uploadDialogVisible()"
   (visibleChange)="uploadDialogVisible.set($event)"
   [modal]="true"
-  [style]="{ width: '28rem' }"
+  [style]="{ width: '32rem' }"
   [draggable]="false"
   [resizable]="false"
   (onHide)="closeUpload()"
 >
   <div class="upload-dialog-content">
-    <p>اختر الموظف ثم الملف.</p>
+    <p>اختر الموظف ونوع المستند ثم ارفع ملفاً أو أكثر.</p>
     <p-dropdown
       [options]="employeeOptions()"
+      [ngModel]="uploadEmployeeId()"
+      (ngModelChange)="uploadEmployeeId.set($event)"
       optionLabel="label"
       optionValue="value"
       placeholder="الموظف"
       styleClass="w-full"
     />
+    <p-dropdown
+      [options]="uploadTypeOptions"
+      [ngModel]="uploadDocType()"
+      (ngModelChange)="uploadDocType.set($event)"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="نوع المستند"
+      styleClass="w-full"
+    />
+    <input
+      pInputText
+      class="w-full"
+      [ngModel]="uploadDocName()"
+      (ngModelChange)="uploadDocName.set($event)"
+      placeholder="اسم المستند (اختياري)"
+    />
     <p-fileUpload
       mode="advanced"
       [auto]="false"
-      chooseLabel="اختر ملف"
+      [customUpload]="true"
+      [multiple]="true"
+      [disabled]="uploading()"
+      (uploadHandler)="onUploadFile($event)"
+      chooseLabel="اختر ملفات"
       uploadLabel="رفع"
       cancelLabel="إلغاء"
-      [multiple]="false"
     />
   </div>
   <ng-template pTemplate="footer">
-    <button pButton label="إلغاء" (click)="closeUpload()" class="p-button-text"></button>
-    <button pButton label="رفع" icon="pi pi-upload" (click)="onUploadFile()"></button>
+    <button pButton label="إلغاء" (click)="closeUpload()" class="p-button-text" [disabled]="uploading()"></button>
   </ng-template>
 </p-dialog>
 
-<p-dialog
-  header="معاينة المستند"
-  [visible]="previewDialogVisible()"
-  (visibleChange)="previewDialogVisible.set($event)"
-  [modal]="true"
-  [style]="{ width: '40rem' }"
-  [draggable]="false"
-  [resizable]="false"
-  (onHide)="closePreview()"
->
-  @if (previewDoc(); as doc) {
-    <div class="preview-content">
-      <p><strong>الموظف:</strong> {{ doc.employeeName }}</p>
-      <p><strong>نوع المستند:</strong> {{ doc.typeLabel }}</p>
-      <p><strong>الاسم:</strong> {{ doc.name }}</p>
-      <p><strong>تاريخ الرفع:</strong> {{ formatDate(doc.uploadDate) }}</p>
-      @if (doc.fileUrl) {
-        <a [href]="doc.fileUrl" target="_blank" rel="noopener" pButton label="فتح الملف" icon="pi pi-external-link" class="p-button-outlined"></a>
-      } @else {
-        <p class="text-secondary">لا يوجد رابط ملف (وضع تجريبي).</p>
-      }
-    </div>
-  }
-  <ng-template pTemplate="footer">
-    <button pButton label="إغلاق" (click)="closePreview()"></button>
-  </ng-template>
-</p-dialog>
+<app-document-preview-dialog
+  [visible]="documentPreviewVisible()"
+  (visibleChange)="documentPreviewVisible.set($event)"
+  [document]="previewDocument()"
+  headerKey="document_preview.default_header"
+  [downloadFileName]="previewDownloadFileName()"
+/>

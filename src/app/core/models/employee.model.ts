@@ -19,19 +19,6 @@ export interface EmployeeDocument {
 }
 
 /**
- * Appointment-related document (قرار التعيين، إلخ).
- */
-export interface AppointmentDocument {
-  id: string;
-  employeeId: string;
-  documentType: string;
-  documentNumber: string;
-  issueDate: Date;
-  description: string;
-  fileUrl?: string;
-}
-
-/**
  * Employee entity – personal, appointment, and qualification data.
  * بيانات الموظف – الشخصية، التعيين، والمؤهلات.
  */
@@ -54,6 +41,10 @@ export interface Employee {
   alternatePhone?: string;
   email?: string;
   address: string;
+  /** Persisted child ids — required by UpdateEmployee sync (omit ⇒ insert+delete orphans). */
+  contactId?: string;
+  addressId?: string;
+  educationId?: string;
   photo?: string;
 
   // بيانات التعيين - Appointment Data

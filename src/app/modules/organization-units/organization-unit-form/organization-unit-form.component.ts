@@ -41,10 +41,24 @@ export class OrganizationUnitFormComponent implements OnInit {
   readonly parentOptions = computed(() => {
     const units = this.allUnits();
     const currentId = this.id();
+    const excluded = new Set<string>();
+    if (currentId) {
+      excluded.add(currentId);
+      const queue = [currentId];
+      while (queue.length) {
+        const parent = queue.shift()!;
+        for (const u of units) {
+          if (u.parentId === parent && u.id && !excluded.has(u.id)) {
+            excluded.add(u.id);
+            queue.push(u.id);
+          }
+        }
+      }
+    }
     return [
       { label: '— لا يوجد (جذر) —', value: null as string | null },
       ...units
-        .filter((u) => u.id !== currentId)
+        .filter((u) => u.id && !excluded.has(u.id))
         .map((u) => ({
           label: u.name ?? u.code ?? u.id ?? '',
           value: u.id!,

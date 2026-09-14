@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
@@ -24,7 +23,6 @@ import { SharedTableAction, SharedTableColumn } from '../../../shared/components
     CardModule,
     ButtonModule,
     InputTextModule,
-    ConfirmDialogModule,
     ConfirmPopupModule,
     ToastModule,
     TooltipModule,

@@ -1,7 +1,6 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { Observable, map } from 'rxjs';
-import { EmployeeService } from './employee.service';
 import {
   Penalty,
   PenaltyType,
@@ -12,7 +11,6 @@ import {
   PENALTY_TYPE_LABELS,
   PENALTY_STATUS_LABELS,
 } from '../models/penalty.model';
-import { generateMockPenalties } from '../mocks/penalty.mock';
 
 export function filterPenalties(list: Penalty[], filter: PenaltyFilter): Penalty[] {
   let result = list;
@@ -55,7 +53,6 @@ export function filterPenalties(list: Penalty[], filter: PenaltyFilter): Penalty
   providedIn: 'root',
 })
 export class PenaltyService {
-  private readonly employeeService = inject(EmployeeService);
   private readonly penaltiesState = signal<Penalty[]>([]);
 
   readonly penalties = this.penaltiesState.asReadonly();
@@ -64,9 +61,7 @@ export class PenaltyService {
 
   private static nextSeq = 1;
 
-  constructor() {
-    this.initMockData();
-  }
+  constructor() {}
 
   private generateId(): string {
     return `pen-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
@@ -76,15 +71,6 @@ export class PenaltyService {
     const y = new Date().getFullYear();
     const n = String(PenaltyService.nextSeq++).padStart(4, '0');
     return `PEN-${y}-${n}`;
-  }
-
-  private initMockData(): void {
-    const employees = this.employeeService.getList();
-    if (employees.length > 0) {
-      const list = generateMockPenalties(employees);
-      PenaltyService.nextSeq = list.length + 1;
-      this.penaltiesState.set(list);
-    }
   }
 
   getAll(): Observable<Penalty[]> {

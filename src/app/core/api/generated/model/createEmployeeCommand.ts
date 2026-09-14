@@ -27,6 +27,11 @@ export interface CreateEmployeeCommand {
     maritalStatusId?: number;
     hireDate?: string;
     statusId?: number;
+    birthPlace?: string | null;
+    religion?: string | null;
+    appointmentDecisionNumber?: string | null;
+    appointmentDecisionDate?: string | null;
+    employmentTypeId?: number | null;
     contacts?: Array<EmployeeContactDto> | null;
     addresses?: Array<EmployeeAddressDto> | null;
     documents?: Array<EmployeeDocumentDto> | null;

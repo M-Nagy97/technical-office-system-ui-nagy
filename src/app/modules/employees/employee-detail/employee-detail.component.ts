@@ -6,8 +6,8 @@ import { TabViewModule } from 'primeng/tabview';
 import { AvatarModule } from 'primeng/avatar';
 import { TagModule } from 'primeng/tag';
 import { InputTextModule } from 'primeng/inputtext';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
+import { MessageService, ConfirmationService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { FormsModule } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
 import { CommonModule } from '@angular/common';
@@ -49,13 +49,13 @@ const NATIONAL_ID_DOCUMENT_TYPE_ID = 'dce167b1-ee8f-4d86-bdd3-477446980566';
     AvatarModule,
     TagModule,
     InputTextModule,
-    ToastModule,
+    ConfirmDialogModule,
     TooltipModule,
     TranslateModule,
     SharedTableComponent,
     DocumentPreviewDialogComponent,
   ],
-  providers: [MessageService],
+  providers: [ConfirmationService],
   templateUrl: './employee-detail.component.html',
   styleUrl: './employee-detail.component.scss',
 })
@@ -65,6 +65,7 @@ export class EmployeeDetailComponent implements OnInit {
   private readonly employeeService = inject(EmployeeService);
   private readonly penaltyService = inject(PenaltyService);
   private readonly messageService = inject(MessageService);
+  private readonly confirmationService = inject(ConfirmationService);
 
   readonly employee = signal<Employee | null>(null);
   readonly editingCode = signal(false);
@@ -198,11 +199,6 @@ export class EmployeeDetailComponent implements OnInit {
       },
       error: () => {
         this.savingCode.set(false);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'خطأ',
-          detail: 'تعذّر تحديث رقم الموظف (قد يكون مكرراً)',
-        });
       },
     });
   }
@@ -218,50 +214,54 @@ export class EmployeeDetailComponent implements OnInit {
 
   suspend(): void {
     const e = this.employee();
-    if (e && e.status === 'active') {
-      const updated: Employee = { ...e, status: 'suspended' };
-      this.employeeService.update(e.id, updated).subscribe({
-        next: () => {
-          this.employee.set(updated);
-          this.messageService.add({
-            severity: 'success',
-            summary: 'تم الإيقاف',
-            detail: 'تم إيقاف الموظف بنجاح',
-          });
-        },
-        error: (err) => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'خطأ',
-            detail: err?.error?.message || err?.message || 'تعذّر إيقاف الموظف',
-          });
-        },
-      });
-    }
+    if (!e || e.status !== 'active') return;
+    this.confirmationService.confirm({
+      message: 'هل تريد إيقاف هذا الموظف؟',
+      header: 'تأكيد الإيقاف',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'إيقاف',
+      rejectLabel: 'إلغاء',
+      accept: () => {
+        const updated: Employee = { ...e, status: 'suspended' };
+        this.employeeService.update(e.id, updated).subscribe({
+          next: () => {
+            this.employee.set(updated);
+            this.messageService.add({
+              severity: 'success',
+              summary: 'تم الإيقاف',
+              detail: 'تم إيقاف الموظف بنجاح',
+            });
+          },
+          error: () => {},
+        });
+      },
+    });
   }
 
   archive(): void {
     const e = this.employee();
-    if (e) {
-      const updated: Employee = { ...e, status: 'terminated' };
-      this.employeeService.update(e.id, updated).subscribe({
-        next: () => {
-          this.employee.set(updated);
-          this.messageService.add({
-            severity: 'success',
-            summary: 'تمت الأرشفة',
-            detail: 'تم إنهاء خدمة / أرشفة الموظف بنجاح',
-          });
-        },
-        error: (err) => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'خطأ',
-            detail: err?.error?.message || err?.message || 'تعذّر أرشفة الموظف',
-          });
-        },
-      });
-    }
+    if (!e) return;
+    this.confirmationService.confirm({
+      message: 'هل تريد أرشفة / إنهاء خدمة هذا الموظف؟',
+      header: 'تأكيد الأرشفة',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'أرشفة',
+      rejectLabel: 'إلغاء',
+      accept: () => {
+        const updated: Employee = { ...e, status: 'terminated' };
+        this.employeeService.update(e.id, updated).subscribe({
+          next: () => {
+            this.employee.set(updated);
+            this.messageService.add({
+              severity: 'success',
+              summary: 'تمت الأرشفة',
+              detail: 'تم إنهاء خدمة / أرشفة الموظف بنجاح',
+            });
+          },
+          error: () => {},
+        });
+      },
+    });
   }
 
   private findNationalIdDocument(emp: Employee | null): EmployeeDocument | null {

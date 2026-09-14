@@ -1,11 +1,12 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpErrorResponse } from '@angular/common/http';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { Observable, map, tap, of, catchError } from 'rxjs';
-import { Employee, EmployeeFilter } from '../models/employee.model';
+import { Observable, map, tap, of, catchError, throwError, switchMap } from 'rxjs';
+import { Employee, EmployeeDocument, EmployeeFilter } from '../models/employee.model';
 import { EmployeesService as GeneratedEmployeesService } from '../api/generated/api/employees.service';
 import { EmployeeMapper } from '../mappers/employee.mapper';
 import { environment } from '../../../environments/environment';
+import { SKIP_GLOBAL_ERROR_NOTIFICATION } from '../interceptors/error.interceptor';
 
 export function filterEmployees(list: Employee[], filter: EmployeeFilter): Employee[] {
   let result = list;
@@ -52,19 +53,10 @@ export class EmployeeService {
 
   readonly count = computed(() => this.employeesState().length);
 
-  private static nextSequence = 1000;
-
   private generateId(): string {
     return Math.random().toString(36).substring(2, 11);
   }
 
-  private static generateEmployeeNumber(): string {
-    return `EMP-${this.nextSequence++}`;
-  }
-
-  /**
-   * Fetch all employees from API and update signals state.
-   */
   fetchAll(): Observable<Employee[]> {
     return this.api.employeesGetAll().pipe(
       map((response) => {
@@ -76,85 +68,50 @@ export class EmployeeService {
     );
   }
 
-  /**
-   * Get all employees observable.
-   */
   getAll(): Observable<Employee[]> {
     return this.employees$;
   }
 
-  /**
-   * Get current list snapshot (synchronous).
-   */
   getList(): Employee[] {
     return this.employeesState();
   }
 
-  /**
-   * Get employee by ID from API.
-   */
   getById(id: string): Observable<Employee | undefined> {
     return this.api.employeesGetById(id).pipe(
       map((response) => {
         if (response.data) {
           const emp = EmployeeMapper.toDomain(response.data);
-          const local = this.employeesState().find((e) => e.id === id);
-          let finalEmp = emp;
-          if (local) {
-            finalEmp = {
-              ...local,
-              ...emp,
-              nationalId: local.nationalId || emp.nationalId,
-              secondName: emp.secondName || local.secondName,
-              thirdName: emp.thirdName || local.thirdName,
-              birthPlace: local.birthPlace || emp.birthPlace,
-              nationality: local.nationality || emp.nationality,
-              religion: local.religion || emp.religion,
-              maritalStatus: emp.maritalStatus || local.maritalStatus,
-              appointmentDecisionNumber: local.appointmentDecisionNumber || emp.appointmentDecisionNumber,
-              appointmentDecisionDate: local.appointmentDecisionDate || emp.appointmentDecisionDate,
-              jobGrade: local.jobGrade || emp.jobGrade,
-              department: emp.department || local.department,
-              section: emp.section || local.section,
-              workLocation: emp.workLocation || local.workLocation,
-              educationLevel: emp.educationLevel || local.educationLevel,
-              educationField: emp.educationField || local.educationField,
-              graduationYear: emp.graduationYear || local.graduationYear,
-              photo: emp.photo || local.photo,
-              documents: emp.documents?.length ? emp.documents : local.documents,
-            };
-            this.employeesState.update((list) =>
-              list.map((e) => (e.id === id ? finalEmp : e))
-            );
-          } else {
-            this.employeesState.update((list) => [...list, finalEmp]);
-          }
-          return finalEmp;
+          this.employeesState.update((list) => {
+            const idx = list.findIndex((e) => e.id === id);
+            if (idx === -1) return [...list, emp];
+            const next = [...list];
+            next[idx] = emp;
+            return next;
+          });
+          return emp;
         }
-        return this.employeesState().find((e) => e.id === id);
+        return undefined;
       }),
-      catchError(() => {
-        return of(this.employeesState().find((e) => e.id === id));
+      catchError((err: HttpErrorResponse) => {
+        if (err.status === 404) {
+          return of(this.employeesState().find((e) => e.id === id));
+        }
+        return throwError(() => err);
       })
     );
   }
 
-  /**
-   * Get employee by ID from local signals state.
-   */
   getByIdSync(id: string): Employee | undefined {
     return this.employeesState().find((e) => e.id === id);
   }
 
-  /**
-   * Create a new employee.
-   */
-  create(employee: Partial<Employee>): Observable<any> {
+  create(employee: Partial<Employee>): Observable<{ success?: boolean; data?: string }> {
     const tempId = this.generateId();
+    const snapshot = this.employeesState();
     const newEmployee: Employee = {
       ...employee,
       id: tempId,
-      employeeNumber: employee.employeeNumber || EmployeeService.generateEmployeeNumber(),
+      employeeNumber: employee.employeeNumber?.trim() || '',
       fullName: employee.fullName || `${employee.firstName ?? ''} ${employee.lastName ?? ''}`.trim(),
       firstName: employee.firstName || '',
       secondName: employee.secondName || '',
@@ -189,7 +146,6 @@ export class EmployeeService {
       updatedAt: new Date(),
     };
 
-    // Optimistically update local signals state
     this.employeesState.update((list) => [...list, newEmployee]);
 
     const command = EmployeeMapper.toCreateCommand(newEmployee);
@@ -197,88 +153,124 @@ export class EmployeeService {
       tap((res) => {
         const realId = res?.data;
         if (realId) {
-          newEmployee.id = realId;
           this.employeesState.update((list) =>
             list.map((e) => (e.id === tempId ? { ...e, id: realId } : e))
           );
         }
+      }),
+      catchError((err) => {
+        this.employeesState.set(snapshot);
+        return throwError(() => err);
       })
     );
   }
 
-  /**
-   * Update an existing employee.
-   */
   update(id: string, patch: Partial<Employee>): Observable<unknown> {
-    const current = this.employeesState();
+    const snapshot = this.employeesState();
+    const current = snapshot;
     const index = current.findIndex((e) => e.id === id);
 
     let updated: Employee;
     if (index !== -1) {
-      updated = {
-        ...current[index],
-        ...patch,
-        updatedAt: new Date(),
-      };
-
+      updated = { ...current[index], ...patch, updatedAt: new Date() };
       this.employeesState.update((list) => {
         const newList = [...list];
         newList[index] = updated;
         return newList;
       });
     } else {
-      updated = {
-        ...patch,
-        id,
-        updatedAt: new Date(),
-      } as Employee;
-
+      updated = { ...patch, id, updatedAt: new Date() } as Employee;
       this.employeesState.update((list) => [...list, updated]);
     }
 
     const command = EmployeeMapper.toUpdateCommand(id, updated);
-    return this.api.employeesUpdate(id, command);
+    return this.api.employeesUpdate(id, command).pipe(
+      catchError((err) => {
+        this.employeesState.set(snapshot);
+        return throwError(() => err);
+      })
+    );
   }
 
   /**
-   * Delete employee.
+   * Append documents after a fresh GetById so existing document Ids are kept.
+   * Only syncs the documents collection — other child collections are left untouched
+   * (backend skips null lists; empty [] would delete orphans and can throw concurrency errors).
    */
+  addDocuments(employeeId: string, newDocs: EmployeeDocument[]): Observable<unknown> {
+    return this.getById(employeeId).pipe(
+      switchMap((emp) => {
+        if (!emp) {
+          return throwError(() => new Error('Employee not found'));
+        }
+        const snapshot = this.employeesState();
+        const updated: Employee = {
+          ...emp,
+          documents: [...(emp.documents || []), ...newDocs],
+          updatedAt: new Date(),
+        };
+        this.employeesState.update((list) => {
+          const idx = list.findIndex((e) => e.id === employeeId);
+          if (idx === -1) return [...list, updated];
+          const next = [...list];
+          next[idx] = updated;
+          return next;
+        });
+
+        const command = EmployeeMapper.toUpdateCommand(employeeId, updated);
+        command.contacts = null;
+        command.addresses = null;
+        command.educations = null;
+        command.experiences = null;
+
+        return this.api.employeesUpdate(employeeId, command).pipe(
+          catchError((err) => {
+            this.employeesState.set(snapshot);
+            return throwError(() => err);
+          })
+        );
+      })
+    );
+  }
+
   delete(id: string): Observable<unknown> {
+    const snapshot = this.employeesState();
     this.employeesState.update((list) => list.filter((e) => e.id !== id));
-    return this.api.employeesDelete(id);
+    return this.api.employeesDelete(id).pipe(
+      catchError((err) => {
+        this.employeesState.set(snapshot);
+        return throwError(() => err);
+      })
+    );
   }
 
-  /**
-   * Update employee hardware code for ZKTeco devices.
-   */
   updateEmployeeCode(id: string, employeeCode: string): Observable<{ success?: boolean; data?: boolean }> {
     return this.http.patch<{ success?: boolean; data?: boolean }>(
-      `${environment.apiBaseUrl}/api/employees/${id}/employee-code`,
+      `${environment.apiBaseUrl}/api/Employees/${id}/employee-code`,
       { id, employeeCode }
     );
   }
 
-  /**
-   * Filter employees with query and filter options.
-   */
+  setPosition(
+    employeeId: string,
+    body: { jobPositionId: string; organizationUnitId: string; fromDate: string; isPrimary?: boolean }
+  ): Observable<{ success?: boolean; data?: boolean }> {
+    return this.http.put<{ success?: boolean; data?: boolean }>(
+      `${environment.apiBaseUrl}/api/Employees/${employeeId}/position`,
+      { employeeId, ...body },
+      { context: new HttpContext().set(SKIP_GLOBAL_ERROR_NOTIFICATION, true) }
+    );
+  }
+
   filter(filter: EmployeeFilter): Employee[] {
     return filterEmployees(this.employeesState(), filter);
   }
 
-  /**
-   * Search employees by text query.
-   */
   search(query: string): Observable<Employee[]> {
-    return this.employees$.pipe(
-      map((list) => filterEmployees(list, { query }))
-    );
+    return this.employees$.pipe(map((list) => filterEmployees(list, { query })));
   }
 
-  /**
-   * Search employees synchronously.
-   */
   searchSync(query: string): Employee[] {
     return filterEmployees(this.employeesState(), { query });
   }
 }
-

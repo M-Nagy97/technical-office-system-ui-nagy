@@ -28,10 +28,27 @@ export interface EmployeeDto {
     maritalStatusId?: number;
     hireDate?: string;
     statusId?: number;
+    birthPlace?: string | null;
+    religion?: string | null;
+    appointmentDecisionNumber?: string | null;
+    appointmentDecisionDate?: string | null;
+    employmentTypeId?: number | null;
     contacts?: Array<EmployeeContactDto> | null;
     addresses?: Array<EmployeeAddressDto> | null;
     documents?: Array<EmployeeDocumentDto> | null;
     educations?: Array<EmployeeEducationDto> | null;
     experiences?: Array<EmployeeExperienceDto> | null;
+    currentPosition?: {
+        id?: string;
+        jobPositionId?: string;
+        organizationUnitId?: string;
+        fromDate?: string;
+        toDate?: string | null;
+        isPrimary?: boolean;
+        jobPositionName?: string | null;
+        organizationUnitName?: string | null;
+        jobGradeId?: string | null;
+        jobGradeName?: string | null;
+    } | null;
 }
 

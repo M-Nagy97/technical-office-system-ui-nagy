@@ -14,7 +14,6 @@ import { CalendarModule } from 'primeng/calendar';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { FileUploadModule } from 'primeng/fileupload';
 import { MessageModule } from 'primeng/message';
-import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { MenuItem, MessageService } from 'primeng/api';
 import { forkJoin } from 'rxjs';
@@ -27,7 +26,12 @@ import {
   OrganizationUnitDto,
 } from '../../../core/api/generated';
 import { EmployeeService } from '../../../core/services/employee.service';
+import { FileUploadService } from '../../../core/services/file-upload.service';
 import { Employee, EmployeeDocument } from '../../../core/models/employee.model';
+import {
+  NATIONAL_ID_DOCUMENT_TYPE_ID,
+  isPersistedDocumentId,
+} from '../../../core/mappers/employee-document-types';
 
 const STEP_FIELDS: string[][] = [
   [
@@ -48,6 +52,7 @@ const STEP_FIELDS: string[][] = [
     'address',
   ],
   [
+    'employeeNumber',
     'appointmentDate',
     'appointmentDecisionNumber',
     'appointmentDecisionDate',
@@ -74,7 +79,6 @@ const ARABIC_ERRORS: Record<string, string> = {
 @Component({
   selector: 'app-employee-form',
   standalone: true,
-  providers: [MessageService],
   imports: [
     RouterLink,
     ReactiveFormsModule,
@@ -86,7 +90,6 @@ const ARABIC_ERRORS: Record<string, string> = {
     RadioButtonModule,
     FileUploadModule,
     MessageModule,
-    ToastModule,
     TooltipModule,
   ],
   templateUrl: './employee-form.component.html',
@@ -97,6 +100,7 @@ export class EmployeeFormComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly employeeService = inject(EmployeeService);
+  private readonly fileUploadService = inject(FileUploadService);
   private readonly messageService = inject(MessageService);
   private readonly jobGradesService = inject(JobGradesService);
   private readonly jobPositionsService = inject(JobPositionsService);
@@ -283,11 +287,12 @@ export class EmployeeFormComponent implements OnInit {
       nationality: ['مصري'],
       religion: [''],
       maritalStatus: ['single'],
-      phone: ['', [Validators.required, Validators.pattern(/^01[0-2]\d{8}$/)]],
+      phone: ['', [Validators.required, Validators.pattern(/^01[0125]\d{8}$/)]],
       alternatePhone: [''],
       email: ['', Validators.email],
       address: [''],
       // Step 2 - appointment
+      employeeNumber: ['', [Validators.required, Validators.maxLength(50)]],
       appointmentDate: [null as Date | null],
       appointmentDecisionNumber: [''],
       appointmentDecisionDate: [null as Date | null],
@@ -348,8 +353,8 @@ export class EmployeeFormComponent implements OnInit {
     const natDoc = (emp.documents || []).find(
       (d) => (d.documentNumber && d.documentNumber === emp.nationalId) ||
         (d.name && d.name === emp.nationalId) ||
-        d.documentTypeId === 'dce167b1-ee8f-4d86-bdd3-477446980566'
-    ) || (emp.documents && emp.documents.length > 0 ? emp.documents[0] : null);
+        d.documentTypeId === NATIONAL_ID_DOCUMENT_TYPE_ID
+      ) || (emp.documents && emp.documents.length > 0 ? emp.documents[0] : null);
 
     this.form.patchValue({
       firstName: emp.firstName ?? '',
@@ -368,6 +373,7 @@ export class EmployeeFormComponent implements OnInit {
       alternatePhone: emp.alternatePhone ?? '',
       email: emp.email ?? '',
       address: emp.address ?? '',
+      employeeNumber: emp.employeeNumber ?? '',
       appointmentDate: toDate(emp.appointmentDate),
       appointmentDecisionNumber: emp.appointmentDecisionNumber ?? '',
       appointmentDecisionDate: toDate(emp.appointmentDecisionDate),
@@ -473,12 +479,15 @@ export class EmployeeFormComponent implements OnInit {
   }
 
   saveDraft(): void {
-    this.isDraft.set(true);
-    this.submit();
+    this.messageService.add({
+      severity: 'info',
+      summary: 'غير متاح',
+      detail: 'حفظ المسودة غير مدعوم حالياً. استخدم حفظ لإرسال البيانات للخادم.',
+    });
   }
 
   submit(): void {
-    if (this.form.invalid && !this.isDraft()) {
+    if (this.form.invalid) {
       this.submittedAttempt.set(true);
       this.form.markAllAsTouched();
       const step = this.firstInvalidStep();
@@ -502,8 +511,8 @@ export class EmployeeFormComponent implements OnInit {
     const natDoc = (existingEmployee?.documents || []).find(
       (d) => (d.documentNumber && d.documentNumber === v.nationalId) ||
         (d.name && d.name === v.nationalId) ||
-        d.documentTypeId === 'dce167b1-ee8f-4d86-bdd3-477446980566'
-    ) || (existingEmployee?.documents && existingEmployee.documents.length > 0 ? existingEmployee.documents[0] : null);
+        d.documentTypeId === NATIONAL_ID_DOCUMENT_TYPE_ID
+      ) || (existingEmployee?.documents && existingEmployee.documents.length > 0 ? existingEmployee.documents[0] : null);
 
     const otherDocs = (existingEmployee?.documents || []).filter(
       (d) => d !== natDoc && d.documentNumber !== v.nationalId && d.name !== v.nationalId
@@ -514,12 +523,12 @@ export class EmployeeFormComponent implements OnInit {
     const natFileUrl = (v.nationalIdFileUrl ?? '').trim();
 
     const nationalIdDocument: EmployeeDocument | null = v.nationalId ? {
-      id: natDoc?.id || v.nationalId,
+      id: isPersistedDocumentId(natDoc?.id) ? natDoc!.id : `doc-nat-${v.nationalId}`,
       documentNumber: v.nationalId,
-      documentTypeId: natDoc?.documentTypeId || 'dce167b1-ee8f-4d86-bdd3-477446980566',
+      documentTypeId: natDoc?.documentTypeId || NATIONAL_ID_DOCUMENT_TYPE_ID,
       type: 'id_copy' as const,
       name: v.nationalId,
-      fileUrl: natFileUrl || natDoc?.fileUrl || 'https://example.com/doc.pdf',
+      fileUrl: natFileUrl || natDoc?.fileUrl || '',
       uploadDate: natIssueDate || natDoc?.uploadDate || v.appointmentDate || v.birthDate || new Date(),
       expiryDate: natExpiryDate || natDoc?.expiryDate || new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000),
     } : null;
@@ -530,6 +539,7 @@ export class EmployeeFormComponent implements OnInit {
     ];
 
     const payload = {
+      employeeNumber: v.employeeNumber,
       nationalId: v.nationalId,
       fullName: v.fullName || `${v.firstName} ${v.secondName} ${v.thirdName} ${v.lastName}`.trim(),
       firstName: v.firstName,
@@ -561,56 +571,114 @@ export class EmployeeFormComponent implements OnInit {
       graduationYear: Number(v.graduationYear) || new Date().getFullYear(),
       documents: documentsPayload,
     };
+    const positionIds = {
+      jobPositionId: this.resolveJobPositionId(v.jobTitle || ''),
+      organizationUnitId:
+        this.resolveOrganizationUnitId(v.section || '', 'section') ||
+        this.resolveOrganizationUnitId(v.department || '', 'department'),
+      fromDate: this.toIsoDate(toDate(v.appointmentDate) || new Date()),
+    };
+
     const id = this.employeeId();
     if (id && this.isEdit()) {
       this.employeeService.update(id, payload).subscribe({
         next: () => {
-          this.saving.set(false);
-          this.messageService.add({ severity: 'success', summary: 'تم بنجاح', detail: 'تم تحديث بيانات الموظف بنجاح' });
-          this.router.navigate(['/employees', id]);
+          this.afterEmployeeSaved(id, positionIds, 'تم تحديث بيانات الموظف بنجاح');
         },
-        error: (err) => {
+        error: () => {
           this.saving.set(false);
-          const detail = err?.error?.message || err?.error?.title || err?.message || 'حدث خطأ أثناء تحديث بيانات الموظف';
-          this.messageService.add({ severity: 'error', summary: 'خطأ', detail });
         },
       });
     } else {
       this.employeeService.create(payload).subscribe({
         next: (response: any) => {
-          this.saving.set(false);
           const newId = response?.data || response?.id || (typeof response === 'string' ? response : null);
-          this.messageService.add({ severity: 'success', summary: 'تم بنجاح', detail: 'تمت إضافة الموظف بنجاح' });
           if (newId) {
-            this.router.navigate(['/employees', newId]);
+            this.afterEmployeeSaved(newId, positionIds, 'تمت إضافة الموظف بنجاح');
           } else {
+            this.saving.set(false);
+            this.messageService.add({ severity: 'success', summary: 'تم بنجاح', detail: 'تمت إضافة الموظف بنجاح' });
             this.router.navigate(['/employees']);
           }
         },
-        error: (err) => {
+        error: () => {
           this.saving.set(false);
-          const detail = err?.error?.message || err?.error?.title || err?.message || 'حدث خطأ أثناء حفظ بيانات الموظف';
-          this.messageService.add({ severity: 'error', summary: 'خطأ', detail });
         },
       });
     }
   }
 
-  onUpload(): void {
-    // Placeholder: in real app would push to documents array
+  private toIsoDate(d: Date): string {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
   }
 
-  onNationalIdFileSelect(event: any): void {
-    const file: File = event.files?.[0] || event.currentFiles?.[0];
-    if (file) {
-      this.nationalIdFileName.set(file.name);
-      const reader = new FileReader();
-      reader.onload = () => {
-        const base64 = reader.result as string;
-        this.form.patchValue({ nationalIdFileUrl: base64 });
-      };
-      reader.readAsDataURL(file);
+  private afterEmployeeSaved(
+    employeeId: string,
+    position: { jobPositionId: string; organizationUnitId: string; fromDate: string },
+    successDetail: string
+  ): void {
+    const finish = () => {
+      this.saving.set(false);
+      this.messageService.add({ severity: 'success', summary: 'تم بنجاح', detail: successDetail });
+      this.router.navigate(['/employees', employeeId]);
+    };
+
+    if (!position.jobPositionId || !position.organizationUnitId) {
+      finish();
+      return;
     }
+
+    this.employeeService
+      .setPosition(employeeId, {
+        jobPositionId: position.jobPositionId,
+        organizationUnitId: position.organizationUnitId,
+        fromDate: position.fromDate,
+        isPrimary: true,
+      })
+      .subscribe({
+        next: () => finish(),
+        error: (err) => {
+          this.saving.set(false);
+          const detail =
+            err?.error?.message ||
+            err?.error?.title ||
+            err?.message ||
+            'تم حفظ الموظف لكن تعذر تعيين الوظيفة';
+          this.messageService.add({ severity: 'warn', summary: 'تنبيه', detail });
+          this.router.navigate(['/employees', employeeId]);
+        },
+      });
+  }
+
+  onUpload(): void {
+    this.messageService.add({
+      severity: 'info',
+      summary: 'قريباً',
+      detail: 'رفع المستندات الإضافية سيتم عبر خدمة الملفات المشتركة.',
+    });
+  }
+
+  onNationalIdFileSelect(event: { files?: File[]; currentFiles?: File[] }): void {
+    const file: File | undefined = event.files?.[0] || event.currentFiles?.[0];
+    if (!file) return;
+    this.nationalIdFileName.set(file.name);
+    this.fileUploadService.upload(file, 'employees/documents').subscribe({
+      next: (path) => {
+        this.form.patchValue({ nationalIdFileUrl: path });
+        this.messageService.add({
+          severity: 'success',
+          summary: 'تم الرفع',
+          detail: 'تم رفع ملف البطاقة بنجاح',
+        });
+      },
+      error: () => {
+        this.nationalIdFileName.set('');
+        this.form.patchValue({ nationalIdFileUrl: '' });
+      },
+    });
   }
 
   onNationalIdFileClear(): void {

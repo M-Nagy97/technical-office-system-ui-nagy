@@ -14,7 +14,7 @@ import { JobPositionsService, JobGradesService, JobGradeDto, UpdateJobPositionCo
 @Component({
   selector: 'app-job-position-form',
   standalone: true,
-  imports: [
+    imports: [
     CommonModule,
     ReactiveFormsModule,
     CardModule,
@@ -23,6 +23,7 @@ import { JobPositionsService, JobGradesService, JobGradeDto, UpdateJobPositionCo
     InputTextareaModule,
     DropdownModule,
     MessageModule,
+    RouterLink,
   ],
   templateUrl: './job-position-form.component.html',
   styleUrl: './job-position-form.component.scss',
