@@ -1,3 +1,4 @@
+import { TranslateService } from '@ngx-translate/core';
 import { EmployeeDocumentType } from '../models/employee.model';
 
 /** Seeded GUIDs from HR EmployeeDocumentType.GetDefaultDefinitions(). */
@@ -28,27 +29,42 @@ export const UPLOADABLE_DOC_TYPE_GUIDS: Partial<Record<EmployeeDocumentType, str
   other: PASSPORT_DOCUMENT_TYPE_ID,
 };
 
-export const DOC_TYPE_LABELS: Record<EmployeeDocumentType, string> = {
-  appointment_decision: 'قرار التعيين',
-  id_copy: 'صورة البطاقة',
-  birth_certificate: 'شهادة الميلاد',
-  qualification: 'المؤهل',
-  other: 'أخرى',
+/** i18n keys for document type labels (`employees.doc_type.*`). */
+export const DOC_TYPE_I18N_KEYS: Record<EmployeeDocumentType, string> = {
+  appointment_decision: 'employees.doc_type.appointment_decision',
+  id_copy: 'employees.doc_type.id_copy',
+  birth_certificate: 'employees.doc_type.birth_certificate',
+  qualification: 'employees.doc_type.qualification',
+  other: 'employees.doc_type.other',
 };
 
+export function getDocTypeLabel(
+  type: EmployeeDocumentType,
+  translate: TranslateService
+): string {
+  const key = DOC_TYPE_I18N_KEYS[type];
+  return key ? translate.instant(key) : type;
+}
+
 /** Options for filters (all known UI types). */
-export const DOC_TYPE_FILTER_OPTIONS: { label: string; value: EmployeeDocumentType }[] = [
-  { label: DOC_TYPE_LABELS.appointment_decision, value: 'appointment_decision' },
-  { label: DOC_TYPE_LABELS.id_copy, value: 'id_copy' },
-  { label: DOC_TYPE_LABELS.birth_certificate, value: 'birth_certificate' },
-  { label: DOC_TYPE_LABELS.qualification, value: 'qualification' },
-  { label: DOC_TYPE_LABELS.other, value: 'other' },
-];
+export function buildDocTypeFilterOptions(
+  translate: TranslateService
+): { label: string; value: EmployeeDocumentType }[] {
+  return (Object.keys(DOC_TYPE_I18N_KEYS) as EmployeeDocumentType[]).map((value) => ({
+    label: getDocTypeLabel(value, translate),
+    value,
+  }));
+}
 
 /** Options for upload dialog (types with known GUIDs). */
-export const DOC_TYPE_UPLOAD_OPTIONS: { label: string; value: EmployeeDocumentType }[] = (
-  Object.keys(UPLOADABLE_DOC_TYPE_GUIDS) as EmployeeDocumentType[]
-).map((value) => ({ label: DOC_TYPE_LABELS[value], value }));
+export function buildDocTypeUploadOptions(
+  translate: TranslateService
+): { label: string; value: EmployeeDocumentType }[] {
+  return (Object.keys(UPLOADABLE_DOC_TYPE_GUIDS) as EmployeeDocumentType[]).map((value) => ({
+    label: getDocTypeLabel(value, translate),
+    value,
+  }));
+}
 
 export function mapDocumentType(documentTypeId?: string | null): EmployeeDocumentType {
   if (!documentTypeId) return 'other';

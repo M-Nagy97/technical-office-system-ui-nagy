@@ -9,7 +9,7 @@
           (ngModelChange)="employeeFilter.set($event)"
           optionLabel="label"
           optionValue="value"
-          placeholder="الموظف"
+          [placeholder]="'employees.documents.filter_employee' | translate"
           [showClear]="true"
           styleClass="filter-dropdown"
         />
@@ -19,26 +19,32 @@
           (ngModelChange)="typeFilter.set($event)"
           optionLabel="label"
           optionValue="value"
-          placeholder="نوع المستند"
+          [placeholder]="'employees.documents.filter_type' | translate"
           [showClear]="true"
           styleClass="filter-dropdown"
         />
         <p-calendar
           [ngModel]="dateRange()[0]"
           (ngModelChange)="dateRange.set([$event, dateRange()[1]])"
-          placeholder="من تاريخ"
+          [placeholder]="'employees.documents.date_from' | translate"
           dateFormat="dd/mm/yy"
           [showIcon]="true"
         />
         <p-calendar
           [ngModel]="dateRange()[1]"
           (ngModelChange)="dateRange.set([dateRange()[0], $event])"
-          placeholder="إلى تاريخ"
+          [placeholder]="'employees.documents.date_to' | translate"
           dateFormat="dd/mm/yy"
           [showIcon]="true"
         />
       </div>
-      <button pButton label="رفع مستند" icon="pi pi-upload" (click)="openUpload()" class="p-button-primary"></button>
+      <button
+        pButton
+        [label]="'employees.documents.upload_button' | translate"
+        icon="pi pi-upload"
+        (click)="openUpload()"
+        class="p-button-primary"
+      ></button>
     </div>
 
     <app-shared-table
@@ -46,19 +52,19 @@
       [columns]="columns"
       [actions]="actions"
       [loading]="loading()"
-      actionsColumnHeader="إجراءات"
+      actionsColumnHeader="employees.documents.actions"
       actionsColumnWidth="8rem"
       styleClass="p-datatable-sm p-datatable-striped"
       [tableStyle]="{ 'min-width': '50rem' }"
-      [translateHeader]="false"
-      emptyMessage="لا توجد مستندات."
-      [translateEmptyMessage]="false"
+      [translateHeader]="true"
+      emptyMessage="employees.documents.empty"
+      [translateEmptyMessage]="true"
     />
   </p-card>
 </div>
 
 <p-dialog
-  header="رفع مستند جديد"
+  [header]="'employees.documents.upload_dialog_title' | translate"
   [visible]="uploadDialogVisible()"
   (visibleChange)="uploadDialogVisible.set($event)"
   [modal]="true"
@@ -68,14 +74,14 @@
   (onHide)="closeUpload()"
 >
   <div class="upload-dialog-content">
-    <p>اختر الموظف ونوع المستند ثم ارفع ملفاً أو أكثر.</p>
+    <p>{{ 'employees.documents.upload_dialog_hint' | translate }}</p>
     <p-dropdown
       [options]="employeeOptions()"
       [ngModel]="uploadEmployeeId()"
       (ngModelChange)="uploadEmployeeId.set($event)"
       optionLabel="label"
       optionValue="value"
-      placeholder="الموظف"
+      [placeholder]="'employees.documents.filter_employee' | translate"
       styleClass="w-full"
     />
     <p-dropdown
@@ -84,7 +90,7 @@
       (ngModelChange)="uploadDocType.set($event)"
       optionLabel="label"
       optionValue="value"
-      placeholder="نوع المستند"
+      [placeholder]="'employees.documents.filter_type' | translate"
       styleClass="w-full"
     />
     <input
@@ -92,7 +98,7 @@
       class="w-full"
       [ngModel]="uploadDocName()"
       (ngModelChange)="uploadDocName.set($event)"
-      placeholder="اسم المستند (اختياري)"
+      [placeholder]="'employees.documents.doc_name_optional' | translate"
     />
     <p-fileUpload
       mode="advanced"
@@ -101,13 +107,19 @@
       [multiple]="true"
       [disabled]="uploading()"
       (uploadHandler)="onUploadFile($event)"
-      chooseLabel="اختر ملفات"
-      uploadLabel="رفع"
-      cancelLabel="إلغاء"
+      [chooseLabel]="'employees.documents.choose_files' | translate"
+      [uploadLabel]="'employees.documents.upload' | translate"
+      [cancelLabel]="'employees.documents.cancel' | translate"
     />
   </div>
   <ng-template pTemplate="footer">
-    <button pButton label="إلغاء" (click)="closeUpload()" class="p-button-text" [disabled]="uploading()"></button>
+    <button
+      pButton
+      [label]="'employees.documents.cancel' | translate"
+      (click)="closeUpload()"
+      class="p-button-text"
+      [disabled]="uploading()"
+    ></button>
   </ng-template>
 </p-dialog>
 

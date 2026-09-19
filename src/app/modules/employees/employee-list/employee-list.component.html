@@ -5,7 +5,7 @@
         <i class="pi pi-users stat-icon"></i>
         <div>
           <span class="stat-value">{{ stats().total }}</span>
-          <span class="stat-label">إجمالي الموظفين</span>
+          <span class="stat-label">{{ 'employees.list.stat_total' | translate }}</span>
         </div>
       </div>
     </p-card>
@@ -14,7 +14,7 @@
         <i class="pi pi-check-circle stat-icon"></i>
         <div>
           <span class="stat-value">{{ stats().active }}</span>
-          <span class="stat-label">نشط</span>
+          <span class="stat-label">{{ 'employees.list.stat_active' | translate }}</span>
         </div>
       </div>
     </p-card>
@@ -23,7 +23,7 @@
         <i class="pi pi-pause-circle stat-icon"></i>
         <div>
           <span class="stat-value">{{ stats().suspended }}</span>
-          <span class="stat-label">موقوف</span>
+          <span class="stat-label">{{ 'employees.list.stat_suspended' | translate }}</span>
         </div>
       </div>
     </p-card>
@@ -32,7 +32,7 @@
         <i class="pi pi-star stat-icon"></i>
         <div>
           <span class="stat-value">{{ stats().newThisMonth }}</span>
-          <span class="stat-label">جدد هذا الشهر</span>
+          <span class="stat-label">{{ 'employees.list.stat_new_month' | translate }}</span>
         </div>
       </div>
     </p-card>
@@ -47,14 +47,14 @@
           pInputText
           [ngModel]="searchText()"
           (ngModelChange)="searchText.set($event)"
-          placeholder="بحث بالاسم أو رقم الموظف..."
+          [placeholder]="'employees.list.search_placeholder' | translate"
         />
       </span>
       <p-dropdown
         [options]="departments()"
         [ngModel]="departmentFilter()"
         (ngModelChange)="departmentFilter.set($event)"
-        placeholder="القسم"
+        [placeholder]="'employees.list.filter_department' | translate"
         [showClear]="true"
         styleClass="filter-dropdown"
       />
@@ -64,7 +64,7 @@
         (ngModelChange)="statusFilter.set($event)"
         optionLabel="label"
         optionValue="value"
-        placeholder="الحالة"
+        [placeholder]="'employees.list.filter_status' | translate"
         [showClear]="true"
         styleClass="filter-dropdown"
       />
@@ -74,11 +74,17 @@
         (ngModelChange)="employmentTypeFilter.set($event)"
         optionLabel="label"
         optionValue="value"
-        placeholder="نوع التعيين"
+        [placeholder]="'employees.list.filter_employment_type' | translate"
         [showClear]="true"
         styleClass="filter-dropdown"
       />
-      <a pButton label="إضافة موظف" icon="pi pi-plus" routerLink="/employees/add" class="p-button-primary"></a>
+      <a
+        pButton
+        [label]="'employees.list.add_employee' | translate"
+        icon="pi pi-plus"
+        routerLink="/employees/add"
+        class="p-button-primary"
+      ></a>
     </div>
   </p-card>
 
@@ -88,17 +94,17 @@
       [loading]="loading()"
       [columns]="columns"
       [actions]="actions"
-      actionsColumnHeader="إجراءات"
+      actionsColumnHeader="employees.list.actions"
       actionsColumnWidth="10rem"
       [rows]="rows()"
       [rowsPerPageOptions]="[10, 25, 50]"
-      currentPageReportTemplate="عرض {first} إلى {last} من {totalRecords}"
+      [currentPageReportTemplate]="pageReportTemplate"
       [showCurrentPageReport]="true"
       styleClass="p-datatable-sm p-datatable-striped"
       [tableStyle]="{ 'min-width': '50rem' }"
-      [translateHeader]="false"
-      emptyMessage="لا توجد بيانات"
-      [translateEmptyMessage]="false"
+      [translateHeader]="true"
+      emptyMessage="employees.list.empty"
+      [translateEmptyMessage]="true"
     >
       <ng-template sharedTableCell="photo" let-row>
         <p-avatar
@@ -111,7 +117,7 @@
       </ng-template>
 
       <ng-template sharedTableCell="status" let-row>
-        <p-tag [value]="getStatusLabel(row.status)" [severity]="getStatusSeverity(row.status)" />
+        <p-tag [value]="statusLabelKey(row.status) | translate" [severity]="getStatusSeverity(row.status)" />
       </ng-template>
     </app-shared-table>
   </p-card>

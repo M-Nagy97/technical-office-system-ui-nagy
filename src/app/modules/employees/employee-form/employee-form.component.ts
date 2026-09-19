@@ -16,6 +16,7 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { MessageModule } from 'primeng/message';
 import { TooltipModule } from 'primeng/tooltip';
 import { MenuItem, MessageService } from 'primeng/api';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { forkJoin, switchMap, of } from 'rxjs';
 import {
   JobGradesService,
@@ -30,7 +31,7 @@ import { FileUploadService } from '../../../core/services/file-upload.service';
 import { Employee, EmployeeDocument } from '../../../core/models/employee.model';
 import {
   NATIONAL_ID_DOCUMENT_TYPE_ID,
-  DOC_TYPE_LABELS,
+  getDocTypeLabel,
   isPersistedDocumentId,
   resolveDocumentTypeId,
   truncateDocumentNumber,
@@ -71,13 +72,85 @@ const STEP_FIELDS: string[][] = [
   ['nationalIdIssueDate', 'nationalIdExpiryDate', 'nationalIdFileUrl'],
 ];
 
-const ARABIC_ERRORS: Record<string, string> = {
-  required: 'هذا الحقل مطلوب',
-  minlength: 'القيمة قصيرة جداً',
-  maxlength: 'القيمة طويلة جداً',
-  email: 'البريد الإلكتروني غير صحيح',
-  pattern: 'القيمة غير صحيحة',
-};
+/** Stored option values stay Arabic (existing DB data); labels are translated. */
+const NATIONALITY_VALUES: { key: string; value: string }[] = [
+  { key: 'employees.nationality.egyptian', value: 'مصري' },
+  { key: 'employees.nationality.saudi', value: 'سعودي' },
+  { key: 'employees.nationality.jordanian', value: 'أردني' },
+  { key: 'employees.nationality.syrian', value: 'سوري' },
+  { key: 'employees.nationality.lebanese', value: 'لبناني' },
+  { key: 'employees.nationality.palestinian', value: 'فلسطيني' },
+  { key: 'employees.nationality.sudanese', value: 'سوداني' },
+  { key: 'employees.nationality.yemeni', value: 'يمني' },
+  { key: 'employees.nationality.iraqi', value: 'عراقي' },
+  { key: 'employees.nationality.other', value: 'أخرى' },
+];
+
+const RELIGION_VALUES: { key: string; value: string }[] = [
+  { key: 'employees.religion.muslim', value: 'مسلم' },
+  { key: 'employees.religion.christian', value: 'مسيحي' },
+  { key: 'employees.religion.jewish', value: 'يهودي' },
+  { key: 'employees.religion.other', value: 'أخرى' },
+];
+
+const GOVERNORATE_VALUES: { key: string; value: string }[] = [
+  { key: 'employees.governorate.cairo', value: 'القاهرة' },
+  { key: 'employees.governorate.giza', value: 'الجيزة' },
+  { key: 'employees.governorate.alexandria', value: 'الإسكندرية' },
+  { key: 'employees.governorate.dakahlia', value: 'الدقهلية' },
+  { key: 'employees.governorate.sharqia', value: 'الشرقية' },
+  { key: 'employees.governorate.qalyubia', value: 'القليوبية' },
+  { key: 'employees.governorate.kafr_elsheikh', value: 'كفر الشيخ' },
+  { key: 'employees.governorate.gharbia', value: 'الغربية' },
+  { key: 'employees.governorate.monufia', value: 'المنوفية' },
+  { key: 'employees.governorate.beheira', value: 'البحيرة' },
+  { key: 'employees.governorate.damietta', value: 'دمياط' },
+  { key: 'employees.governorate.fayoum', value: 'الفيوم' },
+  { key: 'employees.governorate.beni_suef', value: 'بني سويف' },
+  { key: 'employees.governorate.minya', value: 'المنيا' },
+  { key: 'employees.governorate.asyut', value: 'أسيوط' },
+  { key: 'employees.governorate.sohag', value: 'سوهاج' },
+  { key: 'employees.governorate.qena', value: 'قنا' },
+  { key: 'employees.governorate.luxor', value: 'الأقصر' },
+  { key: 'employees.governorate.aswan', value: 'أسوان' },
+  { key: 'employees.governorate.red_sea', value: 'البحر الأحمر' },
+  { key: 'employees.governorate.new_valley', value: 'الوادي الجديد' },
+  { key: 'employees.governorate.matrouh', value: 'مطروح' },
+  { key: 'employees.governorate.north_sinai', value: 'شمال سيناء' },
+  { key: 'employees.governorate.south_sinai', value: 'جنوب سيناء' },
+  { key: 'employees.governorate.port_said', value: 'بورسعيد' },
+  { key: 'employees.governorate.ismailia', value: 'الإسماعيلية' },
+  { key: 'employees.governorate.suez', value: 'السويس' },
+];
+
+const EDUCATION_LEVEL_VALUES: { key: string; value: string }[] = [
+  { key: 'employees.education_level.tech_diploma', value: 'دبلوم فني' },
+  { key: 'employees.education_level.higher_diploma', value: 'دبلوم عالي' },
+  { key: 'employees.education_level.bachelor', value: 'بكالوريوس' },
+  { key: 'employees.education_level.licence', value: 'ليسانس' },
+  { key: 'employees.education_level.engineering_bachelor', value: 'بكالوريوس هندسة' },
+  { key: 'employees.education_level.masters', value: 'ماجستير' },
+  { key: 'employees.education_level.doctorate', value: 'دكتوراه' },
+];
+
+const EDUCATION_FIELD_VALUES: { key: string; value: string }[] = [
+  { key: 'employees.education_field.civil_eng', value: 'هندسة مدنية' },
+  { key: 'employees.education_field.arch_eng', value: 'هندسة معمارية' },
+  { key: 'employees.education_field.elec_eng', value: 'هندسة كهرباء' },
+  { key: 'employees.education_field.mech_eng', value: 'هندسة ميكانيكا' },
+  { key: 'employees.education_field.accounting', value: 'محاسبة' },
+  { key: 'employees.education_field.business', value: 'إدارة أعمال' },
+  { key: 'employees.education_field.hr', value: 'موارد بشرية' },
+  { key: 'employees.education_field.law', value: 'قانون' },
+  { key: 'employees.education_field.cs', value: 'علوم حاسب' },
+  { key: 'employees.education_field.is', value: 'نظم معلومات' },
+  { key: 'employees.education_field.arts_langs', value: 'آداب ولغات' },
+  { key: 'employees.education_field.education', value: 'تربية' },
+  { key: 'employees.education_field.medicine', value: 'طب' },
+  { key: 'employees.education_field.pharmacy', value: 'صيدلة' },
+  { key: 'employees.education_field.sciences', value: 'علوم' },
+  { key: 'employees.education_field.other', value: 'أخرى' },
+];
 
 @Component({
   selector: 'app-employee-form',
@@ -94,6 +167,7 @@ const ARABIC_ERRORS: Record<string, string> = {
     FileUploadModule,
     MessageModule,
     TooltipModule,
+    TranslateModule,
   ],
   templateUrl: './employee-form.component.html',
   styleUrl: './employee-form.component.scss',
@@ -108,6 +182,7 @@ export class EmployeeFormComponent implements OnInit {
   private readonly jobGradesService = inject(JobGradesService);
   private readonly jobPositionsService = inject(JobPositionsService);
   private readonly organizationUnitsService = inject(OrganizationUnitsService);
+  private readonly translate = inject(TranslateService);
 
   readonly activeStep = signal(0);
   readonly isEdit = signal(false);
@@ -118,12 +193,7 @@ export class EmployeeFormComponent implements OnInit {
   readonly submittedAttempt = signal(false);
   readonly nationalIdFileName = signal<string>('');
 
-  readonly stepItems: MenuItem[] = [
-    { label: 'البيانات الشخصية' },
-    { label: 'بيانات التعيين' },
-    { label: 'المؤهلات والخبرات' },
-    { label: 'المستندات' },
-  ];
+  stepItems: MenuItem[] = [];
 
   form!: FormGroup;
 
@@ -136,112 +206,24 @@ export class EmployeeFormComponent implements OnInit {
   readonly jobGradeOptions = signal<{ label: string; value: string }[]>([]);
   readonly jobPositionOptions = signal<{ label: string; value: string }[]>([]);
 
-  readonly genderOptions = [
-    { label: 'ذكر', value: 'male' },
-    { label: 'أنثى', value: 'female' },
-  ];
-  readonly maritalOptions = [
-    { label: 'أعزب', value: 'single' },
-    { label: 'متزوج', value: 'married' },
-    { label: 'مطلق', value: 'divorced' },
-    { label: 'أرمل', value: 'widowed' },
-  ];
-  readonly employmentTypeOptions = [
-    { label: 'دائم', value: 'permanent' },
-    { label: 'مؤقت', value: 'temporary' },
-    { label: 'عقد', value: 'contract' },
-  ];
-  readonly statusOptions = [
-    { label: 'نشط', value: 'active' },
-    { label: 'موقوف', value: 'suspended' },
-    { label: 'منتهي', value: 'terminated' },
-    { label: 'متقاعد', value: 'retired' },
-  ];
-
-  readonly nationalityOptions = [
-    { label: 'مصري', value: 'مصري' },
-    { label: 'سعودي', value: 'سعودي' },
-    { label: 'أردني', value: 'أردني' },
-    { label: 'سوري', value: 'سوري' },
-    { label: 'لبناني', value: 'لبناني' },
-    { label: 'فلسطيني', value: 'فلسطيني' },
-    { label: 'سوداني', value: 'سوداني' },
-    { label: 'يمني', value: 'يمني' },
-    { label: 'عراقي', value: 'عراقي' },
-    { label: 'أخرى', value: 'أخرى' },
-  ];
-
-  readonly religionOptions = [
-    { label: 'مسلم', value: 'مسلم' },
-    { label: 'مسيحي', value: 'مسيحي' },
-    { label: 'يهودي', value: 'يهودي' },
-    { label: 'أخرى', value: 'أخرى' },
-  ];
-
-  readonly governorateOptions = [
-    { label: 'القاهرة', value: 'القاهرة' },
-    { label: 'الجيزة', value: 'الجيزة' },
-    { label: 'الإسكندرية', value: 'الإسكندرية' },
-    { label: 'الدقهلية', value: 'الدقهلية' },
-    { label: 'الشرقية', value: 'الشرقية' },
-    { label: 'القليوبية', value: 'القليوبية' },
-    { label: 'كفر الشيخ', value: 'كفر الشيخ' },
-    { label: 'الغربية', value: 'الغربية' },
-    { label: 'المنوفية', value: 'المنوفية' },
-    { label: 'البحيرة', value: 'البحيرة' },
-    { label: 'دمياط', value: 'دمياط' },
-    { label: 'الفيوم', value: 'الفيوم' },
-    { label: 'بني سويف', value: 'بني سويف' },
-    { label: 'المنيا', value: 'المنيا' },
-    { label: 'أسيوط', value: 'أسيوط' },
-    { label: 'سوهاج', value: 'سوهاج' },
-    { label: 'قنا', value: 'قنا' },
-    { label: 'الأقصر', value: 'الأقصر' },
-    { label: 'أسوان', value: 'أسوان' },
-    { label: 'البحر الأحمر', value: 'البحر الأحمر' },
-    { label: 'الوادي الجديد', value: 'الوادي الجديد' },
-    { label: 'مطروح', value: 'مطروح' },
-    { label: 'شمال سيناء', value: 'شمال سيناء' },
-    { label: 'جنوب سيناء', value: 'جنوب سيناء' },
-    { label: 'بورسعيد', value: 'بورسعيد' },
-    { label: 'الإسماعيلية', value: 'الإسماعيلية' },
-    { label: 'السويس', value: 'السويس' },
-  ];
-
-  readonly educationLevelOptions = [
-    { label: 'دبلوم فني', value: 'دبلوم فني' },
-    { label: 'دبلوم عالي', value: 'دبلوم عالي' },
-    { label: 'بكالوريوس', value: 'بكالوريوس' },
-    { label: 'ليسانس', value: 'ليسانس' },
-    { label: 'بكالوريوس هندسة', value: 'بكالوريوس هندسة' },
-    { label: 'ماجستير', value: 'ماجستير' },
-    { label: 'دكتوراه', value: 'دكتوراه' },
-  ];
-
-  readonly educationFieldOptions = [
-    { label: 'هندسة مدنية', value: 'هندسة مدنية' },
-    { label: 'هندسة معمارية', value: 'هندسة معمارية' },
-    { label: 'هندسة كهرباء', value: 'هندسة كهرباء' },
-    { label: 'هندسة ميكانيكا', value: 'هندسة ميكانيكا' },
-    { label: 'محاسبة', value: 'محاسبة' },
-    { label: 'إدارة أعمال', value: 'إدارة أعمال' },
-    { label: 'موارد بشرية', value: 'موارد بشرية' },
-    { label: 'قانون', value: 'قانون' },
-    { label: 'علوم حاسب', value: 'علوم حاسب' },
-    { label: 'نظم معلومات', value: 'نظم معلومات' },
-    { label: 'آداب ولغات', value: 'آداب ولغات' },
-    { label: 'تربية', value: 'تربية' },
-    { label: 'طب', value: 'طب' },
-    { label: 'صيدلة', value: 'صيدلة' },
-    { label: 'علوم', value: 'علوم' },
-    { label: 'أخرى', value: 'أخرى' },
-  ];
+  genderOptions: { label: string; value: string }[] = [];
+  maritalOptions: { label: string; value: string }[] = [];
+  employmentTypeOptions: { label: string; value: string }[] = [];
+  statusOptions: { label: string; value: string }[] = [];
+  nationalityOptions: { label: string; value: string }[] = [];
+  religionOptions: { label: string; value: string }[] = [];
+  governorateOptions: { label: string; value: string }[] = [];
+  educationLevelOptions: { label: string; value: string }[] = [];
+  educationFieldOptions: { label: string; value: string }[] = [];
 
   constructor() {
     this.buildForm();
   }
 
   ngOnInit(): void {
+    this.rebuildLocalizedOptions();
+    this.translate.onLangChange.subscribe(() => this.rebuildLocalizedOptions());
+
     forkJoin({
       grades: this.jobGradesService.jobGradesGetAll(),
       positions: this.jobPositionsService.jobPositionsGetAll(),
@@ -274,6 +256,56 @@ export class EmployeeFormComponent implements OnInit {
         }
       },
     });
+  }
+
+  private rebuildLocalizedOptions(): void {
+    this.stepItems = [
+      { label: this.translate.instant('employees.form.step_personal') },
+      { label: this.translate.instant('employees.form.step_appointment') },
+      { label: this.translate.instant('employees.form.step_qualifications') },
+      { label: this.translate.instant('employees.form.step_documents') },
+    ];
+    this.genderOptions = [
+      { label: this.translate.instant('employees.gender.male'), value: 'male' },
+      { label: this.translate.instant('employees.gender.female'), value: 'female' },
+    ];
+    this.maritalOptions = [
+      { label: this.translate.instant('employees.marital.single'), value: 'single' },
+      { label: this.translate.instant('employees.marital.married'), value: 'married' },
+      { label: this.translate.instant('employees.marital.divorced'), value: 'divorced' },
+      { label: this.translate.instant('employees.marital.widowed'), value: 'widowed' },
+    ];
+    this.employmentTypeOptions = [
+      { label: this.translate.instant('employees.employment_type.permanent'), value: 'permanent' },
+      { label: this.translate.instant('employees.employment_type.temporary'), value: 'temporary' },
+      { label: this.translate.instant('employees.employment_type.contract'), value: 'contract' },
+    ];
+    this.statusOptions = [
+      { label: this.translate.instant('employees.status.active'), value: 'active' },
+      { label: this.translate.instant('employees.status.suspended'), value: 'suspended' },
+      { label: this.translate.instant('employees.status.terminated'), value: 'terminated' },
+      { label: this.translate.instant('employees.status.retired'), value: 'retired' },
+    ];
+    this.nationalityOptions = NATIONALITY_VALUES.map((o) => ({
+      label: this.translate.instant(o.key),
+      value: o.value,
+    }));
+    this.religionOptions = RELIGION_VALUES.map((o) => ({
+      label: this.translate.instant(o.key),
+      value: o.value,
+    }));
+    this.governorateOptions = GOVERNORATE_VALUES.map((o) => ({
+      label: this.translate.instant(o.key),
+      value: o.value,
+    }));
+    this.educationLevelOptions = EDUCATION_LEVEL_VALUES.map((o) => ({
+      label: this.translate.instant(o.key),
+      value: o.value,
+    }));
+    this.educationFieldOptions = EDUCATION_FIELD_VALUES.map((o) => ({
+      label: this.translate.instant(o.key),
+      value: o.value,
+    }));
   }
 
   private buildForm(): void {
@@ -395,7 +427,10 @@ export class EmployeeFormComponent implements OnInit {
       nationalIdFileUrl: natDoc?.fileUrl ?? '',
     });
     if (natDoc?.fileUrl && natDoc.fileUrl !== 'https://example.com/doc.pdf') {
-      this.nationalIdFileName.set(natDoc.fileUrl.startsWith('data:') ? 'وثيقة مرفقة' : (natDoc.fileUrl.split('/').pop() || 'وثيقة مرفقة'));
+      const attached = this.translate.instant('employees.form.attached_doc_label');
+      this.nationalIdFileName.set(
+        natDoc.fileUrl.startsWith('data:') ? attached : (natDoc.fileUrl.split('/').pop() || attached)
+      );
     } else {
       this.nationalIdFileName.set('');
     }
@@ -424,32 +459,35 @@ export class EmployeeFormComponent implements OnInit {
     if (!c.touched && !this.submittedAttempt()) return null;
 
     const e = c.errors;
-    if (e['required']) return ARABIC_ERRORS['required'];
-    if (e['email']) return ARABIC_ERRORS['email'];
-    if (e['minlength']) return ARABIC_ERRORS['minlength'];
-    if (e['maxlength']) return ARABIC_ERRORS['maxlength'];
+    if (e['required']) return this.translate.instant('employees.form.error_required');
+    if (e['email']) return this.translate.instant('employees.form.error_email');
+    if (e['minlength']) return this.translate.instant('employees.form.error_minlength');
+    if (e['maxlength']) return this.translate.instant('employees.form.error_maxlength');
     if (e['pattern']) {
-      if (controlName === 'nationalId') return 'الرقم القومي يجب أن يكون 14 رقماً';
-      if (controlName === 'phone') return 'صيغة رقم الهاتف غير صحيحة (مثال: 01xxxxxxxxx)';
-      return ARABIC_ERRORS['pattern'];
+      if (controlName === 'nationalId') {
+        return this.translate.instant('employees.form.error_national_id_pattern');
+      }
+      if (controlName === 'phone') {
+        return this.translate.instant('employees.form.error_phone_pattern');
+      }
+      return this.translate.instant('employees.form.error_pattern');
     }
     if (e['min']) {
       const m = e['min'] as { min?: number; actual?: number };
       if (controlName === 'graduationYear') {
-        return `سنة التخرج يجب ألا تقل عن ${m.min ?? ''}`;
+        return this.translate.instant('employees.form.error_graduation_min', { min: m.min ?? '' });
       }
-      return `القيمة يجب ألا تقل عن ${m.min ?? ''}`;
+      return this.translate.instant('employees.form.error_min', { min: m.min ?? '' });
     }
     if (e['max']) {
       const m = e['max'] as { max?: number; actual?: number };
       if (controlName === 'graduationYear') {
-        return `سنة التخرج يجب ألا تتجاوز ${m.max ?? ''}`;
+        return this.translate.instant('employees.form.error_graduation_max', { max: m.max ?? '' });
       }
-      return `القيمة يجب ألا تتجاوز ${m.max ?? ''}`;
+      return this.translate.instant('employees.form.error_max', { max: m.max ?? '' });
     }
 
-    const key = Object.keys(e)[0];
-    return ARABIC_ERRORS[key] ?? 'قيمة غير صحيحة';
+    return this.translate.instant('employees.form.error_invalid');
   }
 
   stepValid(step: number): boolean {
@@ -484,8 +522,8 @@ export class EmployeeFormComponent implements OnInit {
   saveDraft(): void {
     this.messageService.add({
       severity: 'info',
-      summary: 'غير متاح',
-      detail: 'حفظ المسودة غير مدعوم حالياً. استخدم حفظ لإرسال البيانات للخادم.',
+      summary: this.translate.instant('employees.form.draft_unavailable_summary'),
+      detail: this.translate.instant('employees.form.draft_unavailable_detail'),
     });
   }
 
@@ -593,7 +631,7 @@ export class EmployeeFormComponent implements OnInit {
         )
       ).subscribe({
         next: () => {
-          this.afterEmployeeSaved(id, positionIds, 'تم تحديث بيانات الموظف بنجاح');
+          this.afterEmployeeSaved(id, positionIds, this.translate.instant('employees.form.update_success'));
         },
         error: () => {
           this.saving.set(false);
@@ -604,10 +642,14 @@ export class EmployeeFormComponent implements OnInit {
         next: (response: any) => {
           const newId = response?.data || response?.id || (typeof response === 'string' ? response : null);
           if (newId) {
-            this.afterEmployeeSaved(newId, positionIds, 'تمت إضافة الموظف بنجاح');
+            this.afterEmployeeSaved(newId, positionIds, this.translate.instant('employees.form.create_success'));
           } else {
             this.saving.set(false);
-            this.messageService.add({ severity: 'success', summary: 'تم بنجاح', detail: 'تمت إضافة الموظف بنجاح' });
+            this.messageService.add({
+              severity: 'success',
+              summary: this.translate.instant('employees.form.success_summary'),
+              detail: this.translate.instant('employees.form.create_success'),
+            });
             this.router.navigate(['/employees']);
           }
         },
@@ -632,7 +674,11 @@ export class EmployeeFormComponent implements OnInit {
   ): void {
     const finish = () => {
       this.saving.set(false);
-      this.messageService.add({ severity: 'success', summary: 'تم بنجاح', detail: successDetail });
+      this.messageService.add({
+        severity: 'success',
+        summary: this.translate.instant('employees.form.success_summary'),
+        detail: successDetail,
+      });
       this.router.navigate(['/employees', employeeId]);
     };
 
@@ -656,8 +702,12 @@ export class EmployeeFormComponent implements OnInit {
             err?.error?.message ||
             err?.error?.title ||
             err?.message ||
-            'تم حفظ الموظف لكن تعذر تعيين الوظيفة';
-          this.messageService.add({ severity: 'warn', summary: 'تنبيه', detail });
+            this.translate.instant('employees.form.position_warn_detail');
+          this.messageService.add({
+            severity: 'warn',
+            summary: this.translate.instant('employees.form.position_warn_summary'),
+            detail,
+          });
           this.router.navigate(['/employees', employeeId]);
         },
       });
@@ -668,8 +718,8 @@ export class EmployeeFormComponent implements OnInit {
     if (!employeeId || !this.isEdit()) {
       this.messageService.add({
         severity: 'warn',
-        summary: 'تنبيه',
-        detail: 'احفظ الموظف أولاً ثم ارفع المستندات الإضافية من صفحة التعديل.',
+        summary: this.translate.instant('employees.form.upload_warn_summary'),
+        detail: this.translate.instant('employees.form.upload_warn_detail'),
       });
       return;
     }
@@ -681,13 +731,14 @@ export class EmployeeFormComponent implements OnInit {
     if (!documentTypeId) return;
 
     const now = new Date();
+    const otherLabel = getDocTypeLabel('other', this.translate);
     forkJoin(files.map((file) => this.fileUploadService.upload(file, 'employees/documents')))
       .pipe(
         switchMap((paths) => {
           const docs: EmployeeDocument[] = paths.map((path, index) => {
             const name = truncateDocumentNumber(
-              files[index].name || DOC_TYPE_LABELS.other,
-              DOC_TYPE_LABELS.other
+              files[index].name || otherLabel,
+              otherLabel
             );
             return {
               id: `doc-${Date.now()}-${index}`,
@@ -706,8 +757,8 @@ export class EmployeeFormComponent implements OnInit {
         next: () => {
           this.messageService.add({
             severity: 'success',
-            summary: 'تم الرفع',
-            detail: 'تم رفع المستندات الإضافية وربطها بالموظف.',
+            summary: this.translate.instant('employees.form.upload_success_summary'),
+            detail: this.translate.instant('employees.form.upload_extra_success'),
           });
         },
       });
@@ -722,8 +773,8 @@ export class EmployeeFormComponent implements OnInit {
         this.form.patchValue({ nationalIdFileUrl: path });
         this.messageService.add({
           severity: 'success',
-          summary: 'تم الرفع',
-          detail: 'تم رفع ملف البطاقة بنجاح',
+          summary: this.translate.instant('employees.form.upload_success_summary'),
+          detail: this.translate.instant('employees.form.upload_national_id_success'),
         });
       },
       error: () => {

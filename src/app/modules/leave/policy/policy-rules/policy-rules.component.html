@@ -291,7 +291,7 @@
 
       <!-- MatchMode: always full-width radios when present -->
       <div class="col-12 field" *ngIf="showMatchModeRadios()">
-        <label class="font-medium mb-2 block">طريقة احتساب التزامن / Concurrency match mode</label>
+        <label class="font-medium mb-2 block">{{ 'leave.rules.match_mode_label' | translate }}</label>
         <div class="flex flex-column gap-2 p-3 border-1 surface-border border-round surface-50">
           <div class="flex align-items-center" *ngFor="let opt of matchModeOptions">
             <p-radioButton

@@ -14,80 +14,137 @@
           <h1>{{ emp.fullName }}</h1>
           <div class="profile-meta profile-code-row">
             @if (!editingCode()) {
-              <span>رقم الموظف (كود البصمة): <strong dir="ltr">{{ emp.employeeNumber || '—' }}</strong></span>
-              <button pButton type="button" icon="pi pi-pencil" class="p-button-text p-button-sm"
-                (click)="startEditEmployeeCode()" pTooltip="يجب أن يطابق User ID على جهاز ZKTeco"></button>
+              <span>{{ 'employees.detail.employee_code_label' | translate }} <strong dir="ltr">{{ emp.employeeNumber || '—' }}</strong></span>
+              <button
+                pButton
+                type="button"
+                icon="pi pi-pencil"
+                class="p-button-text p-button-sm"
+                (click)="startEditEmployeeCode()"
+                [pTooltip]="'employees.detail.code_tooltip' | translate"
+              ></button>
             } @else {
-              <input pInputText [ngModel]="codeDraft()" (ngModelChange)="codeDraft.set($event)" dir="ltr" class="code-input" placeholder="مثل 1001" />
-              <button pButton type="button" label="حفظ" icon="pi pi-check" class="p-button-sm"
-                [loading]="savingCode()" (click)="saveEmployeeCode()"></button>
-              <button pButton type="button" label="إلغاء" severity="secondary" class="p-button-sm p-button-text"
-                (click)="cancelEditEmployeeCode()"></button>
+              <input
+                pInputText
+                [ngModel]="codeDraft()"
+                (ngModelChange)="codeDraft.set($event)"
+                dir="ltr"
+                class="code-input"
+                [placeholder]="'employees.detail.code_placeholder' | translate"
+              />
+              <button
+                pButton
+                type="button"
+                [label]="'employees.detail.save' | translate"
+                icon="pi pi-check"
+                class="p-button-sm"
+                [loading]="savingCode()"
+                (click)="saveEmployeeCode()"
+              ></button>
+              <button
+                pButton
+                type="button"
+                [label]="'employees.detail.cancel' | translate"
+                severity="secondary"
+                class="p-button-sm p-button-text"
+                (click)="cancelEditEmployeeCode()"
+              ></button>
             }
           </div>
           <p class="profile-meta">{{ emp.jobTitle }}</p>
-          <p-tag [value]="getStatusLabel(emp.status)" [severity]="getStatusSeverity(emp.status)" />
+          <p-tag [value]="statusLabelKey(emp.status) | translate" [severity]="getStatusSeverity(emp.status)" />
         </div>
         <div class="profile-actions">
-          <button pButton label="تعديل" icon="pi pi-pencil" (click)="edit()" class="p-button-primary"></button>
-          <button pButton label="طباعة" icon="pi pi-print" (click)="print()" class="p-button-outlined"></button>
+          <button
+            pButton
+            [label]="'employees.detail.edit' | translate"
+            icon="pi pi-pencil"
+            (click)="edit()"
+            class="p-button-primary"
+          ></button>
+          <button
+            pButton
+            [label]="'employees.detail.print' | translate"
+            icon="pi pi-print"
+            (click)="print()"
+            class="p-button-outlined"
+          ></button>
           @if (emp.status === 'active') {
-            <button pButton label="إيقاف" icon="pi pi-pause" (click)="suspend()" class="p-button-warning p-button-outlined"></button>
+            <button
+              pButton
+              [label]="'employees.detail.suspend' | translate"
+              icon="pi pi-pause"
+              (click)="suspend()"
+              class="p-button-warning p-button-outlined"
+            ></button>
           }
-          <button pButton label="أرشفة" icon="pi pi-archive" (click)="archive()" class="p-button-outlined"></button>
+          <button
+            pButton
+            [label]="'employees.detail.archive' | translate"
+            icon="pi pi-archive"
+            (click)="archive()"
+            class="p-button-outlined"
+          ></button>
         </div>
       </div>
     </p-card>
 
     <p-tabView styleClass="detail-tabs">
-      <p-tabPanel header="البيانات الشخصية">
+      <p-tabPanel [header]="'employees.detail.tab_personal' | translate">
         <div class="tab-content">
           <dl class="data-list">
-            <dt>الرقم القومي</dt><dd>{{ emp.nationalId }}</dd>
-            <dt>النوع</dt><dd>{{ emp.gender === 'male' ? 'ذكر' : 'أنثى' }}</dd>
-            <dt>تاريخ الميلاد</dt><dd>{{ formatDate(emp.birthDate) }}</dd>
-            <dt>مكان الميلاد</dt><dd>{{ emp.birthPlace }}</dd>
-            <dt>الجنسية</dt><dd>{{ emp.nationality }}</dd>
-            <dt>الديانة</dt><dd>{{ emp.religion }}</dd>
-            <dt>الحالة الاجتماعية</dt><dd>{{ emp.maritalStatus === 'single' ? 'أعزب' : emp.maritalStatus === 'married' ? 'متزوج' : emp.maritalStatus === 'divorced' ? 'مطلق' : 'أرمل' }}</dd>
-            <dt>الهاتف</dt><dd>{{ emp.phone }}</dd>
+            <dt>{{ 'employees.detail.national_id' | translate }}</dt><dd>{{ emp.nationalId }}</dd>
+            <dt>{{ 'employees.detail.gender' | translate }}</dt><dd>{{ genderLabelKey(emp.gender) | translate }}</dd>
+            <dt>{{ 'employees.detail.birth_date' | translate }}</dt><dd>{{ formatDate(emp.birthDate) }}</dd>
+            <dt>{{ 'employees.detail.birth_place' | translate }}</dt><dd>{{ emp.birthPlace }}</dd>
+            <dt>{{ 'employees.detail.nationality' | translate }}</dt><dd>{{ emp.nationality }}</dd>
+            <dt>{{ 'employees.detail.religion' | translate }}</dt><dd>{{ emp.religion }}</dd>
+            <dt>{{ 'employees.detail.marital_status' | translate }}</dt><dd>{{ maritalLabelKey(emp.maritalStatus) | translate }}</dd>
+            <dt>{{ 'employees.detail.phone' | translate }}</dt><dd>{{ emp.phone }}</dd>
             @if (emp.alternatePhone) {
-              <dt>هاتف بديل</dt><dd>{{ emp.alternatePhone }}</dd>
+              <dt>{{ 'employees.detail.alternate_phone' | translate }}</dt><dd>{{ emp.alternatePhone }}</dd>
             }
             @if (emp.email) {
-              <dt>البريد الإلكتروني</dt><dd>{{ emp.email }}</dd>
+              <dt>{{ 'employees.detail.email' | translate }}</dt><dd>{{ emp.email }}</dd>
             }
-            <dt>العنوان</dt><dd>{{ emp.address }}</dd>
+            <dt>{{ 'employees.detail.address' | translate }}</dt><dd>{{ emp.address }}</dd>
           </dl>
         </div>
       </p-tabPanel>
-      <p-tabPanel header="بيانات التعيين">
+      <p-tabPanel [header]="'employees.detail.tab_appointment' | translate">
         <div class="tab-content">
           <dl class="data-list">
-            <dt>تاريخ التعيين</dt><dd>{{ formatDate(emp.appointmentDate) }}</dd>
-            <dt>رقم قرار التعيين</dt><dd>{{ emp.appointmentDecisionNumber }}</dd>
-            <dt>تاريخ قرار التعيين</dt><dd>{{ formatDate(emp.appointmentDecisionDate) }}</dd>
-            <dt>المسمى الوظيفي</dt><dd>{{ emp.jobTitle }}</dd>
-            <dt>الدرجة الوظيفية</dt><dd>{{ emp.jobGrade }}</dd>
-            <dt>القسم</dt><dd>{{ emp.department }}</dd>
-            <dt>الوحدة</dt><dd>{{ emp.section }}</dd>
-            <dt>مكان العمل</dt><dd>{{ emp.workLocation }}</dd>
-            <dt>نوع التعيين</dt><dd>{{ getEmploymentTypeLabel(emp.employmentType) }}</dd>
-            <dt>المؤهل الدراسي</dt><dd>{{ emp.educationLevel }} - {{ emp.educationField }}</dd>
-            <dt>سنة التخرج</dt><dd>{{ emp.graduationYear }}</dd>
+            <dt>{{ 'employees.detail.appointment_date' | translate }}</dt><dd>{{ formatDate(emp.appointmentDate) }}</dd>
+            <dt>{{ 'employees.detail.appointment_decision_number' | translate }}</dt><dd>{{ emp.appointmentDecisionNumber }}</dd>
+            <dt>{{ 'employees.detail.appointment_decision_date' | translate }}</dt><dd>{{ formatDate(emp.appointmentDecisionDate) }}</dd>
+            <dt>{{ 'employees.detail.job_title' | translate }}</dt><dd>{{ emp.jobTitle }}</dd>
+            <dt>{{ 'employees.detail.job_grade' | translate }}</dt><dd>{{ emp.jobGrade }}</dd>
+            <dt>{{ 'employees.detail.department' | translate }}</dt><dd>{{ emp.department }}</dd>
+            <dt>{{ 'employees.detail.section' | translate }}</dt><dd>{{ emp.section }}</dd>
+            <dt>{{ 'employees.detail.work_location' | translate }}</dt><dd>{{ emp.workLocation }}</dd>
+            <dt>{{ 'employees.detail.employment_type' | translate }}</dt><dd>{{ employmentTypeLabelKey(emp.employmentType) | translate }}</dd>
+            <dt>{{ 'employees.detail.education' | translate }}</dt><dd>{{ emp.educationLevel }} - {{ emp.educationField }}</dd>
+            <dt>{{ 'employees.detail.graduation_year' | translate }}</dt><dd>{{ emp.graduationYear }}</dd>
           </dl>
         </div>
       </p-tabPanel>
-      <p-tabPanel header="سجل الحضور">
+      <p-tabPanel [header]="'employees.detail.tab_attendance' | translate">
         <div class="tab-content">
-          <p>عرض سجل الحضور للموظف.</p>
-          <a pButton label="فتح سجل الحضور" icon="pi pi-calendar" [routerLink]="['/attendance']" [queryParams]="{ employeeId: emp.id }" class="p-button-outlined"></a>
+          <p>{{ 'employees.detail.attendance_hint' | translate }}</p>
+          <a
+            pButton
+            [label]="'employees.detail.open_attendance' | translate"
+            icon="pi pi-calendar"
+            [routerLink]="['/attendance']"
+            [queryParams]="{ employeeId: emp.id }"
+            class="p-button-outlined"
+          ></a>
         </div>
       </p-tabPanel>
-      <p-tabPanel header="الجزاءات">
+      <p-tabPanel [header]="'employees.detail.tab_penalties' | translate">
         <div class="tab-content penalties-tab">
           @if (penaltyStats().length) {
-            <p class="penalty-summary-label">إحصائيات الجزاءات:</p>
+            <p class="penalty-summary-label">{{ 'employees.detail.penalty_stats_label' | translate }}</p>
             <ul class="penalty-stats-list">
               @for (s of penaltyStats(); track s.type) {
                 <li><span class="penalty-type-label">{{ getPenaltyTypeLabel(s.type) }}</span>: {{ s.count }}</li>
@@ -95,34 +152,41 @@
             </ul>
           }
           @if (employeePenalties().length) {
-            <p class="penalty-list-label">سجل الجزاءات:</p>
+            <p class="penalty-list-label">{{ 'employees.detail.penalty_list_label' | translate }}</p>
             <app-shared-table
               [value]="employeePenalties()"
               [columns]="employeePenaltyColumns"
               [paginator]="false"
               styleClass="p-datatable-sm p-datatable-striped"
               [tableStyle]="{ 'min-width': '40rem' }"
-              [translateHeader]="false"
-              emptyMessage="لا توجد جزاءات."
-              [translateEmptyMessage]="false"
+              [translateHeader]="true"
+              emptyMessage="employees.detail.empty_penalties_table"
+              [translateEmptyMessage]="true"
             />
           } @else {
-            <p>لا توجد جزاءات مسجلة لهذا الموظف.</p>
+            <p>{{ 'employees.detail.empty_penalties' | translate }}</p>
           }
-          <a pButton label="فتح سجل الجزاءات" icon="pi pi-exclamation-triangle" [routerLink]="['/penalties']" [queryParams]="{ employeeId: emp.id }" class="p-button-outlined"></a>
+          <a
+            pButton
+            [label]="'employees.detail.open_penalties' | translate"
+            icon="pi pi-exclamation-triangle"
+            [routerLink]="['/penalties']"
+            [queryParams]="{ employeeId: emp.id }"
+            class="p-button-outlined"
+          ></a>
         </div>
       </p-tabPanel>
-      <p-tabPanel header="المستندات">
+      <p-tabPanel [header]="'employees.detail.tab_documents' | translate">
         <div class="tab-content">
           @if (documents().length) {
             <table class="w-full border-collapse mb-3" style="width: 100%; border: 1px solid var(--surface-border, #e5e7eb); border-radius: 6px; overflow: hidden;">
               <thead>
                 <tr style="background: var(--surface-ground, #f9fafb); text-align: right;">
-                  <th style="padding: 0.75rem; border-bottom: 1px solid var(--surface-border, #e5e7eb);">رقم الوثيقة / المستند</th>
-                  <th style="padding: 0.75rem; border-bottom: 1px solid var(--surface-border, #e5e7eb);">تاريخ الإصدار</th>
-                  <th style="padding: 0.75rem; border-bottom: 1px solid var(--surface-border, #e5e7eb);">تاريخ الانتهاء</th>
-                  <th style="padding: 0.75rem; border-bottom: 1px solid var(--surface-border, #e5e7eb);">رابط الملف</th>
-                  <th style="padding: 0.75rem; border-bottom: 1px solid var(--surface-border, #e5e7eb);">إجراءات</th>
+                  <th style="padding: 0.75rem; border-bottom: 1px solid var(--surface-border, #e5e7eb);">{{ 'employees.detail.col_doc_number' | translate }}</th>
+                  <th style="padding: 0.75rem; border-bottom: 1px solid var(--surface-border, #e5e7eb);">{{ 'employees.detail.col_issue_date' | translate }}</th>
+                  <th style="padding: 0.75rem; border-bottom: 1px solid var(--surface-border, #e5e7eb);">{{ 'employees.detail.col_expiry_date' | translate }}</th>
+                  <th style="padding: 0.75rem; border-bottom: 1px solid var(--surface-border, #e5e7eb);">{{ 'employees.detail.col_file_link' | translate }}</th>
+                  <th style="padding: 0.75rem; border-bottom: 1px solid var(--surface-border, #e5e7eb);">{{ 'employees.detail.col_actions' | translate }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -153,7 +217,7 @@
                         type="button"
                         icon="pi pi-trash"
                         class="p-button-text p-button-danger p-button-sm"
-                        pTooltip="حذف"
+                        [pTooltip]="'employees.detail.delete_tooltip' | translate"
                         (click)="confirmDeleteDocument(doc)"
                       ></button>
                     </td>
@@ -162,10 +226,16 @@
               </tbody>
             </table>
           } @else {
-            <p>لا توجد مستندات مرفقة.</p>
+            <p>{{ 'employees.detail.empty_documents' | translate }}</p>
           }
           <div class="flex gap-2">
-            <a pButton label="تعديل المستندات والبيانات" icon="pi pi-pencil" [routerLink]="['/employees', emp.id, 'edit']" class="p-button-outlined p-button-sm"></a>
+            <a
+              pButton
+              [label]="'employees.detail.edit_documents' | translate"
+              icon="pi pi-pencil"
+              [routerLink]="['/employees', emp.id, 'edit']"
+              class="p-button-outlined p-button-sm"
+            ></a>
             <button
               pButton
               type="button"
@@ -188,10 +258,10 @@
     [downloadFileName]="previewDownloadFileName()"
   />
 } @else if (loading()) {
-  <p>جاري التحميل...</p>
+  <p>{{ 'employees.detail.loading' | translate }}</p>
 } @else {
   <p-card>
-    <p>الموظف غير موجود.</p>
-    <a pButton label="العودة للقائمة" routerLink="/employees"></a>
+    <p>{{ 'employees.detail.not_found' | translate }}</p>
+    <a pButton [label]="'employees.detail.back_to_list' | translate" routerLink="/employees"></a>
   </p-card>
 }

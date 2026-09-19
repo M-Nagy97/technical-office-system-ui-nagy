@@ -11,7 +11,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { FormsModule } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { EmployeeService } from '../../../core/services/employee.service';
 import { DocumentEmployeeService } from '../../../core/services/document-employee.service';
 import { PenaltyService } from '../../../core/services/penalty.service';
@@ -22,19 +22,6 @@ import { SharedTableColumn } from '../../../shared/components/shared-table/share
 import { DocumentPreviewDialogComponent } from '../../../shared/components/document-preview-dialog/document-preview-dialog.component';
 import { isImageMediaUrl } from '../../../core/utils/media-url.util';
 import { switchMap, of } from 'rxjs';
-
-const STATUS_LABELS: Record<string, string> = {
-  active: 'نشط',
-  suspended: 'موقوف',
-  terminated: 'منتهي',
-  retired: 'متقاعد',
-};
-
-const EMPLOYMENT_TYPE_LABELS: Record<string, string> = {
-  permanent: 'دائم',
-  temporary: 'مؤقت',
-  contract: 'عقد',
-};
 
 const NATIONAL_ID_DOCUMENT_TYPE_ID = 'dce167b1-ee8f-4d86-bdd3-477446980566';
 
@@ -69,6 +56,7 @@ export class EmployeeDetailComponent implements OnInit {
   private readonly penaltyService = inject(PenaltyService);
   private readonly messageService = inject(MessageService);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly translate = inject(TranslateService);
 
   readonly employee = signal<Employee | null>(null);
   readonly documents = signal<EmployeeDocument[]>([]);
@@ -99,63 +87,15 @@ export class EmployeeDetailComponent implements OnInit {
     return docNumber ? `${docNumber}.${ext}` : `document-${code}.${ext}`;
   });
 
-  readonly employeePenaltyColumns: SharedTableColumn<Penalty>[] = [
-    { id: 'penaltyNumber', header: 'رقم الجزاء', valueGetter: (p) => p.penaltyNumber },
-    { id: 'type', header: 'النوع', valueGetter: (p) => this.getPenaltyTypeLabel(p.type) },
-    { id: 'reason', header: 'السبب', valueGetter: (p) => p.reason },
-    { id: 'incidentDate', header: 'تاريخ الواقعة', valueGetter: (p) => this.formatDate(p.incidentDate) },
-    { id: 'status', header: 'الحالة', valueGetter: (p) => this.getPenaltyStatusLabel(p.status) },
-  ];
-
-  getStatusLabel(status: string): string {
-    return STATUS_LABELS[status] ?? status;
-  }
-
-  getStatusSeverity(status: string): 'success' | 'warning' | 'danger' | 'secondary' {
-    switch (status) {
-      case 'active':
-        return 'success';
-      case 'suspended':
-        return 'warning';
-      default:
-        return 'secondary';
-    }
-  }
-
-  getEmploymentTypeLabel(value: string): string {
-    return EMPLOYMENT_TYPE_LABELS[value] ?? value;
-  }
-
-  formatDate(d: Date): string {
-    return new Date(d).toLocaleDateString('ar-EG');
-  }
-
-  formatDateOrDash(d?: Date | null): string {
-    if (!d) return '—';
-    const dateObj = new Date(d);
-    return isNaN(dateObj.getTime()) || dateObj.getTime() === 0 ? '—' : dateObj.toLocaleDateString('ar-EG');
-  }
-
-  getPenaltyTypeLabel(type: PenaltyType): string {
-    return PenaltyService.getTypeLabel(type);
-  }
-
-  getPenaltyStatusLabel(status: PenaltyStatus): string {
-    return PenaltyService.getStatusLabel(status);
-  }
-
-  openDocumentPreview(doc: EmployeeDocument | null, headerKey = 'document_preview.default_header'): void {
-    if (!doc) return;
-    this.previewDocument.set(doc);
-    this.previewHeaderKey.set(headerKey);
-    this.documentPreviewVisible.set(true);
-  }
-
-  openNatIdDialog(): void {
-    this.openDocumentPreview(this.nationalIdDocument(), 'document_preview.national_id_header');
-  }
+  employeePenaltyColumns: SharedTableColumn<Penalty>[] = [];
 
   ngOnInit(): void {
+    this.rebuildPenaltyColumns();
+    this.translate.onLangChange.subscribe(() => {
+      this.rebuildPenaltyColumns();
+      this.employeePenalties.update((list) => [...list]);
+    });
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.employeeService
@@ -185,15 +125,118 @@ export class EmployeeDetailComponent implements OnInit {
     }
   }
 
+  private rebuildPenaltyColumns(): void {
+    this.employeePenaltyColumns = [
+      {
+        id: 'penaltyNumber',
+        header: 'employees.detail.col_penalty_number',
+        valueGetter: (p) => p.penaltyNumber,
+      },
+      {
+        id: 'type',
+        header: 'employees.detail.col_type',
+        valueGetter: (p) => this.getPenaltyTypeLabel(p.type),
+      },
+      {
+        id: 'reason',
+        header: 'employees.detail.col_reason',
+        valueGetter: (p) => p.reason,
+      },
+      {
+        id: 'incidentDate',
+        header: 'employees.detail.col_incident_date',
+        valueGetter: (p) => this.formatDate(p.incidentDate),
+      },
+      {
+        id: 'status',
+        header: 'employees.detail.col_status',
+        valueGetter: (p) => this.getPenaltyStatusLabel(p.status),
+      },
+    ];
+  }
+
+  private dateLocale(): string {
+    return this.translate.currentLang === 'en' ? 'en-US' : 'ar-EG';
+  }
+
+  statusLabelKey(status: string): string {
+    return `employees.status.${status}`;
+  }
+
+  getStatusSeverity(status: string): 'success' | 'warning' | 'danger' | 'secondary' {
+    switch (status) {
+      case 'active':
+        return 'success';
+      case 'suspended':
+        return 'warning';
+      default:
+        return 'secondary';
+    }
+  }
+
+  employmentTypeLabelKey(value: string): string {
+    return `employees.employment_type.${value}`;
+  }
+
+  genderLabelKey(gender: string): string {
+    return gender === 'female' ? 'employees.gender.female' : 'employees.gender.male';
+  }
+
+  maritalLabelKey(status: string): string {
+    switch (status) {
+      case 'married':
+        return 'employees.marital.married';
+      case 'divorced':
+        return 'employees.marital.divorced';
+      case 'widowed':
+        return 'employees.marital.widowed';
+      default:
+        return 'employees.marital.single';
+    }
+  }
+
+  formatDate(d: Date): string {
+    return new Date(d).toLocaleDateString(this.dateLocale());
+  }
+
+  formatDateOrDash(d?: Date | null): string {
+    if (!d) return '—';
+    const dateObj = new Date(d);
+    return isNaN(dateObj.getTime()) || dateObj.getTime() === 0
+      ? '—'
+      : dateObj.toLocaleDateString(this.dateLocale());
+  }
+
+  getPenaltyTypeLabel(type: PenaltyType): string {
+    return this.translate.instant(`employees.penalty_type.${type}`);
+  }
+
+  getPenaltyStatusLabel(status: PenaltyStatus): string {
+    return this.translate.instant(`employees.penalty_status.${status}`);
+  }
+
+  openDocumentPreview(doc: EmployeeDocument | null, headerKey = 'document_preview.default_header'): void {
+    if (!doc) return;
+    this.previewDocument.set(doc);
+    this.previewHeaderKey.set(headerKey);
+    this.documentPreviewVisible.set(true);
+  }
+
+  openNatIdDialog(): void {
+    this.openDocumentPreview(this.nationalIdDocument(), 'document_preview.national_id_header');
+  }
+
   confirmDeleteDocument(doc: EmployeeDocument): void {
     const emp = this.employee();
     if (!emp) return;
     this.confirmationService.confirm({
-      message: `هل تريد حذف المستند "${doc.name || doc.documentNumber || ''}"؟`,
-      header: 'تأكيد الحذف',
+      message: this.translate.instant('employees.detail.delete_doc_confirm_msg', {
+        name: doc.name || doc.documentNumber || '',
+      }),
+      header: this.translate.instant('employees.detail.delete_doc_confirm_header'),
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'حذف',
-      rejectLabel: 'إلغاء',
+      acceptLabel: this.translate.instant('employees.detail.delete_accept'),
+      rejectLabel: this.translate.instant('employees.detail.delete_reject'),
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => {
         this.documentEmployeeService.delete(doc.id, emp.id).subscribe({
@@ -201,8 +244,8 @@ export class EmployeeDetailComponent implements OnInit {
             this.documents.update((list) => list.filter((d) => d.id !== doc.id));
             this.messageService.add({
               severity: 'success',
-              summary: 'تم الحذف',
-              detail: 'تم حذف المستند بنجاح',
+              summary: this.translate.instant('employees.detail.delete_success_summary'),
+              detail: this.translate.instant('employees.detail.delete_success_detail'),
             });
           },
         });
@@ -231,11 +274,11 @@ export class EmployeeDetailComponent implements OnInit {
       next: () => {
         this.savingCode.set(false);
         this.editingCode.set(false);
-        this.employee.update((emp) => emp ? { ...emp, employeeNumber: code } : emp);
+        this.employee.update((emp) => (emp ? { ...emp, employeeNumber: code } : emp));
         this.messageService.add({
           severity: 'success',
-          summary: 'تم',
-          detail: 'تم تحديث رقم الموظف (كود البصمة). أعد سحب البيانات من الجهاز.',
+          summary: this.translate.instant('employees.detail.code_update_summary'),
+          detail: this.translate.instant('employees.detail.code_update_detail'),
         });
       },
       error: () => {
@@ -257,11 +300,11 @@ export class EmployeeDetailComponent implements OnInit {
     const e = this.employee();
     if (!e || e.status !== 'active') return;
     this.confirmationService.confirm({
-      message: 'هل تريد إيقاف هذا الموظف؟',
-      header: 'تأكيد الإيقاف',
+      message: this.translate.instant('employees.detail.suspend_confirm_msg'),
+      header: this.translate.instant('employees.detail.suspend_confirm_header'),
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'إيقاف',
-      rejectLabel: 'إلغاء',
+      acceptLabel: this.translate.instant('employees.detail.suspend_accept'),
+      rejectLabel: this.translate.instant('employees.detail.suspend_reject'),
       accept: () => {
         const updated: Employee = { ...e, status: 'suspended' };
         this.employeeService.update(e.id, updated).subscribe({
@@ -269,8 +312,8 @@ export class EmployeeDetailComponent implements OnInit {
             this.employee.set(updated);
             this.messageService.add({
               severity: 'success',
-              summary: 'تم الإيقاف',
-              detail: 'تم إيقاف الموظف بنجاح',
+              summary: this.translate.instant('employees.detail.suspend_success_summary'),
+              detail: this.translate.instant('employees.detail.suspend_success_detail'),
             });
           },
           error: () => {},
@@ -283,11 +326,11 @@ export class EmployeeDetailComponent implements OnInit {
     const e = this.employee();
     if (!e) return;
     this.confirmationService.confirm({
-      message: 'هل تريد أرشفة / إنهاء خدمة هذا الموظف؟',
-      header: 'تأكيد الأرشفة',
+      message: this.translate.instant('employees.detail.archive_confirm_msg'),
+      header: this.translate.instant('employees.detail.archive_confirm_header'),
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'أرشفة',
-      rejectLabel: 'إلغاء',
+      acceptLabel: this.translate.instant('employees.detail.archive_accept'),
+      rejectLabel: this.translate.instant('employees.detail.archive_reject'),
       accept: () => {
         const updated: Employee = { ...e, status: 'terminated' };
         this.employeeService.update(e.id, updated).subscribe({
@@ -295,8 +338,8 @@ export class EmployeeDetailComponent implements OnInit {
             this.employee.set(updated);
             this.messageService.add({
               severity: 'success',
-              summary: 'تمت الأرشفة',
-              detail: 'تم إنهاء خدمة / أرشفة الموظف بنجاح',
+              summary: this.translate.instant('employees.detail.archive_success_summary'),
+              detail: this.translate.instant('employees.detail.archive_success_detail'),
             });
           },
           error: () => {},

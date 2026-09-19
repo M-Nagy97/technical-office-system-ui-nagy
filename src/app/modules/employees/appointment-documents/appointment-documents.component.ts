@@ -11,6 +11,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { RippleModule } from 'primeng/ripple';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { forkJoin, switchMap } from 'rxjs';
 import { EmployeeService } from '../../../core/services/employee.service';
 import { FileUploadService } from '../../../core/services/file-upload.service';
@@ -20,9 +21,9 @@ import {
 } from '../../../core/services/document-employee.service';
 import { Employee, EmployeeDocument, EmployeeDocumentType } from '../../../core/models/employee.model';
 import {
-  DOC_TYPE_FILTER_OPTIONS,
-  DOC_TYPE_LABELS,
-  DOC_TYPE_UPLOAD_OPTIONS,
+  buildDocTypeFilterOptions,
+  buildDocTypeUploadOptions,
+  getDocTypeLabel,
   resolveDocumentTypeId,
   truncateDocumentNumber,
 } from '../../../core/mappers/employee-document-types';
@@ -58,6 +59,7 @@ export interface DocumentRow {
     TooltipModule,
     RippleModule,
     ConfirmDialogModule,
+    TranslateModule,
     SharedTableComponent,
     DocumentPreviewDialogComponent,
   ],
@@ -71,6 +73,7 @@ export class AppointmentDocumentsComponent implements OnInit {
   private readonly fileUploadService = inject(FileUploadService);
   private readonly messageService = inject(MessageService);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly translate = inject(TranslateService);
 
   readonly employeeFilter = signal<string | null>(null);
   readonly typeFilter = signal<string | null>(null);
@@ -84,8 +87,8 @@ export class AppointmentDocumentsComponent implements OnInit {
   readonly uploadDocType = signal<EmployeeDocumentType | null>(null);
   readonly uploadDocName = signal('');
 
-  readonly typeOptions = DOC_TYPE_FILTER_OPTIONS;
-  readonly uploadTypeOptions = DOC_TYPE_UPLOAD_OPTIONS;
+  typeOptions: { label: string; value: EmployeeDocumentType }[] = [];
+  uploadTypeOptions: { label: string; value: EmployeeDocumentType }[] = [];
 
   readonly employees = signal<Employee[]>([]);
   readonly documentDtos = signal<DocumentEmployeeDto[]>([]);
@@ -119,7 +122,7 @@ export class AppointmentDocumentsComponent implements OnInit {
         employeeId,
         employeeName: nameById.get(employeeId) || employeeId || '—',
         type: document.type,
-        typeLabel: DOC_TYPE_LABELS[document.type] ?? document.type,
+        typeLabel: getDocTypeLabel(document.type, this.translate),
         name: document.name || document.documentNumber || document.type,
         fileUrl: document.fileUrl,
         uploadDate: document.uploadDate,
@@ -144,8 +147,47 @@ export class AppointmentDocumentsComponent implements OnInit {
     return rows;
   });
 
+  columns: SharedTableColumn<DocumentRow>[] = [];
+
+  readonly actions: SharedTableAction<DocumentRow>[] = [
+    {
+      id: 'preview',
+      icon: 'pi pi-eye',
+      buttonClass: 'p-button-rounded p-button-text p-button-sm',
+      disabled: (row) => !row.fileUrl?.trim() || isPlaceholderDocumentUrl(row.fileUrl),
+      onClick: (row) => this.openPreview(row),
+    },
+    {
+      id: 'delete',
+      icon: 'pi pi-trash',
+      buttonClass: 'p-button-rounded p-button-text p-button-danger p-button-sm',
+      onClick: (row) => this.confirmDelete(row),
+    },
+  ];
+
   ngOnInit(): void {
+    this.rebuildLocalized();
+    this.translate.onLangChange.subscribe(() => {
+      this.rebuildLocalized();
+      // Refresh computed type labels by reassigning dto list
+      this.documentDtos.update((list) => [...list]);
+    });
     this.loadDocuments();
+  }
+
+  private rebuildLocalized(): void {
+    this.typeOptions = buildDocTypeFilterOptions(this.translate);
+    this.uploadTypeOptions = buildDocTypeUploadOptions(this.translate);
+    this.columns = [
+      { id: 'employeeName', header: 'employees.documents.col_employee', field: 'employeeName' },
+      { id: 'typeLabel', header: 'employees.documents.col_type', field: 'typeLabel' },
+      { id: 'name', header: 'employees.documents.col_name', field: 'name' },
+      {
+        id: 'uploadDate',
+        header: 'employees.documents.col_upload_date',
+        valueGetter: (row) => this.formatDate(row.uploadDate),
+      },
+    ];
   }
 
   private loadDocuments(): void {
@@ -178,8 +220,8 @@ export class AppointmentDocumentsComponent implements OnInit {
     if (!row.fileUrl?.trim() || isPlaceholderDocumentUrl(row.fileUrl)) {
       this.messageService.add({
         severity: 'warn',
-        summary: 'تنبيه',
-        detail: 'لا يوجد ملف معاينة لهذا المستند.',
+        summary: this.translate.instant('employees.documents.preview_warn_summary'),
+        detail: this.translate.instant('employees.documents.preview_warn_detail'),
       });
       return;
     }
@@ -189,11 +231,11 @@ export class AppointmentDocumentsComponent implements OnInit {
 
   confirmDelete(row: DocumentRow): void {
     this.confirmationService.confirm({
-      message: `هل تريد حذف المستند "${row.name}"؟`,
-      header: 'تأكيد الحذف',
+      message: this.translate.instant('employees.documents.delete_confirm_msg', { name: row.name }),
+      header: this.translate.instant('employees.documents.delete_confirm_header'),
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'حذف',
-      rejectLabel: 'إلغاء',
+      acceptLabel: this.translate.instant('employees.documents.delete_accept'),
+      rejectLabel: this.translate.instant('employees.documents.delete_reject'),
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => this.deleteDocument(row),
     });
@@ -205,40 +247,21 @@ export class AppointmentDocumentsComponent implements OnInit {
       next: () => {
         this.messageService.add({
           severity: 'success',
-          summary: 'تم الحذف',
-          detail: 'تم حذف المستند بنجاح.',
+          summary: this.translate.instant('employees.documents.delete_success_summary'),
+          detail: this.translate.instant('employees.documents.delete_success_detail'),
         });
         this.loadDocuments();
       },
     });
   }
 
-  formatDate(d: Date): string {
-    return new Date(d).toLocaleDateString('ar-EG');
+  private dateLocale(): string {
+    return this.translate.currentLang === 'en' ? 'en-US' : 'ar-EG';
   }
 
-  readonly columns: SharedTableColumn<DocumentRow>[] = [
-    { id: 'employeeName', header: 'الموظف', field: 'employeeName' },
-    { id: 'typeLabel', header: 'نوع المستند', field: 'typeLabel' },
-    { id: 'name', header: 'اسم المستند', field: 'name' },
-    { id: 'uploadDate', header: 'تاريخ الرفع', valueGetter: (row) => this.formatDate(row.uploadDate) },
-  ];
-
-  readonly actions: SharedTableAction<DocumentRow>[] = [
-    {
-      id: 'preview',
-      icon: 'pi pi-eye',
-      buttonClass: 'p-button-rounded p-button-text p-button-sm',
-      disabled: (row) => !row.fileUrl?.trim() || isPlaceholderDocumentUrl(row.fileUrl),
-      onClick: (row) => this.openPreview(row),
-    },
-    {
-      id: 'delete',
-      icon: 'pi pi-trash',
-      buttonClass: 'p-button-rounded p-button-text p-button-danger p-button-sm',
-      onClick: (row) => this.confirmDelete(row),
-    },
-  ];
+  formatDate(d: Date): string {
+    return new Date(d).toLocaleDateString(this.dateLocale());
+  }
 
   onUploadFile(event: { files?: File[] }): void {
     const files = event.files?.filter(Boolean) ?? [];
@@ -249,8 +272,8 @@ export class AppointmentDocumentsComponent implements OnInit {
     if (!files.length || !employeeId || !docType || !documentTypeId) {
       this.messageService.add({
         severity: 'warn',
-        summary: 'بيانات ناقصة',
-        detail: 'اختر الموظف ونوع المستند وملفاً واحداً على الأقل.',
+        summary: this.translate.instant('employees.documents.missing_data_summary'),
+        detail: this.translate.instant('employees.documents.missing_data_detail'),
       });
       return;
     }
@@ -260,6 +283,7 @@ export class AppointmentDocumentsComponent implements OnInit {
 
     const displayName = this.uploadDocName().trim();
     const now = new Date();
+    const typeLabel = getDocTypeLabel(docType, this.translate);
 
     forkJoin(files.map((file) => this.fileUploadService.upload(file, 'employees/documents')))
       .pipe(
@@ -267,8 +291,8 @@ export class AppointmentDocumentsComponent implements OnInit {
           const newDocs: EmployeeDocument[] = paths.map((path, index) => {
             const file = files[index];
             const name = truncateDocumentNumber(
-              displayName || file.name || DOC_TYPE_LABELS[docType],
-              DOC_TYPE_LABELS[docType]
+              displayName || file.name || typeLabel,
+              typeLabel
             );
             return {
               id: `doc-${Date.now()}-${index}`,
@@ -288,8 +312,8 @@ export class AppointmentDocumentsComponent implements OnInit {
           this.uploading.set(false);
           this.messageService.add({
             severity: 'success',
-            summary: 'تم الرفع',
-            detail: 'تم رفع المستندات وربطها بسجل الموظف.',
+            summary: this.translate.instant('employees.documents.upload_success_summary'),
+            detail: this.translate.instant('employees.documents.upload_success_detail'),
           });
           this.closeUpload();
           this.loadDocuments();

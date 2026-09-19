@@ -70,7 +70,7 @@
               <h3 class="m-0 text-lg font-bold text-900">
                 {{ (languageService.currentLang() === 'en' ? (item.leaveTypeName || item.leaveTypeArabicName) : (item.leaveTypeArabicName || item.leaveTypeName)) }}
               </h3>
-              <span class="text-xs text-500">{{ 'leave.balances.year_label' | translate: { year: item.year } }}</span>
+              <span class="text-xs text-500">{{ 'leave.balances.year_prefix' | translate: { year: item.year } }}</span>
             </div>
             <div class="flex align-items-center gap-2">
               <p-tag

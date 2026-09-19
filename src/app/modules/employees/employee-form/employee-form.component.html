@@ -1,129 +1,140 @@
 <div class="employee-form" [formGroup]="form">
   @if (submittedAttempt() && form.invalid) {
-    <p-message severity="warn" text="يرجى مراجعة الخطوات وإكمال الحقول المطلوبة قبل الحفظ." styleClass="w-full mb-3" />
+    <p-message
+      severity="warn"
+      [text]="'employees.form.submit_warn' | translate"
+      styleClass="w-full mb-3"
+    />
   }
   <p-steps [model]="stepItems" [activeIndex]="activeStep()" (activeIndexChange)="activeStep.set($event)" [readonly]="false"></p-steps>
 
   <div class="form-panels">
     @if (activeStep() === 0) {
       <div class="form-panel">
-        <h3>البيانات الشخصية</h3>
+        <h3>{{ 'employees.form.step_personal' | translate }}</h3>
         <div class="form-grid">
           <div class="field field--q">
-            <label for="firstName">الاسم الأول <span class="required">*</span></label>
+            <label for="firstName">{{ 'employees.form.first_name' | translate }} <span class="required">*</span></label>
             <input id="firstName" pInputText formControlName="firstName" />
             @if (getError('firstName')) { <small class="p-error">{{ getError('firstName') }}</small> }
           </div>
           <div class="field field--q">
-            <label for="secondName">الاسم الثاني <span class="required">*</span></label>
+            <label for="secondName">{{ 'employees.form.second_name' | translate }} <span class="required">*</span></label>
             <input id="secondName" pInputText formControlName="secondName" />
             @if (getError('secondName')) { <small class="p-error">{{ getError('secondName') }}</small> }
           </div>
           <div class="field field--q">
-            <label for="thirdName">الاسم الثالث <span class="required">*</span></label>
+            <label for="thirdName">{{ 'employees.form.third_name' | translate }} <span class="required">*</span></label>
             <input id="thirdName" pInputText formControlName="thirdName" />
             @if (getError('thirdName')) { <small class="p-error">{{ getError('thirdName') }}</small> }
           </div>
           <div class="field field--q">
-            <label for="lastName">الاسم الرابع</label>
+            <label for="lastName">{{ 'employees.form.last_name' | translate }}</label>
             <input id="lastName" pInputText formControlName="lastName" />
             @if (getError('lastName')) { <small class="p-error">{{ getError('lastName') }}</small> }
           </div>
 
           <div class="field field--h">
-            <label for="nationalId">الرقم القومي <span class="required">*</span></label>
+            <label for="nationalId">{{ 'employees.form.national_id' | translate }} <span class="required">*</span></label>
             <input id="nationalId" pInputText formControlName="nationalId" />
             @if (getError('nationalId')) { <small class="p-error">{{ getError('nationalId') }}</small> }
           </div>
           <div class="field field--h">
-            <label>النوع <span class="required">*</span></label>
+            <label>{{ 'employees.form.gender' | translate }} <span class="required">*</span></label>
             <div class="field-inline">
               <p-radioButton name="gender" value="male" formControlName="gender" inputId="g1" />
-              <label for="g1">ذكر</label>
+              <label for="g1">{{ 'employees.gender.male' | translate }}</label>
               <p-radioButton name="gender" value="female" formControlName="gender" inputId="g2" />
-              <label for="g2">أنثى</label>
+              <label for="g2">{{ 'employees.gender.female' | translate }}</label>
             </div>
             @if (getError('gender')) { <small class="p-error">{{ getError('gender') }}</small> }
           </div>
 
           <div class="field field--h">
-            <label for="birthDate">تاريخ الميلاد <span class="required">*</span></label>
+            <label for="birthDate">{{ 'employees.form.birth_date' | translate }} <span class="required">*</span></label>
             <p-calendar id="birthDate" formControlName="birthDate" dateFormat="dd/mm/yy" [showIcon]="true" styleClass="w-full" [inputStyleClass]="'w-full'" />
             @if (getError('birthDate')) { <small class="p-error">{{ getError('birthDate') }}</small> }
           </div>
           <div class="field field--h">
-            <label for="birthPlace">مكان الميلاد</label>
+            <label for="birthPlace">{{ 'employees.form.birth_place' | translate }}</label>
             <p-dropdown
               inputId="birthPlace"
               formControlName="birthPlace"
               [options]="governorateOptions"
               optionLabel="label"
               optionValue="value"
-              placeholder="اختر من القائمة أو اكتب مكاناً آخر"
+              [placeholder]="'employees.form.placeholder_birth_place' | translate"
               [editable]="true"
               [filter]="true"
-              filterPlaceholder="بحث"
+              [filterPlaceholder]="'employees.form.placeholder_search' | translate"
               styleClass="w-full"
             />
             @if (getError('birthPlace')) { <small class="p-error">{{ getError('birthPlace') }}</small> }
           </div>
 
           <div class="field field--h">
-            <label for="nationality">الجنسية</label>
+            <label for="nationality">{{ 'employees.form.nationality' | translate }}</label>
             <p-dropdown
               inputId="nationality"
               formControlName="nationality"
               [options]="nationalityOptions"
               optionLabel="label"
               optionValue="value"
-              placeholder="اختر من القائمة أو اكتب جنسية أخرى"
+              [placeholder]="'employees.form.placeholder_nationality' | translate"
               [editable]="true"
               [filter]="true"
-              filterPlaceholder="بحث"
+              [filterPlaceholder]="'employees.form.placeholder_search' | translate"
               styleClass="w-full"
             />
             @if (getError('nationality')) { <small class="p-error">{{ getError('nationality') }}</small> }
           </div>
           <div class="field field--h">
-            <label for="religion">الديانة</label>
+            <label for="religion">{{ 'employees.form.religion' | translate }}</label>
             <p-dropdown
               inputId="religion"
               formControlName="religion"
               [options]="religionOptions"
               optionLabel="label"
               optionValue="value"
-              placeholder="اختر من القائمة أو اكتب ديانة أخرى"
+              [placeholder]="'employees.form.placeholder_religion' | translate"
               [editable]="true"
               [filter]="true"
-              filterPlaceholder="بحث"
+              [filterPlaceholder]="'employees.form.placeholder_search' | translate"
               styleClass="w-full"
             />
             @if (getError('religion')) { <small class="p-error">{{ getError('religion') }}</small> }
           </div>
 
           <div class="field field--h">
-            <label>الحالة الاجتماعية</label>
-            <p-dropdown formControlName="maritalStatus" [options]="maritalOptions" optionLabel="label" optionValue="value" placeholder="اختر" styleClass="w-full" />
+            <label>{{ 'employees.form.marital_status' | translate }}</label>
+            <p-dropdown
+              formControlName="maritalStatus"
+              [options]="maritalOptions"
+              optionLabel="label"
+              optionValue="value"
+              [placeholder]="'employees.form.placeholder_select' | translate"
+              styleClass="w-full"
+            />
             @if (getError('maritalStatus')) { <small class="p-error">{{ getError('maritalStatus') }}</small> }
           </div>
           <div class="field field--h">
-            <label for="phone">رقم الهاتف <span class="required">*</span></label>
+            <label for="phone">{{ 'employees.form.phone' | translate }} <span class="required">*</span></label>
             <input id="phone" pInputText formControlName="phone" />
             @if (getError('phone')) { <small class="p-error">{{ getError('phone') }}</small> }
           </div>
 
           <div class="field field--h">
-            <label for="alternatePhone">هاتف بديل</label>
+            <label for="alternatePhone">{{ 'employees.form.alternate_phone' | translate }}</label>
             <input id="alternatePhone" pInputText formControlName="alternatePhone" />
           </div>
           <div class="field field--h">
-            <label for="email">البريد الإلكتروني</label>
+            <label for="email">{{ 'employees.form.email' | translate }}</label>
             <input id="email" pInputText formControlName="email" />
             @if (getError('email')) { <small class="p-error">{{ getError('email') }}</small> }
           </div>
 
           <div class="field field--f">
-            <label for="address">العنوان</label>
+            <label for="address">{{ 'employees.form.address' | translate }}</label>
             <input id="address" pInputText formControlName="address" />
             @if (getError('address')) { <small class="p-error">{{ getError('address') }}</small> }
           </div>
@@ -133,109 +144,109 @@
 
     @if (activeStep() === 1) {
       <div class="form-panel">
-        <h3>بيانات التعيين</h3>
+        <h3>{{ 'employees.form.step_appointment' | translate }}</h3>
         <div class="form-grid">
           <div class="field field--h">
-            <label>رقم الموظف / كود الجهاز</label>
+            <label>{{ 'employees.form.employee_number' | translate }}</label>
             <input pInputText formControlName="employeeNumber" />
             @if (getError('employeeNumber')) { <small class="p-error">{{ getError('employeeNumber') }}</small> }
           </div>
           <div class="field field--h">
-            <label>تاريخ التعيين</label>
+            <label>{{ 'employees.form.appointment_date' | translate }}</label>
             <p-calendar formControlName="appointmentDate" dateFormat="dd/mm/yy" [showIcon]="true" styleClass="w-full" [inputStyleClass]="'w-full'" />
             @if (getError('appointmentDate')) { <small class="p-error">{{ getError('appointmentDate') }}</small> }
           </div>
           <div class="field field--h">
-            <label>رقم قرار التعيين</label>
+            <label>{{ 'employees.form.appointment_decision_number' | translate }}</label>
             <input pInputText formControlName="appointmentDecisionNumber" />
             @if (getError('appointmentDecisionNumber')) { <small class="p-error">{{ getError('appointmentDecisionNumber') }}</small> }
           </div>
 
           <div class="field field--h">
-            <label>تاريخ قرار التعيين</label>
+            <label>{{ 'employees.form.appointment_decision_date' | translate }}</label>
             <p-calendar formControlName="appointmentDecisionDate" dateFormat="dd/mm/yy" [showIcon]="true" styleClass="w-full" [inputStyleClass]="'w-full'" />
             @if (getError('appointmentDecisionDate')) { <small class="p-error">{{ getError('appointmentDecisionDate') }}</small> }
           </div>
           <div class="field field--h">
-            <label>المسمى الوظيفي</label>
+            <label>{{ 'employees.form.job_title' | translate }}</label>
             <p-dropdown
               formControlName="jobTitle"
               [options]="jobPositionOptions()"
               optionLabel="label"
               optionValue="value"
-              placeholder="اختر المسمى الوظيفي"
+              [placeholder]="'employees.form.placeholder_job_title' | translate"
               [filter]="true"
-              filterPlaceholder="بحث"
+              [filterPlaceholder]="'employees.form.placeholder_search' | translate"
               styleClass="w-full"
             />
             @if (getError('jobTitle')) { <small class="p-error">{{ getError('jobTitle') }}</small> }
           </div>
 
           <div class="field field--h">
-            <label>الدرجة الوظيفية</label>
+            <label>{{ 'employees.form.job_grade' | translate }}</label>
             <p-dropdown
               formControlName="jobGrade"
               [options]="jobGradeOptions()"
               optionLabel="label"
               optionValue="value"
-              placeholder="اختر الدرجة"
+              [placeholder]="'employees.form.placeholder_job_grade' | translate"
               [filter]="true"
-              filterPlaceholder="بحث"
+              [filterPlaceholder]="'employees.form.placeholder_search' | translate"
               styleClass="w-full"
             />
             @if (getError('jobGrade')) { <small class="p-error">{{ getError('jobGrade') }}</small> }
           </div>
           <div class="field field--h">
-            <label>القسم</label>
+            <label>{{ 'employees.form.department' | translate }}</label>
             <p-dropdown
               formControlName="department"
               [options]="departmentOptions()"
               optionLabel="label"
               optionValue="value"
-              placeholder="اختر القسم"
+              [placeholder]="'employees.form.placeholder_department' | translate"
               [filter]="true"
-              filterPlaceholder="بحث"
+              [filterPlaceholder]="'employees.form.placeholder_search' | translate"
               styleClass="w-full"
             />
             @if (getError('department')) { <small class="p-error">{{ getError('department') }}</small> }
           </div>
 
           <div class="field field--h">
-            <label>الوحدة</label>
+            <label>{{ 'employees.form.section' | translate }}</label>
             <p-dropdown
               formControlName="section"
               [options]="sectionOptions()"
               optionLabel="label"
               optionValue="value"
-              placeholder="اختر الوحدة"
+              [placeholder]="'employees.form.placeholder_section' | translate"
               [filter]="true"
-              filterPlaceholder="بحث"
+              [filterPlaceholder]="'employees.form.placeholder_search' | translate"
               styleClass="w-full"
             />
             @if (getError('section')) { <small class="p-error">{{ getError('section') }}</small> }
           </div>
           <div class="field field--h">
-            <label>مكان العمل</label>
+            <label>{{ 'employees.form.work_location' | translate }}</label>
             <p-dropdown
               formControlName="workLocation"
               [options]="governorateOptions"
               optionLabel="label"
               optionValue="value"
-              placeholder="اختر المحافظة"
+              [placeholder]="'employees.form.placeholder_governorate' | translate"
               [filter]="true"
-              filterPlaceholder="بحث"
+              [filterPlaceholder]="'employees.form.placeholder_search' | translate"
               styleClass="w-full"
             />
             @if (getError('workLocation')) { <small class="p-error">{{ getError('workLocation') }}</small> }
           </div>
 
           <div class="field field--h">
-            <label>نوع التعيين</label>
+            <label>{{ 'employees.form.employment_type' | translate }}</label>
             <p-dropdown formControlName="employmentType" [options]="employmentTypeOptions" optionLabel="label" optionValue="value" styleClass="w-full" />
             @if (getError('employmentType')) { <small class="p-error">{{ getError('employmentType') }}</small> }
           </div>
           <div class="field field--h">
-            <label>الحالة</label>
+            <label>{{ 'employees.form.status' | translate }}</label>
             <p-dropdown formControlName="status" [options]="statusOptions" optionLabel="label" optionValue="value" styleClass="w-full" />
             @if (getError('status')) { <small class="p-error">{{ getError('status') }}</small> }
           </div>
@@ -245,38 +256,38 @@
 
     @if (activeStep() === 2) {
       <div class="form-panel">
-        <h3>المؤهلات والخبرات</h3>
+        <h3>{{ 'employees.form.step_qualifications' | translate }}</h3>
         <div class="form-grid">
           <div class="field field--third">
-            <label>المؤهل الدراسي</label>
+            <label>{{ 'employees.form.education_level' | translate }}</label>
             <p-dropdown
               formControlName="educationLevel"
               [options]="educationLevelOptions"
               optionLabel="label"
               optionValue="value"
-              placeholder="اختر المؤهل"
+              [placeholder]="'employees.form.placeholder_education_level' | translate"
               [filter]="true"
-              filterPlaceholder="بحث"
+              [filterPlaceholder]="'employees.form.placeholder_search' | translate"
               styleClass="w-full"
             />
             @if (getError('educationLevel')) { <small class="p-error">{{ getError('educationLevel') }}</small> }
           </div>
           <div class="field field--third">
-            <label>التخصص</label>
+            <label>{{ 'employees.form.education_field' | translate }}</label>
             <p-dropdown
               formControlName="educationField"
               [options]="educationFieldOptions"
               optionLabel="label"
               optionValue="value"
-              placeholder="اختر التخصص"
+              [placeholder]="'employees.form.placeholder_education_field' | translate"
               [filter]="true"
-              filterPlaceholder="بحث"
+              [filterPlaceholder]="'employees.form.placeholder_search' | translate"
               styleClass="w-full"
             />
             @if (getError('educationField')) { <small class="p-error">{{ getError('educationField') }}</small> }
           </div>
           <div class="field field--third">
-            <label>سنة التخرج</label>
+            <label>{{ 'employees.form.graduation_year' | translate }}</label>
             <input type="number" pInputText formControlName="graduationYear" />
             @if (getError('graduationYear')) { <small class="p-error">{{ getError('graduationYear') }}</small> }
           </div>
@@ -286,23 +297,23 @@
 
     @if (activeStep() === 3) {
       <div class="form-panel">
-        <h3>بيانات وثيقة الرقم القومي</h3>
-        <p class="documents-hint">بيانات وثيقة الرقم القومي (تاريخ الإصدار، تاريخ الانتهاء، ورابط الملف الإلكتروني)</p>
+        <h3>{{ 'employees.form.national_id_section_title' | translate }}</h3>
+        <p class="documents-hint">{{ 'employees.form.national_id_section_hint' | translate }}</p>
         <div class="form-grid mb-4">
           <div class="field field--h">
-            <label for="nationalIdIssueDate">تاريخ الإصدار</label>
+            <label for="nationalIdIssueDate">{{ 'employees.form.issue_date' | translate }}</label>
             <p-calendar id="nationalIdIssueDate" formControlName="nationalIdIssueDate" dateFormat="dd/mm/yy" [showIcon]="true" styleClass="w-full" [inputStyleClass]="'w-full'" />
           </div>
           <div class="field field--h">
-            <label for="nationalIdExpiryDate">تاريخ الانتهاء</label>
+            <label for="nationalIdExpiryDate">{{ 'employees.form.expiry_date' | translate }}</label>
             <p-calendar id="nationalIdExpiryDate" formControlName="nationalIdExpiryDate" dateFormat="dd/mm/yy" [showIcon]="true" styleClass="w-full" [inputStyleClass]="'w-full'" />
           </div>
           <div class="field field--f">
-            <label>ملف / صورة بطاقة الرقم القومي</label>
+            <label>{{ 'employees.form.national_id_file' | translate }}</label>
             <p-fileUpload
               mode="basic"
               [auto]="true"
-              chooseLabel="رفع ملف البطاقة (PDF أو صورة)"
+              [chooseLabel]="'employees.form.upload_national_id' | translate"
               chooseIcon="pi pi-upload"
               accept="image/*,application/pdf"
               [maxFileSize]="5000000"
@@ -313,25 +324,25 @@
             @if (form.get('nationalIdFileUrl')?.value; as fileUrl) {
               <div class="mt-2 flex align-items-center gap-2" style="font-size: 0.9rem; padding: 0.5rem 0.75rem; background: var(--surface-100, #f3f4f6); border-radius: 6px; border: 1px solid var(--surface-border, #e5e7eb);">
                 <i class="pi pi-file text-primary" style="font-size: 1.1rem;"></i>
-                <span>الملف المرفق:</span>
-                <strong dir="ltr" class="text-primary">{{ nationalIdFileName() || (fileUrl.startsWith('data:') ? 'مستند مرفق' : fileUrl) }}</strong>
+                <span>{{ 'employees.form.attached_file' | translate }}</span>
+                <strong dir="ltr" class="text-primary">{{ nationalIdFileName() || (fileUrl.startsWith('data:') ? ('employees.form.attached_document' | translate) : fileUrl) }}</strong>
                 <button pButton type="button" icon="pi pi-times" class="p-button-text p-button-danger p-button-sm"
                   style="margin-right: auto; padding: 0.25rem;"
-                  (click)="onNationalIdFileClear()" pTooltip="إزالة الملف"></button>
+                  (click)="onNationalIdFileClear()" [pTooltip]="'employees.form.remove_file' | translate"></button>
               </div>
             }
           </div>
         </div>
 
-        <h3 class="mt-4">المرفقات والمستندات الإضافية</h3>
-        <p class="documents-hint">رفع مستندات إضافية (قرار التعيين، صورة البطاقة، الشهادات، إلخ)</p>
+        <h3 class="mt-4">{{ 'employees.form.extra_docs_title' | translate }}</h3>
+        <p class="documents-hint">{{ 'employees.form.extra_docs_hint' | translate }}</p>
         <p-fileUpload
           mode="advanced"
           [auto]="false"
           [customUpload]="true"
-          chooseLabel="اختر ملف"
-          uploadLabel="رفع"
-          cancelLabel="إلغاء"
+          [chooseLabel]="'employees.form.choose_file' | translate"
+          [uploadLabel]="'employees.form.upload' | translate"
+          [cancelLabel]="'employees.form.cancel_upload' | translate"
           [multiple]="true"
           (uploadHandler)="onUpload($event)"
         />
@@ -340,13 +351,51 @@
   </div>
 
   <div class="form-actions">
-    <button pButton type="button" label="السابق" icon="pi pi-arrow-right" (click)="prevStep()" [disabled]="activeStep() === 0" class="p-button-outlined"></button>
+    <button
+      pButton
+      type="button"
+      [label]="'employees.form.prev' | translate"
+      icon="pi pi-arrow-right"
+      (click)="prevStep()"
+      [disabled]="activeStep() === 0"
+      class="p-button-outlined"
+    ></button>
     @if (activeStep() < 3) {
-      <button pButton type="button" label="التالي" icon="pi pi-arrow-left" iconPos="right" (click)="nextStep()"></button>
+      <button
+        pButton
+        type="button"
+        [label]="'employees.form.next' | translate"
+        icon="pi pi-arrow-left"
+        iconPos="right"
+        (click)="nextStep()"
+      ></button>
     } @else {
-      <button pButton type="button" label="حفظ كمسودة" icon="pi pi-save" (click)="saveDraft()" class="p-button-outlined" [disabled]="saving()"></button>
-      <button pButton type="button" label="حفظ" icon="pi pi-check" (click)="submit()" [loading]="saving()" [disabled]="saving()"></button>
+      <button
+        pButton
+        type="button"
+        [label]="'employees.form.save_draft' | translate"
+        icon="pi pi-save"
+        (click)="saveDraft()"
+        class="p-button-outlined"
+        [disabled]="saving()"
+      ></button>
+      <button
+        pButton
+        type="button"
+        [label]="'employees.form.save' | translate"
+        icon="pi pi-check"
+        (click)="submit()"
+        [loading]="saving()"
+        [disabled]="saving()"
+      ></button>
     }
-    <a pButton label="إلغاء" icon="pi pi-times" routerLink="/employees" class="p-button-text" [class.p-disabled]="saving()"></a>
+    <a
+      pButton
+      [label]="'employees.form.cancel' | translate"
+      icon="pi pi-times"
+      routerLink="/employees"
+      class="p-button-text"
+      [class.p-disabled]="saving()"
+    ></a>
   </div>
 </div>

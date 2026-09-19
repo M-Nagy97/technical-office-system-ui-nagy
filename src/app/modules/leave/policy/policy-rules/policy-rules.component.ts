@@ -93,10 +93,7 @@ export class PolicyRulesComponent implements OnInit {
     this.rules().filter((r) => Number(r.scope) === RuleTargetScope.Permission)
   );
 
-  readonly scopeOptions = [
-    { label: 'Leave Rule (قواعد الإجازات)', value: RuleTargetScope.Leave },
-    { label: 'Permission Rule (قواعد الأذونات)', value: RuleTargetScope.Permission },
-  ];
+  scopeOptions: { label: string; value: RuleTargetScope }[] = [];
 
   readonly leaveTypeOptionLabel = computed(() =>
     this.languageService.currentLang() === 'en' ? 'name' : 'arabicName'
@@ -118,9 +115,9 @@ export class PolicyRulesComponent implements OnInit {
     Object.prototype.hasOwnProperty.call(this.paramValues(), 'MatchMode')
   );
 
-  readonly matchModeOptions = [
-    { labelEn: 'Per day', labelAr: 'حسب اليوم فقط', value: 'ByDay' },
-    { labelEn: 'Per day and time', labelAr: 'حسب اليوم والوقت', value: 'ByDayAndTime' },
+  matchModeOptions: { labelKey: string; value: string }[] = [
+    { labelKey: 'leave.rules.match_mode_by_day', value: 'ByDay' },
+    { labelKey: 'leave.rules.match_mode_by_day_and_time', value: 'ByDayAndTime' },
   ];
 
   /** Dynamic fields excluding MatchMode (rendered as radios above). */
@@ -133,10 +130,25 @@ export class PolicyRulesComponent implements OnInit {
   );
 
   ngOnInit(): void {
+    this.rebuildScopeOptions();
+    this.translate.onLangChange.subscribe(() => this.rebuildScopeOptions());
     this.initForm();
     this.loadRules();
     this.loadCatalog();
     this.loadLeaveTypes();
+  }
+
+  private rebuildScopeOptions(): void {
+    this.scopeOptions = [
+      {
+        label: this.translate.instant('leave.rules.scope_option_leave'),
+        value: RuleTargetScope.Leave,
+      },
+      {
+        label: this.translate.instant('leave.rules.scope_option_permission'),
+        value: RuleTargetScope.Permission,
+      },
+    ];
   }
 
   private initForm(): void {
@@ -272,8 +284,8 @@ export class PolicyRulesComponent implements OnInit {
     this.paramFields.set(buildParamFieldsFromValues(merged));
   }
 
-  getMatchModeLabel(option: { labelEn: string; labelAr: string }): string {
-    return this.languageService.currentLang() === 'ar' ? option.labelAr : option.labelEn;
+  getMatchModeLabel(option: { labelKey: string }): string {
+    return this.translate.instant(option.labelKey);
   }
 
   onParamChange(key: string, value: unknown): void {

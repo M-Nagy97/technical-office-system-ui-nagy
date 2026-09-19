@@ -9,6 +9,7 @@ import { TagModule } from 'primeng/tag';
 import { AvatarModule } from 'primeng/avatar';
 import { TooltipModule } from 'primeng/tooltip';
 import { RippleModule } from 'primeng/ripple';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { EmployeeService, filterEmployees } from '../../../core/services/employee.service';
 import { Employee, EmployeeStatus, EmploymentType } from '../../../core/models/employee.model';
 import {
@@ -17,19 +18,6 @@ import {
   SharedTableColumn,
   SharedTableCellTemplateDirective,
 } from '../../../shared';
-
-const STATUS_LABELS: Record<string, string> = {
-  active: 'نشط',
-  suspended: 'موقوف',
-  terminated: 'منتهي',
-  retired: 'متقاعد',
-};
-
-const EMPLOYMENT_TYPE_LABELS: Record<string, string> = {
-  permanent: 'دائم',
-  temporary: 'مؤقت',
-  contract: 'عقد',
-};
 
 @Component({
   selector: 'app-employee-list',
@@ -45,6 +33,7 @@ const EMPLOYMENT_TYPE_LABELS: Record<string, string> = {
     AvatarModule,
     TooltipModule,
     RippleModule,
+    TranslateModule,
     SharedTableComponent,
     SharedTableCellTemplateDirective,
   ],
@@ -54,6 +43,7 @@ const EMPLOYMENT_TYPE_LABELS: Record<string, string> = {
 export class EmployeeListComponent implements OnInit {
   private readonly employeeService = inject(EmployeeService);
   private readonly router = inject(Router);
+  private readonly translate = inject(TranslateService);
 
   readonly searchText = signal('');
   readonly departmentFilter = signal<string | null>(null);
@@ -65,17 +55,9 @@ export class EmployeeListComponent implements OnInit {
   readonly totalRecords = signal(0);
 
   readonly departments = signal<string[]>([]);
-  readonly statusOptions = [
-    { label: 'نشط', value: 'active' },
-    { label: 'موقوف', value: 'suspended' },
-    { label: 'منتهي', value: 'terminated' },
-    { label: 'متقاعد', value: 'retired' },
-  ];
-  readonly employmentTypeOptions = [
-    { label: 'دائم', value: 'permanent' },
-    { label: 'مؤقت', value: 'temporary' },
-    { label: 'عقد', value: 'contract' },
-  ];
+  statusOptions: { label: string; value: string }[] = [];
+  employmentTypeOptions: { label: string; value: string }[] = [];
+  pageReportTemplate = '';
 
   readonly employees = this.employeeService.employees;
 
@@ -108,12 +90,22 @@ export class EmployeeListComponent implements OnInit {
   });
 
   readonly columns: SharedTableColumn<Employee>[] = [
-    { id: 'photo', header: 'الصورة', valueGetter: () => null, width: '4rem' },
-    { id: 'employeeNumber', header: 'رقم الموظف', field: 'employeeNumber', sortableField: 'employeeNumber' },
-    { id: 'fullName', header: 'الاسم الكامل', field: 'fullName', sortableField: 'fullName' },
-    { id: 'jobTitle', header: 'المسمى الوظيفي', field: 'jobTitle' },
-    { id: 'department', header: 'القسم', field: 'department' },
-    { id: 'status', header: 'الحالة', field: 'status', sortableField: 'status' },
+    { id: 'photo', header: 'employees.list.col_photo', valueGetter: () => null, width: '4rem' },
+    {
+      id: 'employeeNumber',
+      header: 'employees.list.col_employee_number',
+      field: 'employeeNumber',
+      sortableField: 'employeeNumber',
+    },
+    {
+      id: 'fullName',
+      header: 'employees.list.col_full_name',
+      field: 'fullName',
+      sortableField: 'fullName',
+    },
+    { id: 'jobTitle', header: 'employees.list.col_job_title', field: 'jobTitle' },
+    { id: 'department', header: 'employees.list.col_department', field: 'department' },
+    { id: 'status', header: 'employees.list.col_status', field: 'status', sortableField: 'status' },
   ];
 
   readonly actions: SharedTableAction<Employee>[] = [
@@ -138,7 +130,24 @@ export class EmployeeListComponent implements OnInit {
   ];
 
   ngOnInit(): void {
+    this.rebuildLabels();
+    this.translate.onLangChange.subscribe(() => this.rebuildLabels());
     this.loadEmployees();
+  }
+
+  private rebuildLabels(): void {
+    this.statusOptions = [
+      { label: this.translate.instant('employees.status.active'), value: 'active' },
+      { label: this.translate.instant('employees.status.suspended'), value: 'suspended' },
+      { label: this.translate.instant('employees.status.terminated'), value: 'terminated' },
+      { label: this.translate.instant('employees.status.retired'), value: 'retired' },
+    ];
+    this.employmentTypeOptions = [
+      { label: this.translate.instant('employees.employment_type.permanent'), value: 'permanent' },
+      { label: this.translate.instant('employees.employment_type.temporary'), value: 'temporary' },
+      { label: this.translate.instant('employees.employment_type.contract'), value: 'contract' },
+    ];
+    this.pageReportTemplate = this.translate.instant('employees.list.page_report');
   }
 
   loadEmployees(): void {
@@ -161,8 +170,8 @@ export class EmployeeListComponent implements OnInit {
     this.rows.set(event.rows ?? 10);
   }
 
-  getStatusLabel(status: string): string {
-    return STATUS_LABELS[status] ?? status;
+  statusLabelKey(status: string): string {
+    return `employees.status.${status}`;
   }
 
   getStatusSeverity(status: string): 'success' | 'warning' | 'danger' | 'secondary' {
@@ -178,9 +187,4 @@ export class EmployeeListComponent implements OnInit {
         return 'secondary';
     }
   }
-
-  getEmploymentTypeLabel(value: string): string {
-    return EMPLOYMENT_TYPE_LABELS[value] ?? value;
-  }
 }
-
