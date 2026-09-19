@@ -9,10 +9,15 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
 import { RippleModule } from 'primeng/ripple';
-import { MessageService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { forkJoin, switchMap } from 'rxjs';
 import { EmployeeService } from '../../../core/services/employee.service';
 import { FileUploadService } from '../../../core/services/file-upload.service';
+import {
+  DocumentEmployeeDto,
+  DocumentEmployeeService,
+} from '../../../core/services/document-employee.service';
 import { Employee, EmployeeDocument, EmployeeDocumentType } from '../../../core/models/employee.model';
 import {
   DOC_TYPE_FILTER_OPTIONS,
@@ -52,16 +57,20 @@ export interface DocumentRow {
     InputTextModule,
     TooltipModule,
     RippleModule,
+    ConfirmDialogModule,
     SharedTableComponent,
     DocumentPreviewDialogComponent,
   ],
+  providers: [ConfirmationService],
   templateUrl: './appointment-documents.component.html',
   styleUrl: './appointment-documents.component.scss',
 })
 export class AppointmentDocumentsComponent implements OnInit {
   private readonly employeeService = inject(EmployeeService);
+  private readonly documentEmployeeService = inject(DocumentEmployeeService);
   private readonly fileUploadService = inject(FileUploadService);
   private readonly messageService = inject(MessageService);
+  private readonly confirmationService = inject(ConfirmationService);
 
   readonly employeeFilter = signal<string | null>(null);
   readonly typeFilter = signal<string | null>(null);
@@ -79,9 +88,19 @@ export class AppointmentDocumentsComponent implements OnInit {
   readonly uploadTypeOptions = DOC_TYPE_UPLOAD_OPTIONS;
 
   readonly employees = signal<Employee[]>([]);
+  readonly documentDtos = signal<DocumentEmployeeDto[]>([]);
+
   readonly employeeOptions = computed(() =>
     this.employees().map((e) => ({ label: e.fullName, value: e.id }))
   );
+
+  readonly employeeNameById = computed(() => {
+    const map = new Map<string, string>();
+    for (const emp of this.employees()) {
+      map.set(emp.id, emp.fullName);
+    }
+    return map;
+  });
 
   readonly previewDownloadFileName = computed(() => {
     const doc = this.previewDocument();
@@ -91,24 +110,22 @@ export class AppointmentDocumentsComponent implements OnInit {
   });
 
   readonly documentRows = computed(() => {
-    const list = this.employees();
-    const rows: DocumentRow[] = [];
-    for (const emp of list) {
-      for (const doc of emp.documents || []) {
-        rows.push({
-          id: doc.id,
-          employeeId: emp.id,
-          employeeName: emp.fullName,
-          type: doc.type,
-          typeLabel: DOC_TYPE_LABELS[doc.type] ?? doc.type,
-          name: doc.name || doc.documentNumber || doc.type,
-          fileUrl: doc.fileUrl,
-          uploadDate: doc.uploadDate,
-          document: doc,
-        });
-      }
-    }
-    return rows;
+    const nameById = this.employeeNameById();
+    return this.documentDtos().map((dto, index) => {
+      const document = this.documentEmployeeService.toDomain(dto, index);
+      const employeeId = dto.employeeId || '';
+      return {
+        id: document.id,
+        employeeId,
+        employeeName: nameById.get(employeeId) || employeeId || '—',
+        type: document.type,
+        typeLabel: DOC_TYPE_LABELS[document.type] ?? document.type,
+        name: document.name || document.documentNumber || document.type,
+        fileUrl: document.fileUrl,
+        uploadDate: document.uploadDate,
+        document,
+      } satisfies DocumentRow;
+    });
   });
 
   readonly filteredRows = computed(() => {
@@ -133,9 +150,13 @@ export class AppointmentDocumentsComponent implements OnInit {
 
   private loadDocuments(): void {
     this.loading.set(true);
-    this.employeeService.fetchAll().subscribe({
-      next: (list) => {
-        this.employees.set(list);
+    forkJoin({
+      employees: this.employeeService.fetchAll(),
+      documents: this.documentEmployeeService.list(),
+    }).subscribe({
+      next: ({ employees, documents }) => {
+        this.employees.set(employees);
+        this.documentDtos.set(documents || []);
         this.loading.set(false);
       },
       error: () => this.loading.set(false),
@@ -166,6 +187,32 @@ export class AppointmentDocumentsComponent implements OnInit {
     this.documentPreviewVisible.set(true);
   }
 
+  confirmDelete(row: DocumentRow): void {
+    this.confirmationService.confirm({
+      message: `هل تريد حذف المستند "${row.name}"؟`,
+      header: 'تأكيد الحذف',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'حذف',
+      rejectLabel: 'إلغاء',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => this.deleteDocument(row),
+    });
+  }
+
+  private deleteDocument(row: DocumentRow): void {
+    if (!row.id || !row.employeeId) return;
+    this.documentEmployeeService.delete(row.id, row.employeeId).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'تم الحذف',
+          detail: 'تم حذف المستند بنجاح.',
+        });
+        this.loadDocuments();
+      },
+    });
+  }
+
   formatDate(d: Date): string {
     return new Date(d).toLocaleDateString('ar-EG');
   }
@@ -184,6 +231,12 @@ export class AppointmentDocumentsComponent implements OnInit {
       buttonClass: 'p-button-rounded p-button-text p-button-sm',
       disabled: (row) => !row.fileUrl?.trim() || isPlaceholderDocumentUrl(row.fileUrl),
       onClick: (row) => this.openPreview(row),
+    },
+    {
+      id: 'delete',
+      icon: 'pi pi-trash',
+      buttonClass: 'p-button-rounded p-button-text p-button-danger p-button-sm',
+      onClick: (row) => this.confirmDelete(row),
     },
   ];
 

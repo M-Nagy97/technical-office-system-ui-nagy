@@ -16,7 +16,7 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { MessageModule } from 'primeng/message';
 import { TooltipModule } from 'primeng/tooltip';
 import { MenuItem, MessageService } from 'primeng/api';
-import { forkJoin } from 'rxjs';
+import { forkJoin, switchMap, of } from 'rxjs';
 import {
   JobGradesService,
   JobPositionsService,
@@ -30,7 +30,10 @@ import { FileUploadService } from '../../../core/services/file-upload.service';
 import { Employee, EmployeeDocument } from '../../../core/models/employee.model';
 import {
   NATIONAL_ID_DOCUMENT_TYPE_ID,
+  DOC_TYPE_LABELS,
   isPersistedDocumentId,
+  resolveDocumentTypeId,
+  truncateDocumentNumber,
 } from '../../../core/mappers/employee-document-types';
 
 const STEP_FIELDS: string[][] = [
@@ -581,7 +584,14 @@ export class EmployeeFormComponent implements OnInit {
 
     const id = this.employeeId();
     if (id && this.isEdit()) {
-      this.employeeService.update(id, payload).subscribe({
+      const existingNatId = isPersistedDocumentId(natDoc?.id) ? natDoc!.id : undefined;
+      this.employeeService.update(id, payload).pipe(
+        switchMap(() =>
+          nationalIdDocument
+            ? this.employeeService.upsertNationalIdDocument(id, existingNatId, nationalIdDocument)
+            : of(true)
+        )
+      ).subscribe({
         next: () => {
           this.afterEmployeeSaved(id, positionIds, 'تم تحديث بيانات الموظف بنجاح');
         },
@@ -653,12 +663,54 @@ export class EmployeeFormComponent implements OnInit {
       });
   }
 
-  onUpload(): void {
-    this.messageService.add({
-      severity: 'info',
-      summary: 'قريباً',
-      detail: 'رفع المستندات الإضافية سيتم عبر خدمة الملفات المشتركة.',
-    });
+  onUpload(event: { files?: File[] }): void {
+    const employeeId = this.employeeId();
+    if (!employeeId || !this.isEdit()) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'تنبيه',
+        detail: 'احفظ الموظف أولاً ثم ارفع المستندات الإضافية من صفحة التعديل.',
+      });
+      return;
+    }
+
+    const files = event.files?.filter(Boolean) ?? [];
+    if (!files.length) return;
+
+    const documentTypeId = resolveDocumentTypeId('other');
+    if (!documentTypeId) return;
+
+    const now = new Date();
+    forkJoin(files.map((file) => this.fileUploadService.upload(file, 'employees/documents')))
+      .pipe(
+        switchMap((paths) => {
+          const docs: EmployeeDocument[] = paths.map((path, index) => {
+            const name = truncateDocumentNumber(
+              files[index].name || DOC_TYPE_LABELS.other,
+              DOC_TYPE_LABELS.other
+            );
+            return {
+              id: `doc-${Date.now()}-${index}`,
+              type: 'other' as const,
+              documentTypeId,
+              name,
+              documentNumber: name,
+              fileUrl: path,
+              uploadDate: now,
+            };
+          });
+          return this.employeeService.addDocuments(employeeId, docs);
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'تم الرفع',
+            detail: 'تم رفع المستندات الإضافية وربطها بالموظف.',
+          });
+        },
+      });
   }
 
   onNationalIdFileSelect(event: { files?: File[]; currentFiles?: File[] }): void {

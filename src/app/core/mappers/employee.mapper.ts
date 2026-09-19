@@ -355,6 +355,8 @@ export class EmployeeMapper {
     return {
       id,
       ...buildCommandBody(employee),
+      // Documents are managed via DocumentEmployeeController — null skips SyncDocuments.
+      documents: null,
     } as UpdateEmployeeCommand;
   }
 }

@@ -13,6 +13,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { EmployeeService } from '../../../core/services/employee.service';
+import { DocumentEmployeeService } from '../../../core/services/document-employee.service';
 import { PenaltyService } from '../../../core/services/penalty.service';
 import { Employee, EmployeeDocument } from '../../../core/models/employee.model';
 import { Penalty, PenaltyType, PenaltyStatus } from '../../../core/models/penalty.model';
@@ -20,6 +21,7 @@ import { SharedTableComponent } from '../../../shared/components/shared-table/sh
 import { SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
 import { DocumentPreviewDialogComponent } from '../../../shared/components/document-preview-dialog/document-preview-dialog.component';
 import { isImageMediaUrl } from '../../../core/utils/media-url.util';
+import { switchMap, of } from 'rxjs';
 
 const STATUS_LABELS: Record<string, string> = {
   active: 'نشط',
@@ -63,11 +65,13 @@ export class EmployeeDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly employeeService = inject(EmployeeService);
+  private readonly documentEmployeeService = inject(DocumentEmployeeService);
   private readonly penaltyService = inject(PenaltyService);
   private readonly messageService = inject(MessageService);
   private readonly confirmationService = inject(ConfirmationService);
 
   readonly employee = signal<Employee | null>(null);
+  readonly documents = signal<EmployeeDocument[]>([]);
   readonly editingCode = signal(false);
   readonly codeDraft = signal('');
   readonly savingCode = signal(false);
@@ -78,7 +82,9 @@ export class EmployeeDetailComponent implements OnInit {
   readonly penaltyStats = signal<{ type: PenaltyType; count: number }[]>([]);
   readonly employeePenalties = signal<Penalty[]>([]);
 
-  readonly nationalIdDocument = computed(() => this.findNationalIdDocument(this.employee()));
+  readonly nationalIdDocument = computed(() =>
+    this.findNationalIdDocument(this.employee(), this.documents())
+  );
 
   readonly previewDownloadFileName = computed(() => {
     const emp = this.employee();
@@ -152,21 +158,56 @@ export class EmployeeDetailComponent implements OnInit {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.employeeService.getById(id).subscribe({
-        next: (emp) => {
-          this.employee.set(emp ?? null);
-          this.penaltyStats.set(this.penaltyService.getStatsByEmployee(id));
-          this.employeePenalties.set(this.penaltyService.getByEmployeeId(id));
-          this.loading.set(false);
-        },
-        error: () => {
-          this.loading.set(false);
-          // Handle error
-        }
-      });
+      this.employeeService
+        .getById(id)
+        .pipe(
+          switchMap((emp) => {
+            this.employee.set(emp ?? null);
+            this.penaltyStats.set(this.penaltyService.getStatsByEmployee(id));
+            this.employeePenalties.set(this.penaltyService.getByEmployeeId(id));
+            if (!emp) return of([] as EmployeeDocument[]);
+            return this.documentEmployeeService
+              .list(id)
+              .pipe(switchMap((dtos) => of(this.documentEmployeeService.toDomainList(dtos))));
+          })
+        )
+        .subscribe({
+          next: (docs) => {
+            this.documents.set(docs);
+            this.loading.set(false);
+          },
+          error: () => {
+            this.loading.set(false);
+          },
+        });
     } else {
       this.loading.set(false);
     }
+  }
+
+  confirmDeleteDocument(doc: EmployeeDocument): void {
+    const emp = this.employee();
+    if (!emp) return;
+    this.confirmationService.confirm({
+      message: `هل تريد حذف المستند "${doc.name || doc.documentNumber || ''}"؟`,
+      header: 'تأكيد الحذف',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'حذف',
+      rejectLabel: 'إلغاء',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        this.documentEmployeeService.delete(doc.id, emp.id).subscribe({
+          next: () => {
+            this.documents.update((list) => list.filter((d) => d.id !== doc.id));
+            this.messageService.add({
+              severity: 'success',
+              summary: 'تم الحذف',
+              detail: 'تم حذف المستند بنجاح',
+            });
+          },
+        });
+      },
+    });
   }
 
   startEditEmployeeCode(): void {
@@ -264,16 +305,21 @@ export class EmployeeDetailComponent implements OnInit {
     });
   }
 
-  private findNationalIdDocument(emp: Employee | null): EmployeeDocument | null {
-    if (!emp?.documents?.length) return null;
+  private findNationalIdDocument(
+    emp: Employee | null,
+    docs: EmployeeDocument[]
+  ): EmployeeDocument | null {
+    if (!emp || !docs.length) return null;
 
     return (
-      emp.documents.find(
+      docs.find(
         (d) =>
           (d.documentNumber && d.documentNumber === emp.nationalId) ||
           (d.name && d.name === emp.nationalId) ||
           d.documentTypeId === NATIONAL_ID_DOCUMENT_TYPE_ID
-      ) || emp.documents[0] || null
+      ) ||
+      docs[0] ||
+      null
     );
   }
 }

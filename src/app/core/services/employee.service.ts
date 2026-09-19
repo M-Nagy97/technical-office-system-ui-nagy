@@ -1,12 +1,14 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient, HttpContext, HttpErrorResponse } from '@angular/common/http';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { Observable, map, tap, of, catchError, throwError, switchMap } from 'rxjs';
+import { Observable, map, tap, of, catchError, throwError, forkJoin, switchMap } from 'rxjs';
 import { Employee, EmployeeDocument, EmployeeFilter } from '../models/employee.model';
 import { EmployeesService as GeneratedEmployeesService } from '../api/generated/api/employees.service';
 import { EmployeeMapper } from '../mappers/employee.mapper';
 import { environment } from '../../../environments/environment';
 import { SKIP_GLOBAL_ERROR_NOTIFICATION } from '../interceptors/error.interceptor';
+import { DocumentEmployeeService } from './document-employee.service';
+import { isPersistedDocumentId } from '../mappers/employee-document-types';
 
 export function filterEmployees(list: Employee[], filter: EmployeeFilter): Employee[] {
   let result = list;
@@ -46,6 +48,7 @@ export function filterEmployees(list: Employee[], filter: EmployeeFilter): Emplo
 export class EmployeeService {
   private readonly http = inject(HttpClient);
   private readonly api = inject(GeneratedEmployeesService);
+  private readonly documentEmployeeService = inject(DocumentEmployeeService);
 
   private readonly employeesState = signal<Employee[]>([]);
   readonly employees = this.employeesState.asReadonly();
@@ -193,44 +196,64 @@ export class EmployeeService {
   }
 
   /**
-   * Append documents after a fresh GetById so existing document Ids are kept.
-   * Only syncs the documents collection — other child collections are left untouched
-   * (backend skips null lists; empty [] would delete orphans and can throw concurrency errors).
+   * Creates employee documents via DocumentEmployeeController (one POST per document).
    */
   addDocuments(employeeId: string, newDocs: EmployeeDocument[]): Observable<unknown> {
-    return this.getById(employeeId).pipe(
-      switchMap((emp) => {
-        if (!emp) {
-          return throwError(() => new Error('Employee not found'));
-        }
-        const snapshot = this.employeesState();
-        const updated: Employee = {
-          ...emp,
-          documents: [...(emp.documents || []), ...newDocs],
-          updatedAt: new Date(),
-        };
-        this.employeesState.update((list) => {
-          const idx = list.findIndex((e) => e.id === employeeId);
-          if (idx === -1) return [...list, updated];
-          const next = [...list];
-          next[idx] = updated;
-          return next;
-        });
+    if (!newDocs.length) {
+      return of(true);
+    }
 
-        const command = EmployeeMapper.toUpdateCommand(employeeId, updated);
-        command.contacts = null;
-        command.addresses = null;
-        command.educations = null;
-        command.experiences = null;
+    const creates = newDocs
+      .filter((doc) => doc.documentTypeId && doc.fileUrl)
+      .map((doc) =>
+        this.documentEmployeeService.create(
+          this.documentEmployeeService.buildCreatePayload(employeeId, doc)
+        )
+      );
 
-        return this.api.employeesUpdate(employeeId, command).pipe(
-          catchError((err) => {
-            this.employeesState.set(snapshot);
-            return throwError(() => err);
-          })
-        );
-      })
+    if (!creates.length) {
+      return throwError(() => new Error('No valid documents to create'));
+    }
+
+    return forkJoin(creates).pipe(
+      switchMap((ids) =>
+        this.documentEmployeeService.list(employeeId).pipe(
+          tap((dtos) => {
+            const documents = this.documentEmployeeService.toDomainList(dtos);
+            this.employeesState.update((list) => {
+              const idx = list.findIndex((e) => e.id === employeeId);
+              if (idx === -1) return list;
+              const next = [...list];
+              next[idx] = { ...next[idx], documents, updatedAt: new Date() };
+              return next;
+            });
+          }),
+          map(() => ids)
+        )
+      )
     );
+  }
+
+  /**
+   * Upserts the national-ID document after an employee update (documents are no longer synced on PUT).
+   */
+  upsertNationalIdDocument(
+    employeeId: string,
+    existingDocId: string | undefined,
+    doc: EmployeeDocument
+  ): Observable<unknown> {
+    if (!doc.documentTypeId || !doc.fileUrl?.trim()) {
+      return of(true);
+    }
+
+    const payload = this.documentEmployeeService.buildCreatePayload(employeeId, doc);
+    if (isPersistedDocumentId(existingDocId)) {
+      return this.documentEmployeeService.update(existingDocId!, {
+        id: existingDocId!,
+        ...payload,
+      });
+    }
+    return this.documentEmployeeService.create(payload);
   }
 
   delete(id: string): Observable<unknown> {

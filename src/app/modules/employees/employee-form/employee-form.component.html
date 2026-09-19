@@ -328,11 +328,12 @@
         <p-fileUpload
           mode="advanced"
           [auto]="false"
+          [customUpload]="true"
           chooseLabel="اختر ملف"
           uploadLabel="رفع"
           cancelLabel="إلغاء"
           [multiple]="true"
-          (uploadHandler)="onUpload()"
+          (uploadHandler)="onUpload($event)"
         />
       </div>
     }
