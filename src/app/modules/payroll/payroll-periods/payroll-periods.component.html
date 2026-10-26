@@ -7,12 +7,15 @@
 
   <p-card>
     <div class="toolbar">
-      <button        pButton
-        type="button"
-        icon="pi pi-plus"
-        [label]="'common.add' | translate"
-        (click)="openCreate()"
- ></button>
+      <ng-container *appHasPermission="'payroll.write'">
+        <button
+          pButton
+          type="button"
+          icon="pi pi-plus"
+          [label]="'common.add' | translate"
+          (click)="openCreate()"
+        ></button>
+      </ng-container>
     </div>
     <app-shared-table
       [value]="rows()"
@@ -27,14 +30,12 @@
   </p-card>
 </div>
 
-<p-dialog
+<app-crud-dialog
   [header]="(editingId() ? 'payroll.periods.edit_title' : 'payroll.periods.create_title') | translate"
   [visible]="dialogVisible()"
   (visibleChange)="dialogVisible.set($event)"
-  [modal]="true"
-  [style]="{ width: '32rem' }"
-  [draggable]="false"
-  (onHide)="dialogVisible.set(false)"
+  [saving]="saving()"
+  (save)="save()"
 >
   <div class="form-grid">
     <label for="pp-name">{{ 'payroll.periods.field_name' | translate }}</label>
@@ -61,18 +62,4 @@
       <input id="pp-proc" type="datetime-local" [(ngModel)]="formProcessedLocal" class="w-full p-inputtext p-component" />
     }
   </div>
-  <ng-template pTemplate="footer">
-    <button pButton type="button" class="p-button-text" [label]="'common.cancel' | translate" (click)="dialogVisible.set(false)"></button>
-    <button
-      pButton
-      type="button"
-      [label]="'common.save' | translate"
-      [loading]="saving()"
-      [disabled]="saving()"
-      (click)="save()"
-    ></button>
-  </ng-template>
-</p-dialog>
-
-<p-toast />
-<p-confirmPopup />
+</app-crud-dialog>

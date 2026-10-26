@@ -6,13 +6,15 @@
         <span class="text-sm text-500">{{ 'leave.permissions.subtitle' | translate }}</span>
       </div>
 
-      <a
-        pButton
-        [label]="'leave.permissions.new_request' | translate"
-        icon="pi pi-plus"
-        routerLink="/leave/permissions/new"
-        class="p-button-primary"
-      ></a>
+      <ng-container *appHasPermission="'leave.write'">
+        <a
+          pButton
+          [label]="'leave.permissions.new_request' | translate"
+          icon="pi pi-plus"
+          routerLink="/leave/permissions/new"
+          class="p-button-primary"
+        ></a>
+      </ng-container>
     </div>
 
     <!-- Filters Bar -->

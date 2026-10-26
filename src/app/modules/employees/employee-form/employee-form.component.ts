@@ -1,10 +1,12 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
+  AbstractControl,
   FormBuilder,
   FormGroup,
-  Validators,
   ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
 } from '@angular/forms';
 import { StepsModule } from 'primeng/steps';
 import { ButtonModule } from 'primeng/button';
@@ -36,6 +38,9 @@ import {
   resolveDocumentTypeId,
   truncateDocumentNumber,
 } from '../../../core/mappers/employee-document-types';
+import { parseEgyptianNationalIdBirthDate } from '../../../core/utils/egyptian-national-id';
+
+const LAST_STEP = 2;
 
 const STEP_FIELDS: string[][] = [
   [
@@ -45,32 +50,30 @@ const STEP_FIELDS: string[][] = [
     'lastName',
     'nationalId',
     'gender',
-    'birthDate',
-    'birthPlace',
     'nationality',
-    'religion',
-    'maritalStatus',
     'phone',
     'alternatePhone',
-    'email',
-    'address',
   ],
   [
     'employeeNumber',
     'appointmentDate',
-    'appointmentDecisionNumber',
-    'appointmentDecisionDate',
-    'jobTitle',
     'jobGrade',
+    'jobTitle',
     'department',
     'section',
-    'workLocation',
     'employmentType',
     'status',
   ],
-  ['educationLevel', 'educationField', 'graduationYear'],
   ['nationalIdIssueDate', 'nationalIdExpiryDate', 'nationalIdFileUrl'],
 ];
+
+function egyptianNationalIdValidator(control: AbstractControl): ValidationErrors | null {
+  const value = (control.value ?? '').toString().trim();
+  if (!value) return null;
+  if (!/^\d{14}$/.test(value)) return { pattern: true };
+  if (!parseEgyptianNationalIdBirthDate(value)) return { nationalIdBirthDate: true };
+  return null;
+}
 
 /** Stored option values stay Arabic (existing DB data); labels are translated. */
 const NATIONALITY_VALUES: { key: string; value: string }[] = [
@@ -84,72 +87,6 @@ const NATIONALITY_VALUES: { key: string; value: string }[] = [
   { key: 'employees.nationality.yemeni', value: 'يمني' },
   { key: 'employees.nationality.iraqi', value: 'عراقي' },
   { key: 'employees.nationality.other', value: 'أخرى' },
-];
-
-const RELIGION_VALUES: { key: string; value: string }[] = [
-  { key: 'employees.religion.muslim', value: 'مسلم' },
-  { key: 'employees.religion.christian', value: 'مسيحي' },
-  { key: 'employees.religion.jewish', value: 'يهودي' },
-  { key: 'employees.religion.other', value: 'أخرى' },
-];
-
-const GOVERNORATE_VALUES: { key: string; value: string }[] = [
-  { key: 'employees.governorate.cairo', value: 'القاهرة' },
-  { key: 'employees.governorate.giza', value: 'الجيزة' },
-  { key: 'employees.governorate.alexandria', value: 'الإسكندرية' },
-  { key: 'employees.governorate.dakahlia', value: 'الدقهلية' },
-  { key: 'employees.governorate.sharqia', value: 'الشرقية' },
-  { key: 'employees.governorate.qalyubia', value: 'القليوبية' },
-  { key: 'employees.governorate.kafr_elsheikh', value: 'كفر الشيخ' },
-  { key: 'employees.governorate.gharbia', value: 'الغربية' },
-  { key: 'employees.governorate.monufia', value: 'المنوفية' },
-  { key: 'employees.governorate.beheira', value: 'البحيرة' },
-  { key: 'employees.governorate.damietta', value: 'دمياط' },
-  { key: 'employees.governorate.fayoum', value: 'الفيوم' },
-  { key: 'employees.governorate.beni_suef', value: 'بني سويف' },
-  { key: 'employees.governorate.minya', value: 'المنيا' },
-  { key: 'employees.governorate.asyut', value: 'أسيوط' },
-  { key: 'employees.governorate.sohag', value: 'سوهاج' },
-  { key: 'employees.governorate.qena', value: 'قنا' },
-  { key: 'employees.governorate.luxor', value: 'الأقصر' },
-  { key: 'employees.governorate.aswan', value: 'أسوان' },
-  { key: 'employees.governorate.red_sea', value: 'البحر الأحمر' },
-  { key: 'employees.governorate.new_valley', value: 'الوادي الجديد' },
-  { key: 'employees.governorate.matrouh', value: 'مطروح' },
-  { key: 'employees.governorate.north_sinai', value: 'شمال سيناء' },
-  { key: 'employees.governorate.south_sinai', value: 'جنوب سيناء' },
-  { key: 'employees.governorate.port_said', value: 'بورسعيد' },
-  { key: 'employees.governorate.ismailia', value: 'الإسماعيلية' },
-  { key: 'employees.governorate.suez', value: 'السويس' },
-];
-
-const EDUCATION_LEVEL_VALUES: { key: string; value: string }[] = [
-  { key: 'employees.education_level.tech_diploma', value: 'دبلوم فني' },
-  { key: 'employees.education_level.higher_diploma', value: 'دبلوم عالي' },
-  { key: 'employees.education_level.bachelor', value: 'بكالوريوس' },
-  { key: 'employees.education_level.licence', value: 'ليسانس' },
-  { key: 'employees.education_level.engineering_bachelor', value: 'بكالوريوس هندسة' },
-  { key: 'employees.education_level.masters', value: 'ماجستير' },
-  { key: 'employees.education_level.doctorate', value: 'دكتوراه' },
-];
-
-const EDUCATION_FIELD_VALUES: { key: string; value: string }[] = [
-  { key: 'employees.education_field.civil_eng', value: 'هندسة مدنية' },
-  { key: 'employees.education_field.arch_eng', value: 'هندسة معمارية' },
-  { key: 'employees.education_field.elec_eng', value: 'هندسة كهرباء' },
-  { key: 'employees.education_field.mech_eng', value: 'هندسة ميكانيكا' },
-  { key: 'employees.education_field.accounting', value: 'محاسبة' },
-  { key: 'employees.education_field.business', value: 'إدارة أعمال' },
-  { key: 'employees.education_field.hr', value: 'موارد بشرية' },
-  { key: 'employees.education_field.law', value: 'قانون' },
-  { key: 'employees.education_field.cs', value: 'علوم حاسب' },
-  { key: 'employees.education_field.is', value: 'نظم معلومات' },
-  { key: 'employees.education_field.arts_langs', value: 'آداب ولغات' },
-  { key: 'employees.education_field.education', value: 'تربية' },
-  { key: 'employees.education_field.medicine', value: 'طب' },
-  { key: 'employees.education_field.pharmacy', value: 'صيدلة' },
-  { key: 'employees.education_field.sciences', value: 'علوم' },
-  { key: 'employees.education_field.other', value: 'أخرى' },
 ];
 
 @Component({
@@ -207,14 +144,9 @@ export class EmployeeFormComponent implements OnInit {
   readonly jobPositionOptions = signal<{ label: string; value: string }[]>([]);
 
   genderOptions: { label: string; value: string }[] = [];
-  maritalOptions: { label: string; value: string }[] = [];
   employmentTypeOptions: { label: string; value: string }[] = [];
   statusOptions: { label: string; value: string }[] = [];
   nationalityOptions: { label: string; value: string }[] = [];
-  religionOptions: { label: string; value: string }[] = [];
-  governorateOptions: { label: string; value: string }[] = [];
-  educationLevelOptions: { label: string; value: string }[] = [];
-  educationFieldOptions: { label: string; value: string }[] = [];
 
   constructor() {
     this.buildForm();
@@ -236,13 +168,13 @@ export class EmployeeFormComponent implements OnInit {
         }
         if (positions.success && positions.data) {
           this.jobPositions = positions.data;
-          this.jobPositionOptions.set(this.mapPositionsToOptions(positions.data));
         }
         if (units.success && units.data) {
           this.organizationUnits = units.data;
           this.rebuildDepartmentOptions();
           this.syncSectionOptions();
         }
+        this.syncJobTitleOptions();
 
         const id = this.route.snapshot.paramMap.get('id');
         if (id && id !== 'add') {
@@ -262,18 +194,11 @@ export class EmployeeFormComponent implements OnInit {
     this.stepItems = [
       { label: this.translate.instant('employees.form.step_personal') },
       { label: this.translate.instant('employees.form.step_appointment') },
-      { label: this.translate.instant('employees.form.step_qualifications') },
       { label: this.translate.instant('employees.form.step_documents') },
     ];
     this.genderOptions = [
       { label: this.translate.instant('employees.gender.male'), value: 'male' },
       { label: this.translate.instant('employees.gender.female'), value: 'female' },
-    ];
-    this.maritalOptions = [
-      { label: this.translate.instant('employees.marital.single'), value: 'single' },
-      { label: this.translate.instant('employees.marital.married'), value: 'married' },
-      { label: this.translate.instant('employees.marital.divorced'), value: 'divorced' },
-      { label: this.translate.instant('employees.marital.widowed'), value: 'widowed' },
     ];
     this.employmentTypeOptions = [
       { label: this.translate.instant('employees.employment_type.permanent'), value: 'permanent' },
@@ -290,59 +215,28 @@ export class EmployeeFormComponent implements OnInit {
       label: this.translate.instant(o.key),
       value: o.value,
     }));
-    this.religionOptions = RELIGION_VALUES.map((o) => ({
-      label: this.translate.instant(o.key),
-      value: o.value,
-    }));
-    this.governorateOptions = GOVERNORATE_VALUES.map((o) => ({
-      label: this.translate.instant(o.key),
-      value: o.value,
-    }));
-    this.educationLevelOptions = EDUCATION_LEVEL_VALUES.map((o) => ({
-      label: this.translate.instant(o.key),
-      value: o.value,
-    }));
-    this.educationFieldOptions = EDUCATION_FIELD_VALUES.map((o) => ({
-      label: this.translate.instant(o.key),
-      value: o.value,
-    }));
   }
 
   private buildForm(): void {
     this.form = this.fb.group({
-      // Step 1 - personal (Name parts, nationalId, gender, birthDate, phone required)
       firstName: ['', [Validators.required, Validators.minLength(2)]],
       secondName: ['', [Validators.required, Validators.minLength(2)]],
       thirdName: ['', [Validators.required, Validators.minLength(2)]],
       lastName: [''],
-      nationalId: ['', [Validators.required, Validators.pattern(/^\d{14}$/)]],
+      nationalId: ['', [Validators.required, egyptianNationalIdValidator]],
       gender: ['male', Validators.required],
-      birthDate: [null as Date | null, Validators.required],
-      birthPlace: [''],
+      birthDate: [{ value: null as Date | null, disabled: true }, Validators.required],
       nationality: ['مصري'],
-      religion: [''],
-      maritalStatus: ['single'],
       phone: ['', [Validators.required, Validators.pattern(/^01[0125]\d{8}$/)]],
       alternatePhone: [''],
-      email: ['', Validators.email],
-      address: [''],
-      // Step 2 - appointment
       employeeNumber: ['', [Validators.required, Validators.maxLength(50)]],
       appointmentDate: [null as Date | null],
-      appointmentDecisionNumber: [''],
-      appointmentDecisionDate: [null as Date | null],
-      jobTitle: [''],
       jobGrade: [''],
+      jobTitle: [''],
       department: [''],
       section: [''],
-      workLocation: [''],
       employmentType: ['permanent'],
       status: ['active'],
-      // Step 3 - qualifications
-      educationLevel: [''],
-      educationField: [''],
-      graduationYear: [null as number | null, [Validators.min(1950), Validators.max(new Date().getFullYear())]],
-      // Step 4 - documents
       nationalIdIssueDate: [null as Date | null],
       nationalIdExpiryDate: [null as Date | null],
       nationalIdFileUrl: [''],
@@ -352,6 +246,8 @@ export class EmployeeFormComponent implements OnInit {
     this.form.get('secondName')?.valueChanges.subscribe(() => this.updateFullName());
     this.form.get('thirdName')?.valueChanges.subscribe(() => this.updateFullName());
     this.form.get('lastName')?.valueChanges.subscribe(() => this.updateFullName());
+    this.form.get('nationalId')?.valueChanges.subscribe((value) => this.syncBirthDateFromNationalId(value));
+    this.form.get('jobGrade')?.valueChanges.subscribe(() => this.syncJobTitleOptions());
     this.form.get('department')?.valueChanges.subscribe(() => {
       const sectionCtrl = this.form.get('section');
       const sid = sectionCtrl?.value;
@@ -372,6 +268,25 @@ export class EmployeeFormComponent implements OnInit {
     this.form.patchValue({ fullName: name }, { emitEvent: false });
   }
 
+  private syncBirthDateFromNationalId(nationalId: string | null | undefined): void {
+    const birthDate = parseEgyptianNationalIdBirthDate(nationalId);
+    this.form.get('birthDate')?.setValue(birthDate, { emitEvent: false });
+  }
+
+  private syncJobTitleOptions(): void {
+    const gradeId = this.form?.get('jobGrade')?.value as string | undefined;
+    const list = gradeId
+      ? this.jobPositions.filter((p) => (p.jobGradeId ?? '').toLowerCase() === gradeId.toLowerCase())
+      : [];
+    this.jobPositionOptions.set(this.mapPositionsToOptions(list));
+    const titleCtrl = this.form.get('jobTitle');
+    const current = titleCtrl?.value;
+    const allowed = new Set(this.jobPositionOptions().map((o) => o.value));
+    if (current && !allowed.has(current)) {
+      titleCtrl?.setValue('', { emitEvent: false });
+    }
+  }
+
   private patchForm(emp: Employee): void {
     this.rebuildDepartmentOptions();
     this.syncSectionOptions();
@@ -382,14 +297,26 @@ export class EmployeeFormComponent implements OnInit {
       return isNaN(d.getTime()) || d.getTime() === 0 ? null : d;
     };
 
-    const depId = this.resolveOrganizationUnitId(emp.department, 'department');
-    const secId = this.resolveOrganizationUnitId(emp.section, 'section');
+    const assignedId =
+      this.resolveOrganizationUnitId(emp.organizationUnitId || '', 'section') ||
+      this.resolveOrganizationUnitId(emp.section, 'section') ||
+      this.resolveOrganizationUnitId(emp.department, 'department');
+    const assigned = this.organizationUnits.find((u) => u.id === assignedId);
+    const depId = assigned?.parentId || assignedId || '';
+    const secId = assigned?.parentId ? assignedId : '';
 
     const natDoc = (emp.documents || []).find(
       (d) => (d.documentNumber && d.documentNumber === emp.nationalId) ||
         (d.name && d.name === emp.nationalId) ||
         d.documentTypeId === NATIONAL_ID_DOCUMENT_TYPE_ID
       ) || (emp.documents && emp.documents.length > 0 ? emp.documents[0] : null);
+
+    const titleId = this.resolveJobPositionId(emp.jobPositionId || emp.jobTitle);
+    const position = this.jobPositions.find((p) => p.id === titleId);
+    const resolvedGrade = this.resolveJobGradeId(emp.jobGrade);
+    const gradeId = this.jobGrades.some((g) => g.id === resolvedGrade)
+      ? resolvedGrade
+      : (position?.jobGradeId ?? '');
 
     this.form.patchValue({
       firstName: emp.firstName ?? '',
@@ -399,33 +326,23 @@ export class EmployeeFormComponent implements OnInit {
       fullName: emp.fullName ?? '',
       nationalId: emp.nationalId ?? '',
       gender: emp.gender ?? 'male',
-      birthDate: toDate(emp.birthDate),
-      birthPlace: emp.birthPlace ?? '',
       nationality: emp.nationality || 'مصري',
-      religion: emp.religion ?? '',
-      maritalStatus: emp.maritalStatus ?? 'single',
       phone: emp.phone ?? '',
       alternatePhone: emp.alternatePhone ?? '',
-      email: emp.email ?? '',
-      address: emp.address ?? '',
       employeeNumber: emp.employeeNumber ?? '',
       appointmentDate: toDate(emp.appointmentDate),
-      appointmentDecisionNumber: emp.appointmentDecisionNumber ?? '',
-      appointmentDecisionDate: toDate(emp.appointmentDecisionDate),
-      jobTitle: this.resolveJobPositionId(emp.jobTitle),
-      jobGrade: this.resolveJobGradeId(emp.jobGrade),
       department: depId,
       section: secId,
-      workLocation: emp.workLocation ?? '',
       employmentType: emp.employmentType ?? 'permanent',
       status: emp.status ?? 'active',
-      educationLevel: emp.educationLevel ?? '',
-      educationField: emp.educationField ?? '',
-      graduationYear: emp.graduationYear || null,
       nationalIdIssueDate: toDate(natDoc?.uploadDate),
       nationalIdExpiryDate: toDate(natDoc?.expiryDate),
       nationalIdFileUrl: natDoc?.fileUrl ?? '',
     });
+    this.form.get('jobGrade')?.setValue(gradeId);
+    this.syncJobTitleOptions();
+    this.form.get('jobTitle')?.setValue(titleId, { emitEvent: false });
+    this.syncBirthDateFromNationalId(emp.nationalId);
     if (natDoc?.fileUrl && natDoc.fileUrl !== 'https://example.com/doc.pdf') {
       const attached = this.translate.instant('employees.form.attached_doc_label');
       this.nationalIdFileName.set(
@@ -472,18 +389,15 @@ export class EmployeeFormComponent implements OnInit {
       }
       return this.translate.instant('employees.form.error_pattern');
     }
+    if (e['nationalIdBirthDate']) {
+      return this.translate.instant('employees.form.error_national_id_birth_date');
+    }
     if (e['min']) {
       const m = e['min'] as { min?: number; actual?: number };
-      if (controlName === 'graduationYear') {
-        return this.translate.instant('employees.form.error_graduation_min', { min: m.min ?? '' });
-      }
       return this.translate.instant('employees.form.error_min', { min: m.min ?? '' });
     }
     if (e['max']) {
       const m = e['max'] as { max?: number; actual?: number };
-      if (controlName === 'graduationYear') {
-        return this.translate.instant('employees.form.error_graduation_max', { max: m.max ?? '' });
-      }
       return this.translate.instant('employees.form.error_max', { max: m.max ?? '' });
     }
 
@@ -495,7 +409,7 @@ export class EmployeeFormComponent implements OnInit {
     if (!names.length) return true;
     return names.every((name) => {
       const ctrl = this.form.get(name);
-      return !ctrl || ctrl.valid;
+      return !ctrl || ctrl.disabled || ctrl.valid;
     });
   }
 
@@ -512,7 +426,7 @@ export class EmployeeFormComponent implements OnInit {
       STEP_FIELDS[step].forEach((name) => this.form.get(name)?.markAllAsTouched());
       return;
     }
-    this.activeStep.update((s) => Math.min(s + 1, 3));
+    this.activeStep.update((s) => Math.min(s + 1, LAST_STEP));
   }
 
   prevStep(): void {
@@ -540,7 +454,7 @@ export class EmployeeFormComponent implements OnInit {
 
     this.submittedAttempt.set(false);
     this.updateFullName();
-    const v = this.form.value;
+    const v = this.form.getRawValue();
 
     const toDate = (val: any) => {
       if (!val) return null;
@@ -588,38 +502,30 @@ export class EmployeeFormComponent implements OnInit {
       thirdName: v.thirdName,
       lastName: v.lastName,
       gender: v.gender,
-      birthDate: v.birthDate ?? new Date(),
-      birthPlace: v.birthPlace,
+      birthDate: v.birthDate ?? parseEgyptianNationalIdBirthDate(v.nationalId) ?? new Date(),
       nationality: v.nationality,
-      religion: v.religion,
-      maritalStatus: v.maritalStatus,
       phone: v.phone,
       alternatePhone: v.alternatePhone || undefined,
-      email: v.email || undefined,
-      address: v.address,
       appointmentDate: v.appointmentDate ?? new Date(),
-      appointmentDecisionNumber: v.appointmentDecisionNumber,
-      appointmentDecisionDate: v.appointmentDecisionDate ?? new Date(),
       jobTitle: this.jobPositionDisplay(v.jobTitle),
       jobGrade: this.jobGradeDisplay(v.jobGrade),
       department: this.organizationUnitDisplay(v.department),
       section: this.organizationUnitDisplay(v.section),
-      workLocation: v.workLocation,
       employmentType: v.employmentType,
       status: v.status,
-      educationLevel: v.educationLevel,
-      educationField: v.educationField,
-      graduationYear: Number(v.graduationYear) || new Date().getFullYear(),
-      documents: documentsPayload,
-    };
-    const positionIds = {
       jobPositionId: this.resolveJobPositionId(v.jobTitle || ''),
       organizationUnitId:
         this.resolveOrganizationUnitId(v.section || '', 'section') ||
         this.resolveOrganizationUnitId(v.department || '', 'department'),
-      fromDate: this.toIsoDate(toDate(v.appointmentDate) || new Date()),
+      maritalStatus: existingEmployee?.maritalStatus ?? 'single',
+      birthPlace: existingEmployee?.birthPlace,
+      religion: existingEmployee?.religion,
+      appointmentDecisionNumber: existingEmployee?.appointmentDecisionNumber,
+      appointmentDecisionDate: existingEmployee?.appointmentDecisionDate,
+      email: existingEmployee?.email,
+      contactId: existingEmployee?.contactId,
+      documents: documentsPayload,
     };
-
     const id = this.employeeId();
     if (id && this.isEdit()) {
       const existingNatId = isPersistedDocumentId(natDoc?.id) ? natDoc!.id : undefined;
@@ -631,7 +537,7 @@ export class EmployeeFormComponent implements OnInit {
         )
       ).subscribe({
         next: () => {
-          this.afterEmployeeSaved(id, positionIds, this.translate.instant('employees.form.update_success'));
+          this.afterEmployeeSaved(id, this.translate.instant('employees.form.update_success'));
         },
         error: () => {
           this.saving.set(false);
@@ -642,7 +548,10 @@ export class EmployeeFormComponent implements OnInit {
         next: (response: any) => {
           const newId = response?.data || response?.id || (typeof response === 'string' ? response : null);
           if (newId) {
-            this.afterEmployeeSaved(newId, positionIds, this.translate.instant('employees.form.create_success'));
+            this.afterEmployeeSaved(
+              newId,
+              this.translate.instant('employees.form.create_success')
+            );
           } else {
             this.saving.set(false);
             this.messageService.add({
@@ -660,57 +569,14 @@ export class EmployeeFormComponent implements OnInit {
     }
   }
 
-  private toIsoDate(d: Date): string {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
-  }
-
-  private afterEmployeeSaved(
-    employeeId: string,
-    position: { jobPositionId: string; organizationUnitId: string; fromDate: string },
-    successDetail: string
-  ): void {
-    const finish = () => {
-      this.saving.set(false);
-      this.messageService.add({
-        severity: 'success',
-        summary: this.translate.instant('employees.form.success_summary'),
-        detail: successDetail,
-      });
-      this.router.navigate(['/employees', employeeId]);
-    };
-
-    if (!position.jobPositionId || !position.organizationUnitId) {
-      finish();
-      return;
-    }
-
-    this.employeeService
-      .setPosition(employeeId, {
-        jobPositionId: position.jobPositionId,
-        organizationUnitId: position.organizationUnitId,
-        fromDate: position.fromDate,
-        isPrimary: true,
-      })
-      .subscribe({
-        next: () => finish(),
-        error: (err) => {
-          this.saving.set(false);
-          const detail =
-            err?.error?.message ||
-            err?.error?.title ||
-            err?.message ||
-            this.translate.instant('employees.form.position_warn_detail');
-          this.messageService.add({
-            severity: 'warn',
-            summary: this.translate.instant('employees.form.position_warn_summary'),
-            detail,
-          });
-          this.router.navigate(['/employees', employeeId]);
-        },
-      });
+  private afterEmployeeSaved(employeeId: string, successDetail: string): void {
+    this.saving.set(false);
+    this.messageService.add({
+      severity: 'success',
+      summary: this.translate.instant('employees.form.success_summary'),
+      detail: successDetail,
+    });
+    this.router.navigate(['/employees', employeeId]);
   }
 
   onUpload(event: { files?: File[] }): void {

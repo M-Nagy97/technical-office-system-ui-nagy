@@ -1,17 +1,15 @@
-// 1. Style the text label (Titles)
 ::ng-deep .p-steps .p-steps-item .p-steps-title {
   font-size: 0.95rem;
   font-weight: 500;
-  color: var(--text-color-secondary, #64748b);
+  color: var(--text-color-secondary);
   margin-top: 0.5rem;
   transition: color 0.2s ease;
 }
 
-// 2. Style the number circle (Inactive / Default)
 ::ng-deep .p-steps .p-steps-item .p-steps-number {
-  background-color: var(--surface-card, #ffffff);
-  color: var(--text-color-secondary, #64748b);
-  border: 2px solid var(--surface-border, #cbd5e1);
+  background-color: var(--surface-card);
+  color: var(--text-color-secondary);
+  border: 2px solid var(--surface-border);
   font-weight: 600;
   width: 2.2rem;
   height: 2.2rem;
@@ -20,13 +18,12 @@
   transition: all 0.2s ease;
 }
 
-// 3. Style the ACTIVE (Current) step - Blue theme
 ::ng-deep .p-steps .p-steps-item.p-highlight {
   .p-steps-number {
     background-color: #3b82f6;
     color: #ffffff;
     border-color: #3b82f6;
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.25); // Blue glow effect
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.25);
   }
 
   .p-steps-title {
@@ -35,9 +32,9 @@
   }
 }
 
-// 4. Hover effect on clickable steps
 ::ng-deep .p-steps .p-steps-item:not(.p-disabled) .p-menuitem-link:hover {
   cursor: pointer;
+
   .p-steps-number {
     border-color: #3b82f6;
     color: #3b82f6;
@@ -48,9 +45,42 @@
   }
 }
 
-// 5. Style the horizontal connecting bar
+::ng-deep .p-steps .p-steps-item.p-highlight:not(.p-disabled) .p-menuitem-link:hover .p-steps-number {
+  color: #ffffff;
+  background-color: #3b82f6;
+}
+
+:host-context(html[data-theme='dark']) ::ng-deep .p-steps .p-steps-item.p-highlight {
+  .p-steps-number {
+    background-color: var(--primary-color);
+    color: var(--primary-color-text);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary-color) 25%, transparent);
+  }
+
+  .p-steps-title {
+    color: var(--primary-color);
+  }
+}
+
+:host-context(html[data-theme='dark']) ::ng-deep .p-steps .p-steps-item:not(.p-disabled) .p-menuitem-link:hover {
+  .p-steps-number {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+  }
+
+  .p-steps-title {
+    color: var(--primary-color);
+  }
+}
+
+:host-context(html[data-theme='dark']) ::ng-deep .p-steps .p-steps-item.p-highlight:not(.p-disabled) .p-menuitem-link:hover .p-steps-number {
+  color: var(--primary-color-text);
+  background-color: var(--primary-color);
+}
+
 ::ng-deep .p-steps ul:before {
-  border-top: 2px dashed var(--surface-border, #cbd5e1);
+  border-top: 2px dashed var(--surface-border);
   top: 1.1rem;
 }
 
@@ -170,6 +200,11 @@
 
 .required {
   color: var(--red-500, #dc3545);
+}
+
+.field-hint {
+  font-size: 0.75rem;
+  color: var(--text-color-secondary);
 }
 
 .form-actions {

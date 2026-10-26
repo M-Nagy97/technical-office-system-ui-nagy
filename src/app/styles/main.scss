@@ -7,8 +7,8 @@
 @use 'themes';
 @use 'mixins';
 
-// PrimeNG base theme, then our overrides (order: theme then overrides)
-@import 'primeng/resources/themes/lara-light-blue/theme.css';
+// Lara light/dark green are swapped via #app-theme in index.html.
+// Overrides load after that link so token-based colors win.
 @import 'primeng-overrides';
 
 // PrimeIcons & PrimeFlex
@@ -159,14 +159,14 @@ html[lang='ar'] body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--surface-100);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #888;
+  background: var(--surface-400);
   border-radius: 6px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: var(--surface-500);
 }

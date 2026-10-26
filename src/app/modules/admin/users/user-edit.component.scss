@@ -1,0 +1,102 @@
+:host {
+  display: block;
+}
+
+.edit-page {
+  padding-bottom: 1rem;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.page-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.page-subtitle {
+  margin-top: 0.35rem;
+  color: var(--text-color-secondary);
+  max-width: 46rem;
+  line-height: 1.6;
+}
+
+.edit-form {
+  margin-top: 1.75rem;
+}
+
+.form-section + .form-section {
+  margin-top: 1.5rem;
+}
+
+.form-section {
+  border: 1px solid var(--surface-border);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  background: var(--surface-ground);
+}
+
+.form-section__header {
+  margin-bottom: 1rem;
+}
+
+.form-section__header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.form-section__header p {
+  margin: 0.35rem 0 0;
+  color: var(--text-color-secondary);
+  line-height: 1.5;
+}
+
+.field-label {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.multiselect-field {
+  width: 100%;
+}
+
+.option-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.option-item small {
+  color: var(--text-color-secondary);
+}
+
+.toggle-row {
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.submit-bar {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--surface-border);
+}
+
+.loading-state {
+  min-height: 18rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  color: var(--text-color-secondary);
+}

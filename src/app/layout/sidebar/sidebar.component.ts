@@ -1,9 +1,10 @@
-import { Component, input, output, signal, inject, OnInit } from '@angular/core';
+import { Component, computed, input, output, signal, inject, OnInit } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { TooltipModule } from 'primeng/tooltip';
 import { TranslatePipe } from '@ngx-translate/core';
 import { NavItem } from '../../core';
+import { PermissionService } from '../../core/auth/permission.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -14,6 +15,7 @@ import { NavItem } from '../../core';
 })
 export class SidebarComponent implements OnInit {
   private readonly router = inject(Router);
+  private readonly permission = inject(PermissionService);
 
   readonly collapsed = input<boolean>(false);
   readonly toggleSidebar = output<void>();
@@ -27,13 +29,30 @@ export class SidebarComponent implements OnInit {
       .subscribe(() => this.expandActiveModule());
   }
 
+  readonly visibleNavItems = computed(() => {
+    this.permission.codes();
+    return this.navItems
+      .filter((item) => this.permission.canAccessModule(item.module))
+      .map((item) => this.filterNavChildren(item));
+  });
+
   private expandActiveModule(): void {
-    for (const item of this.navItems) {
+    for (const item of this.visibleNavItems()) {
       if (item.children?.length && this.hasActiveChild(item)) {
         this.expandedModules.update((set) => new Set(set).add(item.module));
         break;
       }
     }
+  }
+
+  private filterNavChildren(item: NavItem): NavItem {
+    if (!item.children?.length) {
+      return item;
+    }
+
+    const canWrite = this.permission.canWriteModule(item.module);
+    const children = item.children.filter((child) => !child.requiresWrite || canWrite);
+    return { ...item, children: dropEmptySections(children) };
   }
 
   readonly navItems: NavItem[] = [
@@ -51,7 +70,7 @@ export class SidebarComponent implements OnInit {
       children: [
         { label: 'nav.transactions', icon: 'pi pi-list', section: true, module: 'employees' },
         { label: 'nav.employee_list', icon: 'pi pi-list', route: '/employees', module: 'employees' },
-        { label: 'nav.add_employee', icon: 'pi pi-user-plus', route: '/employees/add', module: 'employees' },
+        { label: 'nav.add_employee', icon: 'pi pi-user-plus', route: '/employees/add', module: 'employees', requiresWrite: true },
         { label: 'nav.appointment_documents', icon: 'pi pi-file', route: '/employees/documents', module: 'employees' },
         { label: 'nav.lookups', icon: 'pi pi-cog', section: true, module: 'employees' },
         { label: 'nav.job_grades_module', icon: 'pi pi-briefcase', route: '/job-grades', module: 'employees' },
@@ -77,7 +96,7 @@ export class SidebarComponent implements OnInit {
         { label: 'nav.leave_balance', icon: 'pi pi-chart-pie', route: '/leave/balance', module: 'leave' },
         { label: 'nav.lookups', icon: 'pi pi-cog', section: true, module: 'leave' },
         { label: 'nav.leave_types_list', icon: 'pi pi-list', route: '/leave/types', module: 'leave' },
-        { label: 'nav.add_leave_type', icon: 'pi pi-plus', route: '/leave/types/add', module: 'leave' },
+        { label: 'nav.add_leave_type', icon: 'pi pi-plus', route: '/leave/types/add', module: 'leave', requiresWrite: true },
         { label: 'nav.policy_rules', icon: 'pi pi-sliders-h', route: '/leave/policy-rules', module: 'leave' },
       ],
     },
@@ -139,8 +158,21 @@ export class SidebarComponent implements OnInit {
       children: [
         { label: 'nav.transactions', icon: 'pi pi-list', section: true, module: 'penalties' },
         { label: 'nav.penalty_list', icon: 'pi pi-list', route: '/penalties', module: 'penalties' },
-        { label: 'nav.add_penalty', icon: 'pi pi-plus', route: '/penalties/add', module: 'penalties' },
+        { label: 'nav.add_penalty', icon: 'pi pi-plus', route: '/penalties/add', module: 'penalties', requiresWrite: true },
         { label: 'nav.lookups', icon: 'pi pi-cog', section: true, module: 'penalties' },
+      ],
+    },
+    {
+      label: 'nav.admin_module',
+      icon: 'pi pi-lock',
+      module: 'admin',
+      children: [
+        { label: 'nav.users_manage', icon: 'pi pi-list', route: '/admin/users/list', module: 'admin' },
+        { label: 'nav.users_create', icon: 'pi pi-user-plus', route: '/admin/users/create', module: 'admin', requiresWrite: true },
+        { label: 'nav.roles', icon: 'pi pi-id-card', route: '/admin/roles', module: 'admin' },
+        { label: 'nav.modules', icon: 'pi pi-th-large', route: '/admin/modules', module: 'admin' },
+        { label: 'nav.permissions', icon: 'pi pi-key', route: '/admin/permissions', module: 'admin' },
+        { label: 'nav.pages', icon: 'pi pi-map', route: '/admin/pages', module: 'admin' },
       ],
     },
   ];
@@ -168,4 +200,14 @@ export class SidebarComponent implements OnInit {
     if (!item.children?.length) return false;
     return item.children.some((c: NavItem) => c.route && this.isRouteActive(c.route));
   }
+}
+
+function dropEmptySections(children: NavItem[]): NavItem[] {
+  return children.filter((child, index) => {
+    if (!child.section) {
+      return true;
+    }
+
+    return children.slice(index + 1).some((next) => !next.section);
+  });
 }

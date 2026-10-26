@@ -1,28 +1,24 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
 import { CardModule } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { MessageModule } from 'primeng/message';
-
-import { MessageService } from 'primeng/api';
 import { JobGradesService, UpdateJobGradeCommand, CreateJobGradeCommand } from '../../../core/api/generated';
+import { FormActionsComponent, FormFieldComponent, NotifyService } from '../../../shared';
 
 @Component({
   selector: 'app-job-grade-form',
   standalone: true,
   imports: [
-    CommonModule,
-    RouterLink,
     ReactiveFormsModule,
+    TranslatePipe,
     CardModule,
-    ButtonModule,
     InputTextModule,
     InputNumberModule,
-    MessageModule,
+    FormFieldComponent,
+    FormActionsComponent,
   ],
   templateUrl: './job-grade-form.component.html',
   styleUrl: './job-grade-form.component.scss',
@@ -32,7 +28,7 @@ export class JobGradeFormComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly jobGradesService = inject(JobGradesService);
-  private readonly messageService = inject(MessageService);
+  private readonly notify = inject(NotifyService);
 
   readonly isEdit = signal(false);
   readonly id = signal<string | null>(null);
@@ -63,15 +59,14 @@ export class JobGradeFormComponent implements OnInit {
             });
           }
         },
-        error: () => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'خطأ',
-            detail: 'فشل تحميل الدرجة الوظيفية',
-          });
-        },
+        error: (error) => this.notify.error(error, 'common.load_error'),
       });
     }
+  }
+
+  isInvalid(controlName: string): boolean {
+    const control = this.form.get(controlName);
+    return !!control && control.invalid && (control.touched || control.dirty);
   }
 
   submit(): void {
@@ -93,27 +88,17 @@ export class JobGradeFormComponent implements OnInit {
         next: (res) => {
           this.saving.set(false);
           if (res.success) {
-            this.messageService.add({
-              severity: 'success',
-              summary: 'تم',
-              detail: 'تم تحديث الدرجة الوظيفية',
-            });
+            this.notify.success('common.update_success');
             this.router.navigate(['/job-grades']);
+          } else if (res.message) {
+            this.notify.errorText(res.message);
           } else {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'خطأ',
-              detail: res.message ?? 'فشل التحديث',
-            });
+            this.notify.error(null, 'common.save_error');
           }
         },
-        error: () => {
+        error: (error) => {
           this.saving.set(false);
-          this.messageService.add({
-            severity: 'error',
-            summary: 'خطأ',
-            detail: 'حدث خطأ أثناء التحديث',
-          });
+          this.notify.error(error, 'common.save_error');
         },
       });
     } else {
@@ -126,27 +111,17 @@ export class JobGradeFormComponent implements OnInit {
         next: (res) => {
           this.saving.set(false);
           if (res.success && res.data) {
-            this.messageService.add({
-              severity: 'success',
-              summary: 'تم',
-              detail: 'تم إضافة الدرجة الوظيفية',
-            });
+            this.notify.success('common.create_success');
             this.router.navigate(['/job-grades']);
+          } else if (res.message) {
+            this.notify.errorText(res.message);
           } else {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'خطأ',
-              detail: res.message ?? 'فشل الإضافة',
-            });
+            this.notify.error(null, 'common.save_error');
           }
         },
-        error: () => {
+        error: (error) => {
           this.saving.set(false);
-          this.messageService.add({
-            severity: 'error',
-            summary: 'خطأ',
-            detail: 'حدث خطأ أثناء الإضافة',
-          });
+          this.notify.error(error, 'common.save_error');
         },
       });
     }

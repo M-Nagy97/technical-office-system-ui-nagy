@@ -56,8 +56,13 @@ export interface SharedTableAction<T = any> {
   loading?: boolean | ((row: T) => boolean);
   /**
    * Extra button CSS classes (optional, can be dynamic).
+   * When omitted, the table preset (`p-button-text p-button-rounded p-button-sm`) is used.
    */
   buttonClass?: string | ((row: T) => string);
+  /**
+   * Tooltip translation key (optional).
+   */
+  tooltip?: string | ((row: T) => string);
   /**
    * Action handler.
    */

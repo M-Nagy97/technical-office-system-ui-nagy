@@ -10,7 +10,6 @@ import { DropdownModule } from 'primeng/dropdown';
 import { DialogModule } from 'primeng/dialog';
 import { CalendarModule } from 'primeng/calendar';
 import { TooltipModule } from 'primeng/tooltip';
-import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { TranslatePipe } from '@ngx-translate/core';
 import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
@@ -44,12 +43,10 @@ function toYmdLocal(d: Date): string {
     DialogModule,
     CalendarModule,
     TooltipModule,
-    ToastModule,
     TranslatePipe,
     SharedTableComponent,
     SharedTableCellTemplateDirective,
   ],
-  providers: [MessageService],
   templateUrl: './employee-attendance.component.html',
   styleUrl: './employee-attendance.component.scss',
 })

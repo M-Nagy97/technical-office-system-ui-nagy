@@ -5,7 +5,6 @@ import { finalize, takeUntil } from 'rxjs/operators';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
-import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
@@ -26,12 +25,10 @@ import {
     CardModule,
     ButtonModule,
     DialogModule,
-    ToastModule,
     TranslatePipe,
     SharedTableComponent,
     SharedTableCellTemplateDirective,
   ],
-  providers: [MessageService],
   templateUrl: './calculation-runs.component.html',
   styleUrl: './calculation-runs.component.scss',
 })

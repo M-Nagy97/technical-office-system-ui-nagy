@@ -1,11 +1,10 @@
 import { Component, effect, inject, input, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
+import { TranslatePipe } from '@ngx-translate/core';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ToggleButtonModule } from 'primeng/togglebutton';
-import { DialogModule } from 'primeng/dialog';
-import { NgIf } from '@angular/common';
+import { CrudDialogComponent, FormFieldComponent } from '../../../../shared';
 import { Device, DeviceFormData } from '../models/device.model';
 
 const IPV4_PATTERN = /^(\d{1,3}\.){3}\d{1,3}$/;
@@ -15,12 +14,12 @@ const IPV4_PATTERN = /^(\d{1,3}\.){3}\d{1,3}$/;
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    ButtonModule,
+    TranslatePipe,
     InputTextModule,
     InputNumberModule,
     ToggleButtonModule,
-    DialogModule,
-    NgIf,
+    CrudDialogComponent,
+    FormFieldComponent,
   ],
   templateUrl: './device-form.component.html',
   styleUrl: './device-form.component.scss',
@@ -81,6 +80,10 @@ export class DeviceFormComponent {
       return;
     }
     this.saved.emit(this.form.getRawValue() as DeviceFormData);
+  }
+
+  onVisibleChange(visible: boolean): void {
+    if (!visible) this.onCancel();
   }
 
   onCancel(): void {

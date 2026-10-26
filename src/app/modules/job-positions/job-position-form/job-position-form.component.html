@@ -1,46 +1,47 @@
 <div class="job-position-form">
-  <p-card [header]="isEdit() ? 'تعديل مسمى وظيفي' : 'إضافة مسمى وظيفي'">
+  <p-card [header]="(isEdit() ? 'job_positions.edit' : 'job_positions.add') | translate">
     <form [formGroup]="form" (ngSubmit)="submit()">
       <div class="form-grid">
-        <div class="field" *ngIf="!isEdit()">
-          <label for="code">الرمز <span class="required">*</span></label>
-          <input id="code" type="text" pInputText formControlName="code" class="w-full" />
-          <small class="p-error" *ngIf="form.get('code')?.invalid && form.get('code')?.touched">
-            الرمز مطلوب
-          </small>
-        </div>
-        <div class="field">
-          <label for="jobGradeId">الدرجة الوظيفية <span class="required">*</span></label>
+        @if (!isEdit()) {
+          <app-form-field
+            forId="code"
+            labelKey="common.code"
+            [required]="true"
+            [errorKey]="isInvalid('code') ? 'lookups.code_required' : null"
+          >
+            <input id="code" type="text" pInputText formControlName="code" />
+          </app-form-field>
+        }
+        <app-form-field
+          forId="jobGradeId"
+          labelKey="job_grades.title"
+          [required]="true"
+          [errorKey]="isInvalid('jobGradeId') ? 'lookups.name_required' : null"
+        >
           <p-dropdown
-            id="jobGradeId"
+            inputId="jobGradeId"
             formControlName="jobGradeId"
             [options]="gradeOptions()"
             optionLabel="label"
             optionValue="value"
-            placeholder="اختر الدرجة"
+            [placeholder]="'job_grades.title' | translate"
             [showClear]="true"
-            styleClass="w-full"
+            appendTo="body"
           />
-          <small class="p-error" *ngIf="form.get('jobGradeId')?.invalid && form.get('jobGradeId')?.touched">
-            الدرجة الوظيفية مطلوبة
-          </small>
-        </div>
-        <div class="field">
-          <label for="name">الاسم <span class="required">*</span></label>
-          <input id="name" type="text" pInputText formControlName="name" class="w-full" />
-          <small class="p-error" *ngIf="form.get('name')?.invalid && form.get('name')?.touched">
-            الاسم مطلوب
-          </small>
-        </div>
-        <div class="field full-width">
-          <label for="description">الوصف</label>
-          <textarea id="description" pInputTextarea formControlName="description" rows="3" class="w-full"></textarea>
-        </div>
+        </app-form-field>
+        <app-form-field
+          forId="name"
+          labelKey="common.name"
+          [required]="true"
+          [errorKey]="isInvalid('name') ? 'lookups.name_required' : null"
+        >
+          <input id="name" type="text" pInputText formControlName="name" />
+        </app-form-field>
+        <app-form-field forId="description" labelKey="common.description">
+          <textarea id="description" pInputTextarea formControlName="description" rows="3"></textarea>
+        </app-form-field>
       </div>
-      <div class="form-actions">
-        <button pButton type="submit" label="حفظ" icon="pi pi-check" [loading]="saving()" class="p-button-primary"></button>
-        <a pButton label="إلغاء" icon="pi pi-times" routerLink="/job-positions" class="p-button-outlined"></a>
-      </div>
+      <app-form-actions cancelLink="/job-positions" [saving]="saving()" (save)="submit()" />
     </form>
   </p-card>
 </div>

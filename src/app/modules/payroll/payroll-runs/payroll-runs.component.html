@@ -24,7 +24,9 @@
     <p-tabView>
       <p-tabPanel [header]="'payroll.runs.tab_runs' | translate">
         <div class="toolbar">
-          <button pButton type="button" icon="pi pi-plus" [label]="'payroll.runs.add_run' | translate" (click)="openCreateRun()"></button>
+          <ng-container *appHasPermission="'payroll.write'">
+            <button pButton type="button" icon="pi pi-plus" [label]="'payroll.runs.add_run' | translate" (click)="openCreateRun()"></button>
+          </ng-container>
         </div>
         <app-shared-table
           [value]="runs()"
@@ -39,7 +41,9 @@
       </p-tabPanel>
       <p-tabPanel [header]="'payroll.runs.tab_attendance' | translate">
         <div class="toolbar">
-          <button pButton type="button" icon="pi pi-plus" [label]="'payroll.att.add' | translate" (click)="openAttCreate()"></button>
+          <ng-container *appHasPermission="'payroll.write'">
+            <button pButton type="button" icon="pi pi-plus" [label]="'payroll.att.add' | translate" (click)="openAttCreate()"></button>
+          </ng-container>
         </div>
         <app-shared-table
           [value]="attendanceRows()"
@@ -56,13 +60,12 @@
   </p-card>
 </div>
 
-<p-dialog
+<app-crud-dialog
   [header]="'payroll.runs.create_run_title' | translate"
   [visible]="createRunOpen()"
   (visibleChange)="createRunOpen.set($event)"
-  [modal]="true"
-  [style]="{ width: '32rem' }"
-  [draggable]="false"
+  [saving]="saving()"
+  (save)="saveCreateRun()"
 >
   <div class="form-grid one-col">
     <label>{{ 'payroll.runs.col_employee' | translate }}</label>
@@ -97,11 +100,7 @@
       styleClass="w-full"
     />
   </div>
-  <ng-template pTemplate="footer">
-    <button pButton type="button" class="p-button-text" [label]="'common.cancel' | translate" (click)="createRunOpen.set(false)"></button>
-    <button pButton type="button" [label]="'common.save' | translate" [loading]="saving()" [disabled]="saving()" (click)="saveCreateRun()"></button>
-  </ng-template>
-</p-dialog>
+</app-crud-dialog>
 
 <p-dialog
   [header]="'payroll.runs.detail_title' | translate"
@@ -164,17 +163,16 @@
     />
   </div>
   <ng-template pTemplate="footer">
-    <button pButton type="button" class="p-button-text" [label]="'common.cancel' | translate" (click)="detailOpen.set(false)"></button>
-    <button pButton type="button" [label]="'common.save' | translate" [loading]="saving()" [disabled]="saving()" (click)="saveDetailRun()"></button>
+    <app-form-actions [flush]="true" [saving]="saving()" (save)="saveDetailRun()" (cancel)="detailOpen.set(false)" />
   </ng-template>
 </p-dialog>
 
-<p-dialog
+<app-crud-dialog
   [header]="'payroll.runs.add_deduction' | translate"
   [visible]="addDedOpen()"
   (visibleChange)="addDedOpen.set($event)"
-  [modal]="true"
-  [style]="{ width: '26rem' }"
+  width="26rem"
+  (save)="saveAddDed()"
 >
   <div class="form-grid one-col">
     <label>{{ 'payroll.runs.line_type' | translate }}</label>
@@ -184,18 +182,14 @@
     <label>{{ 'payroll.runs.note' | translate }}</label>
     <input type="text" pInputText class="w-full" [(ngModel)]="adNote" />
   </div>
-  <ng-template pTemplate="footer">
-    <button pButton type="button" class="p-button-text" [label]="'common.cancel' | translate" (click)="addDedOpen.set(false)"></button>
-    <button pButton type="button" [label]="'common.save' | translate" (click)="saveAddDed()"></button>
-  </ng-template>
-</p-dialog>
+</app-crud-dialog>
 
-<p-dialog
+<app-crud-dialog
   [header]="'payroll.runs.add_allowance' | translate"
   [visible]="addAllOpen()"
   (visibleChange)="addAllOpen.set($event)"
-  [modal]="true"
-  [style]="{ width: '26rem' }"
+  width="26rem"
+  (save)="saveAddAll()"
 >
   <div class="form-grid one-col">
     <label>{{ 'payroll.runs.line_type' | translate }}</label>
@@ -205,18 +199,14 @@
     <label>{{ 'payroll.runs.note' | translate }}</label>
     <input type="text" pInputText class="w-full" [(ngModel)]="aaNote" />
   </div>
-  <ng-template pTemplate="footer">
-    <button pButton type="button" class="p-button-text" [label]="'common.cancel' | translate" (click)="addAllOpen.set(false)"></button>
-    <button pButton type="button" [label]="'common.save' | translate" (click)="saveAddAll()"></button>
-  </ng-template>
-</p-dialog>
+</app-crud-dialog>
 
-<p-dialog
+<app-crud-dialog
   [header]="(attEditId ? 'payroll.att.edit' : 'payroll.att.add') | translate"
   [visible]="attDialogOpen()"
   (visibleChange)="attDialogOpen.set($event)"
-  [modal]="true"
-  [style]="{ width: '28rem' }"
+  width="28rem"
+  (save)="saveAtt()"
 >
   <div class="form-grid one-col">
     <label>{{ 'payroll.runs.col_employee' | translate }}</label>
@@ -239,11 +229,4 @@
     <label>{{ 'payroll.att.late_hours' | translate }}</label>
     <p-inputNumber [(ngModel)]="attLateH" mode="decimal" [minFractionDigits]="2" styleClass="w-full" />
   </div>
-  <ng-template pTemplate="footer">
-    <button pButton type="button" class="p-button-text" [label]="'common.cancel' | translate" (click)="attDialogOpen.set(false)"></button>
-    <button pButton type="button" [label]="'common.save' | translate" (click)="saveAtt()"></button>
-  </ng-template>
-</p-dialog>
-
-<p-toast />
-<p-confirmPopup />
+</app-crud-dialog>

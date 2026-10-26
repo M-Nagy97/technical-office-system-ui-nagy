@@ -165,7 +165,7 @@
     font-weight: 500;
 
         &.matched   { color: var(--green-600); }
-    &.new       { color: var(--blue-600); }
+    &.new       { color: var(--primary-color); }
     &.saved     { color: var(--text-color-secondary); }
     &.unmatched { color: var(--orange-500); }
     &.total     { color: var(--text-color-secondary); }

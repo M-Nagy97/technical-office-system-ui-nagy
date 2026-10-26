@@ -1,7 +1,8 @@
 import { Routes } from '@angular/router';
+import { ErpPermissions } from '../../core/auth/erp-permissions';
+import { permissionGuard } from '../../core/guards/permission.guard';
 
 export const LEAVE_ROUTES: Routes = [
-  // Leave Types
   {
     path: '',
     loadComponent: () =>
@@ -14,13 +15,14 @@ export const LEAVE_ROUTES: Routes = [
   },
   {
     path: 'types/add',
+    canActivate: [permissionGuard],
+    data: { permission: ErpPermissions.leaveWrite },
     loadComponent: () =>
       import('./types/add-leave-type/add-leave-type.component').then(
         (m) => m.AddLeaveTypeComponent
       ),
   },
 
-  // Leave Requests
   {
     path: 'requests',
     loadComponent: () =>
@@ -30,6 +32,8 @@ export const LEAVE_ROUTES: Routes = [
   },
   {
     path: 'requests/new',
+    canActivate: [permissionGuard],
+    data: { permission: ErpPermissions.leaveWrite },
     loadComponent: () =>
       import('./requests/leave-request-form/leave-request-form.component').then(
         (m) => m.LeaveRequestFormComponent
@@ -43,7 +47,6 @@ export const LEAVE_ROUTES: Routes = [
       ),
   },
 
-  // Permission Requests
   {
     path: 'permissions',
     loadComponent: () =>
@@ -53,6 +56,8 @@ export const LEAVE_ROUTES: Routes = [
   },
   {
     path: 'permissions/new',
+    canActivate: [permissionGuard],
+    data: { permission: ErpPermissions.leaveWrite },
     loadComponent: () =>
       import('./permissions/permission-request-form/permission-request-form.component').then(
         (m) => m.PermissionRequestFormComponent
@@ -66,7 +71,6 @@ export const LEAVE_ROUTES: Routes = [
       ),
   },
 
-  // Leave Balance
   {
     path: 'balance',
     loadComponent: () =>
@@ -75,7 +79,6 @@ export const LEAVE_ROUTES: Routes = [
       ),
   },
 
-  // Policy Rules
   {
     path: 'policy-rules',
     loadComponent: () =>
@@ -83,7 +86,6 @@ export const LEAVE_ROUTES: Routes = [
         (m) => m.PolicyRulesComponent
       ),
   },
-  // Backward-compatible alias
   {
     path: 'rules',
     redirectTo: 'policy-rules',

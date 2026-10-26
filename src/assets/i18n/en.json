@@ -57,7 +57,14 @@
     "add_leave_type": "Add Leave Type",
     "policy_rules": "Policy Rules",
     "collapse_sidebar": "Collapse sidebar",
-    "expand_sidebar": "Expand sidebar"
+    "expand_sidebar": "Expand sidebar",
+    "admin_module": "Administration",
+    "users_manage": "Manage users",
+    "users_create": "Add user",
+    "roles": "Roles",
+    "modules": "Modules",
+    "permissions": "Permissions",
+    "pages": "Pages"
   },
   "topbar": {
     "home": "Home",
@@ -96,7 +103,18 @@
     "salary-structures": "Salary structures",
     "lookups": "Lookups",
     "runs": "Runs",
-    "payslips": "Payslips"
+    "payslips": "Payslips",
+    "admin": "Administration",
+    "admin_users": "Users",
+    "admin_roles": "Roles",
+    "admin_modules": "Modules",
+    "admin_permissions": "Permissions",
+    "admin_pages": "Pages",
+    "list": "Manage",
+    "create": "Add",
+    "edit": "Edit",
+    "my-profile": "My Profile",
+    "profile": "Profile"
   },
   "dashboard": {
     "welcome": "Welcome to Technical Office System",
@@ -125,6 +143,9 @@
     "edit": "Edit",
     "delete": "Delete",
     "add": "Add",
+    "create": "Create",
+    "refresh": "Refresh",
+    "search": "Search...",
     "back": "Back",
     "loading": "Loading...",
     "no_data": "No data",
@@ -132,7 +153,191 @@
     "error": "Error",
     "warning": "Warning",
     "success": "Success",
-    "open": "Open"
+    "open": "Open",
+    "actions": "Actions",
+    "delete_confirm": "Are you sure you want to delete this item?",
+    "delete_confirm_named": "Are you sure you want to delete \"{{name}}\"?",
+    "code": "Code",
+    "name": "Name",
+    "rank": "Rank",
+    "description": "Description",
+    "parent": "Parent",
+    "load_error": "Could not load data.",
+    "save_error": "Could not save.",
+    "delete_error": "Could not delete.",
+    "delete_success": "Deleted successfully.",
+    "create_success": "Created successfully.",
+    "update_success": "Updated successfully.",
+    "active": "Active",
+    "inactive": "Inactive",
+    "notes": "Notes",
+    "all": "All",
+    "yes": "Yes",
+    "no": "No",
+    "status": "Status",
+    "employee": "Employee",
+    "from_date": "From",
+    "to_date": "To",
+    "print": "Print",
+    "select": "Select"
+  },
+  "job_grades": {
+    "title": "Job grades",
+    "add": "Add job grade",
+    "edit": "Edit job grade",
+    "search": "Search by code or name...",
+    "rank_required": "Rank is required and must be 0 or more."
+  },
+  "job_positions": {
+    "title": "Job positions",
+    "add": "Add job position",
+    "edit": "Edit job position",
+    "search": "Search by code, name, or description..."
+  },
+  "organization_units": {
+    "title": "Organization units",
+    "add": "Add organization unit",
+    "edit": "Edit organization unit",
+    "search": "Search by code or name...",
+    "parent": "Parent unit",
+    "parent_placeholder": "Select parent unit"
+  },
+  "shifts": {
+    "title": "Shifts",
+    "add": "Add shift",
+    "edit": "Edit shift",
+    "search": "Search by code or name...",
+    "empty": "No shifts",
+    "start": "Start time",
+    "end": "End time",
+    "finger_in": "Clock-in window",
+    "finger_out": "Clock-out window",
+    "crosses_midnight": "Crosses midnight",
+    "section_times": "Core shift times",
+    "section_fingerprint": "Fingerprint ranges",
+    "section_extra": "Extra settings",
+    "finger_in_from": "Clock-in from",
+    "finger_in_to": "Clock-in to",
+    "finger_out_from": "Clock-out from",
+    "finger_out_to": "Clock-out to",
+    "grace_in": "Clock-in grace (min)",
+    "grace_out": "Clock-out grace (min)",
+    "min_work_hours": "Required work hours",
+    "ot_before": "Overtime before shift",
+    "ot_after": "Overtime after shift",
+    "max_ot_before": "Max overtime before (min)",
+    "max_ot_after": "Max overtime after (min)"
+  },
+  "month_plans": {
+    "title": "Attendance plans",
+    "add": "Create plan",
+    "edit": "Edit attendance plan",
+    "create": "Create attendance plan",
+    "search": "Search by name or description...",
+    "empty": "No plans",
+    "name": "Plan name",
+    "name_placeholder": "e.g. General plan, Factory plan",
+    "plan_type": "Plan type",
+    "plan_type_placeholder": "Select plan type",
+    "linked_shifts": "Linked shifts",
+    "linked_shifts_placeholder": "Select shifts (optional)",
+    "min_deduct": "Minimum deduction (minutes)",
+    "deduct_unit": "Deduction unit (minutes)",
+    "factors": "Deduction factors",
+    "mode": "Mode",
+    "flat_value": "Flat factor value",
+    "tiers": "Tiers",
+    "add_tier": "Add tier",
+    "from_minute": "From (min)",
+    "to_minute": "To (min)",
+    "factor": "Factor",
+    "type_standard": "Standard",
+    "type_flexible": "Flexible",
+    "type_rotating": "Rotating",
+    "mode_flat": "Flat",
+    "mode_tiered": "Tiered",
+    "factor_late": "Late",
+    "factor_early": "Early leave",
+    "factor_ot_before": "OT before",
+    "factor_ot_after": "OT after"
+  },
+  "devices_form": {
+    "add": "Add device",
+    "edit": "Edit device",
+    "cancel": "Cancel",
+    "save": "Save",
+    "model_banner": "ZKT K14 Pro — zkemkeeper (CZKEM) via the Windows Bridge service",
+    "name": "Device name",
+    "name_placeholder": "e.g. Entrance fingerprint",
+    "name_required": "Device name is required",
+    "ip": "IP address",
+    "ip_required": "Enter a valid IPv4 address",
+    "port": "Port",
+    "comm_key": "COMM Key",
+    "comm_hint": "Menu → Options → Comm Opt → COMM Key (0 if disabled)",
+    "location": "Location"
+  },
+  "penalties": {
+    "add": "Add penalty",
+    "add_subtitle": "Record a new employee penalty",
+    "search": "Search (reason, employee, number)",
+    "type": "Penalty type",
+    "empty": "No records.",
+    "details": "Penalty details",
+    "number": "Penalty number",
+    "reason": "Reason",
+    "incident_date": "Incident date",
+    "decision_date": "Decision date",
+    "decision_number": "Decision number",
+    "deduction_days": "Deduction days",
+    "suspension_days": "Suspension days",
+    "approved_by": "Approved by",
+    "print_decision": "Print decision",
+    "view_profile": "View profile",
+    "employee_placeholder": "Search by name...",
+    "stat_total": "Total penalties",
+    "types": {
+      "warning": "Warning",
+      "written_warning": "Written warning",
+      "deduction": "Deduction",
+      "suspension": "Suspension",
+      "dismissal": "Dismissal"
+    },
+    "statuses": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "appealed": "Appealed",
+      "cancelled": "Cancelled"
+    }
+  },
+  "enroll_links": {
+    "title": "Link fingerprint number to employee",
+    "subtitle": "The ZKTeco enroll number must match the employee number so attendance is recorded automatically when logs are pulled from the device.",
+    "refresh": "Refresh list",
+    "employee": "Employee",
+    "current": "Current enroll number",
+    "device": "Device enroll number",
+    "unlinked": "Not linked",
+    "placeholder": "e.g. 1001",
+    "save_tooltip": "Save enroll number only",
+    "empty": "No employees",
+    "enroll_required": "Enter the device enroll number (employee number).",
+    "save_success": "{{name}} linked to {{number}}.",
+    "save_error": "Could not save enroll number.",
+    "load_error": "Could not load employees."
+  },
+  "bulk_schedule": {
+    "title": "Bulk shift assignment",
+    "shift": "Shift",
+    "shift_placeholder": "Select shift",
+    "save_assign": "Save and assign",
+    "missing_plan": "Plan id is missing.",
+    "date_order": "Start date must be before end date.",
+    "save_success": "Schedule updated successfully."
+  },
+  "lookups": {
+    "code_required": "Code is required.",
+    "name_required": "Name is required."
   },
   "document_preview": {
     "default_header": "Document preview",
@@ -466,7 +671,12 @@
       "col_status": "Status",
       "actions": "Actions",
       "empty": "No data",
-      "page_report": "Showing {first} to {last} of {totalRecords}"
+      "page_report": "Showing {first} to {last} of {totalRecords}",
+      "restore_tooltip": "Restore from archive",
+      "restore_confirm_header": "Confirm restore",
+      "restore_confirm_msg": "Do you want to restore this employee to active status?",
+      "restore_success_summary": "Restored",
+      "restore_success_detail": "Employee restored to active status"
     },
     "form": {
       "submit_warn": "Please review the steps and complete the required fields before saving.",
@@ -481,6 +691,7 @@
       "national_id": "National ID",
       "gender": "Gender",
       "birth_date": "Date of birth",
+      "birth_date_from_nid": "Calculated from the National ID",
       "birth_place": "Place of birth",
       "nationality": "Nationality",
       "religion": "Religion",
@@ -495,6 +706,7 @@
       "appointment_decision_date": "Appointment decision date",
       "job_title": "Job title",
       "job_grade": "Job grade",
+      "job_grade_from_position": "Choose the grade first, then a matching job title",
       "department": "Department",
       "section": "Unit",
       "work_location": "Work location",
@@ -540,6 +752,7 @@
       "error_email": "Invalid email address",
       "error_pattern": "Invalid value",
       "error_national_id_pattern": "National ID must be 14 digits",
+      "error_national_id_birth_date": "National ID does not contain a valid date of birth",
       "error_phone_pattern": "Invalid phone format (example: 01xxxxxxxxx)",
       "error_graduation_min": "Graduation year must be at least {{min}}",
       "error_graduation_max": "Graduation year must not exceed {{max}}",
@@ -639,7 +852,12 @@
       "archive_accept": "Archive",
       "archive_reject": "Cancel",
       "archive_success_summary": "Archived",
-      "archive_success_detail": "Employee service terminated / archived successfully"
+      "archive_success_detail": "Employee service terminated / archived successfully",
+      "restore": "Restore",
+      "restore_confirm_header": "Confirm restore",
+      "restore_confirm_msg": "Do you want to restore this employee to active status?",
+      "restore_success_summary": "Restored",
+      "restore_success_detail": "Employee restored to active status"
     },
     "documents": {
       "filter_employee": "Employee",
@@ -1319,6 +1537,351 @@
       "cancel_btn": "Cancel",
       "proceed_btn": "Proceed",
       "evaluate_failed": "Failed to evaluate policy rules"
+    }
+  },
+  "auth": {
+    "badge": "Secure access",
+    "title": "Identity control for your operations team",
+    "subtitle": "Use a focused sign-in flow to access the workspace, manage users, and keep onboarding aligned with the current application design.",
+    "highlight_access": "Always-on access for teams across shifts and locations.",
+    "highlight_speed": "Faster onboarding with a clean register flow.",
+    "highlight_secure": "Protected authentication endpoints ready for production wiring.",
+    "login_badge": "Welcome back",
+    "login_title": "Sign in to continue",
+    "login_subtitle": "Enter your account details to access the dashboard and protected modules.",
+    "register_badge": "New account",
+    "register_title": "Create your workspace access",
+    "register_subtitle": "Register a new account with the same visual language used across the rest of the product.",
+    "username": "Username",
+    "username_placeholder": "Enter your username",
+    "username_required": "Username is required.",
+    "email": "Email address",
+    "email_placeholder": "name@company.com",
+    "email_required": "A valid email is required.",
+    "phone": "Phone number",
+    "phone_placeholder": "Enter your phone number",
+    "phone_required": "Phone number is required.",
+    "first_name": "First name",
+    "first_name_placeholder": "Enter your first name",
+    "first_name_required": "First name is required.",
+    "last_name": "Last name",
+    "last_name_placeholder": "Enter your last name",
+    "last_name_required": "Last name is required.",
+    "password": "Password",
+    "password_placeholder": "Enter your password",
+    "password_required": "Password must be at least 6 characters.",
+    "confirm_password": "Confirm password",
+    "confirm_password_placeholder": "Repeat your password",
+    "confirm_password_required": "Please confirm your password.",
+    "password_mismatch": "Passwords do not match.",
+    "remember_me": "Keep me signed in on this device",
+    "login_action": "Sign in",
+    "register_action": "Create account",
+    "no_account": "Don't have an account?",
+    "have_account": "Already have an account?",
+    "register_link": "Register",
+    "login_link": "Login",
+    "login_success": "Login completed successfully.",
+    "login_error": "Login failed. Check your credentials or API connection.",
+    "register_success": "Registration completed successfully.",
+    "register_error": "Registration failed. Check the submitted data or API connection."
+  },
+  "users": {
+    "create_page": {
+      "title": "Add user",
+      "subtitle": "Create the sign-in account and assign roles in step 1, then complete the profile in step 2 if needed."
+    },
+    "profile_page": {
+      "title": "Add user profile",
+      "subtitle": "Select an existing user and complete or update the profile details when needed.",
+      "user": "User",
+      "user_placeholder": "Select a user",
+      "user_required": "Select a user first.",
+      "user_section": "Choose user",
+      "user_section_hint": "A default profile is created with the account. Use this page only when you want to complete or update it.",
+      "selected_user": "Selected user",
+      "selected_user_hint": "Pick a user to start updating the profile.",
+      "selected_user_empty": "No user selected yet."
+    },
+    "actions": {
+      "manage": "Manage users",
+      "create": "Add user",
+      "profile": "Add profile",
+      "next": "Next",
+      "skip_profile": "Finish without profile"
+    },
+    "steps": {
+      "account": "Step 1: Account",
+      "profile": "Step 2: Profile"
+    },
+    "sections": {
+      "account": "Account details",
+      "account_hint": "Create the core sign-in account and role assignments.",
+      "summary": "Created account",
+      "summary_hint": "The base user account is saved. You can now complete the optional profile details.",
+      "profile": "Profile information",
+      "profile_hint": "Complete or update the visible identity and contact preferences for an existing user profile."
+    },
+    "basic": {
+      "username": "Username",
+      "username_placeholder": "Enter a unique username",
+      "username_required": "Username is required.",
+      "email": "Email",
+      "email_placeholder": "name@company.com",
+      "email_required": "A valid email is required.",
+      "password": "Password",
+      "password_placeholder": "Use at least 8 characters",
+      "password_required": "Password must be at least 8 characters.",
+      "confirm_password": "Confirm password",
+      "confirm_password_placeholder": "Repeat the password",
+      "confirm_password_required": "Please confirm the password.",
+      "password_mismatch": "Passwords do not match.",
+      "roles": "Roles",
+      "roles_placeholder": "Select one or more roles",
+      "roles_required": "Select at least one role.",
+      "is_active": "User can sign in immediately",
+      "help": "Roles control ERP menus after the user signs in. Profile details stay optional."
+    },
+    "profile": {
+      "display_name": "Display name",
+      "display_name_placeholder": "How the user should appear in the product",
+      "display_name_required": "Display name is required.",
+      "first_name": "First name",
+      "first_name_placeholder": "Optional",
+      "last_name": "Last name",
+      "last_name_placeholder": "Optional",
+      "phone": "Phone number",
+      "phone_placeholder": "Optional",
+      "avatar": "Avatar URL",
+      "avatar_placeholder": "https://...",
+      "timezone": "Time zone",
+      "timezone_placeholder": "Africa/Cairo",
+      "language": "Preferred language",
+      "language_placeholder": "en or ar",
+      "bio": "Bio",
+      "bio_placeholder": "Optional internal profile note"
+    },
+    "messages": {
+      "loading_roles": "Loading roles...",
+      "loading_users": "Loading users...",
+      "load_roles_error": "Could not load roles.",
+      "load_users_error": "Could not load users.",
+      "create_success": "User {{userName}} was created successfully.",
+      "create_error": "User creation failed.",
+      "profile_skipped": "User {{userName}} was created successfully without completing the profile.",
+      "profile_success": "Profile for {{userName}} was saved successfully.",
+      "profile_error": "Saving the profile failed."
+    },
+    "list": {
+      "title": "Manage users",
+      "subtitle": "Review system users and open any profile for administrative editing.",
+      "refresh": "Refresh",
+      "loading": "Loading users...",
+      "empty": "No users found.",
+      "active": "Active",
+      "inactive": "Inactive",
+      "edit_profile": "Edit Profile",
+      "load_error": "Could not load users.",
+      "columns": {
+        "username": "Username",
+        "email": "Email",
+        "status": "Status",
+        "actions": "Actions"
+      }
+    },
+    "edit": {
+      "title": "Edit profile",
+      "subtitle": "Update account settings and profile details for the selected user.",
+      "loading": "Loading user details...",
+      "account_section": "Account settings",
+      "account_hint": "Update the user's core account fields and sign-in status.",
+      "access_section": "Access management",
+      "access_hint": "Assign one or more roles. ERP screens follow those roles after the user signs in again.",
+      "roles_label": "Roles",
+      "roles_placeholder": "Select one or more roles",
+      "modules_label": "Modules",
+      "modules_placeholder": "Select one or more modules",
+      "profile_section": "Profile details",
+      "profile_hint": "Update the visible identity, contact details, and preferences.",
+      "save_success": "User profile was updated successfully.",
+      "save_error": "Could not update the user profile.",
+      "load_error": "Could not load user details."
+    },
+    "my_profile": {
+      "title": "My Profile",
+      "subtitle": "View and update your profile information.",
+      "edit": "Edit Profile",
+      "save_success": "Profile updated successfully.",
+      "save_error": "Failed to update profile.",
+      "load_error": "Failed to load profile."
+    }
+  },
+  "roles": {
+    "title": "Manage roles",
+    "subtitle": "Create roles and control which permissions are assigned to each role.",
+    "fields": {
+      "name": "Name",
+      "description": "Description"
+    },
+    "actions": {
+      "create": "Add role",
+      "permissions": "Manage permissions"
+    },
+    "dialog": {
+      "create_title": "Add role",
+      "edit_title": "Edit role"
+    },
+    "validation": {
+      "name_required": "Role name is required."
+    },
+    "delete": {
+      "title": "Delete role",
+      "message": "Delete role {{name}}?"
+    },
+    "messages": {
+      "loading": "Loading roles...",
+      "empty": "No roles found.",
+      "load_error": "Could not load roles.",
+      "create_success": "Role was created successfully.",
+      "create_error": "Role creation failed.",
+      "update_success": "Role was updated successfully.",
+      "update_error": "Role update failed.",
+      "delete_success": "Role was deleted successfully.",
+      "delete_error": "Role delete failed."
+    },
+    "permissions": {
+      "title": "Permissions for {{role}}",
+      "loading": "Loading permissions...",
+      "empty": "No permissions found.",
+      "save": "Save permissions",
+      "load_error": "Could not load role permissions.",
+      "save_success": "Role permissions were updated successfully.",
+      "save_error": "Saving role permissions failed."
+    }
+  },
+  "modules": {
+    "title": "Manage modules",
+    "subtitle": "Create and maintain reusable modules used to group permissions, pages, and user access.",
+    "fields": {
+      "code": "Code",
+      "name": "Name"
+    },
+    "actions": {
+      "create": "Add module"
+    },
+    "dialog": {
+      "create_title": "Add module",
+      "edit_title": "Edit module"
+    },
+    "validation": {
+      "code_required": "Module code is required.",
+      "name_required": "Module name is required."
+    },
+    "delete": {
+      "title": "Delete module",
+      "message": "Delete module {{name}}?"
+    },
+    "messages": {
+      "loading": "Loading modules...",
+      "empty": "No modules found.",
+      "load_error": "Could not load modules.",
+      "create_success": "Module was created successfully.",
+      "create_error": "Module creation failed.",
+      "update_success": "Module was updated successfully.",
+      "update_error": "Module update failed.",
+      "delete_success": "Module was deleted successfully.",
+      "delete_error": "Module delete failed."
+    }
+  },
+  "permissions": {
+    "title": "Manage permissions",
+    "subtitle": "Create reusable permissions and assign each permission to a module.",
+    "fields": {
+      "code": "Code",
+      "name": "Name",
+      "description": "Description",
+      "module": "Module"
+    },
+    "actions": {
+      "create": "Add permission"
+    },
+    "dialog": {
+      "create_title": "Add permission",
+      "edit_title": "Edit permission"
+    },
+    "placeholders": {
+      "module": "Select module"
+    },
+    "empty_states": {
+      "no_modules": "No modules available",
+      "no_matching_modules": "No matching modules found",
+      "loading_modules": "Loading modules...",
+      "modules_load_failed": "Could not load modules. Check the API connection or your authorization.",
+      "create_module_first": "Create at least one module before adding permissions."
+    },
+    "validation": {
+      "code_required": "Permission code is required.",
+      "name_required": "Permission name is required.",
+      "module_required": "Module is required."
+    },
+    "delete": {
+      "title": "Delete permission",
+      "message": "Delete permission {{name}}?"
+    },
+    "messages": {
+      "loading": "Loading permissions...",
+      "empty": "No permissions found.",
+      "load_error": "Could not load permissions.",
+      "modules_load_error": "Could not load modules for permission assignment.",
+      "create_success": "Permission was created successfully.",
+      "create_error": "Permission creation failed.",
+      "update_success": "Permission was updated successfully.",
+      "update_error": "Permission update failed.",
+      "delete_success": "Permission was deleted successfully.",
+      "delete_error": "Permission delete failed."
+    }
+  },
+  "pages": {
+    "title": "Manage pages",
+    "subtitle": "Create navigation pages and connect them to modules, parent pages, and required permissions.",
+    "fields": {
+      "code": "Code",
+      "name": "Name",
+      "urlPath": "URL path",
+      "parent": "Parent page",
+      "module": "Module",
+      "permission": "Permission"
+    },
+    "actions": {
+      "create": "Add page"
+    },
+    "dialog": {
+      "create_title": "Add page",
+      "edit_title": "Edit page"
+    },
+    "placeholders": {
+      "parent": "No parent",
+      "module": "Select module",
+      "permission": "Select permission"
+    },
+    "validation": {
+      "code_required": "Page code is required.",
+      "name_required": "Page name is required."
+    },
+    "delete": {
+      "title": "Delete page",
+      "message": "Delete page {{name}}?"
+    },
+    "messages": {
+      "loading": "Loading pages...",
+      "empty": "No pages found.",
+      "load_error": "Could not load pages.",
+      "create_success": "Page was created successfully.",
+      "create_error": "Page creation failed.",
+      "update_success": "Page was updated successfully.",
+      "update_error": "Page update failed.",
+      "delete_success": "Page was deleted successfully.",
+      "delete_error": "Page delete failed."
     }
   }
 }

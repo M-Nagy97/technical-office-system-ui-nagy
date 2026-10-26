@@ -5,13 +5,11 @@ import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputSwitchModule } from 'primeng/inputswitch';
-import { ToastModule } from 'primeng/toast';
-import { ConfirmPopupModule } from 'primeng/confirmpopup';
-import { MessageService, ConfirmationService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
+import { ConfirmService, CrudDialogComponent } from '../../../shared';
 import {
   CreateSalaryStructureCommand,
   EmployeeDto,
@@ -20,6 +18,8 @@ import {
   SalaryStructuresService,
   UpdateSalaryStructureCommand,
 } from '../../../core/api/generated';
+import { PermissionService } from '../../../core/auth/permission.service';
+import { HasPermissionDirective } from '../../../core/directives/has-permission.directive';
 import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
 import { SharedTableAction, SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
 import { employeeLabel } from '../utils/payroll-forms';
@@ -34,15 +34,13 @@ import { employeeLabel } from '../utils/payroll-forms';
     TranslatePipe,
     CardModule,
     ButtonModule,
-    DialogModule,
     DropdownModule,
     InputNumberModule,
     InputSwitchModule,
-    ToastModule,
-    ConfirmPopupModule,
+    HasPermissionDirective,
     SharedTableComponent,
+    CrudDialogComponent,
   ],
-  providers: [MessageService, ConfirmationService],
   templateUrl: './payroll-salary-structures.component.html',
   styleUrl: './payroll-salary-structures.component.scss',
 })
@@ -50,7 +48,8 @@ export class PayrollSalaryStructuresComponent implements OnInit {
   private readonly api = inject(SalaryStructuresService);
   private readonly employeesApi = inject(EmployeesService);
   private readonly messages = inject(MessageService);
-  private readonly confirm = inject(ConfirmationService);
+  private readonly confirm = inject(ConfirmService);
+  private readonly permission = inject(PermissionService);
   private readonly translate = inject(TranslateService);
 
   readonly loadingEmployees = signal(false);
@@ -96,12 +95,14 @@ export class PayrollSalaryStructuresComponent implements OnInit {
       id: 'edit',
       icon: 'pi pi-pencil',
       buttonClass: 'p-button-rounded p-button-text p-button-sm',
+      visible: this.permission.writeVisible('payroll'),
       onClick: (row) => this.openEdit(row),
     },
     {
       id: 'del',
       icon: 'pi pi-trash',
       buttonClass: 'p-button-rounded p-button-danger p-button-text p-button-sm',
+      visible: this.permission.writeVisible('payroll'),
       onClick: (row, e) => this.confirmDelete(e, row),
     },
   ];
@@ -263,10 +264,7 @@ export class PayrollSalaryStructuresComponent implements OnInit {
   confirmDelete(event: Event, row: SalaryStructureDto): void {
     if (!row.id) return;
     this.confirm.confirm({
-      target: event.target as EventTarget,
-      message: this.translate.instant('payroll.salary.confirm_delete'),
-      icon: 'pi pi-exclamation-triangle',
-      acceptButtonStyleClass: 'p-button-danger',
+      messageKey: 'payroll.salary.confirm_delete',
       accept: () =>
         this.api.salaryStructuresDelete(row.id!).subscribe({
           next: (res) => {

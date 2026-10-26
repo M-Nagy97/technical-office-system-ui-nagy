@@ -6,7 +6,6 @@ import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { DialogModule } from 'primeng/dialog';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
@@ -29,13 +28,11 @@ import { Employee } from '../../../../core/models/employee.model';
     DropdownModule,
     ProgressBarModule,
     DialogModule,
-    ConfirmDialogModule,
     InputNumberModule,
     TagModule,
     TooltipModule,
     TranslateModule,
   ],
-  providers: [ConfirmationService],
   templateUrl: './leave-balance.component.html',
   styleUrl: './leave-balance.component.scss',
 })

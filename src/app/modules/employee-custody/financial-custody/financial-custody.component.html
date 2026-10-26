@@ -18,8 +18,10 @@
     />
   </div>
   <p-button [label]="'custody.load_details' | translate" icon="pi pi-search" (onClick)="loadDetails()" [loading]="loading()" />
-  <p-button [label]="'custody.new_transaction' | translate" icon="pi pi-plus" severity="success" (onClick)="openTxDialog()" />
-  <p-button [label]="'custody.return_amount' | translate" icon="pi pi-wallet" severity="secondary" (onClick)="openReturnDialog()" />
+  <ng-container *appHasPermission="'custody.write'">
+    <p-button [label]="'custody.new_transaction' | translate" icon="pi pi-plus" severity="success" (onClick)="openTxDialog()" />
+    <p-button [label]="'custody.return_amount' | translate" icon="pi pi-wallet" severity="secondary" (onClick)="openReturnDialog()" />
+  </ng-container>
   <a routerLink="/custody/documents" class="p-button p-component p-button-outlined ml-auto no-underline">
     <span class="p-button-label">{{ 'custody.documents_module' | translate }}</span>
   </a>
@@ -76,11 +78,13 @@
   </p-card>
 }
 
-<p-dialog
+<app-crud-dialog
   [header]="'custody.new_transaction' | translate"
-  [(visible)]="dialogVisible"
-  [modal]="true"
-  [style]="{ width: '28rem' }"
+  [visible]="dialogVisible"
+  (visibleChange)="dialogVisible = $event"
+  width="28rem"
+  [saving]="loading()"
+  (save)="submitTransaction()"
 >
   <div class="flex flex-column gap-3">
     <div class="field">
@@ -93,7 +97,7 @@
     </div>
     <div class="field">
       <label class="block mb-1">{{ 'custody.col.date' | translate }}</label>
-      <p-calendar [(ngModel)]="txDate" [showTime]="true" hourFormat="24" styleClass="w-full" />
+      <p-calendar [(ngModel)]="txDate" [showTime]="true" hourFormat="24" dateFormat="dd/mm/yy" styleClass="w-full" appendTo="body" />
     </div>
     <div class="field">
       <label class="block mb-1">{{ 'custody.col.notes' | translate }}</label>
@@ -104,17 +108,15 @@
       <input pInputText class="w-full" [(ngModel)]="txAttachment" />
     </div>
   </div>
-  <ng-template pTemplate="footer">
-    <p-button [label]="'custody.cancel' | translate" severity="secondary" (onClick)="dialogVisible = false" />
-    <p-button [label]="'custody.save' | translate" (onClick)="submitTransaction()" [loading]="loading()" />
-  </ng-template>
-</p-dialog>
+</app-crud-dialog>
 
-<p-dialog
+<app-crud-dialog
   [header]="'custody.return_amount' | translate"
-  [(visible)]="returnDialogVisible"
-  [modal]="true"
-  [style]="{ width: '26rem' }"
+  [visible]="returnDialogVisible"
+  (visibleChange)="returnDialogVisible = $event"
+  width="26rem"
+  [saving]="loading()"
+  (save)="submitReturn()"
 >
   <div class="flex flex-column gap-3">
     <div class="field">
@@ -123,15 +125,11 @@
     </div>
     <div class="field">
       <label class="block mb-1">{{ 'custody.col.date' | translate }}</label>
-      <p-calendar [(ngModel)]="returnDate" [showTime]="true" hourFormat="24" styleClass="w-full" />
+      <p-calendar [(ngModel)]="returnDate" [showTime]="true" hourFormat="24" dateFormat="dd/mm/yy" styleClass="w-full" appendTo="body" />
     </div>
     <div class="field">
       <label class="block mb-1">{{ 'custody.col.notes' | translate }}</label>
       <input pInputText class="w-full" [(ngModel)]="returnNotes" />
     </div>
   </div>
-  <ng-template pTemplate="footer">
-    <p-button [label]="'custody.cancel' | translate" severity="secondary" (onClick)="returnDialogVisible = false" />
-    <p-button [label]="'custody.save' | translate" (onClick)="submitReturn()" [loading]="loading()" />
-  </ng-template>
-</p-dialog>
+</app-crud-dialog>

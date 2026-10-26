@@ -1,0 +1,111 @@
+<div class="management-page">
+  <p-card>
+    <app-page-header titleKey="pages.title" subtitleKey="pages.subtitle">
+      <button
+        pButton
+        type="button"
+        icon="pi pi-refresh"
+        [class]="BUTTON_PRESET_CLASS.secondary"
+        [label]="'common.refresh' | translate"
+        [loading]="loading()"
+        (click)="loadData()"
+      ></button>
+      <button
+        *appHasPermission="'user.write'"
+        pButton
+        type="button"
+        icon="pi pi-plus"
+        [label]="'pages.actions.create' | translate"
+        (click)="openCreate()"
+      ></button>
+    </app-page-header>
+
+    <app-shared-table
+      [value]="pages()"
+      [loading]="loading()"
+      [columns]="columns"
+      [actions]="actions"
+      actionsColumnHeader="common.actions"
+      [tableStyle]="{ 'min-width': '70rem' }"
+      emptyMessage="pages.messages.empty"
+    >
+      <ng-template sharedTableCell="code" let-row>
+        <span class="code-pill">{{ row.code || '-' }}</span>
+      </ng-template>
+    </app-shared-table>
+  </p-card>
+
+  <app-crud-dialog
+    [visible]="dialogVisible()"
+    (visibleChange)="dialogVisible.set($event)"
+    [header]="(selectedPage()?.id != null ? 'pages.dialog.edit_title' : 'pages.dialog.create_title') | translate"
+    [width]="'44rem'"
+    [saving]="saving()"
+    (save)="savePage()"
+  >
+    <form class="entity-form" [formGroup]="form" (ngSubmit)="savePage()">
+      <div class="form-grid">
+        <app-form-field
+          forId="page-code"
+          labelKey="pages.fields.code"
+          [required]="true"
+          [errorKey]="isInvalid('code') ? 'pages.validation.code_required' : null"
+        >
+          <input id="page-code" pInputText formControlName="code" autocomplete="off" />
+        </app-form-field>
+        <app-form-field
+          forId="page-name"
+          labelKey="pages.fields.name"
+          [required]="true"
+          [errorKey]="isInvalid('name') ? 'pages.validation.name_required' : null"
+        >
+          <input id="page-name" pInputText formControlName="name" autocomplete="off" />
+        </app-form-field>
+      </div>
+
+      <app-form-field forId="page-url" labelKey="pages.fields.urlPath">
+        <input id="page-url" pInputText formControlName="urlPath" autocomplete="off" />
+      </app-form-field>
+
+      <div class="form-grid">
+        <app-form-field forId="page-parent" labelKey="pages.fields.parent">
+          <p-dropdown
+            inputId="page-parent"
+            formControlName="parentId"
+            [options]="parentPageOptions()"
+            optionLabel="label"
+            optionValue="value"
+            [showClear]="true"
+            appendTo="body"
+            [placeholder]="'pages.placeholders.parent' | translate"
+          ></p-dropdown>
+        </app-form-field>
+        <app-form-field forId="page-module" labelKey="pages.fields.module">
+          <p-dropdown
+            inputId="page-module"
+            formControlName="moduleId"
+            [options]="moduleOptions()"
+            optionLabel="label"
+            optionValue="value"
+            [showClear]="true"
+            appendTo="body"
+            [placeholder]="'pages.placeholders.module' | translate"
+          ></p-dropdown>
+        </app-form-field>
+      </div>
+
+      <app-form-field forId="page-permission" labelKey="pages.fields.permission">
+        <p-dropdown
+          inputId="page-permission"
+          formControlName="permissionId"
+          [options]="permissionOptions()"
+          optionLabel="label"
+          optionValue="value"
+          [showClear]="true"
+          appendTo="body"
+          [placeholder]="'pages.placeholders.permission' | translate"
+        ></p-dropdown>
+      </app-form-field>
+    </form>
+  </app-crud-dialog>
+</div>

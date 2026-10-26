@@ -1,103 +1,93 @@
 <div class="penalty-list">
   <div class="stats-row">
-    <p-card class="stat-card">
-      <span class="stat-value">{{ stats().total }}</span>
-      <span class="stat-label">إجمالي الجزاءات</span>
-    </p-card>
-    <p-card class="stat-card stat-warning">
-      <span class="stat-value">{{ stats().warning }}</span>
-      <span class="stat-label">تنبيه</span>
-    </p-card>
-    <p-card class="stat-card stat-written">
-      <span class="stat-value">{{ stats().written_warning }}</span>
-      <span class="stat-label">إنذار كتابي</span>
-    </p-card>
-    <p-card class="stat-card stat-deduction">
-      <span class="stat-value">{{ stats().deduction }}</span>
-      <span class="stat-label">خصم</span>
-    </p-card>
-    <p-card class="stat-card stat-suspension">
-      <span class="stat-value">{{ stats().suspension }}</span>
-      <span class="stat-label">إيقاف</span>
-    </p-card>
-    <p-card class="stat-card stat-dismissal">
-      <span class="stat-value">{{ stats().dismissal }}</span>
-      <span class="stat-label">فصل</span>
-    </p-card>
+    <app-stat-card [value]="stats().total" labelKey="penalties.stat_total" icon="pi pi-list" tone="primary" />
+    <app-stat-card [value]="stats().warning" labelKey="penalties.types.warning" icon="pi pi-exclamation-circle" tone="warning" />
+    <app-stat-card [value]="stats().written_warning" labelKey="penalties.types.written_warning" icon="pi pi-file" tone="warning" />
+    <app-stat-card [value]="stats().deduction" labelKey="penalties.types.deduction" icon="pi pi-minus-circle" tone="info" />
+    <app-stat-card [value]="stats().suspension" labelKey="penalties.types.suspension" icon="pi pi-pause" tone="danger" />
+    <app-stat-card [value]="stats().dismissal" labelKey="penalties.types.dismissal" icon="pi pi-times-circle" tone="danger" />
   </div>
 
   <p-card>
-    <div class="toolbar">
-      <div class="filters">
-        <input
-          type="text"
-          pInputText
-          [ngModel]="searchText()"
-          (ngModelChange)="searchText.set($event)"
-          placeholder="بحث (السبب، الموظف، رقم الجزاء)"
-          class="search-input"
-        />
-        <p-dropdown
-          [options]="employeeOptions()"
-          [ngModel]="employeeFilter()"
-          (ngModelChange)="employeeFilter.set($event)"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="الموظف"
-          [showClear]="true"
-          styleClass="filter-dropdown"
-        />
-        <p-dropdown
-          [options]="typeOptionsWithAll"
-          [ngModel]="typeFilter()"
-          (ngModelChange)="typeFilter.set($event)"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="نوع الجزاء"
-          [showClear]="true"
-          styleClass="filter-dropdown"
-        />
-        <p-dropdown
-          [options]="statusOptionsWithAll"
-          [ngModel]="statusFilter()"
-          (ngModelChange)="statusFilter.set($event)"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="الحالة"
-          [showClear]="true"
-          styleClass="filter-dropdown"
-        />
-        <p-calendar
-          [ngModel]="dateFrom()"
-          (ngModelChange)="dateFrom.set($event)"
-          placeholder="من تاريخ"
-          dateFormat="dd/mm/yy"
-          [showIcon]="true"
-        />
-        <p-calendar
-          [ngModel]="dateTo()"
-          (ngModelChange)="dateTo.set($event)"
-          placeholder="إلى تاريخ"
-          dateFormat="dd/mm/yy"
-          [showIcon]="true"
-        />
-      </div>
-      <button pButton label="إضافة جزاء" icon="pi pi-plus" (click)="openAdd()" class="p-button-primary"></button>
-    </div>
+    <app-filter-bar
+      [search]="searchText()"
+      (searchChange)="searchText.set($event)"
+      searchPlaceholderKey="penalties.search"
+    >
+      <p-dropdown
+        [options]="employeeOptions()"
+        [ngModel]="employeeFilter()"
+        (ngModelChange)="employeeFilter.set($event)"
+        optionLabel="label"
+        optionValue="value"
+        [placeholder]="'common.employee' | translate"
+        [showClear]="true"
+        styleClass="filter-dropdown"
+        appendTo="body"
+      />
+      <p-dropdown
+        [options]="typeOptionsWithAll"
+        [ngModel]="typeFilter()"
+        (ngModelChange)="typeFilter.set($event)"
+        optionLabel="labelKey"
+        optionValue="value"
+        [placeholder]="'penalties.type' | translate"
+        [showClear]="true"
+        styleClass="filter-dropdown"
+        appendTo="body"
+      >
+        <ng-template let-item pTemplate="item">{{ item.labelKey | translate }}</ng-template>
+        <ng-template let-item pTemplate="selectedItem">{{ item.labelKey | translate }}</ng-template>
+      </p-dropdown>
+      <p-dropdown
+        [options]="statusOptionsWithAll"
+        [ngModel]="statusFilter()"
+        (ngModelChange)="statusFilter.set($event)"
+        optionLabel="labelKey"
+        optionValue="value"
+        [placeholder]="'common.status' | translate"
+        [showClear]="true"
+        styleClass="filter-dropdown"
+        appendTo="body"
+      >
+        <ng-template let-item pTemplate="item">{{ item.labelKey | translate }}</ng-template>
+        <ng-template let-item pTemplate="selectedItem">{{ item.labelKey | translate }}</ng-template>
+      </p-dropdown>
+      <p-calendar
+        [ngModel]="dateFrom()"
+        (ngModelChange)="dateFrom.set($event)"
+        [placeholder]="'common.from_date' | translate"
+        dateFormat="dd/mm/yy"
+        [showIcon]="true"
+        appendTo="body"
+      />
+      <p-calendar
+        [ngModel]="dateTo()"
+        (ngModelChange)="dateTo.set($event)"
+        [placeholder]="'common.to_date' | translate"
+        dateFormat="dd/mm/yy"
+        [showIcon]="true"
+        appendTo="body"
+      />
+      <ng-container *appHasPermission="'hr.employees.write'">
+        <button pButton [label]="'penalties.add' | translate" icon="pi pi-plus" (click)="openAdd()"></button>
+      </ng-container>
+    </app-filter-bar>
 
     <app-shared-table
       [value]="filteredPenalties()"
       [columns]="columns"
       [tableStyle]="{ 'min-width': '50rem' }"
-      styleClass="p-datatable-sm p-datatable-striped"
-      [translateHeader]="false"
-      emptyMessage="لا توجد سجلات."
-      [translateEmptyMessage]="false"
+      emptyMessage="penalties.empty"
       [rowClass]="rowClassForPenalty"
       [rowClick]="onPenaltyRowClick"
     >
       <ng-template sharedTableCell="type" let-row>
         <span class="type-badge" [ngClass]="getSeverityClass(row.type)">{{ getTypeLabel(row.type) }}</span>
+      </ng-template>
+
+      <ng-template sharedTableCell="incidentDate" let-row>
+        {{ row.incidentDate | appDate }}
       </ng-template>
 
       <ng-template sharedTableCell="status" let-row>
@@ -116,31 +106,31 @@
   styleClass="penalty-detail-sidebar"
 >
   <ng-template pTemplate="header">
-    <span>تفاصيل الجزاء</span>
+    <span>{{ 'penalties.details' | translate }}</span>
   </ng-template>
   @if (selectedPenalty(); as p) {
     <div class="sidebar-content">
       <dl class="detail-list">
-        <dt>رقم الجزاء</dt><dd>{{ p.penaltyNumber }}</dd>
-        <dt>الموظف</dt><dd>{{ p.employeeName }}</dd>
-        <dt>النوع</dt><dd>{{ getTypeLabel(p.type) }}</dd>
-        <dt>السبب</dt><dd>{{ p.reason }}</dd>
-        <dt>تاريخ الواقعة</dt><dd>{{ formatDate(p.incidentDate) }}</dd>
-        <dt>تاريخ القرار</dt><dd>{{ formatDate(p.decisionDate) }}</dd>
-        <dt>رقم القرار</dt><dd>{{ p.decisionNumber }}</dd>
+        <dt>{{ 'penalties.number' | translate }}</dt><dd>{{ p.penaltyNumber }}</dd>
+        <dt>{{ 'common.employee' | translate }}</dt><dd>{{ p.employeeName }}</dd>
+        <dt>{{ 'penalties.type' | translate }}</dt><dd>{{ getTypeLabel(p.type) }}</dd>
+        <dt>{{ 'penalties.reason' | translate }}</dt><dd>{{ p.reason }}</dd>
+        <dt>{{ 'penalties.incident_date' | translate }}</dt><dd>{{ p.incidentDate | appDate }}</dd>
+        <dt>{{ 'penalties.decision_date' | translate }}</dt><dd>{{ p.decisionDate | appDate }}</dd>
+        <dt>{{ 'penalties.decision_number' | translate }}</dt><dd>{{ p.decisionNumber }}</dd>
         @if (p.deductionDays != null) {
-          <dt>أيام الخصم</dt><dd>{{ p.deductionDays }}</dd>
+          <dt>{{ 'penalties.deduction_days' | translate }}</dt><dd>{{ p.deductionDays }}</dd>
         }
         @if (p.suspensionDays != null) {
-          <dt>أيام الإيقاف</dt><dd>{{ p.suspensionDays }}</dd>
+          <dt>{{ 'penalties.suspension_days' | translate }}</dt><dd>{{ p.suspensionDays }}</dd>
         }
-        <dt>الحالة</dt><dd>{{ getStatusLabel(p.status) }}</dd>
-        <dt>اعتمد بواسطة</dt><dd>{{ p.approvedBy }}</dd>
+        <dt>{{ 'common.status' | translate }}</dt><dd>{{ getStatusLabel(p.status) }}</dd>
+        <dt>{{ 'penalties.approved_by' | translate }}</dt><dd>{{ p.approvedBy }}</dd>
         @if (p.notes) {
-          <dt>ملاحظات</dt><dd>{{ p.notes }}</dd>
+          <dt>{{ 'common.notes' | translate }}</dt><dd>{{ p.notes }}</dd>
         }
       </dl>
-      <a pButton label="عرض الملف الشخصي" icon="pi pi-user" [routerLink]="['/employees', p.employeeId]" class="p-button-outlined"></a>
+      <a pButton [label]="'penalties.view_profile' | translate" icon="pi pi-user" [routerLink]="['/employees', p.employeeId]" class="p-button-outlined"></a>
     </div>
   }
 </p-sidebar>

@@ -6,41 +6,39 @@ import {
   Input,
   QueryList,
   TemplateRef,
-  inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
-import { LanguageService } from '../../../core/services/language.service';
+import { TABLE_ACTION_CLASS } from '../../ui/button-presets';
 import { SharedTableAction, SharedTableColumn, SharedTableTextAlign } from './shared-table.models';
 import { SharedTableCellTemplateDirective } from './shared-table-cell-template.directive';
 
 /**
  * Shared PrimeNG table wrapper with:
  * - default 10 rows
- * - automatic RTL/LTR alignment based on document direction
+ * - logical start/end alignment that follows document direction
  * - optional per-cell templates via `SharedTableCellTemplateDirective`
  * - configurable action icons (view/edit/delete/custom)
  */
 @Component({
   selector: 'app-shared-table',
   standalone: true,
-  imports: [CommonModule, TableModule, ButtonModule, TranslateModule],
+  imports: [CommonModule, TableModule, ButtonModule, TooltipModule, TranslateModule],
   templateUrl: './shared-table.component.html',
   styleUrl: './shared-table.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SharedTableComponent<T = any> implements AfterContentInit {
-  private readonly languageService = inject(LanguageService);
-
   @Input() value: T[] = [];
   @Input() columns: SharedTableColumn<T>[] = [];
   @Input() loading = false;
 
   @Input() paginator = true;
   @Input() rows = 10;
-  @Input() rowsPerPageOptions: number[] = [10, 20, 50];
+  @Input() rowsPerPageOptions: number[] = [10, 25, 50];
 
   @Input() scrollable = false;
   @Input() scrollHeight: string | null = null;
@@ -81,28 +79,15 @@ export class SharedTableComponent<T = any> implements AfterContentInit {
     this.cellTemplateByColumnId = map;
   }
 
-  private getDir(): 'rtl' | 'ltr' {
-    return this.languageService.dir();
-  }
-
-  resolveAlign(align: SharedTableTextAlign | undefined): 'left' | 'right' | 'center' {
-    const dir = this.getDir();
-    if (!align || align === 'start') return dir === 'rtl' ? 'right' : 'left';
-    if (align === 'end') return dir === 'rtl' ? 'left' : 'right';
+  resolveAlign(align: SharedTableTextAlign | undefined): 'start' | 'end' | 'center' {
+    if (!align || align === 'start') return 'start';
+    if (align === 'end') return 'end';
     return 'center';
   }
 
-  resolveActionsJustify(): 'flex-end' | 'flex-start' | 'center' {
+  resolveActionsAlign(): 'left' | 'right' | 'center' {
     if (this.actionsAlign === 'center') return 'center';
-    // In RTL we map "end" to physical left.
-    const dir = this.getDir();
-    const isRtl = dir === 'rtl';
-    if (!isRtl) {
-      // LTR
-      return this.actionsAlign === 'start' ? 'flex-start' : 'flex-end';
-    }
-    // RTL
-    return this.actionsAlign === 'start' ? 'flex-end' : 'flex-start';
+    return this.actionsAlign === 'start' ? 'left' : 'right';
   }
 
   getColumnValue(col: SharedTableColumn<T>, row: T): unknown {
@@ -159,10 +144,17 @@ export class SharedTableComponent<T = any> implements AfterContentInit {
   }
 
   getActionButtonClass(action: SharedTableAction<T>, row: T): string {
-    const base = 'p-button-text p-button-sm';
-    if (!action.buttonClass) return base;
-    const extra = typeof action.buttonClass === 'function' ? action.buttonClass(row) : action.buttonClass;
-    return extra ? `${base} ${extra}` : base;
+    if (!action.buttonClass) {
+      return TABLE_ACTION_CLASS.custom;
+    }
+    return typeof action.buttonClass === 'function' ? action.buttonClass(row) : action.buttonClass;
+  }
+
+  getActionTooltip(action: SharedTableAction<T>, row: T): string | undefined {
+    if (!action.tooltip) {
+      return undefined;
+    }
+    return typeof action.tooltip === 'function' ? action.tooltip(row) : action.tooltip;
   }
 
   getActionLabel(action: SharedTableAction<T>, row: T): string | undefined {

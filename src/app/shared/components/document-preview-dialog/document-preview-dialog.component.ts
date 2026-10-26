@@ -9,7 +9,6 @@ import {
 import { CommonModule } from '@angular/common';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
-import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { EmployeeDocument } from '../../../core/models/employee.model';
@@ -18,8 +17,7 @@ import { isImageMediaUrl, isPlaceholderDocumentUrl } from '../../../core/utils/m
 @Component({
   selector: 'app-document-preview-dialog',
   standalone: true,
-  imports: [CommonModule, DialogModule, ButtonModule, ToastModule, TranslateModule],
-  providers: [MessageService],
+  imports: [CommonModule, DialogModule, ButtonModule, TranslateModule],
   templateUrl: './document-preview-dialog.component.html',
   styleUrl: './document-preview-dialog.component.scss',
 })

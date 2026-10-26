@@ -6,6 +6,7 @@ import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { ChartModule } from 'primeng/chart';
 import { EmployeeService, AttendanceService, PenaltyService, PenaltyType, PENALTY_TYPE_LABELS } from '../../core';
+import { AppDatePipe, StatCardComponent } from '../../shared';
 
 interface ActivityItem {
   id: string;
@@ -17,7 +18,7 @@ interface ActivityItem {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, TranslatePipe, CardModule, ButtonModule, ChartModule],
+  imports: [CommonModule, RouterLink, TranslatePipe, CardModule, ButtonModule, ChartModule, StatCardComponent, AppDatePipe],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })

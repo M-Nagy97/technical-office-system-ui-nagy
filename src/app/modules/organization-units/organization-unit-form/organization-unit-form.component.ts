@@ -7,7 +7,9 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
 import { MessageModule } from 'primeng/message';
+import { TranslatePipe } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
+import { FormActionsComponent, FormFieldComponent } from '../../../shared';
 import { OrganizationUnitsService, OrganizationUnitDto, UpdateOrganizationUnitCommand, CreateOrganizationUnitCommand } from '../../../core/api/generated';
 
 
@@ -23,6 +25,9 @@ import { OrganizationUnitsService, OrganizationUnitDto, UpdateOrganizationUnitCo
     InputTextModule,
     DropdownModule,
     MessageModule,
+    TranslatePipe,
+    FormFieldComponent,
+    FormActionsComponent,
   ],
   templateUrl: './organization-unit-form.component.html',
   styleUrl: './organization-unit-form.component.scss',
@@ -110,6 +115,11 @@ export class OrganizationUnitFormComponent implements OnInit {
         },
       });
     }
+  }
+
+  isInvalid(controlName: string): boolean {
+    const control = this.form.get(controlName);
+    return !!control && control.invalid && (control.touched || control.dirty);
   }
 
   submit(): void {

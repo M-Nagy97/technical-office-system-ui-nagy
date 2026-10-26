@@ -6,12 +6,13 @@ import { TabViewModule } from 'primeng/tabview';
 import { AvatarModule } from 'primeng/avatar';
 import { TagModule } from 'primeng/tag';
 import { InputTextModule } from 'primeng/inputtext';
-import { MessageService, ConfirmationService } from 'primeng/api';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { MessageService } from 'primeng/api';
+import { ConfirmService, DetailHeaderComponent } from '../../../shared';
 import { FormsModule } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { HasPermissionDirective } from '../../../core/directives/has-permission.directive';
 import { EmployeeService } from '../../../core/services/employee.service';
 import { DocumentEmployeeService } from '../../../core/services/document-employee.service';
 import { PenaltyService } from '../../../core/services/penalty.service';
@@ -38,13 +39,13 @@ const NATIONAL_ID_DOCUMENT_TYPE_ID = 'dce167b1-ee8f-4d86-bdd3-477446980566';
     AvatarModule,
     TagModule,
     InputTextModule,
-    ConfirmDialogModule,
     TooltipModule,
     TranslateModule,
+    HasPermissionDirective,
     SharedTableComponent,
     DocumentPreviewDialogComponent,
+    DetailHeaderComponent,
   ],
-  providers: [ConfirmationService],
   templateUrl: './employee-detail.component.html',
   styleUrl: './employee-detail.component.scss',
 })
@@ -55,7 +56,7 @@ export class EmployeeDetailComponent implements OnInit {
   private readonly documentEmployeeService = inject(DocumentEmployeeService);
   private readonly penaltyService = inject(PenaltyService);
   private readonly messageService = inject(MessageService);
-  private readonly confirmationService = inject(ConfirmationService);
+  private readonly confirm = inject(ConfirmService);
   private readonly translate = inject(TranslateService);
 
   readonly employee = signal<Employee | null>(null);
@@ -182,19 +183,6 @@ export class EmployeeDetailComponent implements OnInit {
     return gender === 'female' ? 'employees.gender.female' : 'employees.gender.male';
   }
 
-  maritalLabelKey(status: string): string {
-    switch (status) {
-      case 'married':
-        return 'employees.marital.married';
-      case 'divorced':
-        return 'employees.marital.divorced';
-      case 'widowed':
-        return 'employees.marital.widowed';
-      default:
-        return 'employees.marital.single';
-    }
-  }
-
   formatDate(d: Date): string {
     return new Date(d).toLocaleDateString(this.dateLocale());
   }
@@ -229,15 +217,10 @@ export class EmployeeDetailComponent implements OnInit {
   confirmDeleteDocument(doc: EmployeeDocument): void {
     const emp = this.employee();
     if (!emp) return;
-    this.confirmationService.confirm({
-      message: this.translate.instant('employees.detail.delete_doc_confirm_msg', {
-        name: doc.name || doc.documentNumber || '',
-      }),
-      header: this.translate.instant('employees.detail.delete_doc_confirm_header'),
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: this.translate.instant('employees.detail.delete_accept'),
-      rejectLabel: this.translate.instant('employees.detail.delete_reject'),
-      acceptButtonStyleClass: 'p-button-danger',
+    this.confirm.confirm({
+      headerKey: 'employees.detail.delete_doc_confirm_header',
+      messageKey: 'employees.detail.delete_doc_confirm_msg',
+      messageParams: { name: doc.name || doc.documentNumber || '' },
       accept: () => {
         this.documentEmployeeService.delete(doc.id, emp.id).subscribe({
           next: () => {
@@ -299,12 +282,9 @@ export class EmployeeDetailComponent implements OnInit {
   suspend(): void {
     const e = this.employee();
     if (!e || e.status !== 'active') return;
-    this.confirmationService.confirm({
-      message: this.translate.instant('employees.detail.suspend_confirm_msg'),
-      header: this.translate.instant('employees.detail.suspend_confirm_header'),
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: this.translate.instant('employees.detail.suspend_accept'),
-      rejectLabel: this.translate.instant('employees.detail.suspend_reject'),
+    this.confirm.confirm({
+      headerKey: 'employees.detail.suspend_confirm_header',
+      messageKey: 'employees.detail.suspend_confirm_msg',
       accept: () => {
         const updated: Employee = { ...e, status: 'suspended' };
         this.employeeService.update(e.id, updated).subscribe({
@@ -324,13 +304,10 @@ export class EmployeeDetailComponent implements OnInit {
 
   archive(): void {
     const e = this.employee();
-    if (!e) return;
-    this.confirmationService.confirm({
-      message: this.translate.instant('employees.detail.archive_confirm_msg'),
-      header: this.translate.instant('employees.detail.archive_confirm_header'),
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: this.translate.instant('employees.detail.archive_accept'),
-      rejectLabel: this.translate.instant('employees.detail.archive_reject'),
+    if (!e || e.status === 'terminated') return;
+    this.confirm.confirm({
+      headerKey: 'employees.detail.archive_confirm_header',
+      messageKey: 'employees.detail.archive_confirm_msg',
       accept: () => {
         const updated: Employee = { ...e, status: 'terminated' };
         this.employeeService.update(e.id, updated).subscribe({
@@ -340,6 +317,29 @@ export class EmployeeDetailComponent implements OnInit {
               severity: 'success',
               summary: this.translate.instant('employees.detail.archive_success_summary'),
               detail: this.translate.instant('employees.detail.archive_success_detail'),
+            });
+          },
+          error: () => {},
+        });
+      },
+    });
+  }
+
+  restore(): void {
+    const e = this.employee();
+    if (!e || e.status !== 'terminated') return;
+    this.confirm.confirm({
+      headerKey: 'employees.detail.restore_confirm_header',
+      messageKey: 'employees.detail.restore_confirm_msg',
+      accept: () => {
+        const updated: Employee = { ...e, status: 'active' };
+        this.employeeService.update(e.id, updated).subscribe({
+          next: () => {
+            this.employee.set(updated);
+            this.messageService.add({
+              severity: 'success',
+              summary: this.translate.instant('employees.detail.restore_success_summary'),
+              detail: this.translate.instant('employees.detail.restore_success_detail'),
             });
           },
           error: () => {},

@@ -1,0 +1,28 @@
+<app-crud-dialog
+  [visible]="visible"
+  [header]="(isEdit ? 'roles.dialog.edit_title' : 'roles.dialog.create_title') | translate"
+  [saving]="saving"
+  (visibleChange)="visibleChange.emit($event)"
+  (save)="submit()"
+  (cancel)="close()"
+>
+  <form class="role-form" [formGroup]="form" (ngSubmit)="submit()">
+    <app-form-field
+      forId="role-name"
+      labelKey="roles.fields.name"
+      [required]="true"
+      [errorKey]="isInvalid('name') ? 'roles.validation.name_required' : null"
+    >
+      <input id="role-name" pInputText formControlName="name" autocomplete="off" />
+    </app-form-field>
+
+    <app-form-field forId="role-description" labelKey="roles.fields.description">
+      <textarea
+        id="role-description"
+        pInputTextarea
+        rows="4"
+        formControlName="description"
+      ></textarea>
+    </app-form-field>
+  </form>
+</app-crud-dialog>

@@ -7,6 +7,7 @@ import { DividerModule } from 'primeng/divider';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
 import { PermissionRequestService, EmployeeService, LanguageService } from '../../../../core/services';
 import {
   PermissionRequestDto,
@@ -14,7 +15,7 @@ import {
   PermissionDurationType,
   HalfDayPeriod,
 } from '../../../../core/models/permission-request.model';
-import { StatusBadgeComponent } from '../../../../shared';
+import { AppDatePipe, DetailHeaderComponent, StatusBadgeComponent } from '../../../../shared';
 import {
   RequestActionDialogComponent,
   RequestActionEvent,
@@ -31,8 +32,11 @@ import {
     ButtonModule,
     DividerModule,
     StatusBadgeComponent,
+    DetailHeaderComponent,
+    AppDatePipe,
     RequestActionDialogComponent,
     TranslateModule,
+    HasPermissionDirective,
   ],
   templateUrl: './permission-request-detail.component.html',
   styleUrl: './permission-request-detail.component.scss',

@@ -131,8 +131,8 @@
   gap: 0.5rem;
   padding: 0 0.5rem;
   border-radius: var(--border-radius-sm);
-  background: var(--primary-50);
-  color: var(--text-color-secondary);
+  background: color-mix(in srgb, var(--primary-color) 18%, transparent);
+  color: var(--layout-bar-text);
   font-weight: 600;
 }
 

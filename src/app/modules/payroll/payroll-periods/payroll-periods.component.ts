@@ -5,12 +5,10 @@ import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
-import { ToastModule } from 'primeng/toast';
-import { ConfirmPopupModule } from 'primeng/confirmpopup';
-import { MessageService, ConfirmationService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
+import { ConfirmService, CrudDialogComponent } from '../../../shared';
 import {
   CreatePayrollPeriodCommand,
   PayrollPeriodDto,
@@ -18,6 +16,8 @@ import {
   PayrollPeriodStatus,
   UpdatePayrollPeriodCommand,
 } from '../../../core/api/generated';
+import { PermissionService } from '../../../core/auth/permission.service';
+import { HasPermissionDirective } from '../../../core/directives/has-permission.directive';
 import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
 import { SharedTableAction, SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
 import { datetimeLocalToIso, isoToDatetimeLocal } from '../utils/payroll-forms';
@@ -32,22 +32,21 @@ import { datetimeLocalToIso, isoToDatetimeLocal } from '../utils/payroll-forms';
     TranslatePipe,
     CardModule,
     ButtonModule,
-    DialogModule,
     DropdownModule,
     InputTextModule,
-    ToastModule,
-    ConfirmPopupModule,
+    HasPermissionDirective,
     SharedTableComponent,
+    CrudDialogComponent,
   ],
-  providers: [MessageService, ConfirmationService],
   templateUrl: './payroll-periods.component.html',
   styleUrl: './payroll-periods.component.scss',
 })
 export class PayrollPeriodsComponent implements OnInit {
   private readonly api = inject(PayrollPeriodsService);
   private readonly messages = inject(MessageService);
-  private readonly confirm = inject(ConfirmationService);
+  private readonly confirm = inject(ConfirmService);
   private readonly translate = inject(TranslateService);
+  private readonly permission = inject(PermissionService);
 
   readonly loading = signal(false);
   readonly rows = signal<PayrollPeriodDto[]>([]);
@@ -84,12 +83,14 @@ export class PayrollPeriodsComponent implements OnInit {
       id: 'edit',
       icon: 'pi pi-pencil',
       buttonClass: 'p-button-rounded p-button-text p-button-sm',
+      visible: this.permission.writeVisible('payroll'),
       onClick: (row) => this.openEdit(row),
     },
     {
       id: 'delete',
       icon: 'pi pi-trash',
       buttonClass: 'p-button-rounded p-button-danger p-button-text p-button-sm',
+      visible: this.permission.writeVisible('payroll'),
       onClick: (row, e) => this.confirmDelete(e, row),
     },
   ];
@@ -252,13 +253,10 @@ export class PayrollPeriodsComponent implements OnInit {
     }
   }
 
-  confirmDelete(event: Event, row: PayrollPeriodDto): void {
+  confirmDelete(_event: Event, row: PayrollPeriodDto): void {
     if (!row.id) return;
     this.confirm.confirm({
-      target: event.target as EventTarget,
-      message: this.translate.instant('payroll.periods.confirm_delete'),
-      icon: 'pi pi-exclamation-triangle',
-      acceptButtonStyleClass: 'p-button-danger',
+      messageKey: 'payroll.periods.confirm_delete',
       accept: () => this.delete(row.id!),
     });
   }

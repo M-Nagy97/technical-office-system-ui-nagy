@@ -1,22 +1,18 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
 import { CardModule } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { SelectButtonModule } from 'primeng/selectbutton';
 import { CheckboxModule } from 'primeng/checkbox';
-import { MessageModule } from 'primeng/message';
-
-import { MessageService } from 'primeng/api';
 import { map } from 'rxjs/operators';
 import {
   ShiftsService,
   CreateShiftCommand,
   UpdateShiftCommand,
 } from '../../../core/api/generated';
+import { FormActionsComponent, FormFieldComponent, FormSectionComponent, NotifyService } from '../../../shared';
 
 function timeToApi(v: string): string {
   if (!v || v.length < 5) return '00:00:00';
@@ -27,16 +23,15 @@ function timeToApi(v: string): string {
   selector: 'app-shift-form',
   standalone: true,
   imports: [
-    CommonModule,
-    RouterLink,
     ReactiveFormsModule,
+    TranslatePipe,
     CardModule,
-    ButtonModule,
     InputTextModule,
     InputNumberModule,
-    SelectButtonModule,
     CheckboxModule,
-    MessageModule,
+    FormFieldComponent,
+    FormSectionComponent,
+    FormActionsComponent,
   ],
   templateUrl: './shift-form.component.html',
   styleUrl: './shift-form.component.scss',
@@ -46,7 +41,7 @@ export class ShiftFormComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly shiftsService = inject(ShiftsService);
-  private readonly messageService = inject(MessageService);
+  private readonly notify = inject(NotifyService);
 
   readonly isEdit = signal(false);
   readonly id = signal<string | null>(null);
@@ -104,12 +99,8 @@ export class ShiftFormComponent implements OnInit {
             });
           }
         },
-        error: () => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'خطأ',
-            detail: 'فشل تحميل الشيفت',
-          });
+        error: (error) => {
+          this.notify.error(error, 'common.load_error');
         },
       });
     }
@@ -140,27 +131,17 @@ export class ShiftFormComponent implements OnInit {
         next: (res) => {
           this.saving.set(false);
           if (res.success) {
-            this.messageService.add({
-              severity: 'success',
-              summary: 'تم',
-              detail: 'تم تحديث الشيفت',
-            });
+            this.notify.success('common.update_success');
             this.router.navigate(['/attendance/shifts']);
+          } else if (res.message) {
+            this.notify.errorText(res.message);
           } else {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'خطأ',
-              detail: res.message ?? 'فشل التحديث',
-            });
+            this.notify.error(null, 'common.save_error');
           }
         },
-        error: () => {
+        error: (error) => {
           this.saving.set(false);
-          this.messageService.add({
-            severity: 'error',
-            summary: 'خطأ',
-            detail: 'حدث خطأ أثناء التحديث',
-          });
+          this.notify.error(error, 'common.save_error');
         },
       });
     } else {
@@ -177,29 +158,24 @@ export class ShiftFormComponent implements OnInit {
         next: (res) => {
           this.saving.set(false);
           if (res.success && res.data) {
-            this.messageService.add({
-              severity: 'success',
-              summary: 'تم',
-              detail: 'تم إضافة الشيفت',
-            });
+            this.notify.success('common.create_success');
             this.router.navigate(['/attendance/shifts']);
+          } else if (res.message) {
+            this.notify.errorText(res.message);
           } else {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'خطأ',
-              detail: res.message ?? 'فشل الإضافة',
-            });
+            this.notify.error(null, 'common.save_error');
           }
         },
-        error: () => {
+        error: (error) => {
           this.saving.set(false);
-          this.messageService.add({
-            severity: 'error',
-            summary: 'خطأ',
-            detail: 'حدث خطأ أثناء الإضافة',
-          });
+          this.notify.error(error, 'common.save_error');
         },
       });
     }
+  }
+
+  isInvalid(controlName: string): boolean {
+    const control = this.form?.get(controlName);
+    return !!control && control.invalid && (control.dirty || control.touched);
   }
 }

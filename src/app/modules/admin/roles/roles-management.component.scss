@@ -1,0 +1,91 @@
+:host {
+  display: block;
+}
+
+.management-page {
+  padding-bottom: 1rem;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.page-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.page-subtitle {
+  margin-top: 0.35rem;
+  color: var(--text-color-secondary);
+  max-width: 46rem;
+  line-height: 1.6;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.name-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 700;
+}
+
+.entity-icon {
+  inline-size: 2rem;
+  block-size: 2rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--primary-color) 14%, white);
+  color: var(--primary-color);
+}
+
+.actions-column {
+  text-align: end;
+  white-space: nowrap;
+
+  button + button {
+    margin-inline-start: 0.4rem;
+  }
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--text-color-secondary);
+  padding: 2rem;
+}
+
+.loading-state {
+  min-height: 18rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  color: var(--text-color-secondary);
+}
+
+:host ::ng-deep .management-table .p-datatable-thead > tr > th {
+  background: var(--surface-ground);
+  border-block-end: 1px solid var(--surface-border);
+}
+
+:host ::ng-deep .management-table .p-datatable-tbody > tr {
+  transition: background-color 160ms ease;
+}
+
+:host ::ng-deep .management-table .p-datatable-tbody > tr:hover {
+  background: color-mix(in srgb, var(--primary-color) 5%, transparent);
+}

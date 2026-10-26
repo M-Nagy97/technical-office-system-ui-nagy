@@ -27,14 +27,14 @@ type TagSeverity = 'success' | 'info' | 'warning' | 'danger' | 'secondary' | 'co
   ],
 })
 export class StatusBadgeComponent {
-  private readonly _status = signal<number | string | null | undefined>(undefined);
-  private readonly _type = signal<'leave' | 'permission' | 'general'>('leave');
+  private readonly _status = signal<number | string | boolean | null | undefined>(undefined);
+  private readonly _type = signal<'leave' | 'permission' | 'general' | 'user'>('leave');
 
-  @Input() set status(val: number | string | null | undefined) {
+  @Input() set status(val: number | string | boolean | null | undefined) {
     this._status.set(val);
   }
 
-  @Input() set type(val: 'leave' | 'permission' | 'general') {
+  @Input() set type(val: 'leave' | 'permission' | 'general' | 'user') {
     this._type.set(val);
   }
 
@@ -49,6 +49,13 @@ export class StatusBadgeComponent {
 
     const num = Number(raw);
     const type = this._type();
+
+    if (type === 'user') {
+      const active = raw === true || raw === 1 || String(raw).toLowerCase() === 'active' || String(raw).toLowerCase() === 'true';
+      return active
+        ? { key: 'users.list.active', label: 'Active', severity: 'success' as TagSeverity }
+        : { key: 'users.list.inactive', label: 'Inactive', severity: 'danger' as TagSeverity };
+    }
 
     if (typeof raw === 'string') {
       const lower = raw.toLowerCase();

@@ -1,42 +1,43 @@
 import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { ConfirmPopupModule } from 'primeng/confirmpopup';
-import { ToastModule } from 'primeng/toast';
-import { TooltipModule } from 'primeng/tooltip';
-import { RippleModule } from 'primeng/ripple';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { PermissionService } from '../../../core/auth/permission.service';
+import { HasPermissionDirective } from '../../../core/directives/has-permission.directive';
 import { JobGradesService, JobGradeDto } from '../../../core/api/generated';
-import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
-import { SharedTableAction, SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
-
+import {
+  ConfirmService,
+  FilterBarComponent,
+  NotifyService,
+  SharedTableAction,
+  SharedTableColumn,
+  SharedTableComponent,
+  tableDeleteAction,
+  tableEditAction,
+} from '../../../shared';
 
 @Component({
   selector: 'app-job-grade-list',
   standalone: true,
   imports: [
     RouterLink,
-    FormsModule,
+    TranslatePipe,
     CardModule,
     ButtonModule,
-    InputTextModule,
-    ConfirmPopupModule,
-    ToastModule,
-    TooltipModule,
-    RippleModule,
+    HasPermissionDirective,
     SharedTableComponent,
+    FilterBarComponent,
   ],
   templateUrl: './job-grade-list.component.html',
   styleUrl: './job-grade-list.component.scss',
 })
 export class JobGradeListComponent implements OnInit {
   private readonly jobGradesService = inject(JobGradesService);
-  private readonly confirmationService = inject(ConfirmationService);
-  private readonly messageService = inject(MessageService);
+  private readonly notify = inject(NotifyService);
+  private readonly confirm = inject(ConfirmService);
   private readonly router = inject(Router);
+  private readonly permission = inject(PermissionService);
 
   readonly loading = signal(false);
   readonly grades = signal<JobGradeDto[]>([]);
@@ -54,27 +55,17 @@ export class JobGradeListComponent implements OnInit {
   });
 
   readonly columns: SharedTableColumn<JobGradeDto>[] = [
-    { id: 'code', header: 'الرمز', field: 'code', sortableField: 'code' },
-    { id: 'name', header: 'الاسم', field: 'name', sortableField: 'name' },
-    { id: 'rank', header: 'الرتبة', field: 'rank', sortableField: 'rank', valueGetter: (row) => row.rank ?? '-' },
+    { id: 'code', header: 'common.code', field: 'code', sortableField: 'code' },
+    { id: 'name', header: 'common.name', field: 'name', sortableField: 'name' },
+    { id: 'rank', header: 'common.rank', field: 'rank', sortableField: 'rank', valueGetter: (row) => row.rank ?? '-' },
   ];
 
   readonly actions: SharedTableAction<JobGradeDto>[] = [
-    {
-      id: 'edit',
-      icon: 'pi pi-pencil',
-      buttonClass: 'p-button-rounded p-button-text p-button-sm',
-      onClick: (row) => {
-        if (!row.id) return;
-        this.router.navigate(['/job-grades', row.id, 'edit']);
-      },
-    },
-    {
-      id: 'delete',
-      icon: 'pi pi-trash',
-      buttonClass: 'p-button-rounded p-button-danger p-button-text p-button-sm',
-      onClick: (row, event) => this.confirmDelete(event, row),
-    },
+    tableEditAction((row) => {
+      if (!row.id) return;
+      this.router.navigate(['/job-grades', row.id, 'edit']);
+    }, { visible: this.permission.writeVisible('employees') }),
+    tableDeleteAction((row) => this.confirmDelete(row), { visible: this.permission.writeVisible('employees') }),
   ];
 
   ngOnInit(): void {
@@ -87,62 +78,38 @@ export class JobGradeListComponent implements OnInit {
       next: (res) => {
         if (res.success && res.data) {
           this.grades.set(res.data);
+        } else if (res.message) {
+          this.notify.warnText(res.message);
         } else {
-          this.messageService.add({
-            severity: 'warn',
-            summary: 'تحذير',
-            detail: res.message ?? 'فشل في تحميل الدرجات الوظيفية',
-          });
+          this.notify.warn('common.load_error');
         }
         this.loading.set(false);
       },
-      error: () => {
+      error: (error) => {
         this.loading.set(false);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'خطأ',
-          detail: 'حدث خطأ أثناء تحميل البيانات',
-        });
+        this.notify.error(error, 'common.load_error');
       },
     });
   }
 
-  confirmDelete(event: Event, grade: JobGradeDto): void {
+  confirmDelete(grade: JobGradeDto): void {
     if (!grade.id) return;
-    this.confirmationService.confirm({
-      target: event.target as EventTarget,
-      message: `هل أنت متأكد من حذف الدرجة "${grade.name ?? grade.code}"؟`,
-      icon: 'pi pi-exclamation-triangle',
-      acceptButtonStyleClass: 'p-button-danger',
-      accept: () => this.delete(grade.id!),
-    });
+    this.confirm.confirmDelete(grade.name ?? grade.code, () => this.delete(grade.id!));
   }
 
   delete(id: string): void {
     this.jobGradesService.jobGradesDelete(id).subscribe({
       next: (res) => {
         if (res.success) {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'تم',
-            detail: 'تم حذف الدرجة الوظيفية',
-          });
+          this.notify.success('common.delete_success');
           this.load();
+        } else if (res.message) {
+          this.notify.errorText(res.message);
         } else {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'خطأ',
-            detail: res.message ?? 'فشل الحذف',
-          });
+          this.notify.error(null, 'common.delete_error');
         }
       },
-      error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'خطأ',
-          detail: 'حدث خطأ أثناء الحذف',
-        });
-      },
+      error: (error) => this.notify.error(error, 'common.delete_error'),
     });
   }
 }

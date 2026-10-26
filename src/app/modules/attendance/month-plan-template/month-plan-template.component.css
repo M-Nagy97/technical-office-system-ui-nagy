@@ -7,7 +7,7 @@
 }
 
 .bg-blue-50 {
-    background-color: #f0f7ff !important;
+    background-color: color-mix(in srgb, var(--primary-color) 12%, var(--surface-50)) !important;
 }
 
 .bg-yellow-50 {

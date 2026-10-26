@@ -17,6 +17,7 @@ import {
   SharedTableAction,
   SharedTableCellTemplateDirective,
   StatusBadgeComponent,
+  tableViewAction,
 } from '../../../../shared';
 import {
   LeaveRequestService,
@@ -31,6 +32,8 @@ import {
 } from '../../../../core/models/leave-request.model';
 import { LeaveTypeDto } from '../../../../core/services/leave-type.service';
 import { Employee } from '../../../../core/models/employee.model';
+import { PermissionService } from '../../../../core/auth/permission.service';
+import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
 import {
   RequestActionDialogComponent,
   RequestActionEvent,
@@ -56,6 +59,7 @@ import {
     StatusBadgeComponent,
     RequestActionDialogComponent,
     TranslateModule,
+    HasPermissionDirective,
   ],
   templateUrl: './leave-requests-list.component.html',
   styleUrl: './leave-requests-list.component.scss',
@@ -68,6 +72,7 @@ export class LeaveRequestsListComponent implements OnInit {
   private readonly messageService = inject(MessageService);
   private readonly translate = inject(TranslateService);
   private readonly languageService = inject(LanguageService);
+  private readonly permission = inject(PermissionService);
 
   readonly loading = signal(false);
   readonly requests = signal<LeaveRequestDto[]>([]);
@@ -157,19 +162,17 @@ export class LeaveRequestsListComponent implements OnInit {
   ];
 
   readonly actions: SharedTableAction<LeaveRequestDto>[] = [
-    {
-      id: 'view',
-      icon: 'pi pi-eye',
-      buttonClass: 'p-button-rounded p-button-text p-button-sm p-button-info',
-      onClick: (row) => {
-        this.router.navigate(['/leave/requests', row.id]);
-      },
-    },
+    tableViewAction((row) => {
+      this.router.navigate(['/leave/requests', row.id]);
+    }),
     {
       id: 'approve',
       icon: 'pi pi-check',
       buttonClass: 'p-button-rounded p-button-text p-button-sm p-button-success',
-      visible: (row) => row.status === LeaveRequestStatus.Pending,
+      visible: this.permission.writeVisible(
+        'leave',
+        (row) => row.status === LeaveRequestStatus.Pending,
+      ),
       onClick: (row) => {
         this.openActionDialog('approve', row);
       },
@@ -178,7 +181,10 @@ export class LeaveRequestsListComponent implements OnInit {
       id: 'reject',
       icon: 'pi pi-times',
       buttonClass: 'p-button-rounded p-button-text p-button-sm p-button-danger',
-      visible: (row) => row.status === LeaveRequestStatus.Pending,
+      visible: this.permission.writeVisible(
+        'leave',
+        (row) => row.status === LeaveRequestStatus.Pending,
+      ),
       onClick: (row) => {
         this.openActionDialog('reject', row);
       },
@@ -187,8 +193,11 @@ export class LeaveRequestsListComponent implements OnInit {
       id: 'cancel',
       icon: 'pi pi-ban',
       buttonClass: 'p-button-rounded p-button-text p-button-sm p-button-secondary',
-      visible: (row) =>
-        row.status === LeaveRequestStatus.Pending || row.status === LeaveRequestStatus.Approved,
+      visible: this.permission.writeVisible(
+        'leave',
+        (row) =>
+          row.status === LeaveRequestStatus.Pending || row.status === LeaveRequestStatus.Approved,
+      ),
       onClick: (row) => {
         this.openActionDialog('cancel', row);
       },

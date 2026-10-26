@@ -1,0 +1,40 @@
+<div class="users-page">
+  <p-card>
+    <app-page-header titleKey="users.list.title" subtitleKey="users.list.subtitle">
+      <button
+        pButton
+        type="button"
+        icon="pi pi-refresh"
+        [class]="BUTTON_PRESET_CLASS.secondary"
+        [label]="'common.refresh' | translate"
+        [loading]="loading()"
+        (click)="loadUsers()"
+      ></button>
+      <button
+        *appHasPermission="'user.write'"
+        pButton
+        type="button"
+        icon="pi pi-user-plus"
+        [label]="'nav.users_create' | translate"
+        routerLink="/admin/users/create"
+      ></button>
+    </app-page-header>
+
+    <app-shared-table
+      [value]="users()"
+      [loading]="loading()"
+      [columns]="columns"
+      [actions]="actions"
+      actionsColumnHeader="common.actions"
+      [tableStyle]="{ 'min-width': '48rem' }"
+      emptyMessage="users.list.empty"
+    >
+      <ng-template sharedTableCell="username" let-row>
+        <app-entity-cell [name]="row.userName" />
+      </ng-template>
+      <ng-template sharedTableCell="status" let-row>
+        <app-status-badge [status]="row.isActive" type="user" />
+      </ng-template>
+    </app-shared-table>
+  </p-card>
+</div>

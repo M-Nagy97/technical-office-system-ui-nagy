@@ -5,15 +5,13 @@ import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { TabViewModule } from 'primeng/tabview';
-import { ToastModule } from 'primeng/toast';
-import { ConfirmPopupModule } from 'primeng/confirmpopup';
-import { MessageService, ConfirmationService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
+import { ConfirmService, CrudDialogComponent } from '../../../shared';
 import {
   AllowanceCalcMethod,
   AllowanceTypeDto,
@@ -26,6 +24,8 @@ import {
   UpdateAllowanceTypeCommand,
   UpdateDeductionTypeCommand,
 } from '../../../core/api/generated';
+import { PermissionService } from '../../../core/auth/permission.service';
+import { HasPermissionDirective } from '../../../core/directives/has-permission.directive';
 import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
 import { SharedTableAction, SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
 
@@ -39,17 +39,15 @@ import { SharedTableAction, SharedTableColumn } from '../../../shared/components
     TranslatePipe,
     CardModule,
     ButtonModule,
-    DialogModule,
     DropdownModule,
     InputTextModule,
     InputNumberModule,
     InputSwitchModule,
     TabViewModule,
-    ToastModule,
-    ConfirmPopupModule,
+    HasPermissionDirective,
     SharedTableComponent,
+    CrudDialogComponent,
   ],
-  providers: [MessageService, ConfirmationService],
   templateUrl: './payroll-lookups.component.html',
   styleUrl: './payroll-lookups.component.scss',
 })
@@ -57,8 +55,9 @@ export class PayrollLookupsComponent implements OnInit {
   private readonly deductionApi = inject(PayrollDeductionTypesService);
   private readonly allowanceApi = inject(PayrollAllowanceTypesService);
   private readonly messages = inject(MessageService);
-  private readonly confirm = inject(ConfirmationService);
+  private readonly confirm = inject(ConfirmService);
   private readonly translate = inject(TranslateService);
+  private readonly permission = inject(PermissionService);
 
   readonly loadingDed = signal(false);
   readonly loadingAll = signal(false);
@@ -119,12 +118,14 @@ export class PayrollLookupsComponent implements OnInit {
       id: 'edit',
       icon: 'pi pi-pencil',
       buttonClass: 'p-button-rounded p-button-text p-button-sm',
+      visible: this.permission.writeVisible('payroll'),
       onClick: (row) => this.openDedEdit(row),
     },
     {
       id: 'del',
       icon: 'pi pi-trash',
       buttonClass: 'p-button-rounded p-button-danger p-button-text p-button-sm',
+      visible: this.permission.writeVisible('payroll'),
       onClick: (row, e) => this.confirmDedDelete(e, row),
     },
   ];
@@ -134,12 +135,14 @@ export class PayrollLookupsComponent implements OnInit {
       id: 'edit',
       icon: 'pi pi-pencil',
       buttonClass: 'p-button-rounded p-button-text p-button-sm',
+      visible: this.permission.writeVisible('payroll'),
       onClick: (row) => this.openAllEdit(row),
     },
     {
       id: 'del',
       icon: 'pi pi-trash',
       buttonClass: 'p-button-rounded p-button-danger p-button-text p-button-sm',
+      visible: this.permission.writeVisible('payroll'),
       onClick: (row, e) => this.confirmAllDelete(e, row),
     },
   ];
@@ -320,10 +323,7 @@ export class PayrollLookupsComponent implements OnInit {
   confirmDedDelete(event: Event, row: DeductionTypeDto): void {
     if (!row.id) return;
     this.confirm.confirm({
-      target: event.target as EventTarget,
-      message: this.translate.instant('payroll.lookups.confirm_delete'),
-      icon: 'pi pi-exclamation-triangle',
-      acceptButtonStyleClass: 'p-button-danger',
+      messageKey: 'payroll.lookups.confirm_delete',
       accept: () =>
         this.deductionApi.payrollDeductionTypesDelete(row.id!).subscribe({
           next: (res) => {
@@ -416,10 +416,7 @@ export class PayrollLookupsComponent implements OnInit {
   confirmAllDelete(event: Event, row: AllowanceTypeDto): void {
     if (!row.id) return;
     this.confirm.confirm({
-      target: event.target as EventTarget,
-      message: this.translate.instant('payroll.lookups.confirm_delete'),
-      icon: 'pi pi-exclamation-triangle',
-      acceptButtonStyleClass: 'p-button-danger',
+      messageKey: 'payroll.lookups.confirm_delete',
       accept: () =>
         this.allowanceApi.payrollAllowanceTypesDelete(row.id!).subscribe({
           next: (res) => {

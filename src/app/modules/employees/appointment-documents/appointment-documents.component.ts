@@ -9,7 +9,6 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
 import { RippleModule } from 'primeng/ripple';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { forkJoin, switchMap } from 'rxjs';
@@ -58,12 +57,10 @@ export interface DocumentRow {
     InputTextModule,
     TooltipModule,
     RippleModule,
-    ConfirmDialogModule,
     TranslateModule,
     SharedTableComponent,
     DocumentPreviewDialogComponent,
   ],
-  providers: [ConfirmationService],
   templateUrl: './appointment-documents.component.html',
   styleUrl: './appointment-documents.component.scss',
 })

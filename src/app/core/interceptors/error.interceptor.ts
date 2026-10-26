@@ -172,7 +172,8 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         // Skip toast notification if requested via HttpContext
         const skipNotification = req.context.get(SKIP_GLOBAL_ERROR_NOTIFICATION);
 
-        if (!skipNotification) {
+        // 401 is handled by the auth interceptor (refresh or re-login).
+        if (!skipNotification && error.status !== 401) {
           const lang = getCurrentLang();
           const isAr = lang === 'ar';
           const summary = error.status > 0

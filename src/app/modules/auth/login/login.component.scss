@@ -1,0 +1,87 @@
+:host {
+  display: block;
+  width: min(100%, 30rem);
+}
+
+.auth-card {
+  padding: 2rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 1.5rem;
+  background: var(--surface-card);
+  box-shadow: var(--shadow-lg);
+}
+
+.auth-card-header {
+  margin-bottom: 1.75rem;
+
+  h2 {
+    margin: 0.75rem 0 0.5rem;
+    font-size: 1.9rem;
+  }
+
+  p {
+    margin: 0;
+    color: var(--text-color-secondary);
+  }
+}
+
+.auth-card-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: var(--primary-50);
+  color: var(--primary-700);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.auth-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.auth-field {
+  display: grid;
+  gap: 0.45rem;
+
+  span {
+    font-weight: 600;
+  }
+
+  input {
+    width: 100%;
+  }
+}
+
+:host ::ng-deep .auth-password,
+:host ::ng-deep .auth-password-input {
+  width: 100%;
+}
+
+.auth-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--text-color-secondary);
+  font-size: 0.95rem;
+}
+
+.auth-submit {
+  margin-top: 0.35rem;
+}
+
+.auth-error {
+  color: var(--danger-color);
+}
+
+.auth-switch {
+  margin: 1.5rem 0 0;
+  color: var(--text-color-secondary);
+
+  a {
+    color: var(--primary-700);
+    font-weight: 700;
+    text-decoration: none;
+  }
+}

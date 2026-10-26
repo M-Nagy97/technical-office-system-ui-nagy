@@ -1,7 +1,7 @@
 import { Component, input, output, signal, inject, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { NgTemplateOutlet } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { DialogModule } from 'primeng/dialog';
+import { TranslatePipe } from '@ngx-translate/core';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -11,19 +11,36 @@ import { AutoCompleteModule, AutoCompleteCompleteEvent, AutoCompleteSelectEvent 
 import { CalendarModule } from 'primeng/calendar';
 import { EmployeeService } from '../../../core/services/employee.service';
 import { PenaltyService } from '../../../core/services/penalty.service';
-import { PenaltyType, PenaltyStatus, PENALTY_TYPE_LABELS, PENALTY_STATUS_LABELS } from '../../../core/models/penalty.model';
+import { PenaltyType, PenaltyStatus } from '../../../core/models/penalty.model';
+import {
+  CrudDialogComponent,
+  FormActionsComponent,
+  FormFieldComponent,
+  PageHeaderComponent,
+} from '../../../shared';
 
-const TYPE_OPTIONS = (Object.entries(PENALTY_TYPE_LABELS) as [PenaltyType, string][]).map(([value, label]) => ({ label, value }));
-const STATUS_OPTIONS = (Object.entries(PENALTY_STATUS_LABELS) as [PenaltyStatus, string][]).map(([value, label]) => ({ label, value }));
+const TYPE_OPTIONS: { labelKey: string; value: PenaltyType }[] = [
+  { labelKey: 'penalties.types.warning', value: 'warning' },
+  { labelKey: 'penalties.types.written_warning', value: 'written_warning' },
+  { labelKey: 'penalties.types.deduction', value: 'deduction' },
+  { labelKey: 'penalties.types.suspension', value: 'suspension' },
+  { labelKey: 'penalties.types.dismissal', value: 'dismissal' },
+];
+const STATUS_OPTIONS: { labelKey: string; value: PenaltyStatus }[] = [
+  { labelKey: 'penalties.statuses.pending', value: 'pending' },
+  { labelKey: 'penalties.statuses.approved', value: 'approved' },
+  { labelKey: 'penalties.statuses.appealed', value: 'appealed' },
+  { labelKey: 'penalties.statuses.cancelled', value: 'cancelled' },
+];
 
 @Component({
   selector: 'app-penalty-form',
   standalone: true,
   imports: [
-    CommonModule,
+    NgTemplateOutlet,
     ReactiveFormsModule,
     FormsModule,
-    DialogModule,
+    TranslatePipe,
     CardModule,
     ButtonModule,
     InputTextModule,
@@ -31,6 +48,10 @@ const STATUS_OPTIONS = (Object.entries(PENALTY_STATUS_LABELS) as [PenaltyStatus,
     DropdownModule,
     AutoCompleteModule,
     CalendarModule,
+    CrudDialogComponent,
+    FormFieldComponent,
+    FormActionsComponent,
+    PageHeaderComponent,
   ],
   templateUrl: './penalty-form.component.html',
   styleUrl: './penalty-form.component.scss',
@@ -128,5 +149,10 @@ export class PenaltyFormComponent {
 
   printDecision(): void {
     window.print();
+  }
+
+  isInvalid(controlName: string): boolean {
+    const control = this.form.get(controlName);
+    return !!control && control.invalid && (control.touched || control.dirty);
   }
 }

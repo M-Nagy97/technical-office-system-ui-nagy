@@ -1,53 +1,49 @@
-<p-dialog
-  [header]="isEdit ? 'تعديل جهاز' : 'إضافة جهاز'"
+<app-crud-dialog
   [visible]="visible()"
-  [modal]="true"
-  [style]="{ width: '520px' }"
-  (onHide)="onCancel()">
+  (visibleChange)="onVisibleChange($event)"
+  [header]="(isEdit ? 'devices_form.edit' : 'devices_form.add') | translate"
+  [saveLabelKey]="isEdit ? 'common.save' : 'common.add'"
+  (save)="onSave()"
+  (cancel)="onCancel()"
+>
   <form [formGroup]="form" class="device-form-grid">
-
     <div class="field model-banner">
       <i class="pi pi-info-circle"></i>
-      <span>ZKT K14 Pro — zkemkeeper (CZKEM) عبر خدمة Bridge على Windows</span>
+      <span>{{ 'devices_form.model_banner' | translate }}</span>
     </div>
 
-    <div class="field">
-      <label>اسم الجهاز <span class="required">*</span></label>
-      <input pInputText formControlName="deviceName" placeholder="مثال: بصمة المدخل" class="w-full" />
-      <small *ngIf="fieldInvalid('deviceName')" class="p-error">اسم الجهاز مطلوب</small>
-    </div>
+    <app-form-field
+      labelKey="devices_form.name"
+      [required]="true"
+      [errorKey]="fieldInvalid('deviceName') ? 'devices_form.name_required' : null"
+    >
+      <input pInputText formControlName="deviceName" [placeholder]="'devices_form.name_placeholder' | translate" class="w-full" />
+    </app-form-field>
 
-    <div class="field">
-      <label>عنوان IP <span class="required">*</span></label>
+    <app-form-field
+      labelKey="devices_form.ip"
+      [required]="true"
+      [errorKey]="fieldInvalid('deviceIp') ? 'devices_form.ip_required' : null"
+    >
       <input pInputText formControlName="deviceIp" placeholder="192.168.1.201" class="w-full" dir="ltr" />
-      <small *ngIf="fieldInvalid('deviceIp')" class="p-error">أدخل عنوان IPv4 صالح</small>
-    </div>
+    </app-form-field>
 
-    <div class="field">
-      <label>المنفذ <span class="required">*</span></label>
+    <app-form-field labelKey="devices_form.port" [required]="true">
       <p-inputNumber formControlName="port" [min]="1" [max]="65535" [useGrouping]="false" class="w-full" />
-    </div>
+    </app-form-field>
 
-    <div class="field">
-      <label>COMM Key</label>
+    <app-form-field labelKey="devices_form.comm_key">
       <p-inputNumber formControlName="commPassword" [min]="0" [max]="999999" [useGrouping]="false" class="w-full" />
-      <small class="p-hint">Menu → Options → Comm Opt → COMM Key (0 إذا غير مفعّل)</small>
-    </div>
+      <small class="p-hint">{{ 'devices_form.comm_hint' | translate }}</small>
+    </app-form-field>
 
-    <div class="field">
-      <label>الموقع</label>
+    <app-form-field labelKey="devices_form.location">
       <input pInputText formControlName="location" class="w-full" />
-    </div>
+    </app-form-field>
 
     <div class="field toggle-field">
-      <label>نشط</label>
-      <p-toggleButton formControlName="isActive" onLabel="نعم" offLabel="لا" />
+      <label>{{ 'common.active' | translate }}</label>
+      <p-toggleButton formControlName="isActive" [onLabel]="'common.yes' | translate" [offLabel]="'common.no' | translate" />
     </div>
-
   </form>
-
-  <ng-template pTemplate="footer">
-    <p-button label="إلغاء" icon="pi pi-times" severity="secondary" (onClick)="onCancel()" />
-    <p-button [label]="isEdit ? 'حفظ' : 'إضافة'" icon="pi pi-check" (onClick)="onSave()" />
-  </ng-template>
-</p-dialog>
+</app-crud-dialog>

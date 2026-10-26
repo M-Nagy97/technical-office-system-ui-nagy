@@ -6,13 +6,15 @@
         <span class="text-sm text-500">{{ 'leave.requests.subtitle' | translate }}</span>
       </div>
 
-      <a
-        pButton
-        [label]="'leave.requests.new_request' | translate"
-        icon="pi pi-plus"
-        routerLink="/leave/requests/new"
-        class="p-button-primary"
-      ></a>
+      <ng-container *appHasPermission="'leave.write'">
+        <a
+          pButton
+          [label]="'leave.requests.new_request' | translate"
+          icon="pi pi-plus"
+          routerLink="/leave/requests/new"
+          class="p-button-primary"
+        ></a>
+      </ng-container>
     </div>
 
     <!-- Filters Bar -->

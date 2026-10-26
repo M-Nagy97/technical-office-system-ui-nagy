@@ -1,0 +1,133 @@
+<div class="management-page">
+  <p-card>
+    <app-page-header titleKey="permissions.title" subtitleKey="permissions.subtitle">
+      <button
+        pButton
+        type="button"
+        icon="pi pi-refresh"
+        [class]="BUTTON_PRESET_CLASS.secondary"
+        [label]="'common.refresh' | translate"
+        [loading]="loading()"
+        (click)="loadData()"
+      ></button>
+      <button
+        *appHasPermission="'user.write'"
+        pButton
+        type="button"
+        icon="pi pi-plus"
+        [label]="'permissions.actions.create' | translate"
+        (click)="openCreate()"
+      ></button>
+    </app-page-header>
+
+    <app-shared-table
+      [value]="permissions()"
+      [loading]="loading()"
+      [columns]="columns"
+      [actions]="actions"
+      actionsColumnHeader="common.actions"
+      [tableStyle]="{ 'min-width': '62rem' }"
+      emptyMessage="permissions.messages.empty"
+    >
+      <ng-template sharedTableCell="code" let-row>
+        <span class="code-pill">{{ row.code || '-' }}</span>
+      </ng-template>
+    </app-shared-table>
+  </p-card>
+
+  <app-crud-dialog
+    [visible]="dialogVisible()"
+    (visibleChange)="dialogVisible.set($event)"
+    [header]="(selectedPermission()?.id != null ? 'permissions.dialog.edit_title' : 'permissions.dialog.create_title') | translate"
+    [width]="'40rem'"
+    [saving]="saving()"
+    (save)="savePermission()"
+  >
+    <form class="entity-form" [formGroup]="form" (ngSubmit)="savePermission()">
+      <div class="form-grid">
+        <app-form-field
+          forId="permission-code"
+          labelKey="permissions.fields.code"
+          [required]="true"
+          [errorKey]="isInvalid('code') ? 'permissions.validation.code_required' : null"
+        >
+          <input id="permission-code" pInputText formControlName="code" autocomplete="off" />
+        </app-form-field>
+        <app-form-field
+          forId="permission-name"
+          labelKey="permissions.fields.name"
+          [required]="true"
+          [errorKey]="isInvalid('name') ? 'permissions.validation.name_required' : null"
+        >
+          <input id="permission-name" pInputText formControlName="name" autocomplete="off" />
+        </app-form-field>
+      </div>
+
+      <app-form-field
+        forId="permission-module"
+        labelKey="permissions.fields.module"
+        [required]="true"
+        [errorKey]="isInvalid('moduleId') ? 'permissions.validation.module_required' : null"
+      >
+        <p-dropdown
+          inputId="permission-module"
+          formControlName="moduleId"
+          [options]="moduleOptions()"
+          optionLabel="label"
+          optionValue="value"
+          [filter]="true"
+          filterBy="label"
+          [showClear]="true"
+          [loading]="modulesLoading()"
+          appendTo="body"
+          [placeholder]="'permissions.placeholders.module' | translate"
+          [emptyMessage]="'permissions.empty_states.no_modules' | translate"
+          [emptyFilterMessage]="'permissions.empty_states.no_matching_modules' | translate"
+        >
+          <ng-template pTemplate="empty">
+            <div class="dropdown-empty">
+              <div class="dropdown-empty-title">{{ 'permissions.empty_states.no_modules' | translate }}</div>
+              <div class="dropdown-empty-hint">{{ 'permissions.empty_states.create_module_first' | translate }}</div>
+            </div>
+          </ng-template>
+        </p-dropdown>
+        @if (modulesLoading()) {
+          <small class="field-hint">{{ 'permissions.empty_states.loading_modules' | translate }}</small>
+        } @else if (modulesLoadFailed()) {
+          <div class="field-alert">
+            <span>{{ 'permissions.empty_states.modules_load_failed' | translate }}</span>
+            <button
+              pButton
+              type="button"
+              icon="pi pi-refresh"
+              [class]="BUTTON_PRESET_CLASS.secondary"
+              [label]="'common.refresh' | translate"
+              (click)="loadModules()"
+            ></button>
+          </div>
+        } @else if (!moduleOptions().length) {
+          <div class="field-alert">
+            <span>{{ 'permissions.empty_states.create_module_first' | translate }}</span>
+            <button
+              pButton
+              type="button"
+              icon="pi pi-refresh"
+              [class]="BUTTON_PRESET_CLASS.secondary"
+              [label]="'common.refresh' | translate"
+              (click)="loadModules()"
+            ></button>
+          </div>
+        }
+      </app-form-field>
+
+      <app-form-field forId="permission-description" labelKey="permissions.fields.description">
+        <textarea
+          id="permission-description"
+          pInputTextarea
+          rows="4"
+          formControlName="description"
+        ></textarea>
+      </app-form-field>
+    </form>
+  </app-crud-dialog>
+</div>

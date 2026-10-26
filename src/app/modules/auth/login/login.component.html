@@ -1,0 +1,46 @@
+<div class="auth-card">
+  <div class="auth-card-header">
+    <span class="auth-card-badge">{{ 'auth.login_badge' | translate }}</span>
+    <h2>{{ 'auth.login_title' | translate }}</h2>
+    <p>{{ 'auth.login_subtitle' | translate }}</p>
+  </div>
+
+  <form class="auth-form" [formGroup]="form" (ngSubmit)="submit()">
+    <label class="auth-field">
+      <span>{{ 'auth.username' | translate }}</span>
+      <input pInputText type="text" formControlName="username" [placeholder]="'auth.username_placeholder' | translate" />
+      @if (isInvalid('username')) {
+        <small class="auth-error">{{ 'auth.username_required' | translate }}</small>
+      }
+    </label>
+
+    <label class="auth-field">
+      <span>{{ 'auth.password' | translate }}</span>
+      <p-password
+        formControlName="password"
+        [toggleMask]="true"
+        [feedback]="false"
+        [placeholder]="'auth.password_placeholder' | translate"
+        styleClass="auth-password"
+        inputStyleClass="auth-password-input"
+      />
+      @if (isInvalid('password')) {
+        <small class="auth-error">{{ 'auth.password_required' | translate }}</small>
+      }
+    </label>
+
+    <div class="auth-row">
+      <p-checkbox formControlName="rememberMe" [binary]="true" inputId="rememberMe" />
+      <label for="rememberMe">{{ 'auth.remember_me' | translate }}</label>
+    </div>
+
+    <button
+      pButton
+      type="submit"
+      class="auth-submit"
+      [label]="'auth.login_action' | translate"
+      [loading]="submitting()"
+      [disabled]="submitting()"
+    ></button>
+  </form>
+</div>

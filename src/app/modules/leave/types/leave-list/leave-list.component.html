@@ -1,25 +1,14 @@
 <div class="leave-list">
   <p-card>
-    <div class="filter-bar">
-      <span class="p-input-icon-left filter-search">
-        <i class="pi pi-search"></i>
-        <input
-          type="text"
-          pInputText
-          [ngModel]="searchText()"
-          (ngModelChange)="searchText.set($event)"
-          [placeholder]="'leave.types.search_placeholder' | translate"
-        />
-      </span>
-
-      <a
-        pButton
-        [label]="'leave.types.add_button' | translate"
-        icon="pi pi-plus"
-        routerLink="/leave/types/add"
-        class="p-button-primary"
-      ></a>
-    </div>
+    <app-filter-bar
+      [search]="searchText()"
+      (searchChange)="searchText.set($event)"
+      searchPlaceholderKey="leave.types.search_placeholder"
+    >
+      <ng-container *appHasPermission="'leave.write'">
+        <a pButton [label]="'leave.types.add_button' | translate" icon="pi pi-plus" routerLink="/leave/types/add"></a>
+      </ng-container>
+    </app-filter-bar>
 
     <app-shared-table
       [value]="filteredLeaveTypes()"
@@ -35,6 +24,4 @@
     ></app-shared-table>
   </p-card>
 </div>
-
-<p-confirmDialog />
 

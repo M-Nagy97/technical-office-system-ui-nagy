@@ -1,0 +1,15 @@
+export * from './auth.service';
+import { AuthService } from './auth.service';
+export * from './modules.service';
+import { ModulesService } from './modules.service';
+export * from './pages.service';
+import { PagesService } from './pages.service';
+export * from './permissions.service';
+import { PermissionsService } from './permissions.service';
+export * from './profile.service';
+import { ProfileService } from './profile.service';
+export * from './roles.service';
+import { RolesService } from './roles.service';
+export * from './users.service';
+import { UsersService } from './users.service';
+export const APIS = [AuthService, ModulesService, PagesService, PermissionsService, ProfileService, RolesService, UsersService];

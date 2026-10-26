@@ -1,32 +1,20 @@
 <div class="organization-unit-list">
   <p-card>
-    <div class="filter-bar">
-      <span class="p-input-icon-left filter-search">
-        <i class="pi pi-search"></i>
-        <input
-          type="text"
-          pInputText
-          [ngModel]="searchText()"
-          (ngModelChange)="searchText.set($event)"
-          placeholder="بحث بالرمز أو الاسم..."
-        />
-      </span>
-      <a pButton label="إضافة وحدة تنظيمية" icon="pi pi-plus" routerLink="/organization-units/add" class="p-button-primary"></a>
-    </div>
+    <app-filter-bar [search]="searchText()" (searchChange)="searchText.set($event)" searchPlaceholderKey="organization_units.search">
+      <ng-container *appHasPermission="'hr.employees.write'">
+        <a pButton [label]="'organization_units.add' | translate" icon="pi pi-plus" routerLink="/organization-units/add"></a>
+      </ng-container>
+    </app-filter-bar>
 
     <app-shared-table
       [value]="filteredUnits()"
       [loading]="loading()"
       [columns]="columns"
       [actions]="actions"
-      actionsColumnHeader="إجراءات"
+      actionsColumnHeader="common.actions"
       actionsColumnWidth="10rem"
       [tableStyle]="{ 'min-width': '40rem' }"
-      [translateHeader]="false"
-      emptyMessage="لا توجد بيانات"
-      [translateEmptyMessage]="false"
+      emptyMessage="common.no_data"
     />
   </p-card>
 </div>
-
-<p-confirmPopup />

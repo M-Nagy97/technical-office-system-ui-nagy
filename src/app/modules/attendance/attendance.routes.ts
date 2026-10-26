@@ -1,4 +1,11 @@
 import { Routes } from '@angular/router';
+import { ErpPermissions } from '../../core/auth/erp-permissions';
+import { permissionGuard } from '../../core/guards/permission.guard';
+
+const writeGuard = {
+  canActivate: [permissionGuard],
+  data: { permission: ErpPermissions.timeAttendanceWrite },
+};
 
 export const ATTENDANCE_ROUTES: Routes = [
   {
@@ -18,11 +25,13 @@ export const ATTENDANCE_ROUTES: Routes = [
   },
   {
     path: 'shifts/new',
+    ...writeGuard,
     loadComponent: () =>
       import('./shift-form/shift-form.component').then((m) => m.ShiftFormComponent),
   },
   {
     path: 'shifts/:id/edit',
+    ...writeGuard,
     loadComponent: () =>
       import('./shift-form/shift-form.component').then((m) => m.ShiftFormComponent),
   },
@@ -68,6 +77,7 @@ export const ATTENDANCE_ROUTES: Routes = [
       },
       {
         path: 'new',
+        ...writeGuard,
         loadComponent: () =>
           import('./month-plan-form/month-plan-form.component').then((m) => m.MonthPlanFormComponent),
       },
@@ -78,6 +88,7 @@ export const ATTENDANCE_ROUTES: Routes = [
       },
       {
         path: ':id/edit',
+        ...writeGuard,
         loadComponent: () =>
           import('./month-plan-form/month-plan-form.component').then((m) => m.MonthPlanFormComponent),
       },
@@ -96,10 +107,10 @@ export const ATTENDANCE_ROUTES: Routes = [
           },
           {
             path: 'bulk',
+            ...writeGuard,
             loadComponent: () =>
               import('./schedule-list/plan-schedule-bulk-form.component').then((m) => m.PlanScheduleBulkFormComponent),
           },
-          // Bulk and single schedule forms will be added here
         ]
       }
     ]

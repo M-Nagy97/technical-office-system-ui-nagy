@@ -1,51 +1,27 @@
 <div class="permission-request-detail-container">
-  <div class="mb-3 flex justify-content-between align-items-center">
-    <a
-      pButton
-      [label]="'leave.permissions.back_to_list' | translate"
-      [icon]="languageService.isRtl() ? 'pi pi-arrow-right' : 'pi pi-arrow-left'"
-      routerLink="/leave/permissions"
-      class="p-button-outlined p-button-secondary p-button-sm"
-    ></a>
-
-    <div class="actions flex gap-2" *ngIf="request()">
-      <button
-        *ngIf="request()!.status === PermissionRequestStatus.Pending"
-        pButton
-        [label]="'leave.permissions.approve' | translate"
-        icon="pi pi-check"
-        class="p-button-success p-button-sm"
-        (click)="openActionDialog('approve')"
-      ></button>
-      <button
-        *ngIf="request()!.status === PermissionRequestStatus.Pending"
-        pButton
-        [label]="'leave.permissions.reject' | translate"
-        icon="pi pi-times"
-        class="p-button-danger p-button-sm"
-        (click)="openActionDialog('reject')"
-      ></button>
-      <button
-        *ngIf="request()!.status === PermissionRequestStatus.Pending || request()!.status === PermissionRequestStatus.Approved"
-        pButton
-        [label]="'leave.permissions.cancel' | translate"
-        icon="pi pi-ban"
-        class="p-button-secondary p-button-sm"
-        (click)="openActionDialog('cancel')"
-      ></button>
-    </div>
-  </div>
+  <app-detail-header
+    backLink="/leave/permissions"
+    backLabelKey="leave.permissions.back_to_list"
+    titleKey="leave.permissions.detail_title"
+    [subtitle]="request() ? (('leave.permissions.request_id' | translate) + ': ' + request()!.id) : null"
+  >
+    @if (request(); as req) {
+      <app-status-badge detailStatus [status]="req.status" type="permission" />
+    }
+    <ng-container *appHasPermission="'leave.write'">
+      @if (request(); as req) {
+        @if (req.status === PermissionRequestStatus.Pending) {
+          <button pButton [label]="'leave.permissions.approve' | translate" icon="pi pi-check" class="p-button-success p-button-sm" (click)="openActionDialog('approve')"></button>
+          <button pButton [label]="'leave.permissions.reject' | translate" icon="pi pi-times" class="p-button-danger p-button-sm" (click)="openActionDialog('reject')"></button>
+        }
+        @if (req.status === PermissionRequestStatus.Pending || req.status === PermissionRequestStatus.Approved) {
+          <button pButton [label]="'leave.permissions.cancel' | translate" icon="pi pi-ban" class="p-button-secondary p-button-sm" (click)="openActionDialog('cancel')"></button>
+        }
+      }
+    </ng-container>
+  </app-detail-header>
 
   <p-card *ngIf="request() as req">
-    <ng-template pTemplate="header">
-      <div class="p-3 border-bottom-1 surface-border flex justify-content-between align-items-center">
-        <div>
-          <h2 class="m-0 text-xl font-bold text-900">{{ 'leave.permissions.detail_title' | translate }}</h2>
-          <span class="text-sm text-500">{{ 'leave.permissions.request_id' | translate }}: {{ req.id }}</span>
-        </div>
-        <app-status-badge [status]="req.status" type="permission" />
-      </div>
-    </ng-template>
 
     <div class="grid p-fluid">
       <!-- بيانات الموظف والتاريخ -->
@@ -56,7 +32,7 @@
 
       <div class="col-12 md:col-6">
         <label class="text-500 text-sm block">{{ 'leave.permissions.date' | translate }}</label>
-        <span class="text-900 font-semibold text-lg">{{ req.date }}</span>
+        <span class="text-900 font-semibold text-lg">{{ req.date | appDate }}</span>
       </div>
 
       <div class="col-12 md:col-6">

@@ -38,7 +38,7 @@
       <th
         *ngIf="actionsEnabled()"
         [style.width]="actionsColumnWidth"
-        [style.text-align]="resolveAlign(actionsAlign)"
+        [style.text-align]="resolveActionsAlign()"
       >
         <ng-container *ngIf="translateHeader; else rawActionsHeader">
           {{ actionsColumnHeader ? (actionsColumnHeader | translate) : '' }}
@@ -53,6 +53,7 @@
       <td
         *ngFor="let col of columns"
         [ngClass]="getCellClass(col, row)"
+        [style.width]="col.width || undefined"
         [style.text-align]="resolveAlign(col.align)"
       >
         <ng-container *ngIf="getCellTemplate(col.id) as tpl; else defaultCell">
@@ -65,15 +66,16 @@
         </ng-container>
 
         <ng-template #defaultCell>
-          {{ getColumnValue(col, row) }}
+          <span class="shared-table-cell-text">{{ getColumnValue(col, row) }}</span>
         </ng-template>
       </td>
 
-      <td *ngIf="actionsEnabled()" [style.text-align]="resolveAlign(actionsAlign)">
-        <div
-          class="shared-table-actions flex gap-2"
-          [style.justify-content]="resolveActionsJustify()"
-        >
+      <td
+        *ngIf="actionsEnabled()"
+        [style.width]="actionsColumnWidth"
+        [style.text-align]="resolveActionsAlign()"
+      >
+        <div class="shared-table-actions gap-2">
           <ng-container *ngFor="let action of actions">
             <ng-container *ngIf="isActionVisible(action, row)">
               <button
@@ -84,6 +86,8 @@
                 [label]="action.label ? (action.label | translate) : undefined"
                 [disabled]="isActionDisabled(action, row)"
                 [loading]="isActionLoading(action, row)"
+                [pTooltip]="getActionTooltip(action, row) ? (getActionTooltip(action, row)! | translate) : undefined"
+                [tooltipDisabled]="!getActionTooltip(action, row)"
                 (click)="action.onClick(row, $event)"
               ></button>
             </ng-container>

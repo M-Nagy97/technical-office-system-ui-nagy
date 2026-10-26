@@ -1,6 +1,4 @@
 <div class="policy-rules-container">
-  <p-confirmDialog></p-confirmDialog>
-
   <p-card>
     <div class="header-toolbar flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
       <div class="page-title">
@@ -8,13 +6,15 @@
         <span class="text-sm text-500">{{ 'leave.rules.subtitle' | translate }}</span>
       </div>
 
-      <button
-        pButton
-        [label]="'leave.rules.add_rule_btn' | translate"
-        icon="pi pi-plus"
-        class="p-button-primary"
-        (click)="openAddDialog()"
-      ></button>
+      <ng-container *appHasPermission="'leave.write'">
+        <button
+          pButton
+          [label]="'leave.rules.add_rule_btn' | translate"
+          icon="pi pi-plus"
+          class="p-button-primary"
+          (click)="openAddDialog()"
+        ></button>
+      </ng-container>
     </div>
 
     <p-tabView [(activeIndex)]="activeTabIndex" (onChange)="onTabChange($event.index)">
@@ -91,22 +91,24 @@
                 </div>
               </td>
               <td class="text-center">
-                <button
-                  pButton
-                  type="button"
-                  icon="pi pi-pencil"
-                  class="p-button-rounded p-button-text p-button-sm"
-                  [pTooltip]="'leave.rules.edit_tooltip' | translate"
-                  (click)="openEditDialog(rule)"
-                ></button>
-                <button
-                  pButton
-                  type="button"
-                  icon="pi pi-trash"
-                  class="p-button-rounded p-button-text p-button-sm p-button-danger"
-                  [pTooltip]="'leave.rules.delete_tooltip' | translate"
-                  (click)="confirmDelete(rule)"
-                ></button>
+                <ng-container *appHasPermission="'leave.write'">
+                  <button
+                    pButton
+                    type="button"
+                    icon="pi pi-pencil"
+                    class="p-button-rounded p-button-text p-button-sm"
+                    [pTooltip]="'leave.rules.edit_tooltip' | translate"
+                    (click)="openEditDialog(rule)"
+                  ></button>
+                  <button
+                    pButton
+                    type="button"
+                    icon="pi pi-trash"
+                    class="p-button-rounded p-button-text p-button-sm p-button-danger"
+                    [pTooltip]="'leave.rules.delete_tooltip' | translate"
+                    (click)="confirmDelete(rule)"
+                  ></button>
+                </ng-container>
               </td>
             </tr>
           </ng-template>
@@ -183,22 +185,24 @@
                 </div>
               </td>
               <td class="text-center">
-                <button
-                  pButton
-                  type="button"
-                  icon="pi pi-pencil"
-                  class="p-button-rounded p-button-text p-button-sm"
-                  [pTooltip]="'leave.rules.edit_tooltip' | translate"
-                  (click)="openEditDialog(rule)"
-                ></button>
-                <button
-                  pButton
-                  type="button"
-                  icon="pi pi-trash"
-                  class="p-button-rounded p-button-text p-button-sm p-button-danger"
-                  [pTooltip]="'leave.rules.delete_tooltip' | translate"
-                  (click)="confirmDelete(rule)"
-                ></button>
+                <ng-container *appHasPermission="'leave.write'">
+                  <button
+                    pButton
+                    type="button"
+                    icon="pi pi-pencil"
+                    class="p-button-rounded p-button-text p-button-sm"
+                    [pTooltip]="'leave.rules.edit_tooltip' | translate"
+                    (click)="openEditDialog(rule)"
+                  ></button>
+                  <button
+                    pButton
+                    type="button"
+                    icon="pi pi-trash"
+                    class="p-button-rounded p-button-text p-button-sm p-button-danger"
+                    [pTooltip]="'leave.rules.delete_tooltip' | translate"
+                    (click)="confirmDelete(rule)"
+                  ></button>
+                </ng-container>
               </td>
             </tr>
           </ng-template>

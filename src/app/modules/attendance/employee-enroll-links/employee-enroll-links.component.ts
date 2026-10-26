@@ -1,14 +1,18 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
 import { CardModule } from 'primeng/card';
-import { TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
-import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
-import { MessageService } from 'primeng/api';
+import {
+  NotifyService,
+  PageHeaderComponent,
+  SharedTableCellTemplateDirective,
+  SharedTableColumn,
+  SharedTableComponent,
+} from '../../../shared';
 import { EmployeeEnrollService } from './services/employee-enroll.service';
 import { EmployeeEnrollLink } from './models/employee-enroll-link.model';
 
@@ -16,23 +20,30 @@ import { EmployeeEnrollLink } from './models/employee-enroll-link.model';
   selector: 'app-employee-enroll-links',
   standalone: true,
   imports: [
-    NgIf,
     FormsModule,
+    TranslatePipe,
     CardModule,
-    TableModule,
     InputTextModule,
     ButtonModule,
-    ToastModule,
     TagModule,
     TooltipModule,
+    PageHeaderComponent,
+    SharedTableComponent,
+    SharedTableCellTemplateDirective,
   ],
-  providers: [MessageService],
   templateUrl: './employee-enroll-links.component.html',
   styleUrl: './employee-enroll-links.component.scss',
 })
 export class EmployeeEnrollLinksComponent implements OnInit {
   private readonly enrollService = inject(EmployeeEnrollService);
-  private readonly messageService = inject(MessageService);
+  private readonly notify = inject(NotifyService);
+
+  readonly columns: SharedTableColumn<EmployeeEnrollLink>[] = [
+    { id: 'employeeName', header: 'enroll_links.employee', field: 'employeeName' },
+    { id: 'enrollNumber', header: 'enroll_links.current' },
+    { id: 'draft', header: 'enroll_links.device' },
+    { id: 'save', header: '', width: '4rem' },
+  ];
 
   readonly rows = signal<EmployeeEnrollLink[]>([]);
   readonly loading = signal(false);
@@ -57,11 +68,7 @@ export class EmployeeEnrollLinksComponent implements OnInit {
       },
       error: (err) => {
         this.loading.set(false);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'خطأ',
-          detail: err?.error?.message ?? 'تعذر تحميل قائمة الموظفين',
-        });
+        this.notify.error(err, 'enroll_links.load_error');
       },
     });
   }
@@ -83,11 +90,7 @@ export class EmployeeEnrollLinksComponent implements OnInit {
   save(row: EmployeeEnrollLink): void {
     const enrollNumber = this.draftFor(row.employeeId).trim();
     if (!enrollNumber) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'تنبيه',
-        detail: 'أدخل رقم التسجيل على الجهاز (رقم الموظف)',
-      });
+      this.notify.warn('enroll_links.enroll_required');
       return;
     }
 
@@ -100,19 +103,11 @@ export class EmployeeEnrollLinksComponent implements OnInit {
             r.employeeId === row.employeeId ? { ...r, enrollNumber } : r
           )
         );
-        this.messageService.add({
-          severity: 'success',
-          summary: 'تم',
-          detail: `تم ربط ${row.employeeName} برقم ${enrollNumber}`,
-        });
+        this.notify.success('enroll_links.save_success', { name: row.employeeName, number: enrollNumber });
       },
       error: (err) => {
         this.savingId.set(null);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'خطأ',
-          detail: err?.error?.message ?? 'تعذر حفظ رقم التسجيل',
-        });
+        this.notify.error(err, 'enroll_links.save_error');
       },
     });
   }

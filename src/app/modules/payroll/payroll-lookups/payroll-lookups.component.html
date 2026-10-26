@@ -9,7 +9,9 @@
     <p-tabView>
       <p-tabPanel [header]="'payroll.lookups.tab_deductions' | translate">
         <div class="toolbar">
-          <button pButton type="button" icon="pi pi-plus" [label]="'common.add' | translate" (click)="openDedCreate()"></button>
+          <ng-container *appHasPermission="'payroll.write'">
+            <button pButton type="button" icon="pi pi-plus" [label]="'common.add' | translate" (click)="openDedCreate()"></button>
+          </ng-container>
         </div>
         <app-shared-table
           [value]="deductions()"
@@ -24,7 +26,9 @@
       </p-tabPanel>
       <p-tabPanel [header]="'payroll.lookups.tab_allowances' | translate">
         <div class="toolbar">
-          <button pButton type="button" icon="pi pi-plus" [label]="'common.add' | translate" (click)="openAllCreate()"></button>
+          <ng-container *appHasPermission="'payroll.write'">
+            <button pButton type="button" icon="pi pi-plus" [label]="'common.add' | translate" (click)="openAllCreate()"></button>
+          </ng-container>
         </div>
         <app-shared-table
           [value]="allowances()"
@@ -41,13 +45,13 @@
   </p-card>
 </div>
 
-<p-dialog
+<app-crud-dialog
   [header]="(dedEditingId() ? 'payroll.lookups.edit_deduction' : 'payroll.lookups.create_deduction') | translate"
   [visible]="dedDialog()"
   (visibleChange)="dedDialog.set($event)"
-  [modal]="true"
-  [style]="{ width: '28rem' }"
-  [draggable]="false"
+  width="28rem"
+  [saving]="saving()"
+  (save)="saveDed()"
 >
   <div class="form-grid one-col">
     <label for="dd-name">{{ 'payroll.lookups.col_name' | translate }}</label>
@@ -66,19 +70,15 @@
     <label for="dd-a">{{ 'payroll.lookups.col_active' | translate }}</label>
     <p-inputSwitch inputId="dd-a" [(ngModel)]="dedFormActive" />
   </div>
-  <ng-template pTemplate="footer">
-    <button pButton type="button" class="p-button-text" [label]="'common.cancel' | translate" (click)="dedDialog.set(false)"></button>
-    <button pButton type="button" [label]="'common.save' | translate" [loading]="saving()" [disabled]="saving()" (click)="saveDed()"></button>
-  </ng-template>
-</p-dialog>
+</app-crud-dialog>
 
-<p-dialog
+<app-crud-dialog
   [header]="(allEditingId() ? 'payroll.lookups.edit_allowance' : 'payroll.lookups.create_allowance') | translate"
   [visible]="allDialog()"
   (visibleChange)="allDialog.set($event)"
-  [modal]="true"
-  [style]="{ width: '28rem' }"
-  [draggable]="false"
+  width="28rem"
+  [saving]="saving()"
+  (save)="saveAll()"
 >
   <div class="form-grid one-col">
     <label for="aa-name">{{ 'payroll.lookups.col_name' | translate }}</label>
@@ -97,11 +97,4 @@
     <label for="aa-a">{{ 'payroll.lookups.col_active' | translate }}</label>
     <p-inputSwitch inputId="aa-a" [(ngModel)]="allFormActive" />
   </div>
-  <ng-template pTemplate="footer">
-    <button pButton type="button" class="p-button-text" [label]="'common.cancel' | translate" (click)="allDialog.set(false)"></button>
-    <button pButton type="button" [label]="'common.save' | translate" [loading]="saving()" [disabled]="saving()" (click)="saveAll()"></button>
-  </ng-template>
-</p-dialog>
-
-<p-toast />
-<p-confirmPopup />
+</app-crud-dialog>

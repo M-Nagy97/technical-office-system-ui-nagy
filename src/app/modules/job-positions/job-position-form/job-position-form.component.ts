@@ -8,7 +8,9 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { DropdownModule } from 'primeng/dropdown';
 import { MessageModule } from 'primeng/message';
+import { TranslatePipe } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
+import { FormActionsComponent, FormFieldComponent } from '../../../shared';
 import { JobPositionsService, JobGradesService, JobGradeDto, UpdateJobPositionCommand, CreateJobPositionCommand } from '../../../core/api/generated';
 
 @Component({
@@ -24,6 +26,9 @@ import { JobPositionsService, JobGradesService, JobGradeDto, UpdateJobPositionCo
     DropdownModule,
     MessageModule,
     RouterLink,
+    TranslatePipe,
+    FormFieldComponent,
+    FormActionsComponent,
   ],
   templateUrl: './job-position-form.component.html',
   styleUrl: './job-position-form.component.scss',
@@ -91,6 +96,11 @@ export class JobPositionFormComponent implements OnInit {
         },
       });
     }
+  }
+
+  isInvalid(controlName: string): boolean {
+    const control = this.form.get(controlName);
+    return !!control && control.invalid && (control.touched || control.dirty);
   }
 
   submit(): void {

@@ -1,51 +1,27 @@
 <div class="leave-request-detail-container">
-  <div class="mb-3 flex justify-content-between align-items-center">
-    <a
-      pButton
-      [label]="'leave.requests.back_to_list' | translate"
-      [icon]="languageService.isRtl() ? 'pi pi-arrow-right' : 'pi pi-arrow-left'"
-      routerLink="/leave/requests"
-      class="p-button-outlined p-button-secondary p-button-sm"
-    ></a>
-
-    <div class="actions flex gap-2" *ngIf="request()">
-      <button
-        *ngIf="request()!.status === LeaveRequestStatus.Pending"
-        pButton
-        [label]="'leave.requests.approve' | translate"
-        icon="pi pi-check"
-        class="p-button-success p-button-sm"
-        (click)="openActionDialog('approve')"
-      ></button>
-      <button
-        *ngIf="request()!.status === LeaveRequestStatus.Pending"
-        pButton
-        [label]="'leave.requests.reject' | translate"
-        icon="pi pi-times"
-        class="p-button-danger p-button-sm"
-        (click)="openActionDialog('reject')"
-      ></button>
-      <button
-        *ngIf="request()!.status === LeaveRequestStatus.Pending || request()!.status === LeaveRequestStatus.Approved"
-        pButton
-        [label]="'leave.requests.cancel' | translate"
-        icon="pi pi-ban"
-        class="p-button-secondary p-button-sm"
-        (click)="openActionDialog('cancel')"
-      ></button>
-    </div>
-  </div>
+  <app-detail-header
+    backLink="/leave/requests"
+    backLabelKey="leave.requests.back_to_list"
+    titleKey="leave.requests.detail_title"
+    [subtitle]="request() ? (('leave.requests.request_id' | translate) + ': ' + request()!.id) : null"
+  >
+    @if (request(); as req) {
+      <app-status-badge detailStatus [status]="req.status" type="leave" />
+    }
+    <ng-container *appHasPermission="'leave.write'">
+      @if (request(); as req) {
+        @if (req.status === LeaveRequestStatus.Pending) {
+          <button pButton [label]="'leave.requests.approve' | translate" icon="pi pi-check" class="p-button-success p-button-sm" (click)="openActionDialog('approve')"></button>
+          <button pButton [label]="'leave.requests.reject' | translate" icon="pi pi-times" class="p-button-danger p-button-sm" (click)="openActionDialog('reject')"></button>
+        }
+        @if (req.status === LeaveRequestStatus.Pending || req.status === LeaveRequestStatus.Approved) {
+          <button pButton [label]="'leave.requests.cancel' | translate" icon="pi pi-ban" class="p-button-secondary p-button-sm" (click)="openActionDialog('cancel')"></button>
+        }
+      }
+    </ng-container>
+  </app-detail-header>
 
   <p-card *ngIf="request() as req">
-    <ng-template pTemplate="header">
-      <div class="p-3 border-bottom-1 surface-border flex justify-content-between align-items-center">
-        <div>
-          <h2 class="m-0 text-xl font-bold text-900">{{ 'leave.requests.detail_title' | translate }}</h2>
-          <span class="text-sm text-500">{{ 'leave.requests.request_id' | translate }}: {{ req.id }}</span>
-        </div>
-        <app-status-badge [status]="req.status" type="leave" />
-      </div>
-    </ng-template>
 
     <div class="grid p-fluid">
       <!-- بيانات الطلب الأساسية -->
@@ -63,12 +39,12 @@
 
       <div class="col-12 md:col-4">
         <label class="text-500 text-sm block">{{ 'leave.requests.col_from' | translate }}</label>
-        <span class="text-900 font-medium">{{ req.startDate }}</span>
+        <span class="text-900 font-medium">{{ req.startDate | appDate }}</span>
       </div>
 
       <div class="col-12 md:col-4">
         <label class="text-500 text-sm block">{{ 'leave.requests.col_to' | translate }}</label>
-        <span class="text-900 font-medium">{{ req.endDate }}</span>
+        <span class="text-900 font-medium">{{ req.endDate | appDate }}</span>
       </div>
 
       <div class="col-12 md:col-4">

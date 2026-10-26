@@ -8,7 +8,6 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
 import { InputTextModule } from 'primeng/inputtext';
 import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
@@ -39,13 +38,11 @@ interface DaySchedule extends DayScheduleDto {
     ButtonModule,
     CardModule,
     TooltipModule,
-    ToastModule,
     TagModule,
     InputTextModule,
     SharedTableComponent,
     SharedTableCellTemplateDirective,
   ],
-  providers: [MessageService],
   templateUrl: './month-plan-template.component.html',
   styleUrl: './month-plan-template.component.css'
 })

@@ -35,12 +35,13 @@
   </p-card>
 </div>
 
-<p-dialog
+<app-crud-dialog
   [header]="'payroll.payslips.create_title' | translate"
   [visible]="createOpen()"
   (visibleChange)="createOpen.set($event)"
-  [modal]="true"
-  [style]="{ width: '28rem' }"
+  width="28rem"
+  [saving]="saving()"
+  (save)="saveCreate()"
 >
   <div class="form-grid one-col">
     <label>{{ 'payroll.payslips.field_run' | translate }}</label>
@@ -57,28 +58,18 @@
     <label>{{ 'payroll.payslips.col_status' | translate }}</label>
     <p-dropdown [options]="statusOptions" optionLabel="label" optionValue="value" [(ngModel)]="formStatus" styleClass="w-full" />
   </div>
-  <ng-template pTemplate="footer">
-    <button pButton type="button" class="p-button-text" [label]="'common.cancel' | translate" (click)="createOpen.set(false)"></button>
-    <button pButton type="button" [label]="'common.save' | translate" [loading]="saving()" [disabled]="saving()" (click)="saveCreate()"></button>
-  </ng-template>
-</p-dialog>
+</app-crud-dialog>
 
-<p-dialog
+<app-crud-dialog
   [header]="'payroll.payslips.status_title' | translate"
   [visible]="statusOpen()"
   (visibleChange)="statusOpen.set($event)"
-  [modal]="true"
-  [style]="{ width: '24rem' }"
+  width="24rem"
+  [saving]="saving()"
+  (save)="saveStatus()"
 >
   <div class="form-grid one-col">
     <label>{{ 'payroll.payslips.col_status' | translate }}</label>
     <p-dropdown [options]="statusOptions" optionLabel="label" optionValue="value" [(ngModel)]="statusValue" styleClass="w-full" />
   </div>
-  <ng-template pTemplate="footer">
-    <button pButton type="button" class="p-button-text" [label]="'common.cancel' | translate" (click)="statusOpen.set(false)"></button>
-    <button pButton type="button" [label]="'common.save' | translate" [loading]="saving()" [disabled]="saving()" (click)="saveStatus()"></button>
-  </ng-template>
-</p-dialog>
-
-<p-toast />
-<p-confirmPopup />
+</app-crud-dialog>

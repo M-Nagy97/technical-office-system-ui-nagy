@@ -1,46 +1,50 @@
-<p-toast position="top-right" />
-
 <div class="enroll-links-page">
-  <div class="page-header">
-    <div class="header-title">
-      <i class="pi pi-id-card header-icon"></i>
-      <div>
-        <h2>ربط رقم البصمة بالموظف</h2>
-        <p class="hint">
-          رقم التسجيل على جهاز ZKTeco يجب أن يطابق <strong>رقم الموظف</strong> في النظام حتى تُسجَّل الحضور تلقائياً عند السحب من الجهاز.
-        </p>
-      </div>
-    </div>
-    <p-button label="تحديث القائمة" icon="pi pi-refresh" [loading]="loading()" (onClick)="load()" severity="secondary" />
-  </div>
+  <app-page-header titleKey="enroll_links.title" subtitleKey="enroll_links.subtitle">
+    <button
+      pButton
+      type="button"
+      [label]="'enroll_links.refresh' | translate"
+      icon="pi pi-refresh"
+      class="p-button-secondary"
+      [loading]="loading()"
+      (click)="load()"
+    ></button>
+  </app-page-header>
   <p-card>
-    <p-table [value]="rows()" [loading]="loading()" [paginator]="true" [rows]="15" [rowsPerPageOptions]="[15, 30, 50]" styleClass="p-datatable-sm">
-      <ng-template pTemplate="header">
-        <tr>
-          <th style="width: 35%">الموظف</th>
-          <th style="width: 25%">رقم التسجيل الحالي</th>
-          <th style="width: 30%">رقم التسجيل على الجهاز</th>
-          <th style="width: 10%"></th>
-        </tr>
+    <app-shared-table
+      [value]="rows()"
+      [loading]="loading()"
+      [columns]="columns"
+      emptyMessage="enroll_links.empty"
+    >
+      <ng-template sharedTableCell="enrollNumber" let-row>
+        @if (row.enrollNumber) {
+          <p-tag severity="success" [value]="row.enrollNumber" />
+        } @else {
+          <span class="muted">{{ 'enroll_links.unlinked' | translate }}</span>
+        }
       </ng-template>
-      <ng-template pTemplate="body" let-row>
-        <tr>
-          <td>{{ row.employeeName }}</td>
-          <td>
-            <p-tag *ngIf="row.enrollNumber" severity="success" [value]="row.enrollNumber" />
-            <span *ngIf="!row.enrollNumber" class="muted">غير مربوط</span>
-          </td>
-          <td>
-            <input pInputText class="w-full" [ngModel]="draftFor(row.employeeId)" (ngModelChange)="setDraft(row.employeeId, $event)" placeholder="مثال: 1001" />
-          </td>
-          <td>
-            <p-button icon="pi pi-check" [loading]="savingId() === row.employeeId" [disabled]="!isDirty(row)" (onClick)="save(row)" pTooltip="حفظ رقم التسجيل فقط" tooltipPosition="left" />
-          </td>
-        </tr>
+      <ng-template sharedTableCell="draft" let-row>
+        <input
+          pInputText
+          class="w-full"
+          [ngModel]="draftFor(row.employeeId)"
+          (ngModelChange)="setDraft(row.employeeId, $event)"
+          [placeholder]="'enroll_links.placeholder' | translate"
+        />
       </ng-template>
-      <ng-template pTemplate="emptymessage">
-        <tr><td colspan="4" class="text-center muted">لا يوجد موظفون</td></tr>
+      <ng-template sharedTableCell="save" let-row>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-check"
+          [loading]="savingId() === row.employeeId"
+          [disabled]="!isDirty(row)"
+          (click)="save(row)"
+          [pTooltip]="'enroll_links.save_tooltip' | translate"
+          tooltipPosition="left"
+        ></button>
       </ng-template>
-    </p-table>
+    </app-shared-table>
   </p-card>
 </div>

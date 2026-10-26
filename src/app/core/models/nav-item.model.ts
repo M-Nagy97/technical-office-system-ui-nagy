@@ -6,4 +6,6 @@ export interface NavItem {
   section?: boolean;
   children?: NavItem[];
   module: string;
+  /** Hide this nav child unless the user has the module write permission. */
+  requiresWrite?: boolean;
 }

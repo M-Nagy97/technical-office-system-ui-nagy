@@ -1,8 +1,8 @@
 import { Component, OnInit, signal, computed, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { NgClass } from '@angular/common';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { InputTextModule } from 'primeng/inputtext';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
@@ -10,27 +10,43 @@ import { CalendarModule } from 'primeng/calendar';
 import { SidebarModule } from 'primeng/sidebar';
 import { TagModule } from 'primeng/tag';
 import { PenaltyFormComponent } from '../penalty-form/penalty-form.component';
+import { HasPermissionDirective } from '../../../core/directives/has-permission.directive';
 import { PenaltyService } from '../../../core';
-import { Penalty, PenaltyType, PenaltyStatus, PENALTY_TYPE_LABELS, PENALTY_STATUS_LABELS } from '../../../core';
+import { Penalty, PenaltyType, PenaltyStatus } from '../../../core';
+import { LanguageService } from '../../../core/services/language.service';
 import {
-  SharedTableComponent,
-  SharedTableColumn,
+  AppDatePipe,
+  FilterBarComponent,
   SharedTableCellTemplateDirective,
+  SharedTableColumn,
+  SharedTableComponent,
+  StatCardComponent,
 } from '../../../shared';
 
-const TYPE_OPTIONS = (Object.entries(PENALTY_TYPE_LABELS) as [PenaltyType, string][]).map(([value, label]) => ({ label, value }));
-const STATUS_OPTIONS = (Object.entries(PENALTY_STATUS_LABELS) as [PenaltyStatus, string][]).map(([value, label]) => ({ label, value }));
-const TYPE_OPTIONS_WITH_ALL = [{ label: 'الكل', value: null as PenaltyType | null }, ...TYPE_OPTIONS];
-const STATUS_OPTIONS_WITH_ALL = [{ label: 'الكل', value: null as PenaltyStatus | null }, ...STATUS_OPTIONS];
+const TYPE_OPTIONS: { labelKey: string; value: PenaltyType | null }[] = [
+  { labelKey: 'common.all', value: null },
+  { labelKey: 'penalties.types.warning', value: 'warning' },
+  { labelKey: 'penalties.types.written_warning', value: 'written_warning' },
+  { labelKey: 'penalties.types.deduction', value: 'deduction' },
+  { labelKey: 'penalties.types.suspension', value: 'suspension' },
+  { labelKey: 'penalties.types.dismissal', value: 'dismissal' },
+];
+const STATUS_OPTIONS: { labelKey: string; value: PenaltyStatus | null }[] = [
+  { labelKey: 'common.all', value: null },
+  { labelKey: 'penalties.statuses.pending', value: 'pending' },
+  { labelKey: 'penalties.statuses.approved', value: 'approved' },
+  { labelKey: 'penalties.statuses.appealed', value: 'appealed' },
+  { labelKey: 'penalties.statuses.cancelled', value: 'cancelled' },
+];
 
 @Component({
   selector: 'app-penalty-list',
   standalone: true,
   imports: [
-    CommonModule,
+    NgClass,
     RouterLink,
     FormsModule,
-    InputTextModule,
+    TranslatePipe,
     CardModule,
     ButtonModule,
     DropdownModule,
@@ -38,16 +54,21 @@ const STATUS_OPTIONS_WITH_ALL = [{ label: 'الكل', value: null as PenaltyStat
     SidebarModule,
     TagModule,
     PenaltyFormComponent,
+    HasPermissionDirective,
     SharedTableComponent,
     SharedTableCellTemplateDirective,
+    StatCardComponent,
+    FilterBarComponent,
+    AppDatePipe,
   ],
   templateUrl: './penalty-list.component.html',
   styleUrl: './penalty-list.component.scss',
 })
 export class PenaltyListComponent implements OnInit {
   private readonly penaltyService = inject(PenaltyService);
-  private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly translate = inject(TranslateService);
+  private readonly language = inject(LanguageService);
 
   readonly employeeFilter = signal<string | null>(null);
   readonly typeFilter = signal<PenaltyType | null>(null);
@@ -59,17 +80,18 @@ export class PenaltyListComponent implements OnInit {
   readonly selectedPenalty = signal<Penalty | null>(null);
   readonly addDialogVisible = signal(false);
 
-  readonly typeOptions = TYPE_OPTIONS;
-  readonly typeOptionsWithAll = TYPE_OPTIONS_WITH_ALL;
-  readonly statusOptions = STATUS_OPTIONS;
-  readonly statusOptionsWithAll = STATUS_OPTIONS_WITH_ALL;
-  readonly employeeOptions = computed(() => [
-    { label: 'الكل', value: null as string | null },
-    ...this.penaltyService.getList().reduce((acc, p) => {
-      if (!acc.some((x) => x.value === p.employeeId)) acc.push({ label: p.employeeName, value: p.employeeId });
-      return acc;
-    }, [] as { label: string; value: string }[]),
-  ]);
+  readonly typeOptionsWithAll = TYPE_OPTIONS;
+  readonly statusOptionsWithAll = STATUS_OPTIONS;
+  readonly employeeOptions = computed(() => {
+    this.language.currentLang();
+    return [
+      { label: this.translate.instant('common.all'), value: null as string | null },
+      ...this.penaltyService.getList().reduce((acc, p) => {
+        if (!acc.some((x) => x.value === p.employeeId)) acc.push({ label: p.employeeName, value: p.employeeId });
+        return acc;
+      }, [] as { label: string; value: string }[]),
+    ];
+  });
 
   readonly filteredPenalties = computed(() =>
     this.penaltyService.search({
@@ -126,7 +148,7 @@ export class PenaltyListComponent implements OnInit {
   }
 
   getTypeLabel(type: PenaltyType): string {
-    return PenaltyService.getTypeLabel(type);
+    return this.translate.instant(`penalties.types.${type}`);
   }
 
   getSeverityClass(type: PenaltyType): string {
@@ -147,7 +169,7 @@ export class PenaltyListComponent implements OnInit {
   }
 
   getStatusLabel(status: PenaltyStatus): string {
-    return PenaltyService.getStatusLabel(status);
+    return this.translate.instant(`penalties.statuses.${status}`);
   }
 
   getStatusSeverity(status: PenaltyStatus): 'success' | 'warning' | 'danger' | 'secondary' {
@@ -165,17 +187,13 @@ export class PenaltyListComponent implements OnInit {
     }
   }
 
-  formatDate(d: Date): string {
-    return new Date(d).toLocaleDateString('ar-EG');
-  }
-
   readonly columns: SharedTableColumn<Penalty>[] = [
-    { id: 'penaltyNumber', header: 'رقم الجزاء', field: 'penaltyNumber' },
-    { id: 'employeeName', header: 'الموظف', field: 'employeeName' },
-    { id: 'type', header: 'النوع', field: 'type' },
-    { id: 'reason', header: 'السبب', field: 'reason' },
-    { id: 'incidentDate', header: 'تاريخ الواقعة', valueGetter: (row) => this.formatDate(row.incidentDate) },
-    { id: 'status', header: 'الحالة', field: 'status' },
+    { id: 'penaltyNumber', header: 'penalties.number', field: 'penaltyNumber' },
+    { id: 'employeeName', header: 'common.employee', field: 'employeeName' },
+    { id: 'type', header: 'penalties.type', field: 'type' },
+    { id: 'reason', header: 'penalties.reason', field: 'reason' },
+    { id: 'incidentDate', header: 'penalties.incident_date' },
+    { id: 'status', header: 'common.status', field: 'status' },
   ];
 
   readonly rowClassForPenalty = (row: Penalty): string => `clickable-row ${this.getSeverityClass(row.type)}`.trim();

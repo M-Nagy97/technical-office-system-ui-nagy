@@ -7,9 +7,10 @@ import { DividerModule } from 'primeng/divider';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
 import { LeaveRequestService, EmployeeService, LanguageService } from '../../../../core/services';
 import { LeaveRequestDto, LeaveRequestStatus } from '../../../../core/models/leave-request.model';
-import { StatusBadgeComponent } from '../../../../shared';
+import { AppDatePipe, DetailHeaderComponent, StatusBadgeComponent } from '../../../../shared';
 import {
   RequestActionDialogComponent,
   RequestActionEvent,
@@ -26,8 +27,11 @@ import {
     ButtonModule,
     DividerModule,
     StatusBadgeComponent,
+    DetailHeaderComponent,
+    AppDatePipe,
     RequestActionDialogComponent,
     TranslateModule,
+    HasPermissionDirective,
   ],
   templateUrl: './leave-request-detail.component.html',
   styleUrl: './leave-request-detail.component.scss',

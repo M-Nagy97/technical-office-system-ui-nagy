@@ -19,14 +19,16 @@
         (ngModelChange)="onEmployeeChange($event)"
         styleClass="employee-dd"
       />
-      <button
-        pButton
-        type="button"
-        icon="pi pi-plus"
-        [label]="'common.add' | translate"
-        [disabled]="!selectedEmployeeId()"
-        (click)="openCreate()"
-      ></button>
+      <ng-container *appHasPermission="'payroll.write'">
+        <button
+          pButton
+          type="button"
+          icon="pi pi-plus"
+          [label]="'common.add' | translate"
+          [disabled]="!selectedEmployeeId()"
+          (click)="openCreate()"
+        ></button>
+      </ng-container>
     </div>
 
     <app-shared-table
@@ -42,13 +44,13 @@
   </p-card>
 </div>
 
-<p-dialog
+<app-crud-dialog
   [header]="(editingId() ? 'payroll.salary.edit_title' : 'payroll.salary.create_title') | translate"
   [visible]="dialogVisible()"
   (visibleChange)="dialogVisible.set($event)"
-  [modal]="true"
-  [style]="{ width: '30rem' }"
-  [draggable]="false"
+  width="30rem"
+  [saving]="saving()"
+  (save)="save()"
 >
   <div class="form-grid one-col">
     <label>{{ 'payroll.salary.col_base' | translate }}</label>
@@ -64,11 +66,4 @@
     <label>{{ 'payroll.lookups.col_active' | translate }}</label>
     <p-inputSwitch [(ngModel)]="formActive" />
   </div>
-  <ng-template pTemplate="footer">
-    <button pButton type="button" class="p-button-text" [label]="'common.cancel' | translate" (click)="dialogVisible.set(false)"></button>
-    <button pButton type="button" [label]="'common.save' | translate" [loading]="saving()" [disabled]="saving()" (click)="save()"></button>
-  </ng-template>
-</p-dialog>
-
-<p-toast />
-<p-confirmPopup />
+</app-crud-dialog>

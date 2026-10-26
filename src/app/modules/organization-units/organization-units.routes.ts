@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+import { ErpPermissions } from '../../core/auth/erp-permissions';
+import { permissionGuard } from '../../core/guards/permission.guard';
 
 export const ORGANIZATION_UNITS_ROUTES: Routes = [
   {
@@ -10,6 +12,8 @@ export const ORGANIZATION_UNITS_ROUTES: Routes = [
   },
   {
     path: 'add',
+    canActivate: [permissionGuard],
+    data: { permission: ErpPermissions.hrWrite },
     loadComponent: () =>
       import('./organization-unit-form/organization-unit-form.component').then(
         (m) => m.OrganizationUnitFormComponent
@@ -17,6 +21,8 @@ export const ORGANIZATION_UNITS_ROUTES: Routes = [
   },
   {
     path: ':id/edit',
+    canActivate: [permissionGuard],
+    data: { permission: ErpPermissions.hrWrite },
     loadComponent: () =>
       import('./organization-unit-form/organization-unit-form.component').then(
         (m) => m.OrganizationUnitFormComponent

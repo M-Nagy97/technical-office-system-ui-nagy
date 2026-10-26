@@ -10,13 +10,22 @@ import { AvatarModule } from 'primeng/avatar';
 import { TooltipModule } from 'primeng/tooltip';
 import { RippleModule } from 'primeng/ripple';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { MessageService } from 'primeng/api';
+import { PermissionService } from '../../../core/auth/permission.service';
+import { HasPermissionDirective } from '../../../core/directives/has-permission.directive';
 import { EmployeeService, filterEmployees } from '../../../core/services/employee.service';
 import { Employee, EmployeeStatus, EmploymentType } from '../../../core/models/employee.model';
 import {
-  SharedTableComponent,
+  ConfirmService,
+  FilterBarComponent,
   SharedTableAction,
-  SharedTableColumn,
   SharedTableCellTemplateDirective,
+  SharedTableColumn,
+  SharedTableComponent,
+  StatCardComponent,
+  tableCustomAction,
+  tableEditAction,
+  tableViewAction,
 } from '../../../shared';
 
 @Component({
@@ -34,8 +43,11 @@ import {
     TooltipModule,
     RippleModule,
     TranslateModule,
+    HasPermissionDirective,
     SharedTableComponent,
     SharedTableCellTemplateDirective,
+    StatCardComponent,
+    FilterBarComponent,
   ],
   templateUrl: './employee-list.component.html',
   styleUrl: './employee-list.component.scss',
@@ -44,6 +56,9 @@ export class EmployeeListComponent implements OnInit {
   private readonly employeeService = inject(EmployeeService);
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
+  private readonly permission = inject(PermissionService);
+  private readonly confirm = inject(ConfirmService);
+  private readonly messageService = inject(MessageService);
 
   readonly searchText = signal('');
   readonly departmentFilter = signal<string | null>(null);
@@ -109,24 +124,21 @@ export class EmployeeListComponent implements OnInit {
   ];
 
   readonly actions: SharedTableAction<Employee>[] = [
-    {
-      id: 'view',
-      icon: 'pi pi-eye',
-      buttonClass: 'p-button-rounded',
-      onClick: (row) => {
-        if (!row.id) return;
-        this.router.navigate(['/employees', row.id]);
-      },
-    },
-    {
-      id: 'edit',
-      icon: 'pi pi-pencil',
-      buttonClass: 'p-button-rounded',
-      onClick: (row) => {
-        if (!row.id) return;
-        this.router.navigate(['/employees', row.id, 'edit']);
-      },
-    },
+    tableViewAction((row) => {
+      if (!row.id) return;
+      this.router.navigate(['/employees', row.id]);
+    }),
+    tableEditAction((row) => {
+      if (!row.id) return;
+      this.router.navigate(['/employees', row.id, 'edit']);
+    }, { visible: this.permission.writeVisible('employees') }),
+    tableCustomAction({
+      id: 'restore',
+      icon: 'pi pi-replay',
+      tooltip: 'employees.list.restore_tooltip',
+      visible: this.permission.writeVisible('employees', (row) => row.status === 'terminated'),
+      onClick: (row) => this.restore(row),
+    }),
   ];
 
   ngOnInit(): void {
@@ -168,6 +180,26 @@ export class EmployeeListComponent implements OnInit {
   onPage(event: { first: number; rows: number }): void {
     this.first.set(event.first);
     this.rows.set(event.rows ?? 10);
+  }
+
+  private restore(row: Employee): void {
+    if (!row.id || row.status !== 'terminated') return;
+    this.confirm.confirm({
+      headerKey: 'employees.list.restore_confirm_header',
+      messageKey: 'employees.list.restore_confirm_msg',
+      accept: () => {
+        this.employeeService.update(row.id, { ...row, status: 'active' }).subscribe({
+          next: () => {
+            this.messageService.add({
+              severity: 'success',
+              summary: this.translate.instant('employees.list.restore_success_summary'),
+              detail: this.translate.instant('employees.list.restore_success_detail'),
+            });
+          },
+          error: () => {},
+        });
+      },
+    });
   }
 
   statusLabelKey(status: string): string {

@@ -1,174 +1,111 @@
+<ng-template #penaltyFields>
+  <form [formGroup]="form" class="penalty-form">
+    <app-form-field
+      forId="emp"
+      labelKey="common.employee"
+      [required]="true"
+      [errorKey]="isInvalid('employeeId') ? 'common.required' : null"
+    >
+      <p-autoComplete
+        inputId="emp"
+        [suggestions]="employeeSuggestions()"
+        (completeMethod)="searchEmployee($event)"
+        (onSelect)="onEmployeeSelect($event)"
+        (onClear)="onEmployeeClear()"
+        field="fullName"
+        [ngModel]="selectedEmployee()"
+        [ngModelOptions]="{ standalone: true }"
+        [placeholder]="'penalties.employee_placeholder' | translate"
+        [dropdown]="false"
+        styleClass="w-full"
+        appendTo="body"
+      />
+    </app-form-field>
+    <app-form-field labelKey="penalties.type" [required]="true">
+      <p-dropdown
+        formControlName="type"
+        [options]="typeOptions"
+        optionLabel="labelKey"
+        optionValue="value"
+        [placeholder]="'common.select' | translate"
+        styleClass="w-full"
+        appendTo="body"
+      >
+        <ng-template let-item pTemplate="item">{{ item.labelKey | translate }}</ng-template>
+        <ng-template let-item pTemplate="selectedItem">{{ item.labelKey | translate }}</ng-template>
+      </p-dropdown>
+    </app-form-field>
+    <app-form-field
+      forId="reason"
+      labelKey="penalties.reason"
+      [required]="true"
+      [errorKey]="isInvalid('reason') ? 'common.required' : null"
+    >
+      <input id="reason" pInputText formControlName="reason" class="w-full" />
+    </app-form-field>
+    <div class="field-row">
+      <app-form-field labelKey="penalties.incident_date" [required]="true">
+        <p-calendar formControlName="incidentDate" dateFormat="dd/mm/yy" [showIcon]="true" styleClass="w-full" appendTo="body" />
+      </app-form-field>
+      <app-form-field labelKey="penalties.decision_date" [required]="true">
+        <p-calendar formControlName="decisionDate" dateFormat="dd/mm/yy" [showIcon]="true" styleClass="w-full" appendTo="body" />
+      </app-form-field>
+    </div>
+    <app-form-field
+      forId="decisionNumber"
+      labelKey="penalties.decision_number"
+      [required]="true"
+      [errorKey]="isInvalid('decisionNumber') ? 'common.required' : null"
+    >
+      <input id="decisionNumber" pInputText formControlName="decisionNumber" class="w-full" />
+    </app-form-field>
+    @if (showDeductionDays()) {
+      <app-form-field forId="deductionDays" labelKey="penalties.deduction_days">
+        <input id="deductionDays" type="number" pInputText formControlName="deductionDays" min="0" class="w-full" />
+      </app-form-field>
+    }
+    @if (showSuspensionDays()) {
+      <app-form-field forId="suspensionDays" labelKey="penalties.suspension_days">
+        <input id="suspensionDays" type="number" pInputText formControlName="suspensionDays" min="0" class="w-full" />
+      </app-form-field>
+    }
+    <div class="field-row">
+      <app-form-field labelKey="common.status">
+        <p-dropdown formControlName="status" [options]="statusOptions" optionLabel="labelKey" optionValue="value" styleClass="w-full" appendTo="body">
+          <ng-template let-item pTemplate="item">{{ item.labelKey | translate }}</ng-template>
+          <ng-template let-item pTemplate="selectedItem">{{ item.labelKey | translate }}</ng-template>
+        </p-dropdown>
+      </app-form-field>
+      <app-form-field forId="approvedBy" labelKey="penalties.approved_by">
+        <input id="approvedBy" pInputText formControlName="approvedBy" class="w-full" />
+      </app-form-field>
+    </div>
+    <app-form-field forId="notes" labelKey="common.notes">
+      <textarea id="notes" pInputTextarea formControlName="notes" rows="3" class="w-full"></textarea>
+    </app-form-field>
+  </form>
+</ng-template>
+
 @if (dialogMode()) {
-  <p-dialog
-    header="إضافة جزاء"
+  <app-crud-dialog
     [visible]="true"
-    [modal]="true"
-    [style]="{ width: '32rem' }"
-    [draggable]="false"
-    [resizable]="false"
-    (onHide)="close()"
-    styleClass="penalty-form-dialog"
+    [header]="'penalties.add' | translate"
+    [showFooter]="false"
+    (cancel)="close()"
   >
-    <form [formGroup]="form" class="penalty-form">
-      <div class="field">
-        <label for="emp-d">الموظف <span class="required">*</span></label>
-        <p-autoComplete
-          id="emp-d"
-          [suggestions]="employeeSuggestions()"
-          (completeMethod)="searchEmployee($event)"
-          (onSelect)="onEmployeeSelect($event)"
-          (onClear)="onEmployeeClear()"
-          field="fullName"
-          [ngModel]="selectedEmployee()"
-          [ngModelOptions]="{ standalone: true }"
-          placeholder="ابحث بالاسم..."
-          [dropdown]="false"
-          styleClass="w-full"
-        />
-        <small class="p-error" *ngIf="form.get('employeeId')?.invalid && form.get('employeeId')?.touched">مطلوب</small>
-      </div>
-      <div class="field">
-        <label>نوع الجزاء <span class="required">*</span></label>
-        <p-dropdown formControlName="type" [options]="typeOptions" optionLabel="label" optionValue="value" placeholder="اختر" styleClass="w-full" />
-      </div>
-      <div class="field">
-        <label for="reason-d">سبب الجزاء <span class="required">*</span></label>
-        <input id="reason-d" pInputText formControlName="reason" class="w-full" />
-        <small class="p-error" *ngIf="form.get('reason')?.invalid && form.get('reason')?.touched">مطلوب</small>
-      </div>
-      <div class="field-row">
-        <div class="field">
-          <label>تاريخ الواقعة <span class="required">*</span></label>
-          <p-calendar formControlName="incidentDate" dateFormat="dd/mm/yy" [showIcon]="true" styleClass="w-full" />
-        </div>
-        <div class="field">
-          <label>تاريخ القرار <span class="required">*</span></label>
-          <p-calendar formControlName="decisionDate" dateFormat="dd/mm/yy" [showIcon]="true" styleClass="w-full" />
-        </div>
-      </div>
-      <div class="field">
-        <label for="decNum-d">رقم القرار <span class="required">*</span></label>
-        <input id="decNum-d" pInputText formControlName="decisionNumber" class="w-full" />
-        <small class="p-error" *ngIf="form.get('decisionNumber')?.invalid && form.get('decisionNumber')?.touched">مطلوب</small>
-      </div>
-      @if (showDeductionDays()) {
-        <div class="field">
-          <label for="dedDays-d">أيام الخصم</label>
-          <input id="dedDays-d" type="number" pInputText formControlName="deductionDays" min="0" class="w-full" />
-        </div>
-      }
-      @if (showSuspensionDays()) {
-        <div class="field">
-          <label for="susDays-d">أيام الإيقاف</label>
-          <input id="susDays-d" type="number" pInputText formControlName="suspensionDays" min="0" class="w-full" />
-        </div>
-      }
-      <div class="field-row">
-        <div class="field">
-          <label>الحالة</label>
-          <p-dropdown formControlName="status" [options]="statusOptions" optionLabel="label" optionValue="value" styleClass="w-full" />
-        </div>
-        <div class="field">
-          <label for="approved-d">اعتمد بواسطة</label>
-          <input id="approved-d" pInputText formControlName="approvedBy" class="w-full" />
-        </div>
-      </div>
-      <div class="field">
-        <label for="notes-d">ملاحظات</label>
-        <textarea id="notes-d" pInputTextarea formControlName="notes" rows="3" class="w-full"></textarea>
-      </div>
-    </form>
-    <ng-template pTemplate="footer">
-      <button pButton label="إلغاء" (click)="close()" class="p-button-text"></button>
-      <button pButton label="طباعة القرار" icon="pi pi-print" (click)="printDecision()" class="p-button-outlined"></button>
-      <button pButton label="حفظ" icon="pi pi-check" (click)="submit()"></button>
-    </ng-template>
-  </p-dialog>
+    <ng-container *ngTemplateOutlet="penaltyFields" />
+    <app-form-actions [flush]="true" (save)="submit()" (cancel)="close()">
+      <button pButton type="button" [label]="'penalties.print_decision' | translate" icon="pi pi-print" class="p-button-outlined" (click)="printDecision()"></button>
+    </app-form-actions>
+  </app-crud-dialog>
 } @else {
-  <div class="penalty-form-page" dir="rtl">
+  <div class="penalty-form-page">
+    <app-page-header titleKey="penalties.add" subtitleKey="penalties.add_subtitle" />
     <p-card styleClass="penalty-form-card">
-      <ng-template pTemplate="header">
-        <div class="penalty-form-page-header">
-          <h2>إضافة جزاء</h2>
-          <p class="subtitle">تسجيل جزاء جديد لموظف</p>
-        </div>
-      </ng-template>
-      <form [formGroup]="form" class="penalty-form">
-        <div class="field">
-          <label for="emp-p">الموظف <span class="required">*</span></label>
-          <p-autoComplete
-            id="emp-p"
-            [suggestions]="employeeSuggestions()"
-            (completeMethod)="searchEmployee($event)"
-            (onSelect)="onEmployeeSelect($event)"
-            (onClear)="onEmployeeClear()"
-            field="fullName"
-            [ngModel]="selectedEmployee()"
-            [ngModelOptions]="{ standalone: true }"
-            placeholder="ابحث بالاسم..."
-            [dropdown]="false"
-            styleClass="w-full"
-          />
-          <small class="p-error" *ngIf="form.get('employeeId')?.invalid && form.get('employeeId')?.touched">مطلوب</small>
-        </div>
-        <div class="field">
-          <label>نوع الجزاء <span class="required">*</span></label>
-          <p-dropdown formControlName="type" [options]="typeOptions" optionLabel="label" optionValue="value" placeholder="اختر" styleClass="w-full" />
-        </div>
-        <div class="field">
-          <label for="reason-p">سبب الجزاء <span class="required">*</span></label>
-          <input id="reason-p" pInputText formControlName="reason" class="w-full" />
-          <small class="p-error" *ngIf="form.get('reason')?.invalid && form.get('reason')?.touched">مطلوب</small>
-        </div>
-        <div class="field-row">
-          <div class="field">
-            <label>تاريخ الواقعة <span class="required">*</span></label>
-            <p-calendar formControlName="incidentDate" dateFormat="dd/mm/yy" [showIcon]="true" styleClass="w-full" />
-          </div>
-          <div class="field">
-            <label>تاريخ القرار <span class="required">*</span></label>
-            <p-calendar formControlName="decisionDate" dateFormat="dd/mm/yy" [showIcon]="true" styleClass="w-full" />
-          </div>
-        </div>
-        <div class="field">
-          <label for="decNum-p">رقم القرار <span class="required">*</span></label>
-          <input id="decNum-p" pInputText formControlName="decisionNumber" class="w-full" />
-          <small class="p-error" *ngIf="form.get('decisionNumber')?.invalid && form.get('decisionNumber')?.touched">مطلوب</small>
-        </div>
-        @if (showDeductionDays()) {
-          <div class="field">
-            <label for="dedDays-p">أيام الخصم</label>
-            <input id="dedDays-p" type="number" pInputText formControlName="deductionDays" min="0" class="w-full" />
-          </div>
-        }
-        @if (showSuspensionDays()) {
-          <div class="field">
-            <label for="susDays-p">أيام الإيقاف</label>
-            <input id="susDays-p" type="number" pInputText formControlName="suspensionDays" min="0" class="w-full" />
-          </div>
-        }
-        <div class="field-row">
-          <div class="field">
-            <label>الحالة</label>
-            <p-dropdown formControlName="status" [options]="statusOptions" optionLabel="label" optionValue="value" styleClass="w-full" />
-          </div>
-          <div class="field">
-            <label for="approved-p">اعتمد بواسطة</label>
-            <input id="approved-p" pInputText formControlName="approvedBy" class="w-full" />
-          </div>
-        </div>
-        <div class="field">
-          <label for="notes-p">ملاحظات</label>
-          <textarea id="notes-p" pInputTextarea formControlName="notes" rows="3" class="w-full"></textarea>
-        </div>
-      </form>
-      <ng-template pTemplate="footer">
-        <div class="penalty-form-page-footer">
-          <button pButton label="إلغاء" icon="pi pi-times" (click)="close()" class="p-button-text"></button>
-          <button pButton label="طباعة القرار" icon="pi pi-print" (click)="printDecision()" class="p-button-outlined"></button>
-          <button pButton label="حفظ" icon="pi pi-check" (click)="submit()" class="p-button-primary"></button>
-        </div>
-      </ng-template>
+      <ng-container *ngTemplateOutlet="penaltyFields" />
+      <app-form-actions (save)="submit()" (cancel)="close()">
+        <button pButton type="button" [label]="'penalties.print_decision' | translate" icon="pi pi-print" class="p-button-outlined" (click)="printDecision()"></button>
+      </app-form-actions>
     </p-card>
   </div>
 }

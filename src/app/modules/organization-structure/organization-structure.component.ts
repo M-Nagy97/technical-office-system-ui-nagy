@@ -4,7 +4,6 @@ import { TreeModule } from 'primeng/tree';
 import { TabViewModule } from 'primeng/tabview';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
-import { ToastModule } from 'primeng/toast';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService, TreeNode } from 'primeng/api';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -29,13 +28,11 @@ type JobPositionWithHierarchy = JobPositionDto & {
     TabViewModule,
     CardModule,
     ButtonModule,
-    ToastModule,
     ProgressSpinnerModule,
     TranslatePipe,
   ],
   templateUrl: './organization-structure.component.html',
   styleUrl: './organization-structure.component.scss',
-  providers: [MessageService],
 })
 export class OrganizationStructureComponent implements OnInit {
   private readonly organizationUnitsService = inject(OrganizationUnitsService);

@@ -1,0 +1,55 @@
+<p-dialog
+  [visible]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '40rem', maxWidth: '94vw' }"
+  [header]="'roles.permissions.title' | translate: { role: role?.name || '-' }"
+  (visibleChange)="visibleChange.emit($event)"
+  (onHide)="close()"
+>
+  @if (loading) {
+    <div class="loading-state">
+      <p-progressSpinner strokeWidth="4"></p-progressSpinner>
+      <span>{{ 'roles.permissions.loading' | translate }}</span>
+    </div>
+  } @else {
+    <div class="permissions-list">
+      @for (permission of permissions; track permission.id || permission.code) {
+        <label class="permission-row">
+          <p-checkbox
+            [binary]="true"
+            [ngModel]="isSelected(permission)"
+            (ngModelChange)="togglePermission(permission, $event)"
+            [inputId]="'permission-' + permission.id"
+          ></p-checkbox>
+          <span class="permission-content">
+            <span class="permission-name">{{ permission.name || permission.code || '-' }}</span>
+            <span class="permission-code">{{ permission.code || '-' }}</span>
+          </span>
+        </label>
+      } @empty {
+        <div class="empty-state">{{ 'roles.permissions.empty' | translate }}</div>
+      }
+    </div>
+  }
+
+  <ng-template pTemplate="footer">
+    <button
+      pButton
+      type="button"
+      severity="secondary"
+      [label]="'common.cancel' | translate"
+      (click)="close()"
+    ></button>
+    <button
+      pButton
+      type="button"
+      icon="pi pi-save"
+      [label]="'roles.permissions.save' | translate"
+      [loading]="saving"
+      [disabled]="loading"
+      (click)="submit()"
+    ></button>
+  </ng-template>
+</p-dialog>

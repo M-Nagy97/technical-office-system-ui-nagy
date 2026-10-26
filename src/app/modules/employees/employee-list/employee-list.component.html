@@ -1,55 +1,17 @@
 <div class="employee-list">
   <div class="stats-row">
-    <p-card class="stat-card stat-card--total">
-      <div class="stat-content">
-        <i class="pi pi-users stat-icon"></i>
-        <div>
-          <span class="stat-value">{{ stats().total }}</span>
-          <span class="stat-label">{{ 'employees.list.stat_total' | translate }}</span>
-        </div>
-      </div>
-    </p-card>
-    <p-card class="stat-card stat-card--active">
-      <div class="stat-content">
-        <i class="pi pi-check-circle stat-icon"></i>
-        <div>
-          <span class="stat-value">{{ stats().active }}</span>
-          <span class="stat-label">{{ 'employees.list.stat_active' | translate }}</span>
-        </div>
-      </div>
-    </p-card>
-    <p-card class="stat-card stat-card--suspended">
-      <div class="stat-content">
-        <i class="pi pi-pause-circle stat-icon"></i>
-        <div>
-          <span class="stat-value">{{ stats().suspended }}</span>
-          <span class="stat-label">{{ 'employees.list.stat_suspended' | translate }}</span>
-        </div>
-      </div>
-    </p-card>
-    <p-card class="stat-card stat-card--new">
-      <div class="stat-content">
-        <i class="pi pi-star stat-icon"></i>
-        <div>
-          <span class="stat-value">{{ stats().newThisMonth }}</span>
-          <span class="stat-label">{{ 'employees.list.stat_new_month' | translate }}</span>
-        </div>
-      </div>
-    </p-card>
+    <app-stat-card icon="pi pi-users" [value]="stats().total" labelKey="employees.list.stat_total" tone="primary" />
+    <app-stat-card icon="pi pi-check-circle" [value]="stats().active" labelKey="employees.list.stat_active" tone="success" />
+    <app-stat-card icon="pi pi-pause-circle" [value]="stats().suspended" labelKey="employees.list.stat_suspended" tone="warning" />
+    <app-stat-card icon="pi pi-star" [value]="stats().newThisMonth" labelKey="employees.list.stat_new_month" tone="info" />
   </div>
 
   <p-card class="filter-card">
-    <div class="filter-bar">
-      <span class="p-input-icon-left filter-search">
-        <i class="pi pi-search"></i>
-        <input
-          type="text"
-          pInputText
-          [ngModel]="searchText()"
-          (ngModelChange)="searchText.set($event)"
-          [placeholder]="'employees.list.search_placeholder' | translate"
-        />
-      </span>
+    <app-filter-bar
+      [search]="searchText()"
+      (searchChange)="searchText.set($event)"
+      searchPlaceholderKey="employees.list.search_placeholder"
+    >
       <p-dropdown
         [options]="departments()"
         [ngModel]="departmentFilter()"
@@ -78,14 +40,16 @@
         [showClear]="true"
         styleClass="filter-dropdown"
       />
-      <a
-        pButton
-        [label]="'employees.list.add_employee' | translate"
-        icon="pi pi-plus"
-        routerLink="/employees/add"
-        class="p-button-primary"
-      ></a>
-    </div>
+      <ng-container *appHasPermission="'hr.employees.write'">
+        <a
+          pButton
+          [label]="'employees.list.add_employee' | translate"
+          icon="pi pi-plus"
+          routerLink="/employees/add"
+          class="p-button-primary"
+        ></a>
+      </ng-container>
+    </app-filter-bar>
   </p-card>
 
   <p-card>
@@ -95,7 +59,7 @@
       [columns]="columns"
       [actions]="actions"
       actionsColumnHeader="employees.list.actions"
-      actionsColumnWidth="10rem"
+      actionsColumnWidth="12rem"
       [rows]="rows()"
       [rowsPerPageOptions]="[10, 25, 50]"
       [currentPageReportTemplate]="pageReportTemplate"

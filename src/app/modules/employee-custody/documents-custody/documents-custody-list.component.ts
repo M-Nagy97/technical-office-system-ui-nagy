@@ -1,17 +1,25 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
-import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { CalendarModule } from 'primeng/calendar';
-import { MessageService } from 'primeng/api';
+import { HasPermissionDirective } from '../../../core/directives/has-permission.directive';
+import {
+  CrudDialogComponent,
+  FormFieldComponent,
+  NotifyService,
+  PageHeaderComponent,
+  SharedTableAction,
+  SharedTableCellTemplateDirective,
+  SharedTableColumn,
+  SharedTableComponent,
+  tableViewAction,
+} from '../../../shared';
 import { CustodyApiService } from '../../../core/services/custody-api.service';
 import { EmployeeService } from '../../../core/services/employee.service';
 import { Employee } from '../../../core/models/employee.model';
@@ -27,18 +35,21 @@ import { catchError, finalize, of } from 'rxjs';
   selector: 'app-documents-custody-list',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     RouterLink,
     TranslatePipe,
     CardModule,
     ButtonModule,
-    TableModule,
     TagModule,
-    DialogModule,
     DropdownModule,
     InputTextModule,
     CalendarModule,
+    HasPermissionDirective,
+    PageHeaderComponent,
+    SharedTableComponent,
+    SharedTableCellTemplateDirective,
+    CrudDialogComponent,
+    FormFieldComponent,
   ],
   templateUrl: './documents-custody-list.component.html',
   styleUrl: './documents-custody-list.component.scss',
@@ -46,8 +57,9 @@ import { catchError, finalize, of } from 'rxjs';
 export class DocumentsCustodyListComponent implements OnInit {
   private readonly custodyApi = inject(CustodyApiService);
   private readonly employeeService = inject(EmployeeService);
-  private readonly messageService = inject(MessageService);
+  private readonly notify = inject(NotifyService);
   private readonly translate = inject(TranslateService);
+  private readonly router = inject(Router);
 
   readonly rows = signal<CustodyDocumentSummaryDto[]>([]);
   readonly loading = signal(false);
@@ -64,6 +76,20 @@ export class DocumentsCustodyListComponent implements OnInit {
 
   readonly CustodyDocumentStatus = CustodyDocumentStatus;
 
+  readonly columns: SharedTableColumn<CustodyDocumentSummaryDto>[] = [
+    { id: 'title', header: 'custody.col.title', field: 'title' },
+    { id: 'documentType', header: 'custody.col.doc_type' },
+    { id: 'status', header: 'custody.col.status' },
+    { id: 'custodian', header: 'custody.col.custodian', valueGetter: (row) => this.employeeName(row.currentCustodianEmployeeId) },
+  ];
+
+  readonly actions: SharedTableAction<CustodyDocumentSummaryDto>[] = [
+    tableViewAction((row) => {
+      if (!row.id) return;
+      this.router.navigate(['/custody/documents', row.id]);
+    }),
+  ];
+
   ngOnInit(): void {
     this.refreshDocTypeOptions();
     this.translate.onLangChange.subscribe(() => this.refreshDocTypeOptions());
@@ -73,12 +99,7 @@ export class DocumentsCustodyListComponent implements OnInit {
         this.employees.set(list);
         this.reload();
       },
-      error: () =>
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to load employees',
-        }),
+      error: (error) => this.notify.error(error, 'common.load_error'),
     });
   }
 
@@ -107,7 +128,7 @@ export class DocumentsCustodyListComponent implements OnInit {
       .pipe(
         finalize(() => this.loading.set(false)),
         catchError((err: Error) => {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: err.message });
+          this.notify.error(err, 'common.load_error');
           return of([]);
         })
       )
@@ -125,11 +146,7 @@ export class DocumentsCustodyListComponent implements OnInit {
 
   submitCreate(): void {
     if (!this.newTitle.trim()) {
-      this.messageService.add({
-        severity: 'warning',
-        summary: 'Validation',
-        detail: this.translate.instant('custody.validation_title'),
-      });
+      this.notify.warn('custody.validation_title');
       return;
     }
     const payload: CreateDocumentPayload = {
@@ -147,13 +164,13 @@ export class DocumentsCustodyListComponent implements OnInit {
       .pipe(
         finalize(() => this.loading.set(false)),
         catchError((err: Error) => {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: err.message });
+          this.notify.error(err, 'common.load_error');
           return of(null);
         })
       )
       .subscribe((id) => {
         if (id) {
-          this.messageService.add({ severity: 'success', summary: 'OK', detail: id });
+          this.notify.success('common.create_success');
           this.createVisible = false;
           this.reload();
         }

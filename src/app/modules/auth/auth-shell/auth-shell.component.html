@@ -1,0 +1,23 @@
+<p-toast />
+
+<div class="auth-shell">
+  <header class="auth-shell-toolbar">
+    <div class="auth-shell-actions">
+      <div class="auth-shell-language">
+        <button pButton type="button" class="p-button-text p-button-sm"
+          [class.p-button-primary]="languageService.currentLang() === 'ar'" (click)="languageService.setLanguage('ar')"
+          label="عربي"></button>
+        <button pButton type="button" class="p-button-text p-button-sm"
+          [class.p-button-primary]="languageService.currentLang() === 'en'" (click)="languageService.setLanguage('en')"
+          label="EN"></button>
+      </div>
+
+      <button pButton type="button" class="p-button-text auth-shell-theme"
+        [icon]="darkTheme() ? 'pi pi-sun' : 'pi pi-moon'" (click)="toggleTheme()"></button>
+    </div>
+  </header>
+
+  <section class="auth-shell-content">
+    <router-outlet />
+  </section>
+</div>

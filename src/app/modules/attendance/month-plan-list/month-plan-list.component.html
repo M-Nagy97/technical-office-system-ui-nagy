@@ -1,35 +1,23 @@
 <div class="month-plan-list">
   <p-card>
-    <div class="list-header">
-      <a pButton pRipple label="إنشاء خطة" icon="pi pi-plus" routerLink="/attendance/plans/new" class="p-button-primary"></a>
-      <span class="p-input-icon-left">
-        <i class="pi pi-search"></i>
-        <input
-          type="text"
-          pInputText
-          [ngModel]="searchText()"
-          (ngModelChange)="searchText.set($event)"
-          placeholder="بحث بالاسم أو الوصف..."
-        />
-      </span>
-    </div>
+    <app-filter-bar
+      [search]="searchText()"
+      (searchChange)="searchText.set($event)"
+      searchPlaceholderKey="month_plans.search"
+    >
+      <ng-container *appHasPermission="'timeattendance.write'">
+        <a pButton [label]="'month_plans.add' | translate" icon="pi pi-plus" routerLink="/attendance/plans/new"></a>
+      </ng-container>
+    </app-filter-bar>
     <app-shared-table
       [value]="filteredPlans()"
       [loading]="loading()"
       [columns]="columns"
       [actions]="actions"
-      actionsColumnHeader="إجراءات"
+      actionsColumnHeader="common.actions"
       actionsColumnWidth="8rem"
-      [rows]="10"
-      [paginator]="true"
-      [rowsPerPageOptions]="[10, 25, 50]"
-      currentPageReportTemplate="عرض {first} إلى {last} من {totalRecords}"
-      [showCurrentPageReport]="true"
-      styleClass="p-datatable-sm p-datatable-striped"
       [tableStyle]="{ 'min-width': '40rem' }"
-      [translateHeader]="false"
-      emptyMessage="لا توجد خطط"
-      [translateEmptyMessage]="false"
+      emptyMessage="month_plans.empty"
     >
       <ng-template sharedTableCell="isActive" let-row>
         <i

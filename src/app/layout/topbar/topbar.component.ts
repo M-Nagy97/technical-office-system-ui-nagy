@@ -18,9 +18,7 @@ import { AvatarModule } from 'primeng/avatar';
 import { TooltipModule } from 'primeng/tooltip';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { MenuItem } from 'primeng/api';
-import { LanguageService } from '../../core';
-
-const THEME_KEY = 'technical-office-theme';
+import { AuthSessionService, LanguageService, ThemeService } from '../../core';
 
 @Component({
   selector: 'app-topbar',
@@ -43,13 +41,15 @@ export class TopbarComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
   readonly languageService = inject(LanguageService);
+  readonly themeService = inject(ThemeService);
+  private readonly authSession = inject(AuthSessionService);
 
   readonly sidebarCollapsed = input<boolean>(false);
   readonly toggleSidebar = output<void>();
 
   readonly searchQuery = signal('');
   readonly breadcrumbItems = signal<MenuItem[]>([]);
-  readonly darkTheme = signal(this.readTheme() === 'dark');
+  readonly darkTheme = this.themeService.darkTheme;
 
   readonly userMenuItems = signal<MenuItem[]>([]);
 
@@ -63,21 +63,18 @@ export class TopbarComponent implements OnInit {
     this.router.events
       .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
       .subscribe(() => this.updateBreadcrumb());
-    // Apply saved theme on init
-    const theme = this.readTheme();
-    if (typeof document !== 'undefined') {
-      document.documentElement.setAttribute('data-theme', theme);
-    }
   }
 
   private updateBreadcrumb(): void {
     const url = this.router.url;
     const segments = url.split('/').filter(Boolean);
-    const homeLabel = this.translate.instant('topbar.home');
-    const items: MenuItem[] = [{ label: homeLabel, icon: 'pi pi-home', routerLink: '/dashboard' }];
+    const items: MenuItem[] = [];
     let path = '';
     for (const segment of segments) {
       path += `/${segment}`;
+      if (path === '/dashboard') {
+        continue;
+      }
       const label = this.formatSegment(segment, path);
       items.push({ label, routerLink: path });
     }
@@ -95,28 +92,24 @@ export class TopbarComponent implements OnInit {
       const translated = this.translate.instant(key);
       return translated !== key ? translated : segment.charAt(0).toUpperCase() + segment.slice(1);
     }
+    if (pathSoFar.startsWith('/admin/') || pathSoFar === '/admin') {
+      const adminKey = `breadcrumb.admin_${segment}`;
+      const adminTranslated = this.translate.instant(adminKey);
+      if (adminTranslated !== adminKey) {
+        return adminTranslated;
+      }
+    }
     const key = `breadcrumb.${segment}`;
     const translated = this.translate.instant(key);
     return translated !== key ? translated : segment.charAt(0).toUpperCase() + segment.slice(1);
   }
 
   toggleTheme(): void {
-    this.darkTheme.update((v) => !v);
-    const theme = this.darkTheme() ? 'dark' : 'light';
-    if (typeof document !== 'undefined') {
-      document.documentElement.setAttribute('data-theme', theme);
-      localStorage.setItem(THEME_KEY, theme);
-    }
-  }
-
-  private readTheme(): 'light' | 'dark' {
-    if (typeof localStorage === 'undefined') return 'light';
-    const stored = localStorage.getItem(THEME_KEY) as 'light' | 'dark' | null;
-    return stored === 'dark' ? 'dark' : 'light';
+    this.themeService.toggle();
   }
 
   onProfile(): void {
-    // TODO: navigate to profile
+    void this.router.navigateByUrl('/profile');
   }
 
   onSettings(): void {
@@ -133,6 +126,6 @@ export class TopbarComponent implements OnInit {
   }
 
   onLogout(): void {
-    // TODO: implement logout
+    this.authSession.logout();
   }
 }

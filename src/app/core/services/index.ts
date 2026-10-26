@@ -1,3 +1,4 @@
+export * from '../auth/auth-session.service';
 export * from './employee.service';
 export * from './attendance.service';
 export * from './attendance-api.service';
@@ -5,6 +6,7 @@ export * from './penalty.service';
 export * from './custody-api.service';
 export * from './workforce-attendance-settings.service';
 export * from './language.service';
+export * from './theme.service';
 export * from './leave-type.service';
 export * from './leave-request.service';
 export * from './permission-request.service';

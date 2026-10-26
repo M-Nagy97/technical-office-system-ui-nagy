@@ -1,15 +1,20 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
-import { RippleModule } from 'primeng/ripple';
-import { SharedTableAction, SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
-import { SharedTableCellTemplateDirective } from '../../../shared/components/shared-table/shared-table-cell-template.directive';
-import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
+import {
+  FilterBarComponent,
+  SharedTableAction,
+  SharedTableCellTemplateDirective,
+  SharedTableColumn,
+  SharedTableComponent,
+  tableEditAction,
+} from '../../../shared';
 
+import { PermissionService } from '../../../core/auth/permission.service';
+import { HasPermissionDirective } from '../../../core/directives/has-permission.directive';
 import { map } from 'rxjs/operators';
 import { ShiftsService, ShiftDto } from '../../../core/api/generated';
 
@@ -18,14 +23,14 @@ import { ShiftsService, ShiftDto } from '../../../core/api/generated';
   standalone: true,
   imports: [
     RouterLink,
-    FormsModule,
+    TranslatePipe,
     CardModule,
     ButtonModule,
-    InputTextModule,
     TagModule,
-    RippleModule,
     SharedTableComponent,
     SharedTableCellTemplateDirective,
+    HasPermissionDirective,
+    FilterBarComponent,
   ],
   templateUrl: './shift-list.component.html',
   styleUrl: './shift-list.component.scss',
@@ -33,6 +38,7 @@ import { ShiftsService, ShiftDto } from '../../../core/api/generated';
 export class ShiftListComponent implements OnInit {
   private readonly shiftsApi = inject(ShiftsService);
   private readonly router = inject(Router);
+  private readonly permission = inject(PermissionService);
 
   readonly loading = signal(false);
   readonly shifts = signal<ShiftDto[]>([]);
@@ -67,59 +73,34 @@ export class ShiftListComponent implements OnInit {
   });
 
   readonly columns: SharedTableColumn<ShiftDto>[] = [
-    {
-      id: 'shiftCode',
-      header: 'الكود',
-      field: 'shiftCode',
-    },
-    {
-      id: 'shiftName',
-      header: 'الاسم',
-      field: 'shiftName',
-    },
-    {
-      id: 'shiftStart',
-      header: 'وقت البداية',
-      valueGetter: (row) => this.formatTime(row.shiftStart),
-    },
-    {
-      id: 'shiftEnd',
-      header: 'وقت النهاية',
-      valueGetter: (row) => this.formatTime(row.shiftEnd),
-    },
+    { id: 'shiftCode', header: 'common.code', field: 'shiftCode' },
+    { id: 'shiftName', header: 'common.name', field: 'shiftName' },
+    { id: 'shiftStart', header: 'shifts.start', valueGetter: (row) => this.formatTime(row.shiftStart) },
+    { id: 'shiftEnd', header: 'shifts.end', valueGetter: (row) => this.formatTime(row.shiftEnd) },
     {
       id: 'fingerIn',
-      header: 'بصمة الدخول',
+      header: 'shifts.finger_in',
       valueGetter: (row) => `${this.formatTime(row.fingerInFrom)} - ${this.formatTime(row.fingerInTo)}`,
     },
     {
       id: 'fingerOut',
-      header: 'بصمة الخروج',
+      header: 'shifts.finger_out',
       valueGetter: (row) => `${this.formatTime(row.fingerOutFrom)} - ${this.formatTime(row.fingerOutTo)}`,
     },
     {
       id: 'crossesMidnight',
-      header: 'عبر منتصف الليل',
+      header: 'shifts.crosses_midnight',
       valueGetter: (row) => row.crossesMidnight,
       cellClass: (row) => (row.crossesMidnight ? 'text-blue-500' : 'text-500'),
     },
-    {
-      id: 'isActive',
-      header: 'الحالة',
-      valueGetter: (row) => row.isActive,
-    },
+    { id: 'isActive', header: 'common.status', valueGetter: (row) => row.isActive },
   ];
 
   readonly actions: SharedTableAction<ShiftDto>[] = [
-    {
-      id: 'edit',
-      icon: 'pi pi-pencil',
-      buttonClass: 'p-button-rounded',
-      onClick: (row) => {
-        if (!row.id) return;
-        this.router.navigate(['/attendance/shifts', row.id, 'edit']);
-      },
-    },
+    tableEditAction((row) => {
+      if (!row.id) return;
+      this.router.navigate(['/attendance/shifts', row.id, 'edit']);
+    }, { visible: this.permission.writeVisible('attendance') }),
   ];
 
   formatTime(value: string | undefined): string {

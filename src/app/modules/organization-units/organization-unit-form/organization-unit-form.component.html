@@ -1,39 +1,39 @@
 <div class="organization-unit-form">
-  <p-card [header]="isEdit() ? 'تعديل وحدة تنظيمية' : 'إضافة وحدة تنظيمية'">
+  <p-card [header]="(isEdit() ? 'organization_units.edit' : 'organization_units.add') | translate">
     <form [formGroup]="form" (ngSubmit)="submit()">
       <div class="form-grid">
-        <div class="field" *ngIf="!isEdit()">
-          <label for="code">الرمز <span class="required">*</span></label>
-          <input id="code" type="text" pInputText formControlName="code" class="w-full" />
-          <small class="p-error" *ngIf="form.get('code')?.invalid && form.get('code')?.touched">
-            الرمز مطلوب
-          </small>
-        </div>
-        <div class="field">
-          <label for="name">الاسم <span class="required">*</span></label>
-          <input id="name" type="text" pInputText formControlName="name" class="w-full" />
-          <small class="p-error" *ngIf="form.get('name')?.invalid && form.get('name')?.touched">
-            الاسم مطلوب
-          </small>
-        </div>
-        <div class="field">
-          <label for="parentId">الوحدة الأم</label>
+        @if (!isEdit()) {
+          <app-form-field
+            forId="code"
+            labelKey="common.code"
+            [required]="true"
+            [errorKey]="isInvalid('code') ? 'lookups.code_required' : null"
+          >
+            <input id="code" type="text" pInputText formControlName="code" />
+          </app-form-field>
+        }
+        <app-form-field
+          forId="name"
+          labelKey="common.name"
+          [required]="true"
+          [errorKey]="isInvalid('name') ? 'lookups.name_required' : null"
+        >
+          <input id="name" type="text" pInputText formControlName="name" />
+        </app-form-field>
+        <app-form-field forId="parentId" labelKey="organization_units.parent">
           <p-dropdown
-            id="parentId"
+            inputId="parentId"
             formControlName="parentId"
             [options]="parentOptions()"
             optionLabel="label"
             optionValue="value"
-            placeholder="اختر الوحدة الأم"
+            [placeholder]="'organization_units.parent_placeholder' | translate"
             [showClear]="true"
-            styleClass="w-full"
+            appendTo="body"
           />
-        </div>
+        </app-form-field>
       </div>
-      <div class="form-actions">
-        <button pButton type="submit" label="حفظ" icon="pi pi-check" [loading]="saving()" class="p-button-primary"></button>
-        <a pButton label="إلغاء" icon="pi pi-times" routerLink="/organization-units" class="p-button-outlined"></a>
-      </div>
+      <app-form-actions cancelLink="/organization-units" [saving]="saving()" (save)="submit()" />
     </form>
   </p-card>
 </div>

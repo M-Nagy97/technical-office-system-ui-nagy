@@ -5,12 +5,10 @@ import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
-import { ToastModule } from 'primeng/toast';
-import { ConfirmPopupModule } from 'primeng/confirmpopup';
-import { MessageService, ConfirmationService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
+import { ConfirmService, CrudDialogComponent } from '../../../shared';
 import {
   CreatePayslipCommand,
   EmployeesService,
@@ -37,14 +35,11 @@ import { employeeLabel } from '../utils/payroll-forms';
     TranslatePipe,
     CardModule,
     ButtonModule,
-    DialogModule,
     DropdownModule,
     InputTextModule,
-    ToastModule,
-    ConfirmPopupModule,
     SharedTableComponent,
+    CrudDialogComponent,
   ],
-  providers: [MessageService, ConfirmationService],
   templateUrl: './payroll-payslips.component.html',
   styleUrl: './payroll-payslips.component.scss',
 })
@@ -54,7 +49,7 @@ export class PayrollPayslipsComponent implements OnInit {
   private readonly payslipsApi = inject(PayslipsService);
   private readonly employeesApi = inject(EmployeesService);
   private readonly messages = inject(MessageService);
-  private readonly confirm = inject(ConfirmationService);
+  private readonly confirm = inject(ConfirmService);
   private readonly translate = inject(TranslateService);
 
   readonly loadingPeriods = signal(false);
@@ -308,10 +303,7 @@ export class PayrollPayslipsComponent implements OnInit {
   confirmDelete(event: Event, row: PayslipDto): void {
     if (!row.id) return;
     this.confirm.confirm({
-      target: event.target as EventTarget,
-      message: this.translate.instant('payroll.payslips.confirm_delete'),
-      icon: 'pi pi-exclamation-triangle',
-      acceptButtonStyleClass: 'p-button-danger',
+      messageKey: 'payroll.payslips.confirm_delete',
       accept: () =>
         this.payslipsApi.payslipsDelete(row.id!).subscribe({
           next: (res) => {

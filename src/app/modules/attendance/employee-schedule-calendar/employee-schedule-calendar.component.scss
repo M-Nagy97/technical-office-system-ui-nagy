@@ -13,11 +13,11 @@
 
   ::ng-deep .fc {
     --fc-border-color: var(--surface-border, #e2e8f0);
-    --fc-button-bg-color: var(--primary-color, #3b82f6);
-    --fc-button-border-color: var(--primary-color, #3b82f6);
-    --fc-button-hover-bg-color: var(--primary-600, #2563eb);
-    --fc-button-hover-border-color: var(--primary-600, #2563eb);
-    --fc-today-bg-color: rgba(59, 130, 246, 0.08);
+    --fc-button-bg-color: var(--primary-color);
+    --fc-button-border-color: var(--primary-color);
+    --fc-button-hover-bg-color: var(--primary-dark);
+    --fc-button-hover-border-color: var(--primary-dark);
+    --fc-today-bg-color: color-mix(in srgb, var(--primary-color) 12%, transparent);
     font-family: inherit;
   }
 

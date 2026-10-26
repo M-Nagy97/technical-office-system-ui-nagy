@@ -10,7 +10,10 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "generate-api": "npx openapi-generator-cli generate --generator-key api",
-    "update-api": "curl -k https://localhost:8500/swagger/v1/swagger.json -o swagger.json && npm run generate-api"
+    "update-api": "curl -k https://localhost:8500/swagger/v1/swagger.json -o swagger.json && npm run generate-api",
+    "fetch-identity-swagger": "node scripts/fetch-identity-swagger.mjs",
+    "generate-identity-api": "npx openapi-generator-cli generate --generator-key identity-api",
+    "update-identity-api": "npm run fetch-identity-swagger && npm run generate-identity-api"
   },
   "dependencies": {
     "@angular/animations": "^17.3.12",

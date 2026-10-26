@@ -11,9 +11,8 @@ import { DropdownModule } from 'primeng/dropdown';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { TabViewModule } from 'primeng/tabview';
-import { ToastModule } from 'primeng/toast';
-import { ConfirmPopupModule } from 'primeng/confirmpopup';
-import { MessageService, ConfirmationService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
+import { ConfirmService, CrudDialogComponent, FormActionsComponent } from '../../../shared';
 import {
   AddPayrollAllowanceCommand,
   AddPayrollDeductionCommand,
@@ -33,6 +32,8 @@ import {
   UpdatePayrollRunCommand,
   UpsertAttendanceSummaryCommand,
 } from '../../../core/api/generated';
+import { PermissionService } from '../../../core/auth/permission.service';
+import { HasPermissionDirective } from '../../../core/directives/has-permission.directive';
 import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
 import { SharedTableAction, SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
 import { employeeLabel } from '../utils/payroll-forms';
@@ -52,11 +53,11 @@ import { employeeLabel } from '../utils/payroll-forms';
     InputNumberModule,
     InputTextModule,
     TabViewModule,
-    ToastModule,
-    ConfirmPopupModule,
+    HasPermissionDirective,
     SharedTableComponent,
+    CrudDialogComponent,
+    FormActionsComponent,
   ],
-  providers: [MessageService, ConfirmationService],
   templateUrl: './payroll-runs.component.html',
   styleUrl: './payroll-runs.component.scss',
 })
@@ -68,8 +69,9 @@ export class PayrollRunsComponent implements OnInit {
   private readonly deductionTypesApi = inject(PayrollDeductionTypesService);
   private readonly allowanceTypesApi = inject(PayrollAllowanceTypesService);
   private readonly messages = inject(MessageService);
-  private readonly confirm = inject(ConfirmationService);
+  private readonly confirm = inject(ConfirmService);
   private readonly translate = inject(TranslateService);
+  private readonly permission = inject(PermissionService);
 
   readonly loadingPeriods = signal(false);
   readonly periodOptions = signal<{ label: string; value: string }[]>([]);
@@ -158,6 +160,7 @@ export class PayrollRunsComponent implements OnInit {
       id: 'del',
       icon: 'pi pi-trash',
       buttonClass: 'p-button-rounded p-button-danger p-button-text p-button-sm',
+      visible: this.permission.writeVisible('payroll'),
       onClick: (row, e) => this.confirmRunDelete(e, row),
     },
   ];
@@ -178,12 +181,14 @@ export class PayrollRunsComponent implements OnInit {
       id: 'edit',
       icon: 'pi pi-pencil',
       buttonClass: 'p-button-rounded p-button-text p-button-sm',
+      visible: this.permission.writeVisible('payroll'),
       onClick: (row) => this.openAttEdit(row),
     },
     {
       id: 'del',
       icon: 'pi pi-trash',
       buttonClass: 'p-button-rounded p-button-danger p-button-text p-button-sm',
+      visible: this.permission.writeVisible('payroll'),
       onClick: (row, e) => this.confirmAttDelete(e, row),
     },
   ];
@@ -536,10 +541,7 @@ export class PayrollRunsComponent implements OnInit {
     const run = this.detailRun();
     if (!row.id || !run?.id) return;
     this.confirm.confirm({
-      target: event.target as EventTarget,
-      message: this.translate.instant('payroll.runs.confirm_remove_line'),
-      icon: 'pi pi-exclamation-triangle',
-      acceptButtonStyleClass: 'p-button-danger',
+      messageKey: 'payroll.runs.confirm_remove_line',
       accept: () =>
         this.runsApi.payrollRunsRemoveDeduction(row.id!).subscribe({
           next: (res) => {
@@ -587,10 +589,7 @@ export class PayrollRunsComponent implements OnInit {
     const run = this.detailRun();
     if (!row.id || !run?.id) return;
     this.confirm.confirm({
-      target: event.target as EventTarget,
-      message: this.translate.instant('payroll.runs.confirm_remove_line'),
-      icon: 'pi pi-exclamation-triangle',
-      acceptButtonStyleClass: 'p-button-danger',
+      messageKey: 'payroll.runs.confirm_remove_line',
       accept: () =>
         this.runsApi.payrollRunsRemoveAllowance(row.id!).subscribe({
           next: (res) => {
@@ -607,10 +606,7 @@ export class PayrollRunsComponent implements OnInit {
   confirmRunDelete(event: Event, row: PayrollRunDto): void {
     if (!row.id) return;
     this.confirm.confirm({
-      target: event.target as EventTarget,
-      message: this.translate.instant('payroll.runs.confirm_delete_run'),
-      icon: 'pi pi-exclamation-triangle',
-      acceptButtonStyleClass: 'p-button-danger',
+      messageKey: 'payroll.runs.confirm_delete_run',
       accept: () =>
         this.runsApi.payrollRunsDelete(row.id!).subscribe({
           next: (res) => {
@@ -690,10 +686,7 @@ export class PayrollRunsComponent implements OnInit {
   confirmAttDelete(event: Event, row: AttendanceSummaryDto): void {
     if (!row.id) return;
     this.confirm.confirm({
-      target: event.target as EventTarget,
-      message: this.translate.instant('payroll.att.confirm_delete'),
-      icon: 'pi pi-exclamation-triangle',
-      acceptButtonStyleClass: 'p-button-danger',
+      messageKey: 'payroll.att.confirm_delete',
       accept: () =>
         this.attApi.payrollAttendanceSummariesDelete(row.id!).subscribe({
           next: (res) => {

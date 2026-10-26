@@ -47,6 +47,8 @@ export interface EmployeeDto {
         isPrimary?: boolean;
         jobPositionName?: string | null;
         organizationUnitName?: string | null;
+        organizationUnitParentId?: string | null;
+        organizationUnitParentName?: string | null;
         jobGradeId?: string | null;
         jobGradeName?: string | null;
     } | null;

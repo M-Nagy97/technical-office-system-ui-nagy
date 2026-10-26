@@ -1,17 +1,13 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
 import { CardModule } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextareaModule } from 'primeng/inputtextarea';
-import { MessageModule } from 'primeng/message';
-import { RippleModule } from 'primeng/ripple';
-import { InputTextModule } from 'primeng/inputtext';
-import { MessageService } from 'primeng/api';
 import { map } from 'rxjs/operators';
+import { FormActionsComponent, FormFieldComponent, NotifyService } from '../../../shared';
 import {
   PlanSchedulesService,
   ShiftsService,
@@ -24,17 +20,14 @@ import {
   selector: 'app-plan-schedule-bulk-form',
   standalone: true,
   imports: [
-    CommonModule,
-    RouterLink,
     ReactiveFormsModule,
+    TranslatePipe,
     CardModule,
-    ButtonModule,
     CalendarModule,
     DropdownModule,
     InputTextareaModule,
-    MessageModule,
-    RippleModule,
-    InputTextModule,
+    FormFieldComponent,
+    FormActionsComponent,
   ],
   templateUrl: './plan-schedule-bulk-form.component.html',
   styleUrl: './plan-schedule-bulk-form.component.scss',
@@ -45,7 +38,7 @@ export class PlanScheduleBulkFormComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly schedulesApi = inject(PlanSchedulesService);
   private readonly shiftsApi = inject(ShiftsService);
-  private readonly messageService = inject(MessageService);
+  private readonly notify = inject(NotifyService);
 
   readonly planId = signal<string | null>(null);
   readonly shifts = signal<ShiftDto[]>([]);
@@ -64,7 +57,7 @@ export class PlanScheduleBulkFormComponent implements OnInit {
     if (pId) {
       this.planId.set(pId);
     } else {
-      this.messageService.add({ severity: 'error', summary: 'خطأ', detail: 'رقم الخطة غير موجود' });
+      this.notify.error(null, 'bulk_schedule.missing_plan');
       this.router.navigate(['/attendance/plans']);
       return;
     }
@@ -101,7 +94,7 @@ export class PlanScheduleBulkFormComponent implements OnInit {
 
     if (start > end) {
       this.saving.set(false);
-      this.messageService.add({ severity: 'warn', summary: 'تحذير', detail: 'تاريخ البداية يجب أن يكون قبل تاريخ النهاية' });
+      this.notify.warn('bulk_schedule.date_order');
       return;
     }
 
@@ -125,28 +118,20 @@ export class PlanScheduleBulkFormComponent implements OnInit {
       next: (res) => {
         this.saving.set(false);
         if (res.success) {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'تم',
-            detail: 'تم تحديث الجدول بنجاح',
-          });
+          this.notify.success('bulk_schedule.save_success');
           this.router.navigate(['/attendance/plans', this.planId(), 'schedules']);
         } else {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'خطأ',
-            detail: res.message ?? 'فشل التحديث',
-          });
+          if (res.message) {
+            this.notify.errorText(res.message);
+          } else {
+            this.notify.error(null, 'common.save_error');
+          }
         }
       },
-      error: () => {
-        this.saving.set(false);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'خطأ',
-          detail: 'حدث خطأ أثناء التحديث',
-        });
-      },
+        error: (error) => {
+          this.saving.set(false);
+          this.notify.error(error, 'common.save_error');
+        },
     });
   }
 }

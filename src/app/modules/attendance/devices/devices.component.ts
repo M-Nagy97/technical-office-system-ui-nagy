@@ -4,12 +4,12 @@ import { NgClass, NgFor, NgIf, DatePipe } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
-import { ToastModule } from 'primeng/toast';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
-import { MessageService, ConfirmationService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
+import { ConfirmService } from '../../../shared';
+import { HasPermissionDirective } from '../../../core/directives/has-permission.directive';
 import { DeviceService } from './services/device.service';
 import { DeviceFormComponent } from './device-form/device-form.component';
 import { Device, DeviceFormData, DeviceLogPreview, ReadLogsResult } from './models/device.model';
@@ -20,17 +20,17 @@ import { Device, DeviceFormData, DeviceLogPreview, ReadLogsResult } from './mode
   imports: [
     NgFor, NgIf, NgClass, DatePipe,
     ButtonModule, CardModule, TagModule,
-    ToastModule, ConfirmDialogModule, DialogModule, TableModule, TooltipModule,
+    DialogModule, TableModule, TooltipModule,
     DeviceFormComponent,
+    HasPermissionDirective,
   ],
-  providers: [MessageService, ConfirmationService],
   templateUrl: './devices.component.html',
   styleUrl: './devices.component.scss',
 })
 export class DevicesComponent implements OnInit {
   private readonly deviceService = inject(DeviceService);
   private readonly messageService = inject(MessageService);
-  private readonly confirmService = inject(ConfirmationService);
+  private readonly confirmService = inject(ConfirmService);
 
   readonly devices         = signal<Device[]>([]);
   readonly loading         = signal(false);
@@ -91,15 +91,7 @@ export class DevicesComponent implements OnInit {
   }
 
   confirmDelete(device: Device): void {
-    this.confirmService.confirm({
-      message: `هل تريد حذف الجهاز "${device.deviceName}"؟`,
-      header: 'تأكيد الحذف',
-      icon: 'pi pi-trash',
-      acceptLabel: 'حذف',
-      rejectLabel: 'إلغاء',
-      acceptButtonStyleClass: 'p-button-danger',
-      accept: () => this.deleteDevice(device.id),
-    });
+    this.confirmService.confirmDelete(device.deviceName, () => this.deleteDevice(device.id));
   }
 
   private deleteDevice(id: string): void {

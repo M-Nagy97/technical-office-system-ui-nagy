@@ -32,6 +32,9 @@ export interface UpdateEmployeeCommand {
     appointmentDecisionNumber?: string | null;
     appointmentDecisionDate?: string | null;
     employmentTypeId?: number | null;
+    jobPositionId?: string | null;
+    organizationUnitId?: string | null;
+    positionFromDate?: string | null;
     contacts?: Array<EmployeeContactDto> | null;
     addresses?: Array<EmployeeAddressDto> | null;
     documents?: Array<EmployeeDocumentDto> | null;

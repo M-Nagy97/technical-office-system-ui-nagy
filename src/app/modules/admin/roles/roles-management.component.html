@@ -1,0 +1,56 @@
+<div class="management-page">
+  <p-card>
+    <app-page-header titleKey="roles.title" subtitleKey="roles.subtitle">
+      <button
+        pButton
+        type="button"
+        icon="pi pi-refresh"
+        [class]="BUTTON_PRESET_CLASS.secondary"
+        [label]="'common.refresh' | translate"
+        [loading]="loading()"
+        (click)="loadRoles()"
+      ></button>
+      <button
+        *appHasPermission="'user.write'"
+        pButton
+        type="button"
+        icon="pi pi-plus"
+        [label]="'roles.actions.create' | translate"
+        (click)="openCreate()"
+      ></button>
+    </app-page-header>
+
+    <app-shared-table
+      [value]="roles()"
+      [loading]="loading()"
+      [columns]="columns"
+      [actions]="actions"
+      actionsColumnHeader="common.actions"
+      [tableStyle]="{ 'min-width': '48rem' }"
+      emptyMessage="roles.messages.empty"
+    >
+      <ng-template sharedTableCell="name" let-row>
+        <app-entity-cell [name]="row.name" icon="pi pi-shield" />
+      </ng-template>
+    </app-shared-table>
+  </p-card>
+
+  <app-role-dialog
+    [visible]="roleDialogVisible()"
+    [role]="selectedRole()"
+    [saving]="saving()"
+    (visibleChange)="roleDialogVisible.set($event)"
+    (save)="saveRole($event)"
+  ></app-role-dialog>
+
+  <app-role-permissions-dialog
+    [visible]="permissionsDialogVisible()"
+    [role]="selectedRole()"
+    [permissions]="permissions()"
+    [selectedPermissionIds]="selectedPermissionIds()"
+    [loading]="permissionsLoading()"
+    [saving]="permissionsSaving()"
+    (visibleChange)="permissionsDialogVisible.set($event)"
+    (save)="savePermissions($event)"
+  ></app-role-permissions-dialog>
+</div>

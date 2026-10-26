@@ -4,14 +4,19 @@ import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ConfirmationService, MessageService } from 'primeng/api';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
-  SharedTableComponent,
-  SharedTableColumn,
+  ConfirmService,
+  FilterBarComponent,
+  NotifyService,
   SharedTableAction,
+  SharedTableColumn,
+  SharedTableComponent,
+  tableDeleteAction,
+  tableEditAction,
 } from '../../../../shared';
+import { PermissionService } from '../../../../core/auth/permission.service';
+import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
 import { LeaveTypeService, LeaveTypeDto, LanguageService } from '../../../../core';
 
 @Component({
@@ -23,21 +28,22 @@ import { LeaveTypeService, LeaveTypeDto, LanguageService } from '../../../../cor
     CardModule,
     ButtonModule,
     InputTextModule,
-    ConfirmDialogModule,
     SharedTableComponent,
     TranslateModule,
+    HasPermissionDirective,
+    FilterBarComponent,
   ],
-  providers: [ConfirmationService],
   templateUrl: './leave-list.component.html',
   styleUrl: './leave-list.component.scss',
 })
 export class LeaveListComponent implements OnInit {
   private readonly router = inject(Router);
-  private readonly confirmationService = inject(ConfirmationService);
-  private readonly messageService = inject(MessageService);
+  private readonly confirm = inject(ConfirmService);
+  private readonly notify = inject(NotifyService);
   private readonly leaveTypeService = inject(LeaveTypeService);
   private readonly translate = inject(TranslateService);
   private readonly languageService = inject(LanguageService);
+  private readonly permission = inject(PermissionService);
 
   readonly loading = signal(false);
   readonly searchText = signal('');
@@ -94,33 +100,16 @@ export class LeaveListComponent implements OnInit {
   ];
 
   readonly actions: SharedTableAction<LeaveTypeDto>[] = [
-    {
-      id: 'edit',
-      icon: 'pi pi-pencil',
-      buttonClass: 'p-button-rounded p-button-text p-button-sm p-button-info',
-      onClick: (row) => {
-        this.router.navigate(['/leave/types/add'], { queryParams: { id: row.id } });
-      },
-    },
-    {
-      id: 'delete',
-      icon: 'pi pi-trash',
-      buttonClass: 'p-button-rounded p-button-text p-button-sm p-button-danger',
-      onClick: (row) => {
-        const name =
-          this.languageService.currentLang() === 'ar'
-            ? row.arabicName || row.name
-            : row.name || row.arabicName;
-        this.confirmationService.confirm({
-          message: this.translate.instant('leave.types.delete_confirm_msg', { name }),
-          header: this.translate.instant('leave.types.delete_confirm_title'),
-          icon: 'pi pi-exclamation-triangle',
-          acceptLabel: this.translate.instant('leave.types.confirm_delete_btn'),
-          rejectLabel: this.translate.instant('leave.types.cancel_btn'),
-          accept: () => this.deleteLeaveType(row.id),
-        });
-      },
-    },
+    tableEditAction((row) => {
+      this.router.navigate(['/leave/types/add'], { queryParams: { id: row.id } });
+    }, { visible: this.permission.writeVisible('leave') }),
+    tableDeleteAction((row) => {
+      const name =
+        this.languageService.currentLang() === 'ar'
+          ? row.arabicName || row.name
+          : row.name || row.arabicName;
+      this.confirm.confirmDelete(name, () => this.deleteLeaveType(row.id));
+    }, { visible: this.permission.writeVisible('leave') }),
   ];
 
   ngOnInit(): void {
@@ -143,11 +132,7 @@ export class LeaveListComponent implements OnInit {
   deleteLeaveType(id: string): void {
     this.leaveTypeService.delete(id).subscribe({
       next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translate.instant('common.success'),
-          detail: this.translate.instant('leave.types.delete_success'),
-        });
+        this.notify.success('leave.types.delete_success');
         this.loadData();
       },
     });

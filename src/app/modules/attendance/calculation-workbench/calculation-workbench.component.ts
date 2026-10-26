@@ -11,7 +11,6 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
 import { DropdownModule } from 'primeng/dropdown';
 import { CalendarModule } from 'primeng/calendar';
 import { RadioButtonModule } from 'primeng/radiobutton';
-import { ToastModule } from 'primeng/toast';
 import { DialogModule } from 'primeng/dialog';
 import { MessageService } from 'primeng/api';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -52,13 +51,11 @@ function toYmd(d: Date): string {
     DropdownModule,
     CalendarModule,
     RadioButtonModule,
-    ToastModule,
     DialogModule,
     TranslatePipe,
     SharedTableComponent,
     SharedTableCellTemplateDirective,
   ],
-  providers: [MessageService],
   templateUrl: './calculation-workbench.component.html',
   styleUrl: './calculation-workbench.component.scss',
 })

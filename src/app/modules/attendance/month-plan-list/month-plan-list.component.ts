@@ -1,15 +1,21 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { TooltipModule } from 'primeng/tooltip';
-import { RippleModule } from 'primeng/ripple';
-import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
-import { SharedTableCellTemplateDirective } from '../../../shared/components/shared-table/shared-table-cell-template.directive';
-import { SharedTableAction, SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
+import {
+  FilterBarComponent,
+  SharedTableAction,
+  SharedTableCellTemplateDirective,
+  SharedTableColumn,
+  SharedTableComponent,
+  tableCustomAction,
+  tableEditAction,
+  tableViewAction,
+} from '../../../shared';
 
+import { PermissionService } from '../../../core/auth/permission.service';
+import { HasPermissionDirective } from '../../../core/directives/has-permission.directive';
 import { map } from 'rxjs/operators';
 import { PlansService, PlanListItemDto } from '../../../core/api/generated';
 
@@ -18,14 +24,13 @@ import { PlansService, PlanListItemDto } from '../../../core/api/generated';
   standalone: true,
   imports: [
     RouterLink,
-    FormsModule,
+    TranslatePipe,
     CardModule,
     ButtonModule,
-    InputTextModule,
-    TooltipModule,
-    RippleModule,
     SharedTableComponent,
     SharedTableCellTemplateDirective,
+    HasPermissionDirective,
+    FilterBarComponent,
   ],
   templateUrl: './month-plan-list.component.html',
   styleUrl: './month-plan-list.component.scss',
@@ -33,6 +38,7 @@ import { PlansService, PlanListItemDto } from '../../../core/api/generated';
 export class MonthPlanListComponent implements OnInit {
   private readonly plansApi = inject(PlansService);
   private readonly router = inject(Router);
+  private readonly permission = inject(PermissionService);
 
   readonly loading = signal(false);
   readonly plans = signal<PlanListItemDto[]>([]);
@@ -50,39 +56,29 @@ export class MonthPlanListComponent implements OnInit {
   });
 
   readonly columns: SharedTableColumn<PlanListItemDto>[] = [
-    { id: 'name', header: 'الاسم', field: 'name', sortableField: 'name' },
-    { id: 'description', header: 'الوصف', valueGetter: (p) => p.description ?? '—' },
-    { id: 'isActive', header: 'حالة النشاط', valueGetter: (p) => p.isActive },
+    { id: 'name', header: 'common.name', field: 'name', sortableField: 'name' },
+    { id: 'description', header: 'common.description', valueGetter: (p) => p.description ?? '—' },
+    { id: 'isActive', header: 'common.status', valueGetter: (p) => p.isActive },
   ];
 
   readonly actions: SharedTableAction<PlanListItemDto>[] = [
-    {
-      id: 'view',
-      icon: 'pi pi-eye',
-      buttonClass: 'p-button-rounded p-button-text p-button-sm',
-      onClick: (row) => {
-        if (!row.id) return;
-        this.router.navigate(['/attendance/plans', row.id]);
-      },
-    },
-    {
+    tableViewAction((row) => {
+      if (!row.id) return;
+      this.router.navigate(['/attendance/plans', row.id]);
+    }),
+    tableCustomAction({
       id: 'employees',
       icon: 'pi pi-users',
-      buttonClass: 'p-button-rounded p-button-text p-button-sm',
+      tooltip: 'common.open',
       onClick: (row) => {
         if (!row.id) return;
         this.router.navigate(['/attendance/plans', row.id, 'employees']);
       },
-    },
-    {
-      id: 'edit',
-      icon: 'pi pi-pencil',
-      buttonClass: 'p-button-rounded p-button-text p-button-sm',
-      onClick: (row) => {
-        if (!row.id) return;
-        this.router.navigate(['/attendance/plans', row.id, 'edit']);
-      },
-    },
+    }),
+    tableEditAction((row) => {
+      if (!row.id) return;
+      this.router.navigate(['/attendance/plans', row.id, 'edit']);
+    }, { visible: this.permission.writeVisible('attendance') }),
   ];
 
   ngOnInit(): void {

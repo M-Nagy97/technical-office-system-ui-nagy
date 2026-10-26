@@ -1,0 +1,64 @@
+<div class="management-page">
+  <p-card>
+    <app-page-header titleKey="modules.title" subtitleKey="modules.subtitle">
+      <button
+        pButton
+        type="button"
+        icon="pi pi-refresh"
+        [class]="BUTTON_PRESET_CLASS.secondary"
+        [label]="'common.refresh' | translate"
+        [loading]="loading()"
+        (click)="loadModules()"
+      ></button>
+      <button
+        *appHasPermission="'user.write'"
+        pButton
+        type="button"
+        icon="pi pi-plus"
+        [label]="'modules.actions.create' | translate"
+        (click)="openCreate()"
+      ></button>
+    </app-page-header>
+
+    <app-shared-table
+      [value]="modules()"
+      [loading]="loading()"
+      [columns]="columns"
+      [actions]="actions"
+      actionsColumnHeader="common.actions"
+      [tableStyle]="{ 'min-width': '42rem' }"
+      emptyMessage="modules.messages.empty"
+    >
+      <ng-template sharedTableCell="code" let-row>
+        <span class="code-pill">{{ row.code || '-' }}</span>
+      </ng-template>
+    </app-shared-table>
+  </p-card>
+
+  <app-crud-dialog
+    [visible]="dialogVisible()"
+    (visibleChange)="dialogVisible.set($event)"
+    [header]="(selectedModule()?.id != null ? 'modules.dialog.edit_title' : 'modules.dialog.create_title') | translate"
+    [saving]="saving()"
+    (save)="saveModule()"
+  >
+    <form class="entity-form" [formGroup]="form" (ngSubmit)="saveModule()">
+      <app-form-field
+        forId="module-code"
+        labelKey="modules.fields.code"
+        [required]="true"
+        [errorKey]="isInvalid('code') ? 'modules.validation.code_required' : null"
+      >
+        <input id="module-code" pInputText formControlName="code" autocomplete="off" />
+      </app-form-field>
+      <app-form-field
+        forId="module-name"
+        labelKey="modules.fields.name"
+        [required]="true"
+        [errorKey]="isInvalid('name') ? 'modules.validation.name_required' : null"
+      >
+        <input id="module-name" pInputText formControlName="name" autocomplete="off" />
+      </app-form-field>
+    </form>
+  </app-crud-dialog>
+</div>

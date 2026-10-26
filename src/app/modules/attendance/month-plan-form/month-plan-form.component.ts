@@ -1,7 +1,7 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormArray } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -9,13 +9,16 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { DropdownModule } from 'primeng/dropdown';
-import { MessageModule } from 'primeng/message';
-import { MessageService } from 'primeng/api';
-import { TooltipModule } from 'primeng/tooltip';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
-import { SharedTableCellTemplateDirective } from '../../../shared/components/shared-table/shared-table-cell-template.directive';
-import { SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
+import {
+  FormActionsComponent,
+  FormFieldComponent,
+  FormSectionComponent,
+  NotifyService,
+  SharedTableCellTemplateDirective,
+  SharedTableColumn,
+  SharedTableComponent,
+} from '../../../shared';
 import { map } from 'rxjs/operators';
 import {
   PlansService,
@@ -39,9 +42,8 @@ export type ShiftListItemDto = any;
   selector: 'app-month-plan-form',
   standalone: true,
   imports: [
-    CommonModule,
-    RouterLink,
     ReactiveFormsModule,
+    TranslatePipe,
     CardModule,
     ButtonModule,
     InputNumberModule,
@@ -49,11 +51,12 @@ export type ShiftListItemDto = any;
     InputTextareaModule,
     InputSwitchModule,
     DropdownModule,
-    MessageModule,
-    TooltipModule,
     MultiSelectModule,
     SharedTableComponent,
     SharedTableCellTemplateDirective,
+    FormFieldComponent,
+    FormSectionComponent,
+    FormActionsComponent,
   ],
   templateUrl: './month-plan-form.component.html',
   styleUrl: './month-plan-form.component.scss',
@@ -64,7 +67,7 @@ export class MonthPlanFormComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly plansApi = inject(PlansService);
   private readonly shiftsApi = inject(ShiftsService);
-  private readonly messageService = inject(MessageService);
+  private readonly notify = inject(NotifyService);
 
   readonly isEdit = signal(false);
   readonly planId = signal<string | null>(null);
@@ -74,28 +77,27 @@ export class MonthPlanFormComponent implements OnInit {
   form!: FormGroup;
 
   readonly planTypeOptions = [
-    { label: 'Standard', value: PlanType.NUMBER_1 },
-    { label: 'Flexible', value: PlanType.NUMBER_2 },
-    { label: 'Rotating', value: PlanType.NUMBER_3 },
+    { labelKey: 'month_plans.type_standard', value: PlanType.NUMBER_1 },
+    { labelKey: 'month_plans.type_flexible', value: PlanType.NUMBER_2 },
+    { labelKey: 'month_plans.type_rotating', value: PlanType.NUMBER_3 },
   ];
 
   readonly modeOptions = [
-    { label: 'ثابت (Flat)', value: FactorMode.NUMBER_1 },
-    { label: 'شرائح (Tiered)', value: FactorMode.NUMBER_2 },
+    { labelKey: 'month_plans.mode_flat', value: FactorMode.NUMBER_1 },
+    { labelKey: 'month_plans.mode_tiered', value: FactorMode.NUMBER_2 },
   ];
 
   readonly factorTypes = [
-    { label: 'تأخير (Late)', value: FactorType.NUMBER_1 },
-    { label: 'انصراف مبكر (Early Leave)', value: FactorType.NUMBER_2 },
-    { label: 'إضافي قبل (OT Before)', value: FactorType.NUMBER_3 },
-    { label: 'إضافي بعد (OT After)', value: FactorType.NUMBER_4 },
+    { labelKey: 'month_plans.factor_late', value: FactorType.NUMBER_1 },
+    { labelKey: 'month_plans.factor_early', value: FactorType.NUMBER_2 },
+    { labelKey: 'month_plans.factor_ot_before', value: FactorType.NUMBER_3 },
+    { labelKey: 'month_plans.factor_ot_after', value: FactorType.NUMBER_4 },
   ];
 
-  // Shared table config for the tier editor (FormArray rows).
   readonly tierColumns: SharedTableColumn<any>[] = [
-    { id: 'fromMinute', header: 'من (دقيقة)', align: 'start' },
-    { id: 'toMinute', header: 'إلى (دقيقة)', align: 'start' },
-    { id: 'factorValue', header: 'العامل', align: 'start' },
+    { id: 'fromMinute', header: 'month_plans.from_minute', align: 'start' },
+    { id: 'toMinute', header: 'month_plans.to_minute', align: 'start' },
+    { id: 'factorValue', header: 'month_plans.factor', align: 'start' },
     { id: 'delete', header: '', width: '3rem', align: 'end' },
   ];
 
@@ -236,7 +238,7 @@ export class MonthPlanFormComponent implements OnInit {
             this.finalizeSubmit();
           } else {
             this.saving.set(false);
-            this.messageService.add({ severity: 'error', summary: 'خطأ', detail: 'فشل التحديث' });
+            this.notify.error(null, 'common.save_error');
           }
         },
         error: () => this.saving.set(false),
@@ -252,7 +254,7 @@ export class MonthPlanFormComponent implements OnInit {
             this.finalizeSubmit();
           } else {
             this.saving.set(false);
-            this.messageService.add({ severity: 'error', summary: 'خطأ', detail: 'فشل الإنشاء' });
+            this.notify.error(null, 'common.save_error');
           }
         },
         error: () => this.saving.set(false),
@@ -262,7 +264,7 @@ export class MonthPlanFormComponent implements OnInit {
 
   private finalizeSubmit(): void {
     this.saving.set(false);
-    this.messageService.add({ severity: 'success', summary: 'تم', detail: 'تم الحفظ بنجاح' });
+    this.notify.success('common.update_success');
     this.router.navigate(['/attendance/plans']);
   }
 }

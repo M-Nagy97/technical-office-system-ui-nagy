@@ -1,5 +1,5 @@
 <div class="month-plan-form">
-  <p-card [header]="isEdit() ? 'تعديل خطة الحضور' : 'إنشاء خطة حضور جديدة'">
+  <p-card [header]="(isEdit() ? 'month_plans.edit' : 'month_plans.create') | translate">
     @if (loading()) {
       <div class="flex justify-content-center p-5">
         <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
@@ -7,127 +7,142 @@
     } @else {
       <form [formGroup]="form" (ngSubmit)="submit()">
         <div class="grid p-fluid">
-          <!-- Basic Info -->
-          <div class="col-12 md:col-6 field">
-            <label for="name">اسم الخطة <span class="required">*</span></label>
-            <input id="name" type="text" pInputText formControlName="name" placeholder="مثال: الخطة العامة، خطة المصنع" />
+          <div class="col-12 md:col-6">
+            <app-form-field forId="name" labelKey="month_plans.name" [required]="true">
+              <input id="name" type="text" pInputText formControlName="name" [placeholder]="'month_plans.name_placeholder' | translate" />
+            </app-form-field>
           </div>
           <div class="col-12 md:col-3 field flex align-items-center pt-4">
-            <p-inputSwitch id="isActive" formControlName="isActive"></p-inputSwitch>
-            <label for="isActive" class="ml-2">نشط</label>
+            <p-inputSwitch inputId="isActive" formControlName="isActive"></p-inputSwitch>
+            <label for="isActive" class="ml-2">{{ 'common.active' | translate }}</label>
           </div>
 
-          <div class="col-12 field">
-            <label for="description">وصف الخطة</label>
-            <textarea id="description" pInputTextarea formControlName="description" rows="2"></textarea>
+          <div class="col-12">
+            <app-form-field forId="description" labelKey="common.description">
+              <textarea id="description" pInputTextarea formControlName="description" rows="2"></textarea>
+            </app-form-field>
           </div>
 
-          <div class="col-12 md:col-6 field">
-            <label for="planType">نوع الخطة <span class="required">*</span></label>
-            <p-dropdown id="planType" formControlName="planType" [options]="planTypeOptions" optionLabel="label" optionValue="value" placeholder="اختر نوع الخطة"></p-dropdown>
+          <div class="col-12 md:col-6">
+            <app-form-field forId="planType" labelKey="month_plans.plan_type" [required]="true">
+              <p-dropdown
+                inputId="planType"
+                formControlName="planType"
+                [options]="planTypeOptions"
+                optionLabel="labelKey"
+                optionValue="value"
+                [placeholder]="'month_plans.plan_type_placeholder' | translate"
+              >
+                <ng-template let-item pTemplate="item">{{ item.labelKey | translate }}</ng-template>
+                <ng-template let-item pTemplate="selectedItem">{{ item.labelKey | translate }}</ng-template>
+              </p-dropdown>
+            </app-form-field>
           </div>
 
-          <div class="col-12 md:col-6 field">
-            <label for="selectedShiftIds">الورديات المرتبطة</label>
-            <p-multiSelect id="selectedShiftIds" formControlName="selectedShiftIds" [options]="shifts()" optionLabel="shiftName" optionValue="id" placeholder="اختر الورديات (اختياري)" [filter]="true"></p-multiSelect>
+          <div class="col-12 md:col-6">
+            <app-form-field forId="selectedShiftIds" labelKey="month_plans.linked_shifts">
+              <p-multiSelect
+                inputId="selectedShiftIds"
+                formControlName="selectedShiftIds"
+                [options]="shifts()"
+                optionLabel="shiftName"
+                optionValue="id"
+                [placeholder]="'month_plans.linked_shifts_placeholder' | translate"
+                [filter]="true"
+              ></p-multiSelect>
+            </app-form-field>
           </div>
 
-          <!-- Deduction Config -->
-          <div class="col-12 md:col-6 field">
-            <label for="minDeductMinutes">الحد الأدنى للاحتساب (دقائق)</label>
-            <p-inputNumber id="minDeductMinutes" formControlName="minDeductMinutes" [min]="0" tooltipPosition="top" pTooltip="أقل عدد دقائق تأخير ليتم البدء بالخصم"></p-inputNumber>
+          <div class="col-12 md:col-6">
+            <app-form-field forId="minDeductMinutes" labelKey="month_plans.min_deduct">
+              <p-inputNumber inputId="minDeductMinutes" formControlName="minDeductMinutes" [min]="0"></p-inputNumber>
+            </app-form-field>
           </div>
-          <div class="col-12 md:col-6 field">
-            <label for="deductUnitMinutes">وحدة الخصم (دقائق)</label>
-            <p-inputNumber id="deductUnitMinutes" formControlName="deductUnitMinutes" [min]="1" tooltipPosition="top" pTooltip="التقريب لأقرب (مثال: 5 دقائق)"></p-inputNumber>
+          <div class="col-12 md:col-6">
+            <app-form-field forId="deductUnitMinutes" labelKey="month_plans.deduct_unit">
+              <p-inputNumber inputId="deductUnitMinutes" formControlName="deductUnitMinutes" [min]="1"></p-inputNumber>
+            </app-form-field>
           </div>
 
-          <!-- Factor Profiles -->
           <div class="col-12 mt-4">
-            <h3 class="border-bottom-1 pb-2 mb-3">عوامل الاحتساب (Deduction Factors)</h3>
-            
-            <div formArrayName="factorProfiles" class="grid">
-              @for (profile of factorProfiles.controls; track profile; let pi = $index) {
-                <div [formGroupName]="pi" class="col-12 border-1 border-round p-3 mb-3 surface-ground">
-                  <div class="flex justify-content-between align-items-center mb-3">
-                    <span class="text-xl font-bold">{{ factorTypes[pi].label }}</span>
-                    <div class="flex align-items-center gap-3">
-                      <label>الوضع:</label>
-                      <p-dropdown formControlName="mode" [options]="modeOptions" optionLabel="label" optionValue="value" styleClass="w-12rem"></p-dropdown>
-                    </div>
-                  </div>
-
-                  @if (profile.get('mode')?.value === 1) { <!-- Flat Mode -->
-                    <div class="field w-12rem">
-                      <label>قيمة العامل الثابت (Factor)</label>
-                      <p-inputNumber formControlName="flatValue" [min]="0" [step]="0.1" [minFractionDigits]="1"></p-inputNumber>
-                    </div>
-                  } @else { <!-- Tiered Mode -->
-                    <div formArrayName="tiers" class="mt-3">
-                      <div class="flex justify-content-between align-items-center mb-2">
-                        <span class="font-bold">الشرائح</span>
-                        <button type="button" pButton icon="pi pi-plus" label="إضافة شريحة" class="p-button-sm p-button-outlined" (click)="addTier(pi)"></button>
+            <app-form-section titleKey="month_plans.factors">
+              <div formArrayName="factorProfiles" class="grid">
+                @for (profile of factorProfiles.controls; track profile; let pi = $index) {
+                  <div [formGroupName]="pi" class="col-12 border-1 border-round p-3 mb-3 surface-ground">
+                    <div class="flex justify-content-between align-items-center mb-3">
+                      <span class="text-xl font-bold">{{ factorTypes[pi].labelKey | translate }}</span>
+                      <div class="flex align-items-center gap-3">
+                        <label>{{ 'month_plans.mode' | translate }}:</label>
+                        <p-dropdown formControlName="mode" [options]="modeOptions" optionLabel="labelKey" optionValue="value" styleClass="w-12rem">
+                          <ng-template let-item pTemplate="item">{{ item.labelKey | translate }}</ng-template>
+                          <ng-template let-item pTemplate="selectedItem">{{ item.labelKey | translate }}</ng-template>
+                        </p-dropdown>
                       </div>
-
-                      <app-shared-table
-                        [value]="getTiers(pi).controls"
-                        [columns]="tierColumns"
-                        styleClass="p-datatable-sm"
-                        [paginator]="false"
-                        [translateHeader]="false"
-                        emptyMessage=""
-                        [translateEmptyMessage]="false"
-                      >
-                        <ng-template sharedTableCell="fromMinute" let-rowIndex="rowIndex">
-                          <ng-container [formGroupName]="rowIndex">
-                            <p-inputNumber
-                              formControlName="fromMinute"
-                              [min]="0"
-                              styleClass="w-full"
-                            ></p-inputNumber>
-                          </ng-container>
-                        </ng-template>
-
-                        <ng-template sharedTableCell="toMinute" let-rowIndex="rowIndex">
-                          <ng-container [formGroupName]="rowIndex">
-                            <p-inputNumber formControlName="toMinute" [min]="0" styleClass="w-full"></p-inputNumber>
-                          </ng-container>
-                        </ng-template>
-
-                        <ng-template sharedTableCell="factorValue" let-rowIndex="rowIndex">
-                          <ng-container [formGroupName]="rowIndex">
-                            <p-inputNumber
-                              formControlName="factorValue"
-                              [min]="0"
-                              [step]="0.1"
-                              [minFractionDigits]="1"
-                              styleClass="w-full"
-                            ></p-inputNumber>
-                          </ng-container>
-                        </ng-template>
-
-                        <ng-template sharedTableCell="delete" let-rowIndex="rowIndex">
-                          <button
-                            type="button"
-                            pButton
-                            icon="pi pi-trash"
-                            class="p-button-danger p-button-text"
-                            (click)="removeTier(pi, rowIndex)"
-                          ></button>
-                        </ng-template>
-                      </app-shared-table>
                     </div>
-                  }
-                </div>
-              }
-            </div>
+
+                    @if (profile.get('mode')?.value === 1) {
+                      <app-form-field labelKey="month_plans.flat_value">
+                        <p-inputNumber formControlName="flatValue" [min]="0" [step]="0.1" [minFractionDigits]="1"></p-inputNumber>
+                      </app-form-field>
+                    } @else {
+                      <div formArrayName="tiers" class="mt-3">
+                        <div class="flex justify-content-between align-items-center mb-2">
+                          <span class="font-bold">{{ 'month_plans.tiers' | translate }}</span>
+                          <button type="button" pButton icon="pi pi-plus" [label]="'month_plans.add_tier' | translate" class="p-button-sm p-button-outlined" (click)="addTier(pi)"></button>
+                        </div>
+
+                        <app-shared-table
+                          [value]="getTiers(pi).controls"
+                          [columns]="tierColumns"
+                          styleClass="p-datatable-sm"
+                          [paginator]="false"
+                          emptyMessage=""
+                          [translateEmptyMessage]="false"
+                        >
+                          <ng-template sharedTableCell="fromMinute" let-rowIndex="rowIndex">
+                            <ng-container [formGroupName]="rowIndex">
+                              <p-inputNumber formControlName="fromMinute" [min]="0" styleClass="w-full"></p-inputNumber>
+                            </ng-container>
+                          </ng-template>
+
+                          <ng-template sharedTableCell="toMinute" let-rowIndex="rowIndex">
+                            <ng-container [formGroupName]="rowIndex">
+                              <p-inputNumber formControlName="toMinute" [min]="0" styleClass="w-full"></p-inputNumber>
+                            </ng-container>
+                          </ng-template>
+
+                          <ng-template sharedTableCell="factorValue" let-rowIndex="rowIndex">
+                            <ng-container [formGroupName]="rowIndex">
+                              <p-inputNumber
+                                formControlName="factorValue"
+                                [min]="0"
+                                [step]="0.1"
+                                [minFractionDigits]="1"
+                                styleClass="w-full"
+                              ></p-inputNumber>
+                            </ng-container>
+                          </ng-template>
+
+                          <ng-template sharedTableCell="delete" let-rowIndex="rowIndex">
+                            <button
+                              type="button"
+                              pButton
+                              icon="pi pi-trash"
+                              class="p-button-danger p-button-text"
+                              (click)="removeTier(pi, rowIndex)"
+                            ></button>
+                          </ng-template>
+                        </app-shared-table>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </app-form-section>
           </div>
         </div>
 
-        <div class="form-actions mt-4 flex gap-2">
-          <button pButton type="submit" label="حفظ" icon="pi pi-check" [loading]="saving()" class="p-button-primary"></button>
-          <a pButton label="إلغاء" icon="pi pi-times" routerLink="/attendance/plans" class="p-button-outlined"></a>
-        </div>
+        <app-form-actions cancelLink="/attendance/plans" [saving]="saving()" (save)="submit()" />
       </form>
     }
   </p-card>

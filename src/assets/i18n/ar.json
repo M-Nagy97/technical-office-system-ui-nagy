@@ -57,7 +57,14 @@
     "add_leave_type": "إضافة نوع إجازة",
     "policy_rules": "قواعد وسياسات الإجازات",
     "collapse_sidebar": "طي القائمة",
-    "expand_sidebar": "توسيع القائمة"
+    "expand_sidebar": "توسيع القائمة",
+    "admin_module": "الإدارة",
+    "users_manage": "إدارة المستخدمين",
+    "users_create": "إضافة مستخدم",
+    "roles": "الأدوار",
+    "modules": "الوحدات",
+    "permissions": "الصلاحيات",
+    "pages": "الصفحات"
   },
   "topbar": {
     "home": "الرئيسية",
@@ -96,7 +103,18 @@
     "salary-structures": "هياكل المرتبات",
     "lookups": "الترميزات",
     "runs": "التشغيلات",
-    "payslips": "قسائم الراتب"
+    "payslips": "قسائم الراتب",
+    "admin": "الإدارة",
+    "admin_users": "المستخدمون",
+    "admin_roles": "الأدوار",
+    "admin_modules": "الوحدات",
+    "admin_permissions": "الصلاحيات",
+    "admin_pages": "الصفحات",
+    "list": "إدارة",
+    "create": "إضافة",
+    "edit": "تعديل",
+    "my-profile": "ملفي الشخصي",
+    "profile": "الملف الشخصي"
   },
   "dashboard": {
     "welcome": "مرحباً بك في نظام المكتب الفني",
@@ -125,6 +143,9 @@
     "edit": "تعديل",
     "delete": "حذف",
     "add": "إضافة",
+    "create": "إضافة",
+    "refresh": "تحديث",
+    "search": "بحث...",
     "back": "العودة",
     "loading": "جاري التحميل...",
     "no_data": "لا توجد بيانات",
@@ -132,7 +153,191 @@
     "error": "خطأ",
     "warning": "تنبيه",
     "success": "تم",
-    "open": "فتح"
+    "open": "فتح",
+    "actions": "إجراءات",
+    "delete_confirm": "هل أنت متأكد من حذف هذا العنصر؟",
+    "delete_confirm_named": "هل أنت متأكد من حذف \"{{name}}\"؟",
+    "code": "الرمز",
+    "name": "الاسم",
+    "rank": "الرتبة",
+    "description": "الوصف",
+    "parent": "الأصل",
+    "load_error": "تعذر تحميل البيانات.",
+    "save_error": "تعذر الحفظ.",
+    "delete_error": "تعذر الحذف.",
+    "delete_success": "تم الحذف بنجاح.",
+    "create_success": "تمت الإضافة بنجاح.",
+    "update_success": "تم التحديث بنجاح.",
+    "active": "نشط",
+    "inactive": "معطل",
+    "notes": "ملاحظات",
+    "all": "الكل",
+    "yes": "نعم",
+    "no": "لا",
+    "status": "الحالة",
+    "employee": "الموظف",
+    "from_date": "من تاريخ",
+    "to_date": "إلى تاريخ",
+    "print": "طباعة",
+    "select": "اختر"
+  },
+  "job_grades": {
+    "title": "الدرجات الوظيفية",
+    "add": "إضافة درجة وظيفية",
+    "edit": "تعديل درجة وظيفية",
+    "search": "بحث بالرمز أو الاسم...",
+    "rank_required": "الرتبة مطلوبة ويجب أن تكون ≥ 0"
+  },
+  "job_positions": {
+    "title": "المسميات الوظيفية",
+    "add": "إضافة مسمى وظيفي",
+    "edit": "تعديل مسمى وظيفي",
+    "search": "بحث بالرمز أو الاسم أو الوصف..."
+  },
+  "organization_units": {
+    "title": "الوحدات التنظيمية",
+    "add": "إضافة وحدة تنظيمية",
+    "edit": "تعديل وحدة تنظيمية",
+    "search": "بحث بالرمز أو الاسم...",
+    "parent": "الوحدة الأم",
+    "parent_placeholder": "اختر الوحدة الأم"
+  },
+  "shifts": {
+    "title": "الشيفتات",
+    "add": "إضافة شيفت",
+    "edit": "تعديل شيفت",
+    "search": "بحث بالكود أو الاسم...",
+    "empty": "لا توجد شيفات",
+    "start": "وقت البداية",
+    "end": "وقت النهاية",
+    "finger_in": "بصمة الدخول",
+    "finger_out": "بصمة الخروج",
+    "crosses_midnight": "عبر منتصف الليل",
+    "section_times": "مواعيد الشيفت الأساسية",
+    "section_fingerprint": "فترات تسجيل البصمة",
+    "section_extra": "إعدادات إضافية",
+    "finger_in_from": "بداية بصمة الدخول",
+    "finger_in_to": "نهاية بصمة الدخول",
+    "finger_out_from": "بداية بصمة الخروج",
+    "finger_out_to": "نهاية بصمة الخروج",
+    "grace_in": "فترة السماح بالدخول (دقيقة)",
+    "grace_out": "فترة السماح بالخروج (دقيقة)",
+    "min_work_hours": "ساعات العمل المطلوبة",
+    "ot_before": "إضافي قبل الشيفت",
+    "ot_after": "إضافي بعد الشيفت",
+    "max_ot_before": "الحد الأقصى للإضافي قبل (د)",
+    "max_ot_after": "الحد الأقصى للإضافي بعد (د)"
+  },
+  "month_plans": {
+    "title": "خطط الحضور",
+    "add": "إنشاء خطة",
+    "edit": "تعديل خطة الحضور",
+    "create": "إنشاء خطة حضور جديدة",
+    "search": "بحث بالاسم أو الوصف...",
+    "empty": "لا توجد خطط",
+    "name": "اسم الخطة",
+    "name_placeholder": "مثال: الخطة العامة، خطة المصنع",
+    "plan_type": "نوع الخطة",
+    "plan_type_placeholder": "اختر نوع الخطة",
+    "linked_shifts": "الورديات المرتبطة",
+    "linked_shifts_placeholder": "اختر الورديات (اختياري)",
+    "min_deduct": "الحد الأدنى للاحتساب (دقائق)",
+    "deduct_unit": "وحدة الخصم (دقائق)",
+    "factors": "عوامل الاحتساب",
+    "mode": "الوضع",
+    "flat_value": "قيمة العامل الثابت",
+    "tiers": "الشرائح",
+    "add_tier": "إضافة شريحة",
+    "from_minute": "من (دقيقة)",
+    "to_minute": "إلى (دقيقة)",
+    "factor": "العامل",
+    "type_standard": "قياسي",
+    "type_flexible": "مرن",
+    "type_rotating": "دوري",
+    "mode_flat": "ثابت",
+    "mode_tiered": "شرائح",
+    "factor_late": "تأخير",
+    "factor_early": "انصراف مبكر",
+    "factor_ot_before": "إضافي قبل",
+    "factor_ot_after": "إضافي بعد"
+  },
+  "devices_form": {
+    "add": "إضافة جهاز",
+    "edit": "تعديل جهاز",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "model_banner": "ZKT K14 Pro — zkemkeeper (CZKEM) عبر خدمة Bridge على Windows",
+    "name": "اسم الجهاز",
+    "name_placeholder": "مثال: بصمة المدخل",
+    "name_required": "اسم الجهاز مطلوب",
+    "ip": "عنوان IP",
+    "ip_required": "أدخل عنوان IPv4 صالح",
+    "port": "المنفذ",
+    "comm_key": "COMM Key",
+    "comm_hint": "Menu → Options → Comm Opt → COMM Key (0 إذا غير مفعّل)",
+    "location": "الموقع"
+  },
+  "penalties": {
+    "add": "إضافة جزاء",
+    "add_subtitle": "تسجيل جزاء جديد لموظف",
+    "search": "بحث (السبب، الموظف، رقم الجزاء)",
+    "type": "نوع الجزاء",
+    "empty": "لا توجد سجلات.",
+    "details": "تفاصيل الجزاء",
+    "number": "رقم الجزاء",
+    "reason": "سبب الجزاء",
+    "incident_date": "تاريخ الواقعة",
+    "decision_date": "تاريخ القرار",
+    "decision_number": "رقم القرار",
+    "deduction_days": "أيام الخصم",
+    "suspension_days": "أيام الإيقاف",
+    "approved_by": "اعتمد بواسطة",
+    "print_decision": "طباعة القرار",
+    "view_profile": "عرض الملف الشخصي",
+    "employee_placeholder": "ابحث بالاسم...",
+    "stat_total": "إجمالي الجزاءات",
+    "types": {
+      "warning": "تنبيه",
+      "written_warning": "إنذار كتابي",
+      "deduction": "خصم",
+      "suspension": "إيقاف",
+      "dismissal": "فصل"
+    },
+    "statuses": {
+      "pending": "قيد الدراسة",
+      "approved": "معتمد",
+      "appealed": "تحت الطعن",
+      "cancelled": "ملغى"
+    }
+  },
+  "enroll_links": {
+    "title": "ربط رقم البصمة بالموظف",
+    "subtitle": "رقم التسجيل على جهاز ZKTeco يجب أن يطابق رقم الموظف في النظام حتى تُسجَّل الحضور تلقائياً عند السحب من الجهاز.",
+    "refresh": "تحديث القائمة",
+    "employee": "الموظف",
+    "current": "رقم التسجيل الحالي",
+    "device": "رقم التسجيل على الجهاز",
+    "unlinked": "غير مربوط",
+    "placeholder": "مثال: 1001",
+    "save_tooltip": "حفظ رقم التسجيل فقط",
+    "empty": "لا يوجد موظفون",
+    "enroll_required": "أدخل رقم التسجيل على الجهاز (رقم الموظف).",
+    "save_success": "تم ربط {{name}} برقم {{number}}.",
+    "save_error": "تعذر حفظ رقم التسجيل.",
+    "load_error": "تعذر تحميل قائمة الموظفين."
+  },
+  "bulk_schedule": {
+    "title": "توزيع الشيفتات",
+    "shift": "الشيفت",
+    "shift_placeholder": "اختر الشيفت",
+    "save_assign": "حفظ وتوزيع",
+    "missing_plan": "رقم الخطة غير موجود.",
+    "date_order": "تاريخ البداية يجب أن يكون قبل تاريخ النهاية.",
+    "save_success": "تم تحديث الجدول بنجاح."
+  },
+  "lookups": {
+    "code_required": "الرمز مطلوب",
+    "name_required": "الاسم مطلوب"
   },
   "document_preview": {
     "default_header": "معاينة المستند",
@@ -466,7 +671,12 @@
       "col_status": "الحالة",
       "actions": "إجراءات",
       "empty": "لا توجد بيانات",
-      "page_report": "عرض {first} إلى {last} من {totalRecords}"
+      "page_report": "عرض {first} إلى {last} من {totalRecords}",
+      "restore_tooltip": "إرجاع من الأرشيف",
+      "restore_confirm_header": "تأكيد الإرجاع",
+      "restore_confirm_msg": "هل تريد إرجاع هذا الموظف إلى الحالة النشطة؟",
+      "restore_success_summary": "تم الإرجاع",
+      "restore_success_detail": "تم إرجاع الموظف إلى الحالة النشطة"
     },
     "form": {
       "submit_warn": "يرجى مراجعة الخطوات وإكمال الحقول المطلوبة قبل الحفظ.",
@@ -481,6 +691,7 @@
       "national_id": "الرقم القومي",
       "gender": "النوع",
       "birth_date": "تاريخ الميلاد",
+      "birth_date_from_nid": "يُحسب تلقائياً من الرقم القومي",
       "birth_place": "مكان الميلاد",
       "nationality": "الجنسية",
       "religion": "الديانة",
@@ -495,6 +706,7 @@
       "appointment_decision_date": "تاريخ قرار التعيين",
       "job_title": "المسمى الوظيفي",
       "job_grade": "الدرجة الوظيفية",
+      "job_grade_from_position": "اختر الدرجة أولاً ثم المسمى الوظيفي التابع لها",
       "department": "القسم",
       "section": "الوحدة",
       "work_location": "مكان العمل",
@@ -540,6 +752,7 @@
       "error_email": "البريد الإلكتروني غير صحيح",
       "error_pattern": "القيمة غير صحيحة",
       "error_national_id_pattern": "الرقم القومي يجب أن يكون 14 رقماً",
+      "error_national_id_birth_date": "الرقم القومي لا يحتوي على تاريخ ميلاد صحيح",
       "error_phone_pattern": "صيغة رقم الهاتف غير صحيحة (مثال: 01xxxxxxxxx)",
       "error_graduation_min": "سنة التخرج يجب ألا تقل عن {{min}}",
       "error_graduation_max": "سنة التخرج يجب ألا تتجاوز {{max}}",
@@ -639,7 +852,12 @@
       "archive_accept": "أرشفة",
       "archive_reject": "إلغاء",
       "archive_success_summary": "تمت الأرشفة",
-      "archive_success_detail": "تم إنهاء خدمة / أرشفة الموظف بنجاح"
+      "archive_success_detail": "تم إنهاء خدمة / أرشفة الموظف بنجاح",
+      "restore": "إرجاع",
+      "restore_confirm_header": "تأكيد الإرجاع",
+      "restore_confirm_msg": "هل تريد إرجاع هذا الموظف إلى الحالة النشطة؟",
+      "restore_success_summary": "تم الإرجاع",
+      "restore_success_detail": "تم إرجاع الموظف إلى الحالة النشطة"
     },
     "documents": {
       "filter_employee": "الموظف",
@@ -1319,6 +1537,351 @@
       "cancel_btn": "إلغاء",
       "proceed_btn": "متابعة",
       "evaluate_failed": "فشل تقييم قواعد السياسة"
+    }
+  },
+  "auth": {
+    "badge": "وصول آمن",
+    "title": "إدارة الهوية لفريق التشغيل",
+    "subtitle": "استخدم تجربة دخول مركزة للوصول إلى مساحة العمل وإدارة المستخدمين مع الحفاظ على نفس تصميم التطبيق الحالي.",
+    "highlight_access": "وصول متاح للفرق عبر الورديات والمواقع المختلفة.",
+    "highlight_speed": "تهيئة أسرع للمستخدمين من خلال نموذج تسجيل واضح.",
+    "highlight_secure": "نقاط مصادقة محمية وجاهزة للربط الإنتاجي.",
+    "login_badge": "مرحباً بعودتك",
+    "login_title": "سجل الدخول للمتابعة",
+    "login_subtitle": "أدخل بيانات حسابك للوصول إلى لوحة التحكم وباقي المسارات المحمية.",
+    "register_badge": "حساب جديد",
+    "register_title": "أنشئ وصولك إلى النظام",
+    "register_subtitle": "أنشئ حساباً جديداً بنفس اللغة البصرية المستخدمة في بقية المنتج.",
+    "username": "اسم المستخدم",
+    "username_placeholder": "أدخل اسم المستخدم",
+    "username_required": "اسم المستخدم مطلوب.",
+    "email": "البريد الإلكتروني",
+    "email_placeholder": "name@company.com",
+    "email_required": "يرجى إدخال بريد إلكتروني صحيح.",
+    "phone": "رقم الهاتف",
+    "phone_placeholder": "أدخل رقم الهاتف",
+    "phone_required": "رقم الهاتف مطلوب.",
+    "first_name": "الاسم الأول",
+    "first_name_placeholder": "أدخل الاسم الأول",
+    "first_name_required": "الاسم الأول مطلوب.",
+    "last_name": "اسم العائلة",
+    "last_name_placeholder": "أدخل اسم العائلة",
+    "last_name_required": "اسم العائلة مطلوب.",
+    "password": "كلمة المرور",
+    "password_placeholder": "أدخل كلمة المرور",
+    "password_required": "يجب أن تكون كلمة المرور 6 أحرف على الأقل.",
+    "confirm_password": "تأكيد كلمة المرور",
+    "confirm_password_placeholder": "أعد إدخال كلمة المرور",
+    "confirm_password_required": "يرجى تأكيد كلمة المرور.",
+    "password_mismatch": "كلمتا المرور غير متطابقتين.",
+    "remember_me": "أبقني مسجلاً على هذا الجهاز",
+    "login_action": "تسجيل الدخول",
+    "register_action": "إنشاء حساب",
+    "no_account": "ليس لديك حساب؟",
+    "have_account": "لديك حساب بالفعل؟",
+    "register_link": "إنشاء حساب",
+    "login_link": "تسجيل الدخول",
+    "login_success": "تم تسجيل الدخول بنجاح.",
+    "login_error": "فشل تسجيل الدخول. تحقق من البيانات أو من اتصال الـ API.",
+    "register_success": "تم إنشاء الحساب بنجاح.",
+    "register_error": "فشل إنشاء الحساب. تحقق من البيانات أو من اتصال الـ API."
+  },
+  "users": {
+    "create_page": {
+      "title": "اضافة مستخدم",
+      "subtitle": "أنشئ حساب الدخول وعيّن الأدوار في الخطوة الأولى، ثم أكمل الملف الشخصي في الخطوة الثانية عند الحاجة."
+    },
+    "profile_page": {
+      "title": "اضافة ملف شخصي",
+      "subtitle": "اختر مستخدماً موجوداً ثم أكمل أو حدّث بيانات ملفه الشخصي عند الحاجة.",
+      "user": "المستخدم",
+      "user_placeholder": "اختر مستخدماً",
+      "user_required": "يجب اختيار مستخدم أولاً.",
+      "user_section": "اختيار المستخدم",
+      "user_section_hint": "يتم إنشاء ملف شخصي افتراضي مع الحساب. استخدم هذه الصفحة فقط عندما تريد استكماله أو تعديله.",
+      "selected_user": "المستخدم المحدد",
+      "selected_user_hint": "اختر مستخدماً لبدء تحديث الملف الشخصي.",
+      "selected_user_empty": "لم يتم اختيار مستخدم بعد."
+    },
+    "actions": {
+      "manage": "إدارة المستخدمين",
+      "create": "اضافة مستخدم",
+      "profile": "اضافة ملف شخصي",
+      "next": "التالي",
+      "skip_profile": "إنهاء بدون ملف شخصي"
+    },
+    "steps": {
+      "account": "الخطوة 1: الحساب",
+      "profile": "الخطوة 2: الملف الشخصي"
+    },
+    "sections": {
+      "account": "بيانات الحساب",
+      "account_hint": "إنشاء حساب الدخول الأساسي وتحديد الأدوار المرتبطة به.",
+      "summary": "الحساب الذي تم إنشاؤه",
+      "summary_hint": "تم حفظ حساب المستخدم الأساسي، ويمكنك الآن استكمال بيانات الملف الشخصي الاختيارية.",
+      "profile": "بيانات الملف الشخصي",
+      "profile_hint": "استكمال أو تعديل الاسم الظاهر وبيانات التواصل وتفضيلات المستخدم لملف شخصي موجود."
+    },
+    "basic": {
+      "username": "اسم المستخدم",
+      "username_placeholder": "ادخل اسم مستخدم مميز",
+      "username_required": "اسم المستخدم مطلوب.",
+      "email": "البريد الإلكتروني",
+      "email_placeholder": "name@company.com",
+      "email_required": "يرجى إدخال بريد إلكتروني صحيح.",
+      "password": "كلمة المرور",
+      "password_placeholder": "استخدم 8 أحرف على الأقل",
+      "password_required": "يجب أن تكون كلمة المرور 8 أحرف على الأقل.",
+      "confirm_password": "تأكيد كلمة المرور",
+      "confirm_password_placeholder": "أعد إدخال كلمة المرور",
+      "confirm_password_required": "يرجى تأكيد كلمة المرور.",
+      "password_mismatch": "كلمتا المرور غير متطابقتين.",
+      "roles": "الأدوار",
+      "roles_placeholder": "اختر دوراً واحداً أو أكثر",
+      "roles_required": "يجب اختيار دور واحد على الأقل.",
+      "is_active": "يمكن للمستخدم تسجيل الدخول مباشرة",
+      "help": "الأدوار تتحكم في قوائم النظام بعد تسجيل الدخول. بيانات الملف الشخصي تبقى اختيارية."
+    },
+    "profile": {
+      "display_name": "الاسم الظاهر",
+      "display_name_placeholder": "الاسم الذي سيظهر داخل النظام",
+      "display_name_required": "الاسم الظاهر مطلوب.",
+      "first_name": "الاسم الأول",
+      "first_name_placeholder": "اختياري",
+      "last_name": "اسم العائلة",
+      "last_name_placeholder": "اختياري",
+      "phone": "رقم الهاتف",
+      "phone_placeholder": "اختياري",
+      "avatar": "رابط الصورة الشخصية",
+      "avatar_placeholder": "https://...",
+      "timezone": "المنطقة الزمنية",
+      "timezone_placeholder": "Africa/Cairo",
+      "language": "اللغة المفضلة",
+      "language_placeholder": "ar أو en",
+      "bio": "نبذة",
+      "bio_placeholder": "ملاحظة داخلية اختيارية"
+    },
+    "messages": {
+      "loading_roles": "جاري تحميل الأدوار...",
+      "loading_users": "جاري تحميل المستخدمين...",
+      "load_roles_error": "تعذر تحميل الأدوار.",
+      "load_users_error": "تعذر تحميل المستخدمين.",
+      "create_success": "تم إنشاء المستخدم {{userName}} بنجاح.",
+      "create_error": "فشل إنشاء المستخدم.",
+      "profile_skipped": "تم إنشاء المستخدم {{userName}} بنجاح بدون استكمال الملف الشخصي.",
+      "profile_success": "تم حفظ الملف الشخصي للمستخدم {{userName}} بنجاح.",
+      "profile_error": "فشل حفظ الملف الشخصي."
+    },
+    "list": {
+      "title": "إدارة المستخدمين",
+      "subtitle": "راجع مستخدمي النظام وافتح أي ملف شخصي للتعديل الإداري.",
+      "refresh": "تحديث",
+      "loading": "جاري تحميل المستخدمين...",
+      "empty": "لا يوجد مستخدمون.",
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "edit_profile": "تعديل الملف الشخصي",
+      "load_error": "تعذر تحميل المستخدمين.",
+      "columns": {
+        "username": "اسم المستخدم",
+        "email": "البريد الإلكتروني",
+        "status": "الحالة",
+        "actions": "الإجراءات"
+      }
+    },
+    "edit": {
+      "title": "تعديل الملف الشخصي",
+      "subtitle": "تحديث إعدادات الحساب وبيانات الملف الشخصي للمستخدم المحدد.",
+      "loading": "جاري تحميل بيانات المستخدم...",
+      "account_section": "إعدادات الحساب",
+      "account_hint": "تحديث بيانات الحساب الأساسية وحالة تسجيل الدخول.",
+      "access_section": "إدارة الوصول",
+      "access_hint": "عيّن دوراً واحداً أو أكثر. شاشات النظام تتبع تلك الأدوار بعد تسجيل الدخول من جديد.",
+      "roles_label": "الأدوار",
+      "roles_placeholder": "اختر دوراً واحداً أو أكثر",
+      "modules_label": "الوحدات",
+      "modules_placeholder": "اختر وحدة واحدة أو أكثر",
+      "profile_section": "بيانات الملف الشخصي",
+      "profile_hint": "تحديث الاسم الظاهر وبيانات التواصل والتفضيلات.",
+      "save_success": "تم تحديث ملف المستخدم بنجاح.",
+      "save_error": "تعذر تحديث ملف المستخدم.",
+      "load_error": "تعذر تحميل بيانات المستخدم."
+    },
+    "my_profile": {
+      "title": "ملفي الشخصي",
+      "subtitle": "عرض وتعديل معلومات ملفك الشخصي.",
+      "edit": "تعديل الملف",
+      "save_success": "تم تحديث الملف بنجاح.",
+      "save_error": "فشل تحديث الملف.",
+      "load_error": "فشل تحميل الملف."
+    }
+  },
+  "roles": {
+    "title": "إدارة الأدوار",
+    "subtitle": "أنشئ الأدوار وتحكم في الصلاحيات المرتبطة بكل دور.",
+    "fields": {
+      "name": "الاسم",
+      "description": "الوصف"
+    },
+    "actions": {
+      "create": "إضافة دور",
+      "permissions": "إدارة الصلاحيات"
+    },
+    "dialog": {
+      "create_title": "إضافة دور",
+      "edit_title": "تعديل الدور"
+    },
+    "validation": {
+      "name_required": "اسم الدور مطلوب."
+    },
+    "delete": {
+      "title": "حذف الدور",
+      "message": "هل تريد حذف الدور {{name}}؟"
+    },
+    "messages": {
+      "loading": "جاري تحميل الأدوار...",
+      "empty": "لا توجد أدوار.",
+      "load_error": "تعذر تحميل الأدوار.",
+      "create_success": "تم إنشاء الدور بنجاح.",
+      "create_error": "فشل إنشاء الدور.",
+      "update_success": "تم تحديث الدور بنجاح.",
+      "update_error": "فشل تحديث الدور.",
+      "delete_success": "تم حذف الدور بنجاح.",
+      "delete_error": "فشل حذف الدور."
+    },
+    "permissions": {
+      "title": "صلاحيات {{role}}",
+      "loading": "جاري تحميل الصلاحيات...",
+      "empty": "لا توجد صلاحيات.",
+      "save": "حفظ الصلاحيات",
+      "load_error": "تعذر تحميل صلاحيات الدور.",
+      "save_success": "تم تحديث صلاحيات الدور بنجاح.",
+      "save_error": "فشل حفظ صلاحيات الدور."
+    }
+  },
+  "modules": {
+    "title": "إدارة الوحدات",
+    "subtitle": "أنشئ الوحدات القابلة لإعادة الاستخدام لتنظيم الصلاحيات والصفحات ووصول المستخدمين.",
+    "fields": {
+      "code": "الكود",
+      "name": "الاسم"
+    },
+    "actions": {
+      "create": "إضافة وحدة"
+    },
+    "dialog": {
+      "create_title": "إضافة وحدة",
+      "edit_title": "تعديل الوحدة"
+    },
+    "validation": {
+      "code_required": "كود الوحدة مطلوب.",
+      "name_required": "اسم الوحدة مطلوب."
+    },
+    "delete": {
+      "title": "حذف الوحدة",
+      "message": "هل تريد حذف الوحدة {{name}}؟"
+    },
+    "messages": {
+      "loading": "جاري تحميل الوحدات...",
+      "empty": "لا توجد وحدات.",
+      "load_error": "تعذر تحميل الوحدات.",
+      "create_success": "تم إنشاء الوحدة بنجاح.",
+      "create_error": "فشل إنشاء الوحدة.",
+      "update_success": "تم تحديث الوحدة بنجاح.",
+      "update_error": "فشل تحديث الوحدة.",
+      "delete_success": "تم حذف الوحدة بنجاح.",
+      "delete_error": "فشل حذف الوحدة."
+    }
+  },
+  "permissions": {
+    "title": "إدارة الصلاحيات",
+    "subtitle": "أنشئ الصلاحيات القابلة لإعادة الاستخدام واربط كل صلاحية بوحدة.",
+    "fields": {
+      "code": "الكود",
+      "name": "الاسم",
+      "description": "الوصف",
+      "module": "الوحدة"
+    },
+    "actions": {
+      "create": "إضافة صلاحية"
+    },
+    "dialog": {
+      "create_title": "إضافة صلاحية",
+      "edit_title": "تعديل الصلاحية"
+    },
+    "placeholders": {
+      "module": "اختر الوحدة"
+    },
+    "empty_states": {
+      "no_modules": "لا توجد وحدات متاحة",
+      "no_matching_modules": "لا توجد وحدات مطابقة",
+      "loading_modules": "جاري تحميل الوحدات...",
+      "modules_load_failed": "تعذر تحميل الوحدات. تحقق من اتصال الواجهة الخلفية أو صلاحيات المستخدم.",
+      "create_module_first": "أنشئ وحدة واحدة على الأقل قبل إضافة الصلاحيات."
+    },
+    "validation": {
+      "code_required": "كود الصلاحية مطلوب.",
+      "name_required": "اسم الصلاحية مطلوب.",
+      "module_required": "الوحدة مطلوبة."
+    },
+    "delete": {
+      "title": "حذف الصلاحية",
+      "message": "هل تريد حذف الصلاحية {{name}}؟"
+    },
+    "messages": {
+      "loading": "جاري تحميل الصلاحيات...",
+      "empty": "لا توجد صلاحيات.",
+      "load_error": "تعذر تحميل الصلاحيات.",
+      "modules_load_error": "تعذر تحميل الوحدات لاستخدامها في ربط الصلاحيات.",
+      "create_success": "تم إنشاء الصلاحية بنجاح.",
+      "create_error": "فشل إنشاء الصلاحية.",
+      "update_success": "تم تحديث الصلاحية بنجاح.",
+      "update_error": "فشل تحديث الصلاحية.",
+      "delete_success": "تم حذف الصلاحية بنجاح.",
+      "delete_error": "فشل حذف الصلاحية."
+    }
+  },
+  "pages": {
+    "title": "إدارة الصفحات",
+    "subtitle": "أنشئ صفحات التنقل واربطها بالوحدات والصفحات الرئيسية والصلاحيات المطلوبة.",
+    "fields": {
+      "code": "الكود",
+      "name": "الاسم",
+      "urlPath": "مسار الرابط",
+      "parent": "الصفحة الرئيسية",
+      "module": "الوحدة",
+      "permission": "الصلاحية"
+    },
+    "actions": {
+      "create": "إضافة صفحة"
+    },
+    "dialog": {
+      "create_title": "إضافة صفحة",
+      "edit_title": "تعديل الصفحة"
+    },
+    "placeholders": {
+      "parent": "بدون صفحة رئيسية",
+      "module": "اختر الوحدة",
+      "permission": "اختر الصلاحية"
+    },
+    "validation": {
+      "code_required": "كود الصفحة مطلوب.",
+      "name_required": "اسم الصفحة مطلوب."
+    },
+    "delete": {
+      "title": "حذف الصفحة",
+      "message": "هل تريد حذف الصفحة {{name}}؟"
+    },
+    "messages": {
+      "loading": "جاري تحميل الصفحات...",
+      "empty": "لا توجد صفحات.",
+      "load_error": "تعذر تحميل الصفحات.",
+      "create_success": "تم إنشاء الصفحة بنجاح.",
+      "create_error": "فشل إنشاء الصفحة.",
+      "update_success": "تم تحديث الصفحة بنجاح.",
+      "update_error": "فشل تحديث الصفحة.",
+      "delete_success": "تم حذف الصفحة بنجاح.",
+      "delete_error": "فشل حذف الصفحة."
     }
   }
 }

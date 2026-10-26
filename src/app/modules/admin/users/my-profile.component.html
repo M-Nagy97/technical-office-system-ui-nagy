@@ -1,0 +1,198 @@
+<div class="create-page">
+  <p-card>
+    <app-page-header titleKey="users.my_profile.title" subtitleKey="users.my_profile.subtitle">
+      @if (!loading() && profile()) {
+        <button
+          pButton
+          type="button"
+          [icon]="editing() ? 'pi pi-times' : 'pi pi-pencil'"
+          [label]="editing() ? ('common.cancel' | translate) : ('users.my_profile.edit' | translate)"
+          [class]="BUTTON_PRESET_CLASS.ghost"
+          (click)="editing() ? cancelEdit() : toggleEdit()"
+        ></button>
+      }
+    </app-page-header>
+
+    @if (loading()) {
+      <div class="loading-state">
+        <p-progressSpinner strokeWidth="4"></p-progressSpinner>
+        <span>{{ 'common.loading' | translate }}</span>
+      </div>
+    } @else if (!profile()) {
+      <div class="loading-state">
+        <i class="pi pi-exclamation-triangle" style="font-size: 2rem; color: var(--yellow-500)"></i>
+        <span>{{ 'users.my_profile.load_error' | translate }}</span>
+      </div>
+    } @else if (!editing()) {
+      <!-- VIEW MODE: label-value pairs -->
+      <section class="form-section">
+        <div class="grid">
+          <div class="col-12 md:col-6">
+            <div class="profile-field">
+              <span class="profile-field__label">{{ 'users.profile.display_name' | translate }}</span>
+              <span class="profile-field__value">{{ profile()!.displayName || '—' }}</span>
+            </div>
+          </div>
+
+          <div class="col-12 md:col-3">
+            <div class="profile-field">
+              <span class="profile-field__label">{{ 'users.profile.first_name' | translate }}</span>
+              <span class="profile-field__value">{{ profile()!.firstName || '—' }}</span>
+            </div>
+          </div>
+
+          <div class="col-12 md:col-3">
+            <div class="profile-field">
+              <span class="profile-field__label">{{ 'users.profile.last_name' | translate }}</span>
+              <span class="profile-field__value">{{ profile()!.lastName || '—' }}</span>
+            </div>
+          </div>
+
+          <div class="col-12 md:col-6">
+            <div class="profile-field">
+              <span class="profile-field__label">{{ 'users.profile.phone' | translate }}</span>
+              <span class="profile-field__value">{{ profile()!.phoneNumber || '—' }}</span>
+            </div>
+          </div>
+
+          <div class="col-12 md:col-6">
+            <div class="profile-field">
+              <span class="profile-field__label">{{ 'users.profile.avatar' | translate }}</span>
+              <span class="profile-field__value">{{ profile()!.avatarUrl || '—' }}</span>
+            </div>
+          </div>
+
+          <div class="col-12 md:col-6">
+            <div class="profile-field">
+              <span class="profile-field__label">{{ 'users.profile.timezone' | translate }}</span>
+              <span class="profile-field__value">{{ profile()!.timeZone || '—' }}</span>
+            </div>
+          </div>
+
+          <div class="col-12 md:col-6">
+            <div class="profile-field">
+              <span class="profile-field__label">{{ 'users.profile.language' | translate }}</span>
+              <span class="profile-field__value">{{ profile()!.preferredLanguage || '—' }}</span>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="profile-field">
+              <span class="profile-field__label">{{ 'users.profile.bio' | translate }}</span>
+              <span class="profile-field__value profile-field__value--bio">{{ profile()!.bio || '—' }}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    } @else {
+      <!-- EDIT MODE: form inputs -->
+      <form [formGroup]="form" class="create-form p-fluid">
+        <section class="form-section">
+          <div class="grid">
+            <div class="col-12 md:col-6">
+              <label class="field-label" for="displayName">{{ 'users.profile.display_name' | translate }}</label>
+              <input
+                id="displayName"
+                type="text"
+                pInputText
+                formControlName="displayName"
+                [placeholder]="'users.profile.display_name_placeholder' | translate"
+              />
+              @if (isInvalid('displayName')) {
+                <small class="p-error">{{ 'users.profile.display_name_required' | translate }}</small>
+              }
+            </div>
+
+            <div class="col-12 md:col-3">
+              <label class="field-label" for="firstName">{{ 'users.profile.first_name' | translate }}</label>
+              <input
+                id="firstName"
+                type="text"
+                pInputText
+                formControlName="firstName"
+                [placeholder]="'users.profile.first_name_placeholder' | translate"
+              />
+            </div>
+
+            <div class="col-12 md:col-3">
+              <label class="field-label" for="lastName">{{ 'users.profile.last_name' | translate }}</label>
+              <input
+                id="lastName"
+                type="text"
+                pInputText
+                formControlName="lastName"
+                [placeholder]="'users.profile.last_name_placeholder' | translate"
+              />
+            </div>
+
+            <div class="col-12 md:col-6">
+              <label class="field-label" for="phoneNumber">{{ 'users.profile.phone' | translate }}</label>
+              <input
+                id="phoneNumber"
+                type="text"
+                pInputText
+                formControlName="phoneNumber"
+                [placeholder]="'users.profile.phone_placeholder' | translate"
+              />
+            </div>
+
+            <div class="col-12 md:col-6">
+              <label class="field-label" for="avatarUrl">{{ 'users.profile.avatar' | translate }}</label>
+              <input
+                id="avatarUrl"
+                type="url"
+                pInputText
+                formControlName="avatarUrl"
+                [placeholder]="'users.profile.avatar_placeholder' | translate"
+              />
+            </div>
+
+            <div class="col-12 md:col-6">
+              <label class="field-label" for="timeZone">{{ 'users.profile.timezone' | translate }}</label>
+              <input
+                id="timeZone"
+                type="text"
+                pInputText
+                formControlName="timeZone"
+                [placeholder]="'users.profile.timezone_placeholder' | translate"
+              />
+            </div>
+
+            <div class="col-12 md:col-6">
+              <label class="field-label" for="preferredLanguage">{{ 'users.profile.language' | translate }}</label>
+              <input
+                id="preferredLanguage"
+                type="text"
+                pInputText
+                formControlName="preferredLanguage"
+                [placeholder]="'users.profile.language_placeholder' | translate"
+              />
+            </div>
+
+            <div class="col-12">
+              <label class="field-label" for="bio">{{ 'users.profile.bio' | translate }}</label>
+              <textarea
+                id="bio"
+                pInputTextarea
+                rows="5"
+                formControlName="bio"
+                [placeholder]="'users.profile.bio_placeholder' | translate"
+              ></textarea>
+            </div>
+          </div>
+        </section>
+
+        <div class="submit-bar">
+          <button
+            pButton
+            type="button"
+            icon="pi pi-save"
+            [label]="'common.save' | translate"
+            [loading]="submitting()"
+            (click)="saveProfile()"
+          ></button>
+        </div>
+      </form>
+    }
+  </p-card>
+</div>

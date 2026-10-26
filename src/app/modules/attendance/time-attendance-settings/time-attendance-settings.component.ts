@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -8,8 +9,9 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { TooltipModule } from 'primeng/tooltip';
 import { RippleModule } from 'primeng/ripple';
-import { MessageService } from 'primeng/api';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { MessageService } from 'primeng/api';
+import { FormActionsComponent } from '../../../shared';
 
 import {
   WorkforceAttendanceSettingsService,
@@ -30,6 +32,8 @@ import {
     TooltipModule,
     RippleModule,
     ProgressSpinnerModule,
+    TranslatePipe,
+    FormActionsComponent,
   ],
   templateUrl: './time-attendance-settings.component.html',
   styleUrl: './time-attendance-settings.component.scss',

@@ -1,0 +1,49 @@
+:host {
+  display: contents;
+}
+
+.permissions-list {
+  display: grid;
+  gap: 0.5rem;
+  max-height: 28rem;
+  overflow: auto;
+  padding-inline-end: 0.25rem;
+}
+
+.permission-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+}
+
+.permission-content {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.permission-name {
+  font-weight: 700;
+}
+
+.permission-code {
+  color: var(--text-color-secondary);
+  font-size: 0.85rem;
+}
+
+.empty-state,
+.loading-state {
+  min-height: 12rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-color-secondary);
+}
+
+.loading-state {
+  flex-direction: column;
+  gap: 1rem;
+}

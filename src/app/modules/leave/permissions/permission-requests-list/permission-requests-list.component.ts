@@ -16,7 +16,10 @@ import {
   SharedTableAction,
   SharedTableCellTemplateDirective,
   StatusBadgeComponent,
+  tableViewAction,
 } from '../../../../shared';
+import { PermissionService } from '../../../../core/auth/permission.service';
+import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
 import { PermissionRequestService, EmployeeService, LanguageService } from '../../../../core/services';
 import {
   PermissionRequestDto,
@@ -50,6 +53,7 @@ import {
     StatusBadgeComponent,
     RequestActionDialogComponent,
     TranslateModule,
+    HasPermissionDirective,
   ],
   templateUrl: './permission-requests-list.component.html',
   styleUrl: './permission-requests-list.component.scss',
@@ -61,6 +65,7 @@ export class PermissionRequestsListComponent implements OnInit {
   private readonly messageService = inject(MessageService);
   private readonly translate = inject(TranslateService);
   readonly languageService = inject(LanguageService);
+  private readonly permission = inject(PermissionService);
 
   readonly loading = signal(false);
   readonly requests = signal<PermissionRequestDto[]>([]);
@@ -143,19 +148,17 @@ export class PermissionRequestsListComponent implements OnInit {
   ];
 
   readonly actions: SharedTableAction<PermissionRequestDto>[] = [
-    {
-      id: 'view',
-      icon: 'pi pi-eye',
-      buttonClass: 'p-button-rounded p-button-text p-button-sm p-button-info',
-      onClick: (row) => {
-        this.router.navigate(['/leave/permissions', row.id]);
-      },
-    },
+    tableViewAction((row) => {
+      this.router.navigate(['/leave/permissions', row.id]);
+    }),
     {
       id: 'approve',
       icon: 'pi pi-check',
       buttonClass: 'p-button-rounded p-button-text p-button-sm p-button-success',
-      visible: (row) => row.status === PermissionRequestStatus.Pending,
+      visible: this.permission.writeVisible(
+        'leave',
+        (row) => row.status === PermissionRequestStatus.Pending,
+      ),
       onClick: (row) => {
         this.openActionDialog('approve', row);
       },
@@ -164,7 +167,10 @@ export class PermissionRequestsListComponent implements OnInit {
       id: 'reject',
       icon: 'pi pi-times',
       buttonClass: 'p-button-rounded p-button-text p-button-sm p-button-danger',
-      visible: (row) => row.status === PermissionRequestStatus.Pending,
+      visible: this.permission.writeVisible(
+        'leave',
+        (row) => row.status === PermissionRequestStatus.Pending,
+      ),
       onClick: (row) => {
         this.openActionDialog('reject', row);
       },
@@ -173,9 +179,12 @@ export class PermissionRequestsListComponent implements OnInit {
       id: 'cancel',
       icon: 'pi pi-ban',
       buttonClass: 'p-button-rounded p-button-text p-button-sm p-button-secondary',
-      visible: (row) =>
-        row.status === PermissionRequestStatus.Pending ||
-        row.status === PermissionRequestStatus.Approved,
+      visible: this.permission.writeVisible(
+        'leave',
+        (row) =>
+          row.status === PermissionRequestStatus.Pending ||
+          row.status === PermissionRequestStatus.Approved,
+      ),
       onClick: (row) => {
         this.openActionDialog('cancel', row);
       },

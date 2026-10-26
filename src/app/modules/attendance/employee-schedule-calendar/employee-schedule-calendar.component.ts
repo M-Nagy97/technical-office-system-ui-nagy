@@ -204,7 +204,7 @@ export class EmployeeScheduleCalendarComponent implements OnInit {
     if (row.isHoliday || row.dayType === DayType.NUMBER_3)
       return { bg: '#fecaca', border: '#dc2626' };
     if (row.dayType === DayType.NUMBER_2) return { bg: '#e2e8f0', border: '#64748b' };
-    if (row.shiftId) return { bg: '#bfdbfe', border: '#2563eb' };
+    if (row.shiftId) return { bg: '#a7f3d0', border: '#10b981' };
     return { bg: '#99f6e4', border: '#0d9488' };
   }
 

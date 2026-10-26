@@ -9,7 +9,6 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { TagModule } from 'primeng/tag';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { finalize, map } from 'rxjs/operators';
@@ -79,12 +78,10 @@ function employeeLabel(e: EmployeeDto): string {
     TagModule,
     DialogModule,
     InputTextModule,
-    ToastModule,
     TranslateModule,
     SharedTableComponent,
     SharedTableCellTemplateDirective,
   ],
-  providers: [MessageService],
   templateUrl: './daily-attendance.component.html',
   styleUrl: './daily-attendance.component.scss',
 })

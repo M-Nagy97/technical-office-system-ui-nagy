@@ -55,6 +55,8 @@ export interface Employee {
   jobGrade: string; // الدرجة الوظيفية
   department: string; // القسم
   section: string; // الوحدة
+  jobPositionId?: string;
+  organizationUnitId?: string;
   workLocation: string; // مكان العمل
   employmentType: EmploymentType; // نوع التعيين
   status: EmployeeStatus; // الحالة

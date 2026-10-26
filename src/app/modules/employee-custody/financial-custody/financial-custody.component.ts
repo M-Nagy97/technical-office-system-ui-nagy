@@ -7,11 +7,12 @@ import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
-import { DialogModule } from 'primeng/dialog';
+import { CrudDialogComponent } from '../../../shared';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { CalendarModule } from 'primeng/calendar';
 import { MessageService } from 'primeng/api';
+import { HasPermissionDirective } from '../../../core/directives/has-permission.directive';
 import { CustodyApiService } from '../../../core/services/custody-api.service';
 import { EmployeeService } from '../../../core/services/employee.service';
 import { Employee } from '../../../core/models/employee.model';
@@ -33,10 +34,11 @@ import { catchError, finalize, of } from 'rxjs';
     ButtonModule,
     DropdownModule,
     TableModule,
-    DialogModule,
     InputNumberModule,
     InputTextModule,
     CalendarModule,
+    HasPermissionDirective,
+    CrudDialogComponent,
   ],
   templateUrl: './financial-custody.component.html',
   styleUrl: './financial-custody.component.scss',

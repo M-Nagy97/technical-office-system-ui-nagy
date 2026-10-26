@@ -3,7 +3,7 @@
 // Load after PrimeNG theme CSS so our colors take precedence.
 // =============================================================================
 
-// Design tokens are defined in _variables.scss and _themes.scss (construction/building theme).
+// Design tokens are defined in _variables.scss and _themes.scss.
 // This file only ensures PrimeNG uses them (loaded after PrimeNG theme CSS).
 :root {
   --surface-ground: var(--surface-50);
@@ -24,7 +24,7 @@
   --maskbg: rgba(0, 0, 0, 0.4);
 }
 
-[data-theme='dark'] {
+html[data-theme='dark'] {
   --surface-ground: var(--surface-0);
   --surface-section: var(--surface-50);
   --surface-card: var(--surface-50);
@@ -36,8 +36,305 @@
   --surface-e: var(--surface-50);
   --surface-f: var(--surface-50);
   --surface-hover: var(--surface-200);
-  --focus-ring: 0 0 0 0.2rem rgba(251, 191, 36, 0.4);
-  --highlight-bg: var(--primary-800);
-  --highlight-text-color: var(--primary-200);
+  --focus-ring: 0 0 0 0.2rem rgba(52, 211, 153, 0.35);
+  --highlight-bg: rgba(52, 211, 153, 0.16);
+  --highlight-text-color: #ecfdf5;
   --maskbg: rgba(0, 0, 0, 0.6);
+
+  .p-datatable .p-datatable-header,
+  .p-datatable .p-datatable-footer {
+    background: var(--surface-card);
+    color: var(--text-color);
+    border-color: var(--surface-border);
+  }
+
+  .p-datatable .p-datatable-thead > tr > th,
+  .p-datatable .p-datatable-tfoot > tr > td {
+    background: var(--surface-50);
+    color: var(--text-color-secondary);
+    border-color: var(--surface-border);
+  }
+
+  .p-datatable .p-datatable-tbody > tr {
+    background: var(--surface-card);
+    color: var(--text-color);
+  }
+
+  .p-datatable .p-datatable-tbody > tr > td {
+    border-color: var(--surface-border);
+  }
+
+  .p-datatable .p-datatable-tbody > tr.p-highlight {
+    background: var(--highlight-bg);
+    color: var(--highlight-text-color);
+  }
+
+  .p-datatable.p-datatable-hoverable-rows .p-datatable-tbody > tr:not(.p-highlight):hover {
+    background: var(--surface-hover);
+    color: var(--text-color);
+  }
+
+  .p-paginator {
+    background: var(--surface-card);
+    color: var(--text-color-secondary);
+  }
+
+  .p-paginator .p-paginator-pages .p-paginator-page {
+    color: var(--text-color-secondary);
+  }
+
+  .p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+    background: var(--highlight-bg);
+    color: var(--highlight-text-color);
+    border-color: transparent;
+  }
+
+  .p-inputtext,
+  .p-dropdown,
+  .p-multiselect,
+  .p-calendar .p-inputtext,
+  .p-inputnumber .p-inputnumber-input,
+  .p-inputtextarea,
+  .p-password input {
+    background: var(--surface-0);
+    color: var(--text-color);
+    border-color: var(--surface-border);
+  }
+
+  .p-dropdown:not(.p-disabled).p-focus,
+  .p-inputtext:enabled:focus {
+    border-color: var(--primary-color);
+    box-shadow: var(--focus-ring);
+  }
+
+  .p-dropdown-panel,
+  .p-multiselect-panel,
+  .p-datepicker,
+  .p-overlaypanel,
+  .p-menu {
+    background: var(--surface-overlay);
+    color: var(--text-color);
+    border-color: var(--surface-border);
+  }
+
+  .p-dropdown-item,
+  .p-multiselect-item,
+  .p-menu .p-menuitem-link {
+    color: var(--text-color);
+  }
+
+  .p-dropdown-item.p-highlight,
+  .p-multiselect-item.p-highlight {
+    background: var(--highlight-bg);
+    color: var(--highlight-text-color);
+  }
+
+  .p-dialog .p-dialog-header,
+  .p-dialog .p-dialog-content,
+  .p-dialog .p-dialog-footer,
+  .p-confirm-dialog {
+    background: var(--surface-overlay);
+    color: var(--text-color);
+    border-color: var(--surface-border);
+  }
+
+  .p-card,
+  .p-panel .p-panel-header,
+  .p-panel .p-panel-content,
+  .p-toolbar {
+    background: var(--surface-card);
+    color: var(--text-color);
+    border-color: var(--surface-border);
+  }
+
+  .p-checkbox .p-checkbox-box,
+  .p-radiobutton .p-radiobutton-box {
+    background: var(--surface-50);
+    border-color: var(--surface-border);
+  }
+
+  .p-toast .p-toast-message {
+    background: var(--surface-overlay);
+    color: var(--text-color);
+    border-color: var(--surface-border);
+  }
+
+  .p-steps .p-steps-item .p-menuitem-link {
+    background: transparent;
+  }
+
+  .p-steps .p-steps-item .p-steps-number {
+    background: var(--surface-card);
+    color: var(--text-color-secondary);
+    border: 2px solid var(--surface-border);
+  }
+
+  .p-steps .p-steps-item .p-steps-title {
+    color: var(--text-color-secondary);
+  }
+
+  .p-steps .p-steps-item.p-highlight .p-steps-number {
+    background: var(--primary-color);
+    color: var(--primary-color-text);
+    border-color: var(--primary-color);
+  }
+
+  .p-steps .p-steps-item.p-highlight .p-steps-title {
+    color: var(--primary-color);
+  }
+
+  .p-steps .p-steps-item:before {
+    border-top-color: var(--surface-border);
+  }
+
+  .p-button.p-button-info,
+  .p-button.p-button-info.p-button-outlined,
+  .p-button.p-button-info.p-button-text {
+    background: transparent;
+    color: var(--text-color-secondary);
+    border-color: transparent;
+  }
+
+  .p-button.p-button-info:not(:disabled):hover,
+  .p-button.p-button-info.p-button-outlined:not(:disabled):hover,
+  .p-button.p-button-info.p-button-text:not(:disabled):hover {
+    background: var(--surface-hover);
+    color: var(--text-color);
+    border-color: transparent;
+  }
+
+  .text-blue-500,
+  .text-blue-600,
+  .text-blue-700 {
+    color: var(--primary-color) !important;
+  }
+
+  .bg-blue-50 {
+    background: color-mix(in srgb, var(--primary-color) 12%, var(--surface-50)) !important;
+  }
+
+  .border-blue-200 {
+    border-color: var(--surface-border) !important;
+  }
+
+  .p-button:not(.p-button-secondary):not(.p-button-success):not(.p-button-info):not(.p-button-warning):not(.p-button-help):not(.p-button-danger):not(.p-button-contrast) {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--primary-color-text);
+  }
+
+  .p-button:not(.p-button-secondary):not(.p-button-success):not(.p-button-info):not(.p-button-warning):not(.p-button-help):not(.p-button-danger):not(.p-button-contrast):not(:disabled):hover {
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
+    color: var(--primary-color-text);
+  }
+
+  .p-button:not(.p-button-secondary):not(.p-button-success):not(.p-button-info):not(.p-button-warning):not(.p-button-help):not(.p-button-danger):not(.p-button-contrast):not(:disabled):active {
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
+    color: var(--primary-color-text);
+  }
+
+  .p-button.p-button-outlined:not(.p-button-secondary):not(.p-button-success):not(.p-button-info):not(.p-button-warning):not(.p-button-help):not(.p-button-danger):not(.p-button-contrast) {
+    background: transparent;
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+
+  .p-button.p-button-outlined:not(.p-button-secondary):not(.p-button-success):not(.p-button-info):not(.p-button-warning):not(.p-button-help):not(.p-button-danger):not(.p-button-contrast):not(:disabled):hover {
+    background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+
+  .p-button.p-button-text:not(.p-button-secondary):not(.p-button-success):not(.p-button-info):not(.p-button-warning):not(.p-button-help):not(.p-button-danger):not(.p-button-contrast) {
+    background: transparent;
+    color: var(--primary-color);
+    border-color: transparent;
+  }
+
+  .p-button.p-button-text:not(.p-button-secondary):not(.p-button-success):not(.p-button-info):not(.p-button-warning):not(.p-button-help):not(.p-button-danger):not(.p-button-contrast):not(:disabled):hover {
+    background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+    color: var(--primary-color);
+    border-color: transparent;
+  }
+
+  .topbar .p-button.p-button-text,
+  .topbar .p-button.p-button-icon-only,
+  .auth-shell-toolbar .p-button.p-button-text {
+    color: var(--layout-bar-text);
+    background: transparent;
+  }
+
+  .topbar .p-button.p-button-text:not(:disabled):hover,
+  .topbar .p-button.p-button-icon-only:not(:disabled):hover,
+  .auth-shell-toolbar .p-button.p-button-text:not(:disabled):hover {
+    color: var(--layout-bar-text);
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  .p-inputswitch .p-inputswitch-slider {
+    background: var(--surface-200);
+  }
+
+  .p-inputswitch:not(.p-disabled):hover .p-inputswitch-slider {
+    background: var(--surface-300);
+  }
+
+  .p-inputswitch.p-inputswitch-checked .p-inputswitch-slider {
+    background: var(--primary-color);
+  }
+
+  .p-inputswitch.p-inputswitch-checked .p-inputswitch-slider:before {
+    background: var(--primary-color-text);
+  }
+
+  .p-inputswitch.p-inputswitch-checked:not(.p-disabled):hover .p-inputswitch-slider {
+    background: var(--primary-light);
+  }
+
+  .p-inputswitch.p-focus .p-inputswitch-slider {
+    box-shadow: var(--focus-ring);
+  }
+
+  .p-tabview .p-tabview-nav {
+    background: var(--surface-card);
+    border-color: var(--surface-border);
+  }
+
+  .p-tabview .p-tabview-nav li .p-tabview-nav-link {
+    background: var(--surface-card);
+    color: var(--text-color-secondary);
+    border-color: transparent transparent var(--surface-border) transparent;
+  }
+
+  .p-tabview .p-tabview-nav li:not(.p-highlight):not(.p-disabled):hover .p-tabview-nav-link {
+    background: var(--surface-card);
+    color: var(--text-color);
+    border-color: var(--surface-border);
+  }
+
+  .p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+    background: var(--surface-card);
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+
+  .p-tabview .p-tabview-panels {
+    background: var(--surface-card);
+    color: var(--text-color);
+  }
+
+  .p-datatable.p-datatable-striped .p-datatable-tbody > tr:nth-child(even) {
+    background: var(--surface-0);
+  }
+}
+
+a.p-button,
+a.p-button:hover,
+a.p-button:focus,
+.p-steps .p-menuitem-link,
+.p-steps .p-menuitem-link:hover,
+.p-steps .p-menuitem-link:focus {
+  text-decoration: none;
 }

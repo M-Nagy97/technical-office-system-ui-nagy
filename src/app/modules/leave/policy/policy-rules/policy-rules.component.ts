@@ -12,10 +12,10 @@ import { DropdownModule } from 'primeng/dropdown';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
 import { PolicyRuleService, LeaveTypeService, LanguageService } from '../../../../core/services';
 import {
   PolicyRuleDto,
@@ -51,11 +51,10 @@ import {
     RadioButtonModule,
     InputTextModule,
     InputNumberModule,
-    ConfirmDialogModule,
     TooltipModule,
     TranslateModule,
+    HasPermissionDirective,
   ],
-  providers: [ConfirmationService],
   templateUrl: './policy-rules.component.html',
   styleUrl: './policy-rules.component.scss',
 })

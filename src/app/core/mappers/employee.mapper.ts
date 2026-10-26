@@ -94,6 +94,20 @@ function parseDate(d: Date | string | null | undefined): string | undefined {
   return isNaN(parsed.getTime()) ? undefined : parsed.toISOString();
 }
 
+function asGuid(value: string | null | undefined): string | null {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
+}
+
+function resolveLastName(employee: Partial<Employee>): string {
+  const last = employee.lastName?.trim();
+  if (last) return last;
+  const parts = [employee.firstName, employee.secondName, employee.thirdName]
+    .map((part) => part?.trim())
+    .filter((part): part is string => Boolean(part));
+  return parts.at(-1) || '';
+}
+
 function buildDocumentPayloads(employee: Partial<Employee>) {
   const natDoc = (employee.documents || []).find(
     (d) =>
@@ -155,7 +169,7 @@ function buildCommandBody(employee: Partial<Employee>) {
 
   return {
     firstName: employee.firstName ?? null,
-    lastName: employee.lastName ?? null,
+    lastName: resolveLastName(employee),
     arabicName: employee.fullName ?? null,
     birthDate: parseDate(employee.birthDate),
     genderId: employee.gender ? GENDER_TO_ID[employee.gender] : 1,
@@ -166,7 +180,7 @@ function buildCommandBody(employee: Partial<Employee>) {
     birthPlace: employee.birthPlace?.trim() || null,
     religion: employee.religion?.trim() || null,
     appointmentDecisionNumber: employee.appointmentDecisionNumber?.trim() || null,
-    appointmentDecisionDate: parseDate(employee.appointmentDecisionDate),
+    appointmentDecisionDate: parseDate(employee.appointmentDecisionDate) ?? null,
     employmentTypeId: employee.employmentType
       ? EMPLOYMENT_TYPE_TO_ID[employee.employmentType]
       : 1,
@@ -325,8 +339,15 @@ export class EmployeeMapper {
           : new Date(0),
       jobTitle: currentPosition?.jobPositionName ?? currentPosition?.jobPositionId ?? '',
       jobGrade: currentPosition?.jobGradeName ?? currentPosition?.jobGradeId ?? '',
-      department: currentPosition?.organizationUnitName ?? currentPosition?.organizationUnitId ?? '',
-      section: '',
+      department: currentPosition?.organizationUnitParentName
+        || currentPosition?.organizationUnitName
+        || currentPosition?.organizationUnitId
+        || '',
+      section: currentPosition?.organizationUnitParentName
+        ? (currentPosition.organizationUnitName ?? '')
+        : '',
+      jobPositionId: currentPosition?.jobPositionId,
+      organizationUnitId: currentPosition?.organizationUnitId,
       workLocation: '',
       employmentType,
       status,
@@ -345,9 +366,16 @@ export class EmployeeMapper {
   }
 
   static toCreateCommand(employee: Partial<Employee>): CreateEmployeeCommand {
+    const body = buildCommandBody(employee);
     return {
       employeeCode: employee.employeeNumber?.trim() || null,
-      ...buildCommandBody(employee),
+      ...body,
+      jobPositionId: asGuid(employee.jobPositionId),
+      organizationUnitId: asGuid(employee.organizationUnitId),
+      positionFromDate: parseDate(employee.appointmentDate) ?? null,
+      addresses: null,
+      educations: null,
+      experiences: null,
     } as CreateEmployeeCommand;
   }
 
@@ -355,8 +383,15 @@ export class EmployeeMapper {
     return {
       id,
       ...buildCommandBody(employee),
+      jobPositionId: asGuid(employee.jobPositionId),
+      organizationUnitId: asGuid(employee.organizationUnitId),
+      positionFromDate: parseDate(employee.appointmentDate) ?? null,
       // Documents are managed via DocumentEmployeeController — null skips SyncDocuments.
       documents: null,
+      // Address/education/experience are no longer collected in the form; null skips sync.
+      addresses: null,
+      educations: null,
+      experiences: null,
     } as UpdateEmployeeCommand;
   }
 }

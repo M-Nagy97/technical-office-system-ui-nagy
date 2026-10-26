@@ -1,33 +1,39 @@
 <div class="job-grade-form">
-  <p-card [header]="isEdit() ? 'تعديل درجة وظيفية' : 'إضافة درجة وظيفية'">
+  <p-card [header]="(isEdit() ? 'job_grades.edit' : 'job_grades.add') | translate">
     <form [formGroup]="form" (ngSubmit)="submit()">
       <div class="form-grid">
-        <div class="field" *ngIf="!isEdit()">
-          <label for="code">الرمز <span class="required">*</span></label>
-          <input id="code" type="text" pInputText formControlName="code" class="w-full" />
-          <small class="p-error" *ngIf="form.get('code')?.invalid && form.get('code')?.touched">
-            الرمز مطلوب
-          </small>
-        </div>
-        <div class="field">
-          <label for="name">الاسم <span class="required">*</span></label>
-          <input id="name" type="text" pInputText formControlName="name" class="w-full" />
-          <small class="p-error" *ngIf="form.get('name')?.invalid && form.get('name')?.touched">
-            الاسم مطلوب
-          </small>
-        </div>
-        <div class="field">
-          <label for="rank">الرتبة <span class="required">*</span></label>
-          <p-inputNumber id="rank" formControlName="rank" [min]="0" [useGrouping]="false" class="w-full" />
-          <small class="p-error" *ngIf="form.get('rank')?.invalid && form.get('rank')?.touched">
-            الرتبة مطلوبة ويجب أن تكون ≥ 0
-          </small>
-        </div>
+        @if (!isEdit()) {
+          <app-form-field
+            forId="code"
+            labelKey="common.code"
+            [required]="true"
+            [errorKey]="isInvalid('code') ? 'lookups.code_required' : null"
+          >
+            <input id="code" type="text" pInputText formControlName="code" />
+          </app-form-field>
+        }
+        <app-form-field
+          forId="name"
+          labelKey="common.name"
+          [required]="true"
+          [errorKey]="isInvalid('name') ? 'lookups.name_required' : null"
+        >
+          <input id="name" type="text" pInputText formControlName="name" />
+        </app-form-field>
+        <app-form-field
+          forId="rank"
+          labelKey="common.rank"
+          [required]="true"
+          [errorKey]="isInvalid('rank') ? 'job_grades.rank_required' : null"
+        >
+          <p-inputNumber inputId="rank" formControlName="rank" [min]="0" [useGrouping]="false" />
+        </app-form-field>
       </div>
-      <div class="form-actions">
-        <button pButton type="submit" label="حفظ" icon="pi pi-check" [loading]="saving()" class="p-button-primary"></button>
-        <a pButton label="إلغاء" icon="pi pi-times" routerLink="/job-grades" class="p-button-outlined"></a>
-      </div>
+      <app-form-actions
+        cancelLink="/job-grades"
+        [saving]="saving()"
+        (save)="submit()"
+      />
     </form>
   </p-card>
 </div>
