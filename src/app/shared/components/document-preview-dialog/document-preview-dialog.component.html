@@ -3,30 +3,56 @@
   [visible]="visible"
   (visibleChange)="onVisibleChange($event)"
   [modal]="true"
-  [style]="{ width: '36rem' }"
+  styleClass="doc-preview-p-dialog"
+  [style]="{ width: 'min(960px, 96vw)', height: 'min(88vh, 920px)', maxWidth: '96vw' }"
+  [contentStyle]="{
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
+    padding: '0',
+    flex: '1 1 auto',
+    minHeight: '0'
+  }"
   [draggable]="false"
   [resizable]="false"
+  [maximizable]="true"
+  appendTo="body"
   (onHide)="close()"
 >
   @if (document; as doc) {
     <div class="doc-preview-dialog">
-      <dl class="doc-preview-dialog__meta">
-        <dt>{{ 'document_preview.doc_number' | translate }}</dt>
-        <dd dir="ltr">{{ doc.documentNumber || doc.name || '—' }}</dd>
-        <dt>{{ 'document_preview.issue_date' | translate }}</dt>
-        <dd>{{ formatDateOrDash(doc.uploadDate) }}</dd>
-        <dt>{{ 'document_preview.expiry_date' | translate }}</dt>
-        <dd>{{ formatDateOrDash(doc.expiryDate) }}</dd>
-      </dl>
+      <div class="doc-preview-dialog__meta">
+        <div class="doc-preview-dialog__meta-item">
+          <span class="doc-preview-dialog__meta-label">{{ 'document_preview.doc_number' | translate }}</span>
+          <span class="doc-preview-dialog__meta-value" dir="ltr">{{ doc.documentNumber || doc.name || '—' }}</span>
+        </div>
+        <div class="doc-preview-dialog__meta-item">
+          <span class="doc-preview-dialog__meta-label">{{ 'document_preview.issue_date' | translate }}</span>
+          <span class="doc-preview-dialog__meta-value">{{ formatDateOrDash(doc.uploadDate) }}</span>
+        </div>
+        <div class="doc-preview-dialog__meta-item">
+          <span class="doc-preview-dialog__meta-label">{{ 'document_preview.expiry_date' | translate }}</span>
+          <span class="doc-preview-dialog__meta-value">{{ formatDateOrDash(doc.expiryDate) }}</span>
+        </div>
+      </div>
 
       @if (hasFile()) {
-        <div class="doc-preview-dialog__preview">
+        <div
+          class="doc-preview-dialog__stage"
+          [class.doc-preview-dialog__stage--pdf]="isPdf() && !!safePdfUrl"
+        >
           @if (isImage()) {
             <img
               [src]="doc.fileUrl"
               [alt]="headerKey | translate"
               class="doc-preview-dialog__image"
             />
+          } @else if (isPdf() && safePdfUrl) {
+            <iframe
+              [src]="safePdfUrl"
+              class="doc-preview-dialog__pdf"
+              [title]="headerKey | translate"
+            ></iframe>
           } @else {
             <p class="doc-preview-dialog__hint">
               {{ 'document_preview.preview_unavailable' | translate }}
@@ -43,15 +69,32 @@
           }
         </div>
       } @else {
-        <p class="doc-preview-dialog__empty">{{ 'document_preview.empty' | translate }}</p>
+        <div class="doc-preview-dialog__stage doc-preview-dialog__stage--empty">
+          <p class="doc-preview-dialog__empty">{{ 'document_preview.empty' | translate }}</p>
+        </div>
       }
     </div>
   } @else {
-    <p class="doc-preview-dialog__empty">{{ 'document_preview.empty' | translate }}</p>
+    <div class="doc-preview-dialog">
+      <div class="doc-preview-dialog__stage doc-preview-dialog__stage--empty">
+        <p class="doc-preview-dialog__empty">{{ 'document_preview.empty' | translate }}</p>
+      </div>
+    </div>
   }
 
   <ng-template pTemplate="footer">
     <div class="doc-preview-dialog__actions">
+      @if (hasFile() && document?.fileUrl; as fileUrl) {
+        <a
+          pButton
+          [href]="fileUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          [label]="'document_preview.open_file' | translate"
+          icon="pi pi-external-link"
+          class="p-button-outlined p-button-sm"
+        ></a>
+      }
       <button
         pButton
         type="button"

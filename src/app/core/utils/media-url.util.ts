@@ -54,5 +54,13 @@ export function isImageMediaUrl(url: string | null | undefined): boolean {
   const value = url.trim().toLowerCase();
   if (value.startsWith('data:image/')) return true;
   const path = value.split('?')[0].split('#')[0];
-  return /\.(png|jpe?g|gif|webp|bmp)$/i.test(path);
+  return /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(path);
+}
+
+export function isPdfMediaUrl(url: string | null | undefined): boolean {
+  if (!url) return false;
+  const value = url.trim().toLowerCase();
+  if (value.startsWith('data:application/pdf')) return true;
+  const path = value.split('?')[0].split('#')[0];
+  return /\.pdf$/i.test(path);
 }

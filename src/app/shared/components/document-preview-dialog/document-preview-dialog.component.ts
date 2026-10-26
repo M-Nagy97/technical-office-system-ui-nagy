@@ -3,16 +3,22 @@ import {
   EventEmitter,
   Input,
   Output,
+  ViewEncapsulation,
   inject,
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { MessageService } from 'primeng/api';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { EmployeeDocument } from '../../../core/models/employee.model';
-import { isImageMediaUrl, isPlaceholderDocumentUrl } from '../../../core/utils/media-url.util';
+import {
+  isImageMediaUrl,
+  isPdfMediaUrl,
+  isPlaceholderDocumentUrl,
+} from '../../../core/utils/media-url.util';
 
 @Component({
   selector: 'app-document-preview-dialog',
@@ -20,19 +26,42 @@ import { isImageMediaUrl, isPlaceholderDocumentUrl } from '../../../core/utils/m
   imports: [CommonModule, DialogModule, ButtonModule, TranslateModule],
   templateUrl: './document-preview-dialog.component.html',
   styleUrl: './document-preview-dialog.component.scss',
+  encapsulation: ViewEncapsulation.None,
 })
 export class DocumentPreviewDialogComponent {
   private readonly messageService = inject(MessageService);
   private readonly translate = inject(TranslateService);
+  private readonly sanitizer = inject(DomSanitizer);
 
   @Input() visible = false;
-  @Input() document: EmployeeDocument | null = null;
+
+  private _document: EmployeeDocument | null = null;
+  safePdfUrl: SafeResourceUrl | null = null;
+
+  @Input()
+  set document(value: EmployeeDocument | null) {
+    this._document = value;
+    this.updateSafePdfUrl();
+  }
+  get document(): EmployeeDocument | null {
+    return this._document;
+  }
+
   @Input() headerKey = 'document_preview.default_header';
   @Input() downloadFileName = '';
 
   @Output() visibleChange = new EventEmitter<boolean>();
 
   readonly downloading = signal(false);
+
+  private updateSafePdfUrl(): void {
+    const url = this._document?.fileUrl?.trim();
+    if (url && !isPlaceholderDocumentUrl(url) && isPdfMediaUrl(url)) {
+      this.safePdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    } else {
+      this.safePdfUrl = null;
+    }
+  }
 
   onVisibleChange(value: boolean): void {
     this.visible = value;
@@ -50,6 +79,10 @@ export class DocumentPreviewDialogComponent {
 
   isImage(): boolean {
     return isImageMediaUrl(this.document?.fileUrl);
+  }
+
+  isPdf(): boolean {
+    return isPdfMediaUrl(this.document?.fileUrl);
   }
 
   formatDateOrDash(d?: Date | null): string {
@@ -169,8 +202,10 @@ export class DocumentPreviewDialogComponent {
     }
 
     const path = url.split('?')[0];
-    const extMatch = path.match(/\.(png|jpe?g|gif|webp|bmp|pdf)$/i);
-    const extRaw = extMatch?.[1]?.toLowerCase() ?? (isImageMediaUrl(url) ? 'jpg' : 'pdf');
+    const extMatch = path.match(/\.(png|jpe?g|gif|webp|bmp|pdf|svg)$/i);
+    const extRaw =
+      extMatch?.[1]?.toLowerCase() ??
+      (isImageMediaUrl(url) ? 'jpg' : isPdfMediaUrl(url) ? 'pdf' : 'pdf');
     const ext = extRaw === 'jpeg' ? 'jpg' : extRaw;
     const base = doc?.documentNumber?.trim() || doc?.name?.trim() || 'document';
     return `${base}.${ext}`;
