@@ -10,9 +10,10 @@ Companion API: **MyERP** (`http://localhost:8400`, Swagger at `https://localhost
 
 - Angular 17 (standalone, `bootstrapApplication`)
 - PrimeNG 17 + PrimeFlex + PrimeIcons
-- ngx-translate (JSON files, not Angular i18n)
+- ngx-translate (JSON files, fallback `en`)
 - JWT in `localStorage` (access + refresh)
 - Signals + services — no NgRx
+- FullCalendar (employee schedule), Chart.js (dashboard), `xlsx` (Excel import)
 
 ## Repo map
 
@@ -34,6 +35,8 @@ src/app/
   styles/                themes, RTL, PrimeNG overrides
 ```
 
+Custody UI lives in `modules/employee-custody/` (route is still `/custody`).
+
 ## Screens
 
 | Route | What |
@@ -41,13 +44,16 @@ src/app/
 | `/dashboard` | Home stats |
 | `/employees` | Employees, documents |
 | `/job-grades`, `/job-positions`, `/organization-units`, `/organization-structure` | Org lookups and tree |
-| `/leave` | Types, requests, hourly permissions, balances, policies |
-| `/attendance` | Daily attendance, shifts, plans, calc, fingerprint devices |
+| `/leave` | Types, permission types, requests, balances, policy rules |
+| `/attendance` | Daily/reports, holidays, shifts, plans, employee schedule, calc, devices |
 | `/custody` | Financial + document custody |
-| `/payroll` | Periods, structures, runs, payslips |
+| `/payroll` | Hub: periods, structures, lookups, runs, payslips |
 | `/penalties` | Penalty list |
-| `/admin` | Users, roles, permissions, pages |
+| `/admin` | Users, roles, modules, permissions, pages |
+| `/profile` | Current user profile |
 | `/auth/login` | Login (guest only) |
+
+Unknown authenticated routes go to a 404 page.
 
 ## Run locally
 
@@ -66,11 +72,11 @@ API URLs live in `src/environments/environment.ts` (`apiBaseUrl`, `identityApiUr
 
 ## Auth and i18n
 
-Login: `/auth/login` → `POST /api/auth/login`.
+Login: `/auth/login` → `POST /api/auth/login` with `{ userNameOrEmail, password }`. Refresh and logout use `/api/auth/refresh-token` and `/api/auth/revoke-refresh-token`.
 
 Permission codes match the backend (`hr.employees.read`, `leave.write`, …). Routes use `permissionGuard`; templates use `*appHasPermission`. Denied users go to `/dashboard`.
 
-Default language is Arabic (`html[dir=rtl]`). Strings: `src/assets/i18n/ar.json` and `en.json`. Use `TranslatePipe` / `translate.instant(...)`.
+Default language is Arabic (`LanguageService` sets `html[dir=rtl]`). Preference is stored as `technical-office-lang`. Strings: `src/assets/i18n/ar.json` and `en.json`. Use `TranslatePipe` / `translate.instant(...)`.
 
 ## Where to look first
 

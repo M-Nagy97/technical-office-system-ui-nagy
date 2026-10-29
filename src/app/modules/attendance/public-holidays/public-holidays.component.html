@@ -15,6 +15,7 @@
         (ngModelChange)="year.set($event); load()"
         [options]="years"
         styleClass="w-8rem"
+        appendTo="body"
       />
       <ng-container *appHasPermission="'timeattendance.write'">
         <p-button
@@ -230,6 +231,7 @@
                   [ngModel]="importResolutions()[row.sourceRow]"
                   (ngModelChange)="setResolution(row.sourceRow, $event)"
                   [style]="{ width: '8rem' }"
+                  appendTo="body"
                 >
                   <ng-template pTemplate="item" let-opt>
                     {{ opt.labelKey | translate }}
