@@ -17,6 +17,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
 import { SharedTableCellTemplateDirective } from '../../../shared/components/shared-table/shared-table-cell-template.directive';
 import { SharedTableAction, SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
+import { AppDatePipe } from '../../../shared';
 import {
   AttendanceCalcService,
   AttendanceCalculationPreviewDayDto,
@@ -55,6 +56,7 @@ function toYmd(d: Date): string {
     TranslatePipe,
     SharedTableComponent,
     SharedTableCellTemplateDirective,
+    AppDatePipe,
   ],
   templateUrl: './calculation-workbench.component.html',
   styleUrl: './calculation-workbench.component.scss',
@@ -222,6 +224,8 @@ export class CalculationWorkbenchComponent implements OnInit, OnDestroy {
       [AttendanceStatus.NUMBER_5]: 'calculation_workbench.attendance_status.overtime',
       [AttendanceStatus.NUMBER_6]: 'calculation_workbench.attendance_status.half_day',
       [AttendanceStatus.NUMBER_7]: 'calculation_workbench.attendance_status.holiday',
+      [AttendanceStatus.NUMBER_8]: 'calculation_workbench.attendance_status.compensatory',
+      [AttendanceStatus.NUMBER_9]: 'calculation_workbench.attendance_status.on_leave',
     };
     const k = keys[s];
     return k ? this.translate.instant(k) : String(s);
@@ -356,6 +360,23 @@ export class CalculationWorkbenchComponent implements OnInit, OnDestroy {
     { id: 'actualIn', header: 'employee_attendance.col_in' },
     { id: 'actualOut', header: 'employee_attendance.col_out' },
     { id: 'attendanceStatus', header: 'employee_attendance.col_status', valueGetter: (d) => this.formatAttendanceStatus(d.status) },
+    {
+      id: 'leaveType',
+      header: 'calculation_workbench.col_leave',
+      valueGetter: (d) => {
+        const name = d.leaveTypeArabicName || d.leaveTypeName;
+        if (!name) return '—';
+        if (d.workedDuringApprovedLeave) {
+          return `${name} (${this.translate.instant('daily_attendance_page.worked_during_leave')})`;
+        }
+        return name;
+      },
+    },
+    {
+      id: 'compensatoryCreditWarning',
+      header: 'calculation_workbench.col_credit_warning',
+      valueGetter: (d) => d.compensatoryCreditWarning || '—',
+    },
     { id: 'netWorkMinutes', header: 'employee_attendance.col_net', valueGetter: (d) => this.formatMinutes(d.netWorkMinutes), align: 'end' },
     { id: 'lateMinutes', header: 'calculation_workbench.col_late', valueGetter: (d) => this.formatMinutes(d.lateMinutes), align: 'end' },
     { id: 'earlyLeaveMinutes', header: 'calculation_workbench.col_early', valueGetter: (d) => this.formatMinutes(d.earlyLeaveMinutes), align: 'end' },

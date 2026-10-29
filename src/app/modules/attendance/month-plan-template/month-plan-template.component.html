@@ -1,72 +1,174 @@
-<div class="p-4">
-  <p-card header="Month Plan Template" subheader="Schedule shifts for all employees in a plan for a specific month">
-    <form [formGroup]="filterForm" (ngSubmit)="generateDays()" class="flex flex-wrap gap-4 align-items-end mb-4">
+<div class="p-4 plan-planner">
+  <p-card>
+    <ng-template pTemplate="header">
+      <div class="px-4 pt-4">
+        <h2 class="m-0 text-xl">{{ 'month_plan_template_page.title' | translate }}</h2>
+        <p class="text-600 mt-2 mb-0">{{ 'month_plan_template_page.subtitle' | translate }}</p>
+      </div>
+    </ng-template>
+
+    <form [formGroup]="filterForm" class="flex flex-wrap gap-3 align-items-end mb-3">
       <div class="flex flex-column gap-2">
-        <label for="plan">Plan</label>
-        <p-dropdown 
-          id="plan" 
-          formControlName="planId" 
-          [options]="plans()" 
-          optionLabel="name" 
-          optionValue="id" 
-          placeholder="Select Plan"
+        <label for="plan">{{ 'month_plan_template_page.plan' | translate }}</label>
+        <p-dropdown
+          id="plan"
+          formControlName="planId"
+          [options]="plans()"
+          optionLabel="name"
+          optionValue="id"
+          [placeholder]="'month_plan_template_page.plan' | translate"
           (onChange)="onPlanChange()"
-          styleClass="w-full md:w-15rem">
-        </p-dropdown>
+          styleClass="w-full md:w-16rem"
+        />
       </div>
 
       <div class="flex flex-column gap-2">
-        <label for="year">Year</label>
-        <p-dropdown 
-          id="year" 
-          formControlName="year" 
-          [options]="years" 
-          placeholder="Year"
-          styleClass="w-full md:w-8rem">
-        </p-dropdown>
+        <label>{{ 'month_plan_template_page.default_shift' | translate }}</label>
+        <p-dropdown
+          [options]="shifts()"
+          optionLabel="shiftName"
+          optionValue="id"
+          [ngModel]="defaultShiftId()"
+          (ngModelChange)="defaultShiftId.set($event)"
+          [ngModelOptions]="{ standalone: true }"
+          [placeholder]="'month_plan_template_page.default_shift' | translate"
+          styleClass="w-full md:w-14rem"
+        />
       </div>
 
-      <div class="flex flex-column gap-2">
-        <label for="month">Month</label>
-        <p-dropdown 
-          id="month" 
-          formControlName="month" 
-          [options]="months" 
-          optionLabel="label" 
-          optionValue="value" 
-          placeholder="Month"
-          styleClass="w-full md:w-10rem">
-        </p-dropdown>
+      <div class="flex gap-2">
+        <p-button
+          [label]="'month_plan_template_page.view_month' | translate"
+          icon="pi pi-calendar"
+          [outlined]="viewMode() !== 'month'"
+          (onClick)="setViewMode('month')"
+        />
+        <p-button
+          [label]="'month_plan_template_page.view_week' | translate"
+          icon="pi pi-calendar-plus"
+          [outlined]="viewMode() !== 'week'"
+          (onClick)="setViewMode('week')"
+        />
       </div>
 
-      <p-button label="Load / Generate" icon="pi pi-refresh" type="submit" [loading]="loading()"></p-button>
+      @if (viewMode() === 'month') {
+        <div class="flex flex-column gap-2">
+          <label>{{ 'month_plan_template_page.year' | translate }}</label>
+          <p-dropdown formControlName="year" [options]="years" styleClass="w-8rem" />
+        </div>
+        <div class="flex flex-column gap-2">
+          <label>{{ 'month_plan_template_page.month' | translate }}</label>
+          <p-dropdown
+            formControlName="month"
+            [options]="monthOptions()"
+            optionLabel="label"
+            optionValue="value"
+            styleClass="w-10rem"
+          />
+        </div>
+      } @else {
+        <div class="flex flex-column gap-2">
+          <label>{{ 'month_plan_template_page.week_of' | translate }}</label>
+          <span class="font-medium py-2">{{ weekRangeLabel() }}</span>
+        </div>
+      }
+
+      <p-button icon="pi pi-chevron-left" [outlined]="true" (onClick)="prevPeriod()" />
+      <p-button icon="pi pi-chevron-right" [outlined]="true" (onClick)="nextPeriod()" />
+      <p-button
+        [label]="'month_plan_template_page.load' | translate"
+        icon="pi pi-refresh"
+        type="button"
+        [loading]="loading()"
+        (onClick)="loadDays()"
+      />
     </form>
 
-    <div *ngIf="days().length > 0" class="fadein">
-      <div class="flex justify-content-between align-items-center mb-3">
-        <div class="flex gap-2">
-          <p-button label="Set default Weekends (Fri/Sat)" icon="pi pi-calendar-times" severity="secondary" size="small" (onClick)="setWeekends()"></p-button>
+    <div class="off-days-row flex flex-wrap align-items-center gap-3 mb-3">
+      <span class="font-medium">{{ 'month_plan_template_page.off_days' | translate }}</span>
+      @for (day of weekdayOptions; track day) {
+        <label class="flex align-items-center gap-2">
+          <p-checkbox
+            [binary]="true"
+            [ngModel]="isOffSelected(day)"
+            (ngModelChange)="toggleOffDay(day, $event)"
+          />
+          <span>{{ weekdayLabel(day) }}</span>
+        </label>
+      }
+    </div>
+
+    @if (days().length > 0) {
+      <div class="stats-row mb-3">
+        <div class="stat-card">
+          <span class="stat-value">{{ stats().total }}</span>
+          <span class="stat-label">{{ 'month_plan_template_page.stat_total' | translate }}</span>
         </div>
-        <p-button label="Save & Sync To Employees" icon="pi pi-save" severity="success" (onClick)="saveTemplate()"></p-button>
+        <div class="stat-card">
+          <span class="stat-value">{{ stats().workdays }}</span>
+          <span class="stat-label">{{ 'month_plan_template_page.stat_workdays' | translate }}</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value">{{ stats().weekends }}</span>
+          <span class="stat-label">{{ 'month_plan_template_page.stat_weekends' | translate }}</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value">{{ stats().holidays }}</span>
+          <span class="stat-label">{{ 'month_plan_template_page.stat_holidays' | translate }}</span>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-2 mb-3">
+        <ng-container *appHasPermission="'timeattendance.write'">
+          <p-button
+            [label]="'month_plan_template_page.apply_off_days' | translate"
+            icon="pi pi-calendar-times"
+            severity="secondary"
+            size="small"
+            (onClick)="applyWeeklyOffDays()"
+          />
+          <p-button
+            [label]="'month_plan_template_page.add_holiday' | translate"
+            icon="pi pi-star"
+            severity="success"
+            size="small"
+            [outlined]="true"
+            (onClick)="openHolidayDialog()"
+          />
+          <p-button
+            [label]="'month_plan_template_page.apply_shift' | translate"
+            icon="pi pi-clock"
+            size="small"
+            [outlined]="true"
+            (onClick)="applyShiftToWorkdays()"
+          />
+          <p-button
+            [label]="'month_plan_template_page.save' | translate"
+            icon="pi pi-save"
+            severity="success"
+            size="small"
+            [loading]="saving()"
+            (onClick)="savePlan()"
+          />
+        </ng-container>
       </div>
 
       <app-shared-table
         [value]="days()"
         [columns]="columns"
+        [loading]="loading()"
         styleClass="p-datatable-sm p-datatable-gridlines"
         [scrollable]="true"
         scrollHeight="500px"
         [paginator]="false"
-        [translateHeader]="false"
-        emptyMessage="No data"
-        [translateEmptyMessage]="false"
+        emptyMessage="common.no_data"
         [rowClass]="rowClassForDay"
       >
         <ng-template sharedTableCell="dayName" let-row>
           <p-tag
-            [value]="row.dayName"
-            [severity]="row.dayType === 2 ? 'warning' : 'info'"
-          ></p-tag>
+            [value]="weekdayLabel(row.weekday)"
+            [severity]="row.dayType === 2 ? 'warning' : row.dayType === 3 ? 'success' : 'info'"
+          />
         </ng-template>
 
         <ng-template sharedTableCell="shiftId" let-row>
@@ -76,19 +178,40 @@
             optionLabel="shiftName"
             optionValue="id"
             [showClear]="true"
-            placeholder="No Shift"
-            [disabled]="row.dayType !== 1"
+            [placeholder]="'month_plan_template_page.no_shift' | translate"
+            [disabled]="row.isCompanyHoliday || row.dayType !== 1"
             styleClass="w-full border-none shadow-none"
-          ></p-dropdown>
+          />
         </ng-template>
 
         <ng-template sharedTableCell="dayType" let-row>
           <p-dropdown
             [(ngModel)]="row.dayType"
-            [options]="dayTypes"
-            placeholder="Select Type"
+            [options]="dayTypes()"
+            optionLabel="label"
+            optionValue="value"
+            (onChange)="onDayTypeChange(row)"
+            [disabled]="row.isCompanyHoliday"
             styleClass="w-full border-none shadow-none"
-          ></p-dropdown>
+          />
+        </ng-template>
+
+        <ng-template sharedTableCell="badge" let-row>
+          @if (row.isCompanyHoliday) {
+            <p-tag
+              [value]="('month_plan_template_page.tag_company_holiday' | translate) + (row.notes ? ': ' + row.notes : '')"
+              severity="danger"
+            />
+          } @else if (row.dayType === 3 || row.isHoliday) {
+            <p-tag
+              [value]="('month_plan_template_page.tag_holiday' | translate) + (row.notes ? ': ' + row.notes : '')"
+              severity="success"
+            />
+          } @else if (row.dayType === 2) {
+            <p-tag [value]="'month_plan_template_page.tag_weekend' | translate" severity="warning" />
+          } @else {
+            <p-tag [value]="shiftName(row.shiftId)" severity="info" />
+          }
         </ng-template>
 
         <ng-template sharedTableCell="notes" let-row>
@@ -97,10 +220,57 @@
             pInputText
             [(ngModel)]="row.notes"
             class="w-full border-none shadow-none p-2 bg-transparent"
-            placeholder="Add notes..."
+            [disabled]="row.isCompanyHoliday"
+            [placeholder]="'month_plan_template_page.col_notes' | translate"
           />
         </ng-template>
       </app-shared-table>
-    </div>
+    }
   </p-card>
 </div>
+
+<p-dialog
+  [header]="'month_plan_template_page.add_holiday' | translate"
+  [visible]="showHolidayDialog()"
+  (visibleChange)="showHolidayDialog.set($event)"
+  [modal]="true"
+  [style]="{ width: '28rem' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <div class="flex flex-column gap-3">
+    <div class="flex flex-column gap-2">
+      <label>{{ 'month_plan_template_page.holiday_date' | translate }}</label>
+      <p-calendar
+        [ngModel]="holidayDate()"
+        (ngModelChange)="holidayDate.set($event)"
+        dateFormat="dd/mm/yy"
+        [showIcon]="true"
+        styleClass="w-full"
+      />
+    </div>
+    <div class="flex flex-column gap-2">
+      <label>{{ 'month_plan_template_page.holiday_name' | translate }}</label>
+      <input
+        type="text"
+        pInputText
+        [ngModel]="holidayName()"
+        (ngModelChange)="holidayName.set($event)"
+        class="w-full"
+      />
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button
+      [label]="'common.cancel' | translate"
+      icon="pi pi-times"
+      [text]="true"
+      (onClick)="showHolidayDialog.set(false)"
+    />
+    <p-button
+      [label]="'month_plan_template_page.holiday_save' | translate"
+      icon="pi pi-check"
+      (onClick)="saveHoliday()"
+    />
+  </ng-template>
+</p-dialog>

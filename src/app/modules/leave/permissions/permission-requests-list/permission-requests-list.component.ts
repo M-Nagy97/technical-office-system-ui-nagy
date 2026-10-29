@@ -17,6 +17,8 @@ import {
   SharedTableCellTemplateDirective,
   StatusBadgeComponent,
   tableViewAction,
+  tableCustomAction,
+  formatAppTime,
 } from '../../../../shared';
 import { PermissionService } from '../../../../core/auth/permission.service';
 import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
@@ -34,6 +36,7 @@ import {
   RequestActionEvent,
   RequestActionType,
 } from '../../shared/request-action-dialog/request-action-dialog.component';
+import { PermissionRequestPrintDialogComponent } from '../../shared/permission-request-print-dialog/permission-request-print-dialog.component';
 
 @Component({
   selector: 'app-permission-requests-list',
@@ -52,6 +55,7 @@ import {
     SharedTableCellTemplateDirective,
     StatusBadgeComponent,
     RequestActionDialogComponent,
+    PermissionRequestPrintDialogComponent,
     TranslateModule,
     HasPermissionDirective,
   ],
@@ -83,6 +87,9 @@ export class PermissionRequestsListComponent implements OnInit {
   readonly currentRequestId = signal('');
   readonly currentRequestWarnings = signal<string | null>(null);
   readonly actionLoading = signal(false);
+  readonly printDialogOpen = signal(false);
+  readonly printRequestId = signal('');
+  readonly printRequest = signal<PermissionRequestDto | null>(null);
 
   readonly statusOptions = computed(() => [
     { label: this.translate.instant('leave.status.all'), value: null },
@@ -106,6 +113,12 @@ export class PermissionRequestsListComponent implements OnInit {
       header: 'leave.permissions.col_employee',
       width: '22%',
       valueGetter: (row) => row.employeeName || this.employeeMap().get(row.employeeId) || row.employeeId,
+    },
+    {
+      id: 'type',
+      header: 'leave.permissions.col_type',
+      width: '16%',
+      valueGetter: (row) => row.permissionTypeArabicName || row.permissionTypeName || '',
     },
     {
       id: 'date',
@@ -135,8 +148,8 @@ export class PermissionRequestsListComponent implements OnInit {
             : this.translate.instant('leave.permissions.period_morning');
         }
         return this.translate.instant('leave.permissions.time_range', {
-          from: row.fromTime || '--',
-          to: row.toTime || '--',
+          from: formatAppTime(row.fromTime, this.languageService.currentLang(), { empty: '--' }),
+          to: formatAppTime(row.toTime, this.languageService.currentLang(), { empty: '--' }),
         });
       },
     },
@@ -150,6 +163,13 @@ export class PermissionRequestsListComponent implements OnInit {
   readonly actions: SharedTableAction<PermissionRequestDto>[] = [
     tableViewAction((row) => {
       this.router.navigate(['/leave/permissions', row.id]);
+    }),
+    tableCustomAction({
+      id: 'print',
+      icon: 'pi pi-print',
+      tooltip: 'leave.permissions.print.action',
+      buttonClass: 'p-button-rounded p-button-text p-button-sm p-button-secondary',
+      onClick: (row) => this.openPrintDialog(row),
     }),
     {
       id: 'approve',
@@ -242,6 +262,12 @@ export class PermissionRequestsListComponent implements OnInit {
       return row.warningAlertsAr || row.warningAlerts || '';
     }
     return row.warningAlerts || row.warningAlertsAr || '';
+  }
+
+  openPrintDialog(request: PermissionRequestDto): void {
+    this.printRequest.set(request);
+    this.printRequestId.set(request.id);
+    this.printDialogOpen.set(true);
   }
 
   openActionDialog(action: RequestActionType, request: PermissionRequestDto | string): void {

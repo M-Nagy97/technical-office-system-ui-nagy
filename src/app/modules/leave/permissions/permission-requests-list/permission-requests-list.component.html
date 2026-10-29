@@ -104,7 +104,7 @@
       [columns]="columns"
       [actions]="actions"
       actionsColumnHeader="leave.permissions.col_actions"
-      actionsColumnWidth="12rem"
+      actionsColumnWidth="14rem"
       [tableStyle]="{ 'min-width': '50rem' }"
       [translateHeader]="true"
       emptyMessage="leave.permissions.empty"
@@ -138,5 +138,12 @@
   [warningAlerts]="currentRequestWarnings()"
   [loading]="actionLoading()"
   (confirmed)="handleActionConfirm($event)"
+/>
+
+<app-permission-request-print-dialog
+  [visible]="printDialogOpen()"
+  (visibleChange)="printDialogOpen.set($event)"
+  [requestId]="printRequestId()"
+  [request]="printRequest()"
 />
 

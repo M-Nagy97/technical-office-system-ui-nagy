@@ -19,6 +19,9 @@ export interface PermissionRequestDto {
   id: string;
   employeeId: string;
   employeeName?: string;
+  permissionTypeId: string;
+  permissionTypeName?: string;
+  permissionTypeArabicName?: string;
   date: string;              // YYYY-MM-DD
   durationType: PermissionDurationType;
   durationTypeName?: string;
@@ -40,6 +43,7 @@ export interface PermissionRequestDto {
 
 export interface SubmitPermissionRequestCommand {
   employeeId: string;
+  permissionTypeId: string;
   date: string;
   durationType: PermissionDurationType;
   fromTime?: string;

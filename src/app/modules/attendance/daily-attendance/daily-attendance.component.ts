@@ -9,17 +9,22 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { TagModule } from 'primeng/tag';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
+import { TabViewModule } from 'primeng/tabview';
 import { MessageService } from 'primeng/api';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { finalize, map } from 'rxjs/operators';
+import { forkJoin, of } from 'rxjs';
+import { catchError, finalize, map } from 'rxjs/operators';
 import {
   AttendanceRawService,
+  AttendanceCalcService,
   EmployeesService,
   EmployeeDto,
   ImportAttendanceRawCommand,
   PunchDirection,
   AttendanceSource,
+  AttendanceStatus,
   AttendanceRawDto,
+  AttendanceCalcDto,
   ListAttendanceRawForRangeQuery,
 } from '../../../core/api/generated';
 import * as XLSX from 'xlsx';
@@ -27,12 +32,30 @@ import { parseAttendanceImportCsv, parseAttendanceImportXlsx } from './attendanc
 import { SharedTableAction, SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
 import { SharedTableCellTemplateDirective } from '../../../shared/components/shared-table/shared-table-cell-template.directive';
 import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
+import { HasPermissionDirective } from '../../../core/directives/has-permission.directive';
+import { PermissionService } from '../../../core/auth/permission.service';
+import { ErpPermissions } from '../../../core/auth/erp-permissions';
+import {
+  AttendanceApiService,
+  AttendanceLeaveOverlayDay,
+  AttendancePermissionKind,
+  AttendancePermissionOverlay,
+} from '../../../core/services/attendance-api.service';
+import { FilterBarComponent } from '../../../shared/components/filter-bar/filter-bar.component';
+import { TimeInputComponent } from '../../../shared/components/time-input/time-input.component';
+import { formatAppTime, parseTimeToDate } from '../../../shared/utils/date.utils';
+
+type RegisterMode = 'in' | 'out';
 
 function toYmdLocal(d: Date): string {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
   return `${y}-${m}-${day}`;
+}
+
+function combineDateAndTime(date: Date, time: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate(), time.getHours(), time.getMinutes(), 0, 0);
 }
 
 function toLocalIsoDateTime(d: Date): string {
@@ -54,6 +77,24 @@ interface DailyAttendanceEmployeeGroup {
   employeeName: string;
   punchCount: number;
   countingInCalc: number;
+}
+
+interface DailyRegisterRow {
+  empId: string;
+  employeeName: string;
+  shiftName: string | null;
+  actualIn: string | null;
+  actualOut: string | null;
+  status: AttendanceStatus | null;
+  netWorkMinutes: number | null;
+  notes: string | null;
+  leaveTypeName: string | null;
+  leaveTypeArabicName: string | null;
+  leaveStartDate: string | null;
+  leaveEndDate: string | null;
+  isCompensatoryLeave: boolean;
+  permissions: AttendancePermissionOverlay[];
+  workedDuringApprovedLeave: boolean;
 }
 
 function employeeLabel(e: EmployeeDto): string {
@@ -78,18 +119,72 @@ function employeeLabel(e: EmployeeDto): string {
     TagModule,
     DialogModule,
     InputTextModule,
+    TabViewModule,
     TranslateModule,
     SharedTableComponent,
     SharedTableCellTemplateDirective,
+    HasPermissionDirective,
+    FilterBarComponent,
+    TimeInputComponent,
   ],
   templateUrl: './daily-attendance.component.html',
   styleUrl: './daily-attendance.component.scss',
 })
 export class DailyAttendanceComponent implements OnInit {
   private readonly attendanceRawApi = inject(AttendanceRawService);
+  private readonly attendanceCalcApi = inject(AttendanceCalcService);
+  private readonly attendanceApi = inject(AttendanceApiService);
   private readonly employeesApi = inject(EmployeesService);
   private readonly messageService = inject(MessageService);
   private readonly translate = inject(TranslateService);
+  private readonly permission = inject(PermissionService);
+
+  readonly canWrite = computed(() => this.permission.has(ErpPermissions.timeAttendanceWrite));
+
+  readonly workDate = signal(new Date());
+  readonly sheetSearch = signal('');
+  readonly sheetRows = signal<DailyRegisterRow[]>([]);
+  readonly loadingSheet = signal(false);
+
+  readonly filteredSheetRows = computed(() => {
+    const q = this.sheetSearch().trim().toLowerCase();
+    const rows = this.sheetRows();
+    if (!q) return rows;
+    return rows.filter((r) => r.employeeName.toLowerCase().includes(q) || r.empId.toLowerCase().includes(q));
+  });
+
+  readonly sheetColumns: SharedTableColumn<DailyRegisterRow>[] = [
+    {
+      id: 'employeeName',
+      header: 'daily_attendance_page.col_employee',
+      field: 'employeeName',
+      align: 'start',
+      cellClass: 'font-medium',
+    },
+    { id: 'shiftName', header: 'daily_attendance_page.col_shift', align: 'start' },
+    { id: 'actualIn', header: 'daily_attendance_page.col_in', align: 'start' },
+    { id: 'actualOut', header: 'daily_attendance_page.col_out', align: 'start' },
+    { id: 'overlay', header: 'daily_attendance_page.col_leave_permission', align: 'start' },
+    { id: 'status', header: 'daily_attendance_page.col_status' },
+    { id: 'hours', header: 'daily_attendance_page.col_hours', align: 'end' },
+  ];
+
+  readonly sheetActions: SharedTableAction<DailyRegisterRow>[] = [
+    {
+      id: 'register-in',
+      icon: 'pi pi-sign-in',
+      tooltip: 'daily_attendance_page.register_in',
+      visible: () => this.canWrite(),
+      onClick: (row) => this.openRegisterDialog('in', row),
+    },
+    {
+      id: 'register-out',
+      icon: 'pi pi-sign-out',
+      tooltip: 'daily_attendance_page.register_out',
+      visible: () => this.canWrite(),
+      onClick: (row) => this.openRegisterDialog('out', row),
+    },
+  ];
 
   readonly dateFrom = signal(startOfMonth(new Date()));
   readonly dateTo = signal(new Date());
@@ -242,18 +337,28 @@ export class DailyAttendanceComponent implements OnInit {
   readonly savingPunch = signal(false);
   readonly importingFile = signal(false);
   readonly showManualPunchDialog = signal(false);
+  readonly registerMode = signal<RegisterMode>('in');
 
   readonly punchEmployeeId = signal<string | null>(null);
-  readonly punchTime = signal(new Date());
-  readonly punchType = signal<0 | 1>(0);
+  readonly punchWorkDate = signal(new Date());
+  readonly punchInTime = signal<Date | null>(null);
+  readonly punchOutTime = signal<Date | null>(null);
   readonly punchNotes = signal('');
 
-  get punchTypeOptions(): { label: string; value: 0 | 1 }[] {
-    return [
-      { label: this.translate.instant('daily_attendance_page.dir_in'), value: 0 },
-      { label: this.translate.instant('daily_attendance_page.dir_out'), value: 1 },
-    ];
+  onPunchTimeChange(target: 'in' | 'out', value: Date | string | null | undefined): void {
+    const parsed = value instanceof Date ? value : parseTimeToDate(value);
+    if (target === 'in') {
+      this.punchInTime.set(parsed);
+    } else {
+      this.punchOutTime.set(parsed);
+    }
   }
+
+  readonly dialogHeaderKey = computed(() =>
+    this.registerMode() === 'in'
+      ? 'daily_attendance_page.register_in_header'
+      : 'daily_attendance_page.register_out_header'
+  );
 
   ngOnInit(): void {
     this.employeesApi.employeesGetAll().pipe(map((res: any) => res.data ?? [])).subscribe({
@@ -263,6 +368,7 @@ export class DailyAttendanceComponent implements OnInit {
           .map((e) => ({ label: employeeLabel(e), value: e.id! }));
         this.employeeOptions.set(opts);
         this.employeeLabelById.set(new Map(opts.map((o) => [o.value, o.label])));
+        this.loadSheet();
       },
       error: () =>
         this.messageService.add({
@@ -290,19 +396,7 @@ export class DailyAttendanceComponent implements OnInit {
   }
 
   formatFingerClock(iso: string | null | undefined): string {
-    if (!iso) return '—';
-    try {
-      const d = new Date(iso);
-      const locale = this.translate.currentLang === 'ar' ? 'ar-EG' : undefined;
-      return d.toLocaleTimeString(locale, {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false,
-      });
-    } catch {
-      return '—';
-    }
+    return formatAppTime(iso, this.translate.currentLang, { withSeconds: true });
   }
 
   directionLabel(d: PunchDirection | undefined): string {
@@ -312,9 +406,9 @@ export class DailyAttendanceComponent implements OnInit {
   }
 
   sourceLabel(s: AttendanceSource | undefined): string {
-    if (s === AttendanceSource.NUMBER_1) return 'Device';
-    if (s === AttendanceSource.NUMBER_2) return 'Manual';
-    if (s === AttendanceSource.NUMBER_3) return 'Other';
+    if (s === AttendanceSource.NUMBER_1) return this.translate.instant('daily_attendance_page.src_device');
+    if (s === AttendanceSource.NUMBER_2) return this.translate.instant('daily_attendance_page.src_manual');
+    if (s === AttendanceSource.NUMBER_3) return this.translate.instant('daily_attendance_page.src_import');
     return '—';
   }
 
@@ -408,17 +502,231 @@ export class DailyAttendanceComponent implements OnInit {
     this.dateTo.set(d);
   }
 
-  openManualPunchDialog(): void {
-    const d = this.dateTo();
-    this.punchEmployeeId.set(null);
-    this.punchTime.set(new Date(d.getFullYear(), d.getMonth(), d.getDate(), 8, 0, 0, 0));
-    this.punchType.set(0);
-    this.punchNotes.set('');
+  openRegisterDialog(mode: RegisterMode, row?: DailyRegisterRow): void {
+    const date = this.workDate();
+    this.registerMode.set(mode);
+    this.punchEmployeeId.set(row?.empId ?? null);
+    this.punchWorkDate.set(new Date(date));
+    this.punchNotes.set(row?.notes ?? '');
+    if (mode === 'in') {
+      this.punchInTime.set(
+        row?.actualIn
+          ? new Date(row.actualIn)
+          : new Date(date.getFullYear(), date.getMonth(), date.getDate(), 8, 0, 0, 0)
+      );
+      this.punchOutTime.set(null);
+    } else {
+      this.punchOutTime.set(
+        row?.actualOut
+          ? new Date(row.actualOut)
+          : new Date(date.getFullYear(), date.getMonth(), date.getDate(), 16, 30, 0, 0)
+      );
+      this.punchInTime.set(null);
+    }
     this.showManualPunchDialog.set(true);
   }
 
   closeManualPunchDialog(): void {
     this.showManualPunchDialog.set(false);
+  }
+
+  onWorkDateChange(d: Date): void {
+    this.workDate.set(d);
+    this.loadSheet();
+  }
+
+  loadSheet(): void {
+    const date = this.workDate();
+    const ymd = toYmdLocal(date);
+    this.loadingSheet.set(true);
+    forkJoin({
+      calc: this.attendanceCalcApi.attendanceCalcGet(undefined, ymd, ymd),
+      overlay: this.attendanceApi.getLeaveOverlay(ymd, ymd).pipe(catchError(() => of([] as AttendanceLeaveOverlayDay[]))),
+    }).subscribe({
+      next: ({ calc, overlay }) => {
+        this.loadingSheet.set(false);
+        const calcs = calc.data ?? [];
+        const byEmp = new Map(calcs.filter((c) => c.empId).map((c) => [c.empId!, c]));
+        const overlayByEmp = new Map(
+          (overlay ?? [])
+            .filter((o) => o.employeeId)
+            .map((o) => [o.employeeId!, o])
+        );
+        const labels = this.employeeLabelById();
+        const rows: DailyRegisterRow[] = [];
+        const seen = new Set<string>();
+        for (const opt of this.employeeOptions()) {
+          seen.add(opt.value);
+          const calcRow = byEmp.get(opt.value);
+          rows.push(this.toRegisterRow(opt.value, opt.label, calcRow, overlayByEmp.get(opt.value)));
+        }
+        for (const calcRow of calcs) {
+          const id = calcRow.empId;
+          if (!id || seen.has(id)) continue;
+          seen.add(id);
+          rows.push(this.toRegisterRow(id, labels.get(id) ?? calcRow.employeeName ?? id, calcRow, overlayByEmp.get(id)));
+        }
+        for (const [empId, overlayRow] of overlayByEmp) {
+          if (seen.has(empId)) continue;
+          rows.push(this.toRegisterRow(empId, labels.get(empId) ?? empId, null, overlayRow));
+        }
+        rows.sort((a, b) => a.employeeName.localeCompare(b.employeeName, undefined, { sensitivity: 'base' }));
+        this.sheetRows.set(rows);
+      },
+      error: () => {
+        this.loadingSheet.set(false);
+        this.messageService.add({
+          severity: 'error',
+          summary: this.translate.instant('common.error') || 'Error',
+          detail: this.translate.instant('daily_attendance_page.load_sheet_failed'),
+        });
+      },
+    });
+  }
+
+  formatHours(mins: number | null | undefined): string {
+    if (mins == null) return '—';
+    const sign = mins < 0 ? '-' : '';
+    const abs = Math.abs(mins);
+    const h = Math.floor(abs / 60);
+    const m = abs % 60;
+    return `${sign}${h}:${String(m).padStart(2, '0')}`;
+  }
+
+  statusLabel(status: AttendanceStatus | null | undefined): string {
+    const key = this.statusKey(status);
+    if (!key) return '—';
+    return this.translate.instant(`calculation_workbench.attendance_status.${key}`);
+  }
+
+  statusSeverity(status: AttendanceStatus | null | undefined): 'success' | 'danger' | 'warning' | 'info' | 'secondary' {
+    switch (status) {
+      case AttendanceStatus.NUMBER_1:
+        return 'success';
+      case AttendanceStatus.NUMBER_2:
+        return 'danger';
+      case AttendanceStatus.NUMBER_3:
+      case AttendanceStatus.NUMBER_4:
+        return 'warning';
+      case AttendanceStatus.NUMBER_5:
+      case AttendanceStatus.NUMBER_6:
+        return 'info';
+      case AttendanceStatus.NUMBER_7:
+        return 'secondary';
+      case AttendanceStatus.NUMBER_8:
+      case AttendanceStatus.NUMBER_9:
+        return 'info';
+      default:
+        return 'secondary';
+    }
+  }
+
+  private statusKey(status: AttendanceStatus | null | undefined): string | null {
+    switch (status) {
+      case AttendanceStatus.NUMBER_1:
+        return 'present';
+      case AttendanceStatus.NUMBER_2:
+        return 'absent';
+      case AttendanceStatus.NUMBER_3:
+        return 'late';
+      case AttendanceStatus.NUMBER_4:
+        return 'early_leave';
+      case AttendanceStatus.NUMBER_5:
+        return 'overtime';
+      case AttendanceStatus.NUMBER_6:
+        return 'half_day';
+      case AttendanceStatus.NUMBER_7:
+        return 'holiday';
+      case AttendanceStatus.NUMBER_8:
+        return 'compensatory';
+      case AttendanceStatus.NUMBER_9:
+        return 'on_leave';
+      default:
+        return null;
+    }
+  }
+
+  leaveTag(row: DailyRegisterRow): string | null {
+    const name = row.leaveTypeArabicName || row.leaveTypeName;
+    if (!name) return null;
+    const from = row.leaveStartDate ?? '';
+    const to = row.leaveEndDate ?? '';
+    const dates = from && to ? ` ${from} – ${to}` : '';
+    return `${this.translate.instant('daily_attendance_page.leave_tag')}: ${name}${dates}`;
+  }
+
+  permissionChip(p: AttendancePermissionOverlay): string {
+    const name = p.permissionTypeArabicName || p.permissionTypeName || this.translate.instant('daily_attendance_page.permission_chip');
+    if (p.kind === AttendancePermissionKind.HalfDay) {
+      const period = p.isMorning
+        ? this.translate.instant('daily_attendance_page.permission_morning')
+        : this.translate.instant('daily_attendance_page.permission_afternoon');
+      return `${name} - ${period}`;
+    }
+    const from = this.formatClock(p.fromTime);
+    const to = this.formatClock(p.toTime);
+    if (from && to) return `${name} ${from} - ${to}`;
+    return name;
+  }
+
+  private formatClock(value: string | null | undefined): string {
+    if (!value) return '';
+    return value.length >= 5 ? value.slice(0, 5) : value;
+  }
+
+  private toRegisterRow(
+    empId: string,
+    employeeName: string,
+    calc?: AttendanceCalcDto | null,
+    overlay?: AttendanceLeaveOverlayDay | null
+  ): DailyRegisterRow {
+    const permissions = overlay?.permissions ?? [];
+    const hasLeave = !!(overlay?.leaveTypeName || overlay?.leaveTypeArabicName || overlay?.leaveRequestId);
+    return {
+      empId,
+      employeeName: calc?.employeeName || employeeName,
+      shiftName: calc?.shiftName ?? null,
+      actualIn: calc?.actualIn ?? null,
+      actualOut: calc?.actualOut ?? null,
+      status: calc?.status ?? null,
+      netWorkMinutes: calc?.netWorkMinutes ?? null,
+      notes: calc?.notes ?? null,
+      leaveTypeName: overlay?.leaveTypeName ?? null,
+      leaveTypeArabicName: overlay?.leaveTypeArabicName ?? null,
+      leaveStartDate: overlay?.leaveStartDate ?? null,
+      leaveEndDate: overlay?.leaveEndDate ?? null,
+      isCompensatoryLeave: overlay?.isCompensatoryLeave ?? false,
+      permissions,
+      workedDuringApprovedLeave: hasLeave && !!(calc?.actualIn || calc?.actualOut),
+    };
+  }
+
+  private applyCalcToSheet(calc: AttendanceCalcDto): void {
+    const empId = calc.empId;
+    if (!empId) return;
+    const name = this.employeeLabelById().get(empId) ?? calc.employeeName ?? empId;
+    const existing = this.sheetRows().find((r) => r.empId === empId);
+    const overlay: AttendanceLeaveOverlayDay | null = existing
+      ? {
+          employeeId: empId,
+          leaveTypeName: existing.leaveTypeName,
+          leaveTypeArabicName: existing.leaveTypeArabicName,
+          leaveStartDate: existing.leaveStartDate,
+          leaveEndDate: existing.leaveEndDate,
+          isCompensatoryLeave: existing.isCompensatoryLeave,
+          permissions: existing.permissions,
+        }
+      : null;
+    const next = this.toRegisterRow(empId, name, calc, overlay);
+    const list = this.sheetRows();
+    const idx = list.findIndex((r) => r.empId === empId);
+    if (idx === -1) {
+      this.sheetRows.set([...list, next].sort((a, b) => a.employeeName.localeCompare(b.employeeName, undefined, { sensitivity: 'base' })));
+      return;
+    }
+    const copy = list.slice();
+    copy[idx] = next;
+    this.sheetRows.set(copy);
   }
 
   openEmployeeDetail(empId: string): void {
@@ -434,46 +742,47 @@ export class DailyAttendanceComponent implements OnInit {
   saveManualPunch(): void {
     const employeeId = this.punchEmployeeId();
     if (!employeeId) return;
-    this.savingPunch.set(true);
-    const t = this.punchTime();
-    const cmd: ImportAttendanceRawCommand = {
-      punches: [
-        {
-          empId: employeeId,
-          fingerTime: toLocalIsoDateTime(t),
-          direction: this.punchType() === 0 ? PunchDirection.NUMBER_1 : PunchDirection.NUMBER_2,
-          source: AttendanceSource.NUMBER_2,
-          deviceId: null,
-        },
-      ],
-    };
+    const date = this.punchWorkDate();
+    const mode = this.registerMode();
+    const time = mode === 'in' ? this.punchInTime() : this.punchOutTime();
+    if (!time) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: this.translate.instant('common.warning') || 'Warning',
+        detail: this.translate.instant('daily_attendance_page.no_times'),
+      });
+      return;
+    }
 
-    this.attendanceRawApi
-      .attendanceRawImport(cmd)
+    const stamp = combineDateAndTime(date, time);
+    this.savingPunch.set(true);
+    this.attendanceApi
+      .registerManualAttendance({
+        employeeId,
+        workDate: toYmdLocal(date),
+        actualIn: mode === 'in' ? toLocalIsoDateTime(stamp) : null,
+        actualOut: mode === 'out' ? toLocalIsoDateTime(stamp) : null,
+        notes: this.punchNotes() || null,
+      })
       .pipe(finalize(() => this.savingPunch.set(false)))
       .subscribe({
-        next: (imp) => {
-          if (!imp.success) {
-            this.messageService.add({
-              severity: 'error',
-              summary: this.translate.instant('common.error') || 'Error',
-              detail: imp.message ?? this.translate.instant('daily_attendance_page.import_failed'),
-            });
-            return;
-          }
+        next: (calc) => {
+          this.applyCalcToSheet(calc);
           this.messageService.add({
             severity: 'success',
             summary: this.translate.instant('common.success') || 'OK',
-            detail: this.translate.instant('daily_attendance_page.saved_punch'),
+            detail: this.translate.instant(
+              mode === 'in' ? 'daily_attendance_page.saved_in' : 'daily_attendance_page.saved_out'
+            ),
           });
           this.closeManualPunchDialog();
-          this.loadGrid();
+          if (this.selectedEmployeeIds().length) this.loadGrid();
         },
-        error: () =>
+        error: (err) =>
           this.messageService.add({
             severity: 'error',
             summary: this.translate.instant('common.error') || 'Error',
-            detail: this.translate.instant('daily_attendance_page.import_failed'),
+            detail: err?.error?.message ?? err?.message ?? this.translate.instant('daily_attendance_page.register_failed'),
           }),
       });
   }
@@ -509,13 +818,17 @@ export class DailyAttendanceComponent implements OnInit {
           this.messageService.add({
             severity: 'error',
             summary: 'CSV',
-            detail: e?.message ?? 'Failed to read file',
+            detail: e?.message ?? this.translate.instant('daily_attendance_page.file_read_failed'),
           });
         }
       };
       reader.onerror = () => {
         this.importingFile.set(false);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to read file' });
+        this.messageService.add({
+          severity: 'error',
+          summary: this.translate.instant('common.error') || 'Error',
+          detail: this.translate.instant('daily_attendance_page.file_read_failed'),
+        });
       };
       reader.readAsText(file, 'UTF-8');
       return;
@@ -532,13 +845,17 @@ export class DailyAttendanceComponent implements OnInit {
           this.messageService.add({
             severity: 'error',
             summary: 'Excel',
-            detail: e?.message ?? 'Failed to read file',
+            detail: e?.message ?? this.translate.instant('daily_attendance_page.file_read_failed'),
           });
         }
       };
       reader.onerror = () => {
         this.importingFile.set(false);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to read file' });
+        this.messageService.add({
+          severity: 'error',
+          summary: this.translate.instant('common.error') || 'Error',
+          detail: this.translate.instant('daily_attendance_page.file_read_failed'),
+        });
       };
       reader.readAsArrayBuffer(file);
       return;
@@ -546,8 +863,8 @@ export class DailyAttendanceComponent implements OnInit {
     this.importingFile.set(false);
     this.messageService.add({
       severity: 'warn',
-      summary: 'File type',
-      detail: 'Use CSV or Excel (.xlsx / .xls)',
+      summary: this.translate.instant('daily_attendance_page.file_type'),
+      detail: this.translate.instant('daily_attendance_page.file_type_hint'),
     });
   }
 
@@ -557,7 +874,7 @@ export class DailyAttendanceComponent implements OnInit {
       this.messageService.add({
         severity: 'warn',
         summary: this.translate.instant('common.warning') || 'Warning',
-        detail: 'No data rows',
+        detail: this.translate.instant('daily_attendance_page.no_data_rows'),
       });
       return;
     }

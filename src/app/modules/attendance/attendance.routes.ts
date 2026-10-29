@@ -116,6 +116,11 @@ export const ATTENDANCE_ROUTES: Routes = [
     ]
   },
   {
+    path: 'holidays',
+    loadComponent: () =>
+      import('./public-holidays/public-holidays.component').then((m) => m.PublicHolidaysComponent),
+  },
+  {
     path: 'settings',
     loadComponent: () =>
       import('./time-attendance-settings/time-attendance-settings.component').then((m) => m.TimeAttendanceSettingsComponent),

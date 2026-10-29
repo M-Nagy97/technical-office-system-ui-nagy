@@ -17,14 +17,13 @@ import { EmployeeService } from '../../../core/services/employee.service';
 import { DocumentEmployeeService } from '../../../core/services/document-employee.service';
 import { PenaltyService } from '../../../core/services/penalty.service';
 import { Employee, EmployeeDocument } from '../../../core/models/employee.model';
+import { pickCurrentNationalIdDocument } from '../../../core/mappers/employee-document-types';
 import { Penalty, PenaltyType, PenaltyStatus } from '../../../core/models/penalty.model';
 import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
 import { SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
 import { DocumentPreviewDialogComponent } from '../../../shared/components/document-preview-dialog/document-preview-dialog.component';
 import { isImageMediaUrl } from '../../../core/utils/media-url.util';
 import { switchMap, of } from 'rxjs';
-
-const NATIONAL_ID_DOCUMENT_TYPE_ID = 'dce167b1-ee8f-4d86-bdd3-477446980566';
 
 @Component({
   selector: 'app-employee-detail',
@@ -352,17 +351,7 @@ export class EmployeeDetailComponent implements OnInit {
     emp: Employee | null,
     docs: EmployeeDocument[]
   ): EmployeeDocument | null {
-    if (!emp || !docs.length) return null;
-
-    return (
-      docs.find(
-        (d) =>
-          (d.documentNumber && d.documentNumber === emp.nationalId) ||
-          (d.name && d.name === emp.nationalId) ||
-          d.documentTypeId === NATIONAL_ID_DOCUMENT_TYPE_ID
-      ) ||
-      docs[0] ||
-      null
-    );
+    if (!emp) return null;
+    return pickCurrentNationalIdDocument(docs, emp.nationalId);
   }
 }

@@ -1,0 +1,70 @@
+<div class="permission-type-form-container">
+  <p-card [header]="(isEdit() ? 'leave.permission_types.edit_title' : 'leave.permission_types.create_title') | translate">
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="form-grid">
+        <div class="grid">
+          <div class="col-12 md:col-6 field">
+            <label for="arabicName">{{ 'leave.permission_types.field_arabic_name' | translate }} <span class="required">*</span></label>
+            <input
+              id="arabicName"
+              type="text"
+              pInputText
+              formControlName="arabicName"
+              [placeholder]="'leave.permission_types.field_arabic_name_placeholder' | translate"
+              class="w-full"
+            />
+            <small
+              class="p-error"
+              *ngIf="form.get('arabicName')?.invalid && form.get('arabicName')?.touched"
+            >
+              {{ 'leave.permission_types.field_arabic_name_req' | translate }}
+            </small>
+          </div>
+
+          <div class="col-12 md:col-6 field">
+            <label for="name">{{ 'leave.permission_types.field_name' | translate }} <span class="required">*</span></label>
+            <input
+              id="name"
+              type="text"
+              pInputText
+              formControlName="name"
+              [placeholder]="'leave.permission_types.field_name_placeholder' | translate"
+              class="w-full text-left"
+              dir="ltr"
+            />
+            <small
+              class="p-error"
+              *ngIf="form.get('name')?.invalid && form.get('name')?.touched"
+            >
+              {{ 'leave.permission_types.field_name_req' | translate }}
+            </small>
+          </div>
+
+          <div class="col-12 md:col-6 field flex align-items-center gap-2">
+            <p-inputSwitch id="isActive" formControlName="isActive" />
+            <label for="isActive" class="m-0 font-medium cursor-pointer">{{ 'leave.permission_types.field_is_active' | translate }}</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions mt-4 flex gap-2">
+        <button
+          pButton
+          type="submit"
+          [label]="'leave.permission_types.save_btn' | translate"
+          icon="pi pi-check"
+          [loading]="saving()"
+          class="p-button-primary"
+        ></button>
+        <button
+          pButton
+          type="button"
+          [label]="'common.cancel' | translate"
+          icon="pi pi-times"
+          (click)="cancel()"
+          class="p-button-outlined p-button-secondary"
+        ></button>
+      </div>
+    </form>
+  </p-card>
+</div>

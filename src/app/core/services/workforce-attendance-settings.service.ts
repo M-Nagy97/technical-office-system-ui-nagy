@@ -10,6 +10,8 @@ export interface WorkforceAttendanceSettingsDto {
   earlyLeaveToleranceMinutes: number;
   roundToNearestMinutes: number;
   requirePunchOut: boolean;
+  compensatoryClaimDays?: number;
+  minimumCompensatoryWorkMinutes?: number | null;
 }
 
 export interface UpsertWorkforceAttendanceSettingsPayload {
@@ -18,6 +20,8 @@ export interface UpsertWorkforceAttendanceSettingsPayload {
   earlyLeaveToleranceMinutes: number;
   roundToNearestMinutes: number;
   requirePunchOut: boolean;
+  compensatoryClaimDays: number;
+  minimumCompensatoryWorkMinutes: number | null;
 }
 
 import { environment } from '../../../environments/environment';

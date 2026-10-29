@@ -5,8 +5,10 @@ import { CardModule } from 'primeng/card';
 import { DropdownModule } from 'primeng/dropdown';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageModule } from 'primeng/message';
+import { DialogModule } from 'primeng/dialog';
+import { ButtonModule } from 'primeng/button';
 import { FullCalendarModule, FullCalendarComponent } from '@fullcalendar/angular';
-import { CalendarOptions, EventInput, EventMountArg, DatesSetArg } from '@fullcalendar/core';
+import { CalendarOptions, EventInput, EventMountArg } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -18,7 +20,15 @@ import {
   EmployeeAttendanceStatusDto,
   EmployeeScheduleCalendarItemDto,
   DayType,
+  ShiftsService,
+  ShiftDto,
 } from '../../../core/api/generated';
+import { AttendanceApiService } from '../../../core/services/attendance-api.service';
+import { PermissionService } from '../../../core/auth/permission.service';
+import { NotifyService } from '../../../shared';
+import { TranslateModule } from '@ngx-translate/core';
+
+type CalendarRow = EmployeeScheduleCalendarItemDto & { isCompanyHoliday?: boolean };
 
 function toYmdLocal(d: Date): string {
   const y = d.getFullYear();
@@ -49,7 +59,10 @@ function normalizeTime(t: string): string {
     DropdownModule,
     ProgressSpinnerModule,
     MessageModule,
+    DialogModule,
+    ButtonModule,
     FullCalendarModule,
+    TranslateModule,
   ],
   templateUrl: './employee-schedule-calendar.component.html',
   styleUrl: './employee-schedule-calendar.component.scss',
@@ -57,6 +70,10 @@ function normalizeTime(t: string): string {
 export class EmployeeScheduleCalendarComponent implements OnInit {
   private readonly employeePlansApi = inject(EmployeePlansService);
   private readonly schedulesApi = inject(EmployeeSchedulesService);
+  private readonly shiftsApi = inject(ShiftsService);
+  private readonly attendanceApi = inject(AttendanceApiService);
+  private readonly permission = inject(PermissionService);
+  private readonly notify = inject(NotifyService);
 
   readonly fc = viewChild(FullCalendarComponent);
 
@@ -64,6 +81,16 @@ export class EmployeeScheduleCalendarComponent implements OnInit {
   selectedEmployeeId: string | null = null;
   loadingEmployees = true;
   calendarError: string | null = null;
+  rowsByDate = new Map<string, CalendarRow>();
+  shifts: ShiftDto[] = [];
+  dialogVisible = false;
+  dialogDate = '';
+  dialogRow: CalendarRow | null = null;
+  dialogShiftId: string | null = null;
+  dialogSaving = false;
+  get canWrite(): boolean {
+    return this.permission.canWriteModule('attendance');
+  }
 
   calendarOptions: CalendarOptions = {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
@@ -83,16 +110,26 @@ export class EmployeeScheduleCalendarComponent implements OnInit {
     },
     height: 'auto',
     displayEventTime: true,
-    eventTimeFormat: { hour: '2-digit', minute: '2-digit', meridiem: false, hour12: false },
+    eventTimeFormat: { hour: 'numeric', minute: '2-digit', meridiem: true, hour12: true },
     events: (info, successCallback, failureCallback) =>
       this.loadEventsForRange(info, successCallback, failureCallback),
     eventDidMount: (info) => this.decorateEventHover(info),
+    dateClick: (info) => this.openDayDialog(info.dateStr?.slice(0, 10) ?? toYmdLocal(info.date)),
+    eventClick: (info) => {
+      const row = info.event.extendedProps['row'] as CalendarRow | undefined;
+      const date = (row?.scheduleDate ?? info.event.startStr ?? '').slice(0, 10);
+      if (date) this.openDayDialog(date);
+    },
     datesSet: () => {
       this.calendarError = null;
     },
   };
 
   ngOnInit(): void {
+    this.shiftsApi.shiftsGetAll().pipe(map((r) => r.data ?? [])).subscribe({
+      next: (list) => (this.shifts = list),
+      error: () => (this.shifts = []),
+    });
     this.employeePlansApi.employeePlansGetAllEmployees().pipe(map((r) => r.data ?? [])).subscribe({
       next: (list) => {
         this.employees = list;
@@ -136,7 +173,9 @@ export class EmployeeScheduleCalendarComponent implements OnInit {
             success([]);
             return;
           }
-          success(this.mapRowsToEvents(res.data ?? []));
+          const rows = (res.data ?? []) as CalendarRow[];
+          this.rowsByDate = new Map(rows.filter((r) => r.scheduleDate).map((r) => [r.scheduleDate!.slice(0, 10), r]));
+          success(this.mapRowsToEvents(rows));
         },
         error: () => {
           this.calendarError = 'تعذر تحميل جدول الموظف';
@@ -180,6 +219,11 @@ export class EmployeeScheduleCalendarComponent implements OnInit {
   }
 
   private shortTitle(row: EmployeeScheduleCalendarItemDto): string {
+    const leave = row.leaveTypeArabicName || row.leaveTypeName;
+    if (leave) {
+      const prefix = row.isCompensatoryLeave ? 'بدل راحة' : 'إجازة';
+      return row.shiftName ? `${row.shiftName} · ${prefix}: ${leave}` : `${prefix}: ${leave}`;
+    }
     if (row.shiftName) return row.shiftName;
     if (row.isHoliday) return 'عطلة';
     return this.dayTypeLabel(row.dayType);
@@ -200,10 +244,79 @@ export class EmployeeScheduleCalendarComponent implements OnInit {
     }
   }
 
-  private colorsForRow(row: EmployeeScheduleCalendarItemDto): { bg: string; border: string } {
+  sourceLabel(row: CalendarRow | null): string {
+    if (row?.isEmployeeOverride) return 'تجاوز لهذا الموظف';
+    if (row?.isCompanyHoliday) return 'عطلة رسمية للشركة';
+    return 'من الخطة';
+  }
+
+  openDayDialog(date: string): void {
+    if (!this.selectedEmployeeId || !date) return;
+    this.dialogDate = date;
+    this.dialogRow = this.rowsByDate.get(date) ?? null;
+    this.dialogShiftId = this.dialogRow?.shiftId ?? this.shifts[0]?.id ?? null;
+    this.dialogVisible = true;
+  }
+
+  markPersonalHoliday(): void {
+    this.saveOverride(3, true, null, this.dialogRow?.notes ?? 'عطلة شخصية');
+  }
+
+  markWorkday(): void {
+    const shiftId = this.dialogRow?.shiftId || this.dialogShiftId;
+    if (!shiftId) {
+      this.notify.warn('employee_schedule_page.pick_shift');
+      return;
+    }
+    this.saveOverride(1, false, shiftId, this.dialogRow?.notes ?? null);
+  }
+
+  clearOverride(): void {
+    const empId = this.selectedEmployeeId;
+    if (!empId || !this.dialogDate) return;
+    this.dialogSaving = true;
+    this.attendanceApi.deleteEmployeeScheduleOverride(empId, this.dialogDate).subscribe({
+      next: () => {
+        this.dialogSaving = false;
+        this.dialogVisible = false;
+        this.notify.success('employee_schedule_page.cleared');
+        this.fc()?.getApi()?.refetchEvents();
+      },
+      error: (err: unknown) => {
+        this.dialogSaving = false;
+        this.notify.error(err, 'employee_schedule_page.save_failed');
+      },
+    });
+  }
+
+  private saveOverride(dayType: number, isHoliday: boolean, shiftId: string | null, notes: string | null): void {
+    const empId = this.selectedEmployeeId;
+    if (!empId || !this.dialogDate) return;
+    this.dialogSaving = true;
+    this.attendanceApi
+      .upsertEmployeeSchedule(empId, this.dialogDate, { dayType, isHoliday, shiftId, notes })
+      .subscribe({
+        next: () => {
+          this.dialogSaving = false;
+          this.dialogVisible = false;
+          this.notify.success('employee_schedule_page.saved');
+          this.fc()?.getApi()?.refetchEvents();
+        },
+        error: (err: unknown) => {
+          this.dialogSaving = false;
+          this.notify.error(err, 'employee_schedule_page.save_failed');
+        },
+      });
+  }
+
+  private colorsForRow(row: CalendarRow): { bg: string; border: string } {
+    if (row.isEmployeeOverride && (row.isHoliday || row.dayType === DayType.NUMBER_3))
+      return { bg: '#fdba74', border: '#c2410c' };
     if (row.isHoliday || row.dayType === DayType.NUMBER_3)
       return { bg: '#fecaca', border: '#dc2626' };
     if (row.dayType === DayType.NUMBER_2) return { bg: '#e2e8f0', border: '#64748b' };
+    if (row.isCompensatoryLeave) return { bg: '#ddd6fe', border: '#7c3aed' };
+    if (row.leaveTypeName || row.leaveTypeArabicName) return { bg: '#fde68a', border: '#d97706' };
     if (row.shiftId) return { bg: '#a7f3d0', border: '#10b981' };
     return { bg: '#99f6e4', border: '#0d9488' };
   }
@@ -221,6 +334,7 @@ export class EmployeeScheduleCalendarComponent implements OnInit {
     lines.push(`الخطة: ${row.planName ?? '—'}`);
     lines.push(`التاريخ: ${row.scheduleDate ?? '—'}`);
     lines.push(`نوع اليوم: ${this.dayTypeLabel(row.dayType)}`);
+    lines.push(`المصدر: ${this.sourceLabel(row)}`);
     if (row.isHoliday) lines.push('تعطيل: نعم');
     if (row.shiftName) {
       lines.push(`الوردية: ${row.shiftName}`);
@@ -238,6 +352,23 @@ export class EmployeeScheduleCalendarComponent implements OnInit {
       lines.push('لا توجد وردية محددة لهذا اليوم');
     }
     if (row.notes) lines.push(`ملاحظات: ${row.notes}`);
+    const leaveName = row.leaveTypeArabicName || row.leaveTypeName;
+    if (leaveName) {
+      const kind = row.isCompensatoryLeave ? 'بدل راحة' : 'إجازة';
+      const from = row.leaveStartDate ?? '';
+      const to = row.leaveEndDate ?? '';
+      lines.push(`${kind}: ${leaveName}${from && to ? ` (${from} – ${to})` : ''}`);
+    }
+    for (const p of row.permissions ?? []) {
+      const name = p.permissionTypeArabicName || p.permissionTypeName || 'إذن';
+      if (p.kind === 1) {
+        lines.push(`${name} - ${p.isMorning ? 'صباحي' : 'مسائي'}`);
+      } else {
+        const from = (p.fromTime ?? '').slice(0, 5);
+        const to = (p.toTime ?? '').slice(0, 5);
+        lines.push(from && to ? `${name} ${from} - ${to}` : name);
+      }
+    }
     return lines.join('\n');
   }
 }

@@ -56,6 +56,31 @@
             inputStyleClass="w-full"
           />
         </div>
+        <div class="col-12 md:col-6">
+          <label class="block mb-2 font-medium">مدة صلاحية بدل الراحة (أيام)</label>
+          <p-inputNumber
+            class="w-full"
+            [ngModel]="model().compensatoryClaimDays"
+            (ngModelChange)="onNumberChange('compensatoryClaimDays', $event)"
+            [min]="1"
+            [max]="365"
+            [showButtons]="true"
+            inputStyleClass="w-full"
+          />
+        </div>
+        <div class="col-12 md:col-6">
+          <label class="block mb-2 font-medium">الحد الأدنى لدقائق العمل لاستحقاق بدل الراحة</label>
+          <p-inputNumber
+            class="w-full"
+            [ngModel]="model().minimumCompensatoryWorkMinutes"
+            (ngModelChange)="patchModel({ minimumCompensatoryWorkMinutes: $event })"
+            [min]="1"
+            [max]="1440"
+            [showButtons]="true"
+            [placeholder]="'غير مضبوط — لا يُمنح رصيد'"
+            inputStyleClass="w-full"
+          />
+        </div>
         <div class="col-12 flex align-items-center gap-2">
           <p-inputSwitch
             [ngModel]="model().requirePunchOut"

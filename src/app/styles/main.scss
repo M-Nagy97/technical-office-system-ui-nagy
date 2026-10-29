@@ -170,3 +170,118 @@ html[lang='ar'] body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--surface-500);
 }
+
+// Leave request official paper printing
+@page {
+  size: A4 portrait;
+  margin: 10mm 15mm;
+}
+
+@media print {
+  body.leave-request-printing {
+    background: #fff !important;
+
+    .layout,
+    .p-toast,
+    p-toast,
+    .p-confirm-dialog,
+    p-confirmdialog,
+    .p-dialog-header,
+    .p-dialog-footer,
+    .p-dropdown-panel,
+    .p-datepicker,
+    .no-print {
+      display: none !important;
+    }
+
+    .p-dialog-mask,
+    .p-dialog,
+    .p-dialog-content,
+    .leave-print-dialog,
+    .leave-print-dialog-body,
+    .leave-print-preview,
+    .perm-print-dialog-body,
+    .perm-print-preview {
+      position: static !important;
+      inset: auto !important;
+      transform: none !important;
+      width: auto !important;
+      height: auto !important;
+      max-height: none !important;
+      max-width: none !important;
+      overflow: visible !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      border: 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    .leave-print-sheet,
+    .perm-print-sheet {
+      position: absolute !important;
+      left: 0 !important;
+      top: 0 !important;
+      width: 100% !important;
+      min-height: auto !important;
+      max-width: none !important;
+      margin: 0 !important;
+      padding: 16mm 18mm 14mm !important;
+      box-shadow: none !important;
+      background: #fff !important;
+      color: #000 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .leave-print-sheet {
+      width: 210mm !important;
+      min-height: auto !important;
+      padding: 8mm 10mm !important;
+    }
+
+    .leave-print-sheet .paper-header {
+      display: grid !important;
+      grid-template-columns: 88px 1fr 170px !important;
+      justify-items: stretch !important;
+      text-align: start !important;
+    }
+
+    .leave-print-sheet .serial-box,
+    .leave-print-sheet .balance-table th,
+    .leave-print-sheet .balance-table td {
+      border: 1.5px solid #000 !important;
+      background: #fff !important;
+    }
+
+    .perm-print-sheet {
+      width: 210mm !important;
+      min-height: auto !important;
+      padding: 8mm 10mm !important;
+    }
+
+    .perm-print-sheet .perm-header {
+      display: grid !important;
+      grid-template-columns: 180px 1fr !important;
+      justify-items: stretch !important;
+      text-align: start !important;
+    }
+
+    .perm-print-sheet .field-row {
+      flex-wrap: nowrap !important;
+    }
+
+    .perm-print-sheet .box,
+    .perm-print-sheet .perm-title-frame {
+      border: 2px solid #000 !important;
+      background: #fff !important;
+    }
+
+    .leave-print-sheet,
+    .leave-print-sheet *,
+    .perm-print-sheet,
+    .perm-print-sheet * {
+      visibility: visible !important;
+    }
+  }
+}

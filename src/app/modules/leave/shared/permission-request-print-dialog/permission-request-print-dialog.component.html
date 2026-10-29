@@ -1,0 +1,152 @@
+<p-dialog
+  [(visible)]="visible"
+  [header]="'leave.permissions.print.title' | translate"
+  [modal]="true"
+  styleClass="leave-print-dialog"
+  [style]="{ width: 'min(960px, 96vw)' }"
+  [contentStyle]="{ padding: '0', overflow: 'auto', background: '#d9d9d9' }"
+  [draggable]="false"
+  [resizable]="false"
+  appendTo="body"
+  (onHide)="onHide()"
+>
+  <div class="perm-print-dialog-body">
+    <div class="perm-print-toolbar no-print">
+      <div class="toolbar-grid">
+        <div class="field mb-0">
+          <label for="permIssueDate">{{ 'leave.permissions.print.issue_date' | translate }}</label>
+          <p-calendar
+            inputId="permIssueDate"
+            [ngModel]="issueDate()"
+            (ngModelChange)="issueDate.set($event)"
+            dateFormat="yy/mm/dd"
+            [showIcon]="true"
+            appendTo="body"
+            styleClass="w-full"
+          />
+        </div>
+        <div class="field mb-0">
+          <label for="permIssueTime">{{ 'leave.permissions.print.issue_time' | translate }}</label>
+          <app-time-input
+            inputId="permIssueTime"
+            [ngModel]="issueTime()"
+            (ngModelChange)="onIssueTimeChange($event)"
+          />
+        </div>
+      </div>
+
+      <div class="toolbar-signatures">
+        <div class="signature-edit">
+          <div class="signature-edit-title">{{ 'leave.permissions.print.right_block' | translate }}</div>
+          <input type="text" pInputText [ngModel]="rightRank()" (ngModelChange)="rightRank.set($event)" />
+          <input type="text" pInputText [ngModel]="rightName()" (ngModelChange)="rightName.set($event)" />
+          <input type="text" pInputText [ngModel]="rightTitle()" (ngModelChange)="rightTitle.set($event)" />
+        </div>
+        <div class="signature-edit">
+          <div class="signature-edit-title">{{ 'leave.permissions.print.left_block' | translate }}</div>
+          <input type="text" pInputText [ngModel]="leftRank()" (ngModelChange)="leftRank.set($event)" />
+          <input type="text" pInputText [ngModel]="leftName()" (ngModelChange)="leftName.set($event)" />
+          <input type="text" pInputText [ngModel]="leftTitle()" (ngModelChange)="leftTitle.set($event)" />
+        </div>
+      </div>
+    </div>
+
+    <div class="perm-print-preview" *ngIf="!loading(); else loadingTpl">
+      <article class="perm-print-sheet" dir="rtl" lang="ar">
+        <header class="perm-header">
+          <div class="perm-dept-block">
+            <img class="perm-logo" src="assets/images/logo-pas.png" alt="" />
+            <div class="perm-dept-text">
+              <div>إدارة مركز تكنولوجيا المعلومات</div>
+              <div>قسم الشئون الإدارية</div>
+            </div>
+          </div>
+          <div class="perm-title-frame">
+            <h1 class="perm-title">{{ permissionTypeTitle() }}</h1>
+          </div>
+        </header>
+
+        <section class="perm-body">
+          <div class="field-row pair">
+            <span class="lbl">الإســــم</span>
+            <span class="box grow">{{ employeeName() }}</span>
+            <span class="lbl">القسم</span>
+            <span class="box grow">{{ departmentLine() }}</span>
+          </div>
+
+          <div class="field-row pair">
+            <span class="lbl">من الساعة</span>
+            <span class="box time">{{ fromTimeText() }}</span>
+            <span class="lbl">حتى الساعة</span>
+            <span class="box time">{{ toTimeText() }}</span>
+          </div>
+
+          <div class="field-row pair">
+            <span class="lbl">عن يوم</span>
+            <span class="box day">{{ weekdayText() }}</span>
+            <span class="lbl">الموافق</span>
+            <span class="box date">{{ dateText() }}</span>
+          </div>
+
+          <div class="field-row count-row">
+            <span class="lbl count-lbl">عدد مرات الإذن أو المأموريات خلال الشهر الحالي</span>
+            <span class="box count">{{ monthlyCountText() }}</span>
+          </div>
+
+          <div class="field-row pair">
+            <span class="lbl">تحريراً في</span>
+            <span class="box date">{{ issueDateText() }}</span>
+            <span class="lbl">الساعة</span>
+            <span class="box time">{{ issueTimeText() }}</span>
+          </div>
+
+          <div class="field-row officer-row">
+            <span class="lbl">مسئول قسم الشئون الإدارية</span>
+            <span class="box officer-sign"></span>
+          </div>
+        </section>
+
+        <footer class="paper-footer">
+          <div class="official-sign">
+            <div class="rank">{{ rightRank() }}</div>
+            <div class="official-name">{{ rightName() }}</div>
+            <div>{{ rightTitle() }}</div>
+          </div>
+          <div class="official-sign left">
+            <div class="rank">{{ leftRank() }}</div>
+            <div class="official-name">{{ leftName() }}</div>
+            <div>{{ leftTitle() }}</div>
+          </div>
+        </footer>
+      </article>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-content-end gap-2 no-print">
+      <button
+        pButton
+        type="button"
+        [label]="'leave.permissions.print.close_btn' | translate"
+        icon="pi pi-times"
+        class="p-button-outlined p-button-secondary"
+        (click)="onHide()"
+      ></button>
+      <button
+        pButton
+        type="button"
+        [label]="'leave.permissions.print.print_btn' | translate"
+        icon="pi pi-print"
+        class="p-button-success"
+        [disabled]="loading() || !loadedRequest()"
+        (click)="print()"
+      ></button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<ng-template #loadingTpl>
+  <div class="perm-print-loading no-print">
+    <p-progressSpinner strokeWidth="4" [style]="{ width: '48px', height: '48px' }" />
+  </div>
+</ng-template>

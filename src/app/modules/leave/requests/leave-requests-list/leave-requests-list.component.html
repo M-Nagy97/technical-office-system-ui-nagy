@@ -118,7 +118,7 @@
       [columns]="columns"
       [actions]="actions"
       actionsColumnHeader="leave.requests.col_actions"
-      actionsColumnWidth="12rem"
+      actionsColumnWidth="14rem"
       [tableStyle]="{ 'min-width': '55rem' }"
       [translateHeader]="true"
       emptyMessage="leave.requests.empty"
@@ -152,5 +152,12 @@
   [warningAlerts]="currentRequestWarnings()"
   [loading]="actionLoading()"
   (confirmed)="handleActionConfirm($event)"
+/>
+
+<app-leave-request-print-dialog
+  [visible]="printDialogOpen()"
+  (visibleChange)="printDialogOpen.set($event)"
+  [requestId]="printRequestId()"
+  [request]="printRequest()"
 />
 

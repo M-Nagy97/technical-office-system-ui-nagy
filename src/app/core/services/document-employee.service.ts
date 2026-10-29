@@ -4,8 +4,10 @@ import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { EmployeeDocument } from '../models/employee.model';
 import {
+  defaultExpiryFromIssue,
   isPersistedDocumentId,
   mapDocumentType,
+  toLocalCalendarDateString,
   truncateDocumentNumber,
 } from '../mappers/employee-document-types';
 import { resolveMediaUrl, toStorageFileUrl } from '../utils/media-url.util';
@@ -114,24 +116,32 @@ export class DocumentEmployeeService {
     employeeId: string,
     doc: Pick<
       EmployeeDocument,
-      'documentTypeId' | 'documentNumber' | 'name' | 'fileUrl' | 'uploadDate' | 'expiryDate'
+      'documentTypeId' | 'documentNumber' | 'name' | 'fileUrl' | 'uploadDate' | 'expiryDate' | 'type'
     >
   ): CreateDocumentEmployeePayload {
     const now = new Date();
     const issue = doc.uploadDate instanceof Date ? doc.uploadDate : new Date(doc.uploadDate || now);
-    const expiry =
+    const type = doc.type ?? mapDocumentType(doc.documentTypeId);
+    const parsedExpiry =
       doc.expiryDate instanceof Date
         ? doc.expiryDate
         : doc.expiryDate
           ? new Date(doc.expiryDate)
-          : new Date(now.getTime() + 10 * 365 * 24 * 60 * 60 * 1000);
+          : null;
+    const expiry = parsedExpiry && !Number.isNaN(parsedExpiry.getTime())
+      ? parsedExpiry
+      : defaultExpiryFromIssue(issue, type);
+
+    if (!expiry) {
+      throw new Error('Expiry date is required');
+    }
 
     return {
       employeeId,
       documentTypeId: doc.documentTypeId!,
       documentNumber: truncateDocumentNumber(doc.documentNumber || doc.name, 'DOC'),
-      issueDate: issue.toISOString(),
-      expiryDate: expiry.toISOString(),
+      issueDate: toLocalCalendarDateString(issue),
+      expiryDate: toLocalCalendarDateString(expiry),
       fileUrl: toStorageFileUrl(doc.fileUrl) || '',
     };
   }

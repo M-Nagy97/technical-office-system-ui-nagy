@@ -1,5 +1,5 @@
 import { TranslateService } from '@ngx-translate/core';
-import { EmployeeDocumentType } from '../models/employee.model';
+import { EmployeeDocument, EmployeeDocumentType } from '../models/employee.model';
 
 /** Seeded GUIDs from HR EmployeeDocumentType.GetDefaultDefinitions(). */
 export const NATIONAL_ID_DOCUMENT_TYPE_ID = 'dce167b1-ee8f-4d86-bdd3-477446980566';
@@ -87,4 +87,86 @@ export function isPersistedDocumentId(id?: string | null): boolean {
 export function truncateDocumentNumber(value: string | null | undefined, fallback = 'DOC'): string {
   const trimmed = (value ?? '').trim() || fallback;
   return trimmed.length > 50 ? trimmed.slice(0, 50) : trimmed;
+}
+
+/** Egyptian National ID cards are valid for 7 years from issue date. */
+export const NATIONAL_ID_VALIDITY_YEARS = 7;
+
+export function startOfLocalDay(value: Date | string | number): Date {
+  const date = value instanceof Date ? value : new Date(value);
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+export function isSameLocalDay(a: Date | string | number | null | undefined, b: Date | string | number | null | undefined): boolean {
+  if (a == null || b == null) return false;
+  const left = startOfLocalDay(a);
+  const right = startOfLocalDay(b);
+  return left.getTime() === right.getTime();
+}
+
+export function isDocumentExpired(expiryDate: Date | string | number | null | undefined, asOf: Date = new Date()): boolean {
+  if (expiryDate == null) return false;
+  return startOfLocalDay(expiryDate) < startOfLocalDay(asOf);
+}
+
+export function isDocumentActive(expiryDate: Date | string | number | null | undefined, asOf: Date = new Date()): boolean {
+  if (expiryDate == null) return false;
+  return startOfLocalDay(expiryDate) >= startOfLocalDay(asOf);
+}
+
+/** Local calendar date at midnight without Z, so ASP.NET keeps the picked day. */
+export function toLocalCalendarDateString(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}T00:00:00`;
+}
+
+/**
+ * Auto-fill expiry only for National ID. Other types return null so the user picks the period.
+ */
+export function defaultExpiryFromIssue(
+  issueDate: Date | null | undefined,
+  type: EmployeeDocumentType | null | undefined
+): Date | null {
+  if (!issueDate || type !== 'id_copy') return null;
+  const expiry = startOfLocalDay(issueDate);
+  expiry.setFullYear(expiry.getFullYear() + NATIONAL_ID_VALIDITY_YEARS);
+  return expiry;
+}
+
+function documentTime(value: Date | string | number | null | undefined): number {
+  if (value == null) return 0;
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? 0 : date.getTime();
+}
+
+/**
+ * Prefer an unexpired National ID; otherwise the latest expired one.
+ * Does not fall back to an unrelated first document.
+ */
+export function pickCurrentNationalIdDocument(
+  docs: EmployeeDocument[] | null | undefined,
+  nationalId?: string | null
+): EmployeeDocument | null {
+  if (!docs?.length) return null;
+
+  const id = nationalId?.trim();
+  const matches = docs.filter(
+    (d) =>
+      d.documentTypeId === NATIONAL_ID_DOCUMENT_TYPE_ID ||
+      d.type === 'id_copy' ||
+      (!!id && (d.documentNumber === id || d.name === id))
+  );
+  if (!matches.length) return null;
+
+  const byExpiryThenIssue = (a: EmployeeDocument, b: EmployeeDocument) => {
+    const expiryDiff = documentTime(b.expiryDate) - documentTime(a.expiryDate);
+    if (expiryDiff !== 0) return expiryDiff;
+    return documentTime(b.uploadDate) - documentTime(a.uploadDate);
+  };
+
+  const active = matches.filter((d) => isDocumentActive(d.expiryDate));
+  const pool = active.length ? active : matches;
+  return [...pool].sort(byExpiryThenIssue)[0] ?? null;
 }

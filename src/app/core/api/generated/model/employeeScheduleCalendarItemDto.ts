@@ -40,6 +40,22 @@ export interface EmployeeScheduleCalendarItemDto {
     maxOvertimeAfterMin?: number | null;
     minWorkHoursRequired?: number | null;
     isEmployeeOverride?: boolean;
+    leaveTypeName?: string | null;
+    leaveTypeArabicName?: string | null;
+    leaveStartDate?: string | null;
+    leaveEndDate?: string | null;
+    isCompensatoryLeave?: boolean;
+    permissions?: EmployeeScheduleCalendarPermissionDto[] | null;
+}
+
+export interface EmployeeScheduleCalendarPermissionDto {
+    permissionRequestId?: string;
+    permissionTypeName?: string | null;
+    permissionTypeArabicName?: string | null;
+    kind?: number;
+    fromTime?: string | null;
+    toTime?: string | null;
+    isMorning?: boolean | null;
 }
 
 

@@ -52,12 +52,16 @@ export class TimeAttendanceSettingsComponent implements OnInit {
     earlyLeaveToleranceMinutes: number;
     roundToNearestMinutes: number;
     requirePunchOut: boolean;
+    compensatoryClaimDays: number;
+    minimumCompensatoryWorkMinutes: number | null;
   }>({
     defaultCalculationMethod: 'Fifo',
     lateToleranceMinutes: 15,
     earlyLeaveToleranceMinutes: 15,
     roundToNearestMinutes: 5,
     requirePunchOut: true,
+    compensatoryClaimDays: 15,
+    minimumCompensatoryWorkMinutes: null,
   });
 
   readonly settingsId = signal<string | null>(null);
@@ -78,6 +82,8 @@ export class TimeAttendanceSettingsComponent implements OnInit {
             earlyLeaveToleranceMinutes: row.earlyLeaveToleranceMinutes,
             roundToNearestMinutes: row.roundToNearestMinutes,
             requirePunchOut: row.requirePunchOut,
+            compensatoryClaimDays: row.compensatoryClaimDays ?? 15,
+            minimumCompensatoryWorkMinutes: row.minimumCompensatoryWorkMinutes ?? null,
           });
         } else {
           this.settingsId.set(null);
@@ -101,17 +107,20 @@ export class TimeAttendanceSettingsComponent implements OnInit {
     earlyLeaveToleranceMinutes?: number;
     roundToNearestMinutes?: number;
     requirePunchOut?: boolean;
+    compensatoryClaimDays?: number;
+    minimumCompensatoryWorkMinutes?: number | null;
   }): void {
     this.model.update((m) => ({ ...m, ...patch }));
   }
 
   onNumberChange(
-    field: 'lateToleranceMinutes' | 'earlyLeaveToleranceMinutes' | 'roundToNearestMinutes',
+    field: 'lateToleranceMinutes' | 'earlyLeaveToleranceMinutes' | 'roundToNearestMinutes' | 'compensatoryClaimDays',
     value: number | null
   ): void {
     const n = value ?? 0;
     if (field === 'lateToleranceMinutes') this.patchModel({ lateToleranceMinutes: n });
     else if (field === 'earlyLeaveToleranceMinutes') this.patchModel({ earlyLeaveToleranceMinutes: n });
+    else if (field === 'compensatoryClaimDays') this.patchModel({ compensatoryClaimDays: n || 15 });
     else this.patchModel({ roundToNearestMinutes: n });
   }
 
@@ -125,6 +134,8 @@ export class TimeAttendanceSettingsComponent implements OnInit {
         earlyLeaveToleranceMinutes: m.earlyLeaveToleranceMinutes,
         roundToNearestMinutes: m.roundToNearestMinutes,
         requirePunchOut: m.requirePunchOut,
+        compensatoryClaimDays: m.compensatoryClaimDays || 15,
+        minimumCompensatoryWorkMinutes: m.minimumCompensatoryWorkMinutes,
       })
       .subscribe({
         next: (saved: WorkforceAttendanceSettingsDto) => {

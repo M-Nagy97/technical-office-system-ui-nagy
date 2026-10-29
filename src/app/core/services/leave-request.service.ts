@@ -17,6 +17,16 @@ interface ApiResult<T> {
   message?: string;
 }
 
+export interface CompensatoryCreditDto {
+  id: string;
+  sourceWorkDate: string;
+  expiresOn: string;
+  leaveDate?: string | null;
+  isExpired: boolean;
+}
+
+export const COMPENSATORY_LEAVE_TYPE_ID = '99999999-9999-9999-9999-999999999999';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -45,6 +55,20 @@ export class LeaveRequestService {
         return res?.data ?? [];
       })
     );
+  }
+
+  /** GET /api/leave-requests/compensatory-credits/{employeeId} */
+  getCompensatoryCredits(employeeId: string): Observable<CompensatoryCreditDto[]> {
+    return this.http
+      .get<ApiResult<CompensatoryCreditDto[]> | CompensatoryCreditDto[]>(
+        `${this.baseUrl}/compensatory-credits/${employeeId}`
+      )
+      .pipe(
+        map((res) => {
+          if (Array.isArray(res)) return res;
+          return res?.data ?? [];
+        })
+      );
   }
 
   /** GET /api/leave-requests/{id} */

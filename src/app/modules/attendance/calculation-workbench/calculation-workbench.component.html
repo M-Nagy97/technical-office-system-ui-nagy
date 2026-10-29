@@ -172,11 +172,11 @@
     scrollHeight="400px"
   >
     <ng-template sharedTableCell="actualIn" let-row>
-      {{ row.actualIn ? (row.actualIn | date : 'short') : '—' }}
+      {{ row.actualIn ? (row.actualIn | appDate:'datetime') : '—' }}
     </ng-template>
 
     <ng-template sharedTableCell="actualOut" let-row>
-      {{ row.actualOut ? (row.actualOut | date : 'short') : '—' }}
+      {{ row.actualOut ? (row.actualOut | appDate:'datetime') : '—' }}
     </ng-template>
   </app-shared-table>
 </p-dialog>

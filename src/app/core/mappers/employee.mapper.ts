@@ -9,8 +9,11 @@ import {
 } from '../utils/media-url.util';
 import {
   NATIONAL_ID_DOCUMENT_TYPE_ID,
+  defaultExpiryFromIssue,
   isPersistedDocumentId,
   mapDocumentType,
+  pickCurrentNationalIdDocument,
+  toLocalCalendarDateString,
   truncateDocumentNumber,
 } from './employee-document-types';
 
@@ -94,6 +97,12 @@ function parseDate(d: Date | string | null | undefined): string | undefined {
   return isNaN(parsed.getTime()) ? undefined : parsed.toISOString();
 }
 
+function parseLocalCalendarDate(d: Date | string | null | undefined): string | undefined {
+  if (!d) return undefined;
+  const parsed = d instanceof Date ? d : new Date(d);
+  return isNaN(parsed.getTime()) ? undefined : toLocalCalendarDateString(parsed);
+}
+
 function asGuid(value: string | null | undefined): string | null {
   const trimmed = value?.trim();
   return trimmed ? trimmed : null;
@@ -109,11 +118,7 @@ function resolveLastName(employee: Partial<Employee>): string {
 }
 
 function buildDocumentPayloads(employee: Partial<Employee>) {
-  const natDoc = (employee.documents || []).find(
-    (d) =>
-      d.documentTypeId === NATIONAL_ID_DOCUMENT_TYPE_ID ||
-      (d.documentNumber && d.documentNumber === employee.nationalId)
-  );
+  const natDoc = pickCurrentNationalIdDocument(employee.documents, employee.nationalId);
 
   const nationalIdDocPayload =
     employee.nationalId && natDoc?.fileUrl
@@ -122,8 +127,8 @@ function buildDocumentPayloads(employee: Partial<Employee>) {
             id: isPersistedDocumentId(natDoc.id) ? natDoc.id : undefined,
             documentTypeId: NATIONAL_ID_DOCUMENT_TYPE_ID,
             documentNumber: truncateDocumentNumber(employee.nationalId),
-            issueDate: parseDate(natDoc.uploadDate || employee.birthDate),
-            expiryDate: parseDate(natDoc.expiryDate),
+            issueDate: parseLocalCalendarDate(natDoc.uploadDate || employee.birthDate),
+            expiryDate: parseLocalCalendarDate(natDoc.expiryDate),
             fileUrl: toStorageFileUrl(natDoc.fileUrl) || '',
           },
         ]
@@ -133,8 +138,14 @@ function buildDocumentPayloads(employee: Partial<Employee>) {
               id: isPersistedDocumentId(natDoc?.id) ? natDoc!.id : undefined,
               documentTypeId: NATIONAL_ID_DOCUMENT_TYPE_ID,
               documentNumber: truncateDocumentNumber(employee.nationalId),
-              issueDate: parseDate(natDoc?.uploadDate || employee.birthDate || new Date()),
-              expiryDate: parseDate(natDoc?.expiryDate || new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000)),
+              issueDate: parseLocalCalendarDate(natDoc?.uploadDate || employee.birthDate || new Date()),
+              expiryDate: parseLocalCalendarDate(
+                natDoc?.expiryDate ||
+                  defaultExpiryFromIssue(
+                    natDoc?.uploadDate || employee.birthDate || new Date(),
+                    'id_copy'
+                  )
+              ),
               fileUrl: toStorageFileUrl(natDoc?.fileUrl) || '',
             },
           ]
@@ -148,8 +159,11 @@ function buildDocumentPayloads(employee: Partial<Employee>) {
       documentTypeId: doc.documentTypeId!,
       documentNumber: truncateDocumentNumber(doc.documentNumber || doc.name, 'DOC'),
       fileUrl: toStorageFileUrl(doc.fileUrl) || '',
-      issueDate: parseDate(doc.uploadDate) || parseDate(new Date()),
-      expiryDate: parseDate(doc.expiryDate) || parseDate(new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000)),
+      issueDate: parseLocalCalendarDate(doc.uploadDate) || parseLocalCalendarDate(new Date()),
+      expiryDate:
+        parseLocalCalendarDate(doc.expiryDate) ||
+        parseLocalCalendarDate(doc.uploadDate) ||
+        parseLocalCalendarDate(new Date()),
     }));
 
   return [...nationalIdDocPayload, ...otherDocsPayload].filter((d) => d.documentTypeId);
@@ -282,7 +296,7 @@ export class EmployeeMapper {
     }));
 
     const nationalIdDoc =
-      documents.find((d) => d.documentTypeId === NATIONAL_ID_DOCUMENT_TYPE_ID) ||
+      pickCurrentNationalIdDocument(documents) ||
       documents.find((d) => d.documentNumber && /^\d{14}$/.test(d.documentNumber)) ||
       null;
     const nationalId = nationalIdDoc?.documentNumber ?? '';

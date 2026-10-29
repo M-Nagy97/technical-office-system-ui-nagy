@@ -11,7 +11,9 @@ import {
   SharedTableColumn,
   SharedTableComponent,
   tableEditAction,
+  formatAppTime,
 } from '../../../shared';
+import { LanguageService } from '../../../core/services/language.service';
 
 import { PermissionService } from '../../../core/auth/permission.service';
 import { HasPermissionDirective } from '../../../core/directives/has-permission.directive';
@@ -39,6 +41,7 @@ export class ShiftListComponent implements OnInit {
   private readonly shiftsApi = inject(ShiftsService);
   private readonly router = inject(Router);
   private readonly permission = inject(PermissionService);
+  private readonly language = inject(LanguageService);
 
   readonly loading = signal(false);
   readonly shifts = signal<ShiftDto[]>([]);
@@ -104,7 +107,6 @@ export class ShiftListComponent implements OnInit {
   ];
 
   formatTime(value: string | undefined): string {
-    if (!value) return '—';
-    return value;
+    return formatAppTime(value, this.language.currentLang());
   }
 }

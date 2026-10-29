@@ -19,6 +19,8 @@ import {
   EmployeeAttendanceStatusDto,
 } from '../../../core/api/generated';
 import { AttendanceStatus } from '../../../core/api/generated';
+import { formatAppTime } from '../../../shared/utils/date.utils';
+import { TranslateService } from '@ngx-translate/core';
 
 function toYmdLocal(d: Date): string {
   const y = d.getFullYear();
@@ -58,6 +60,7 @@ const STATUS_LABELS: Record<number, string> = {
 export class AttendanceCalculationComponent {
   private readonly attendanceCalcApi = inject(AttendanceCalcService);
   private readonly employeePlansApi = inject(EmployeePlansService);
+  private readonly translate = inject(TranslateService);
 
   /** Work day shown in the parent (daily attendance). */
   readonly workDate = input.required<Date>();
@@ -174,13 +177,7 @@ export class AttendanceCalculationComponent {
   }
 
   formatTime(iso: string | null | undefined): string {
-    if (!iso) return '—';
-    try {
-      const d = new Date(iso);
-      return d.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-    } catch {
-      return iso;
-    }
+    return formatAppTime(iso, this.translate.currentLang);
   }
 
   formatMinutes(m: number | null | undefined): string {

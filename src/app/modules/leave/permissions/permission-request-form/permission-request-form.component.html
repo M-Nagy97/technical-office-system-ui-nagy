@@ -24,6 +24,27 @@
           </small>
         </div>
 
+        <div class="col-12 md:col-6 field">
+          <label for="permissionTypeId" class="font-medium">{{ 'leave.permissions.field_type' | translate }} <span class="text-red-500">*</span></label>
+          <p-dropdown
+            id="permissionTypeId"
+            formControlName="permissionTypeId"
+            [options]="permissionTypes()"
+            optionLabel="arabicName"
+            optionValue="id"
+            [placeholder]="'leave.permissions.field_type_placeholder' | translate"
+            [filter]="true"
+            filterBy="arabicName,name"
+            [showClear]="false"
+          ></p-dropdown>
+          <small
+            class="p-error block mt-1"
+            *ngIf="form.get('permissionTypeId')?.invalid && form.get('permissionTypeId')?.touched"
+          >
+            {{ 'leave.permissions.field_type_req' | translate }}
+          </small>
+        </div>
+
         <!-- التاريخ -->
         <div class="col-12 md:col-6 field">
           <label for="date" class="font-medium">{{ 'leave.permissions.field_date' | translate }} <span class="text-red-500">*</span></label>
@@ -70,16 +91,11 @@
         <ng-container *ngIf="form.get('durationType')?.value === PermissionDurationType.TimeRange">
           <div class="col-12 md:col-6 field">
             <label for="fromTime" class="font-medium">{{ 'leave.permissions.field_from_time' | translate }} <span class="text-red-500">*</span></label>
-            <p-calendar
-              id="fromTime"
+            <app-time-input
+              inputId="fromTime"
               formControlName="fromTime"
-              [timeOnly]="true"
-              [showTime]="true"
-              hourFormat="24"
-              placeholder="00:00"
-              [showIcon]="true"
-              icon="pi pi-clock"
-            ></p-calendar>
+              placeholder="hh:mm AM"
+            />
             <small
               class="p-error block mt-1"
               *ngIf="form.get('fromTime')?.invalid && form.get('fromTime')?.touched"
@@ -90,16 +106,11 @@
 
           <div class="col-12 md:col-6 field">
             <label for="toTime" class="font-medium">{{ 'leave.permissions.field_to_time' | translate }} <span class="text-red-500">*</span></label>
-            <p-calendar
-              id="toTime"
+            <app-time-input
+              inputId="toTime"
               formControlName="toTime"
-              [timeOnly]="true"
-              [showTime]="true"
-              hourFormat="24"
-              placeholder="00:00"
-              [showIcon]="true"
-              icon="pi pi-clock"
-            ></p-calendar>
+              placeholder="hh:mm AM"
+            />
             <small
               class="p-error block mt-1"
               *ngIf="form.get('toTime')?.invalid && form.get('toTime')?.touched"
@@ -187,4 +198,10 @@
   (proceed)="evaluateSubmit.onPolicyProceed()"
   (cancelled)="evaluateSubmit.onPolicyDialogClosed()"
 ></app-policy-evaluation-dialog>
+
+<app-permission-request-print-dialog
+  [visible]="printDialogOpen()"
+  (visibleChange)="onPrintDialogVisibleChange($event)"
+  [requestId]="printRequestId()"
+/>
 

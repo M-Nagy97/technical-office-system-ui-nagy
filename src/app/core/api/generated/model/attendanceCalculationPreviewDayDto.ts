@@ -28,6 +28,14 @@ export interface AttendanceCalculationPreviewDayDto {
     overtimeBeforeMinutes?: number;
     overtimeAfterMinutes?: number;
     netWorkMinutes?: number;
+    leaveTypeName?: string | null;
+    leaveTypeArabicName?: string | null;
+    leaveStartDate?: string | null;
+    leaveEndDate?: string | null;
+    hasApprovedLeave?: boolean;
+    isCompensatoryLeave?: boolean;
+    workedDuringApprovedLeave?: boolean;
+    compensatoryCreditWarning?: string | null;
 }
 
 

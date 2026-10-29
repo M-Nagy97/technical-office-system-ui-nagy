@@ -18,6 +18,7 @@ import {
   SharedTableCellTemplateDirective,
   StatusBadgeComponent,
   tableViewAction,
+  tableCustomAction,
 } from '../../../../shared';
 import {
   LeaveRequestService,
@@ -39,6 +40,7 @@ import {
   RequestActionEvent,
   RequestActionType,
 } from '../../shared/request-action-dialog/request-action-dialog.component';
+import { LeaveRequestPrintDialogComponent } from '../../shared/leave-request-print-dialog/leave-request-print-dialog.component';
 
 @Component({
   selector: 'app-leave-requests-list',
@@ -58,6 +60,7 @@ import {
     SharedTableCellTemplateDirective,
     StatusBadgeComponent,
     RequestActionDialogComponent,
+    LeaveRequestPrintDialogComponent,
     TranslateModule,
     HasPermissionDirective,
   ],
@@ -92,6 +95,9 @@ export class LeaveRequestsListComponent implements OnInit {
   readonly currentRequestId = signal('');
   readonly currentRequestWarnings = signal<string | null>(null);
   readonly actionLoading = signal(false);
+  readonly printDialogOpen = signal(false);
+  readonly printRequestId = signal('');
+  readonly printRequest = signal<LeaveRequestDto | null>(null);
 
   readonly statusOptions = computed(() => [
     { label: this.translate.instant('leave.status.all'), value: null },
@@ -164,6 +170,13 @@ export class LeaveRequestsListComponent implements OnInit {
   readonly actions: SharedTableAction<LeaveRequestDto>[] = [
     tableViewAction((row) => {
       this.router.navigate(['/leave/requests', row.id]);
+    }),
+    tableCustomAction({
+      id: 'print',
+      icon: 'pi pi-print',
+      tooltip: 'leave.print.action',
+      buttonClass: 'p-button-rounded p-button-text p-button-sm p-button-secondary',
+      onClick: (row) => this.openPrintDialog(row),
     }),
     {
       id: 'approve',
@@ -265,6 +278,12 @@ export class LeaveRequestsListComponent implements OnInit {
       return row.warningAlertsAr || row.warningAlerts || '';
     }
     return row.warningAlerts || row.warningAlertsAr || '';
+  }
+
+  openPrintDialog(request: LeaveRequestDto): void {
+    this.printRequest.set(request);
+    this.printRequestId.set(request.id);
+    this.printDialogOpen.set(true);
   }
 
   openActionDialog(action: RequestActionType, request: LeaveRequestDto | string): void {

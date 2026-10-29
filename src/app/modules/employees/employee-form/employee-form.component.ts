@@ -33,8 +33,11 @@ import { FileUploadService } from '../../../core/services/file-upload.service';
 import { Employee, EmployeeDocument } from '../../../core/models/employee.model';
 import {
   NATIONAL_ID_DOCUMENT_TYPE_ID,
+  defaultExpiryFromIssue,
   getDocTypeLabel,
   isPersistedDocumentId,
+  isSameLocalDay,
+  pickCurrentNationalIdDocument,
   resolveDocumentTypeId,
   truncateDocumentNumber,
 } from '../../../core/mappers/employee-document-types';
@@ -129,6 +132,7 @@ export class EmployeeFormComponent implements OnInit {
   /** After a failed save, show errors even if controls were not blurred. */
   readonly submittedAttempt = signal(false);
   readonly nationalIdFileName = signal<string>('');
+  private lastAutoNatExpiry: Date | null = null;
 
   stepItems: MenuItem[] = [];
 
@@ -247,6 +251,14 @@ export class EmployeeFormComponent implements OnInit {
     this.form.get('thirdName')?.valueChanges.subscribe(() => this.updateFullName());
     this.form.get('lastName')?.valueChanges.subscribe(() => this.updateFullName());
     this.form.get('nationalId')?.valueChanges.subscribe((value) => this.syncBirthDateFromNationalId(value));
+    this.form.get('nationalIdIssueDate')?.valueChanges.subscribe((issue) => {
+      this.syncNationalIdExpiryFromIssue(issue);
+    });
+    this.form.get('nationalIdExpiryDate')?.valueChanges.subscribe((expiry) => {
+      if (!isSameLocalDay(expiry, this.lastAutoNatExpiry)) {
+        this.lastAutoNatExpiry = null;
+      }
+    });
     this.form.get('jobGrade')?.valueChanges.subscribe(() => this.syncJobTitleOptions());
     this.form.get('department')?.valueChanges.subscribe(() => {
       const sectionCtrl = this.form.get('section');
@@ -271,6 +283,18 @@ export class EmployeeFormComponent implements OnInit {
   private syncBirthDateFromNationalId(nationalId: string | null | undefined): void {
     const birthDate = parseEgyptianNationalIdBirthDate(nationalId);
     this.form.get('birthDate')?.setValue(birthDate, { emitEvent: false });
+  }
+
+  private syncNationalIdExpiryFromIssue(issue: Date | null | undefined): void {
+    if (!issue) return;
+    const expiryCtrl = this.form.get('nationalIdExpiryDate');
+    const currentExpiry = expiryCtrl?.value as Date | null;
+    const expected = defaultExpiryFromIssue(issue, 'id_copy');
+    if (!expected) return;
+    if (!currentExpiry || isSameLocalDay(currentExpiry, this.lastAutoNatExpiry)) {
+      expiryCtrl?.setValue(expected, { emitEvent: false });
+      this.lastAutoNatExpiry = expected;
+    }
   }
 
   private syncJobTitleOptions(): void {
@@ -305,11 +329,7 @@ export class EmployeeFormComponent implements OnInit {
     const depId = assigned?.parentId || assignedId || '';
     const secId = assigned?.parentId ? assignedId : '';
 
-    const natDoc = (emp.documents || []).find(
-      (d) => (d.documentNumber && d.documentNumber === emp.nationalId) ||
-        (d.name && d.name === emp.nationalId) ||
-        d.documentTypeId === NATIONAL_ID_DOCUMENT_TYPE_ID
-      ) || (emp.documents && emp.documents.length > 0 ? emp.documents[0] : null);
+    const natDoc = pickCurrentNationalIdDocument(emp.documents, emp.nationalId);
 
     const titleId = this.resolveJobPositionId(emp.jobPositionId || emp.jobTitle);
     const position = this.jobPositions.find((p) => p.id === titleId);
@@ -336,9 +356,9 @@ export class EmployeeFormComponent implements OnInit {
       employmentType: emp.employmentType ?? 'permanent',
       status: emp.status ?? 'active',
       nationalIdIssueDate: toDate(natDoc?.uploadDate),
-      nationalIdExpiryDate: toDate(natDoc?.expiryDate),
+      nationalIdExpiryDate: toDate(natDoc?.expiryDate) || defaultExpiryFromIssue(toDate(natDoc?.uploadDate), 'id_copy'),
       nationalIdFileUrl: natDoc?.fileUrl ?? '',
-    });
+    }, { emitEvent: false });
     this.form.get('jobGrade')?.setValue(gradeId);
     this.syncJobTitleOptions();
     this.form.get('jobTitle')?.setValue(titleId, { emitEvent: false });
@@ -351,6 +371,12 @@ export class EmployeeFormComponent implements OnInit {
     } else {
       this.nationalIdFileName.set('');
     }
+    const patchedIssue = toDate(natDoc?.uploadDate);
+    const patchedExpiry =
+      toDate(natDoc?.expiryDate) || defaultExpiryFromIssue(patchedIssue, 'id_copy');
+    this.lastAutoNatExpiry = isSameLocalDay(patchedExpiry, defaultExpiryFromIssue(patchedIssue, 'id_copy'))
+      ? patchedExpiry
+      : null;
     this.syncSectionOptions();
     if (secId) {
       this.form.get('section')?.setValue(secId, { emitEvent: false });
@@ -463,11 +489,7 @@ export class EmployeeFormComponent implements OnInit {
     };
 
     const existingEmployee = this.employeeId() ? this.employeeService.getByIdSync(this.employeeId()!) : null;
-    const natDoc = (existingEmployee?.documents || []).find(
-      (d) => (d.documentNumber && d.documentNumber === v.nationalId) ||
-        (d.name && d.name === v.nationalId) ||
-        d.documentTypeId === NATIONAL_ID_DOCUMENT_TYPE_ID
-      ) || (existingEmployee?.documents && existingEmployee.documents.length > 0 ? existingEmployee.documents[0] : null);
+    const natDoc = pickCurrentNationalIdDocument(existingEmployee?.documents, v.nationalId);
 
     const otherDocs = (existingEmployee?.documents || []).filter(
       (d) => d !== natDoc && d.documentNumber !== v.nationalId && d.name !== v.nationalId
@@ -485,7 +507,14 @@ export class EmployeeFormComponent implements OnInit {
       name: v.nationalId,
       fileUrl: natFileUrl || natDoc?.fileUrl || '',
       uploadDate: natIssueDate || natDoc?.uploadDate || v.appointmentDate || v.birthDate || new Date(),
-      expiryDate: natExpiryDate || natDoc?.expiryDate || new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000),
+      expiryDate:
+        natExpiryDate ||
+        natDoc?.expiryDate ||
+        defaultExpiryFromIssue(
+          natIssueDate || natDoc?.uploadDate || v.appointmentDate || v.birthDate || new Date(),
+          'id_copy'
+        ) ||
+        undefined,
     } : null;
 
     const documentsPayload: EmployeeDocument[] = [
@@ -597,6 +626,8 @@ export class EmployeeFormComponent implements OnInit {
     if (!documentTypeId) return;
 
     const now = new Date();
+    const extraExpiry = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    extraExpiry.setFullYear(extraExpiry.getFullYear() + 10);
     const otherLabel = getDocTypeLabel('other', this.translate);
     forkJoin(files.map((file) => this.fileUploadService.upload(file, 'employees/documents')))
       .pipe(
@@ -614,6 +645,7 @@ export class EmployeeFormComponent implements OnInit {
               documentNumber: name,
               fileUrl: path,
               uploadDate: now,
+              expiryDate: extraExpiry,
             };
           });
           return this.employeeService.addDocuments(employeeId, docs);

@@ -15,6 +15,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
 import { SharedTableCellTemplateDirective } from '../../../shared/components/shared-table/shared-table-cell-template.directive';
 import { SharedTableAction, SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
+import { AppDatePipe } from '../../../shared';
 import {
   EmployeeAttendanceDirectoryRowDto,
   EmployeeAttendanceService,
@@ -46,6 +47,7 @@ function toYmdLocal(d: Date): string {
     TranslatePipe,
     SharedTableComponent,
     SharedTableCellTemplateDirective,
+    AppDatePipe,
   ],
   templateUrl: './employee-attendance.component.html',
   styleUrl: './employee-attendance.component.scss',

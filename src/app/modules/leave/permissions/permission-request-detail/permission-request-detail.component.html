@@ -8,6 +8,16 @@
     @if (request(); as req) {
       <app-status-badge detailStatus [status]="req.status" type="permission" />
     }
+    @if (request(); as req) {
+      <button
+        pButton
+        type="button"
+        [label]="'leave.permissions.print.action' | translate"
+        icon="pi pi-print"
+        class="p-button-outlined p-button-secondary p-button-sm"
+        (click)="openPrintDialog()"
+      ></button>
+    }
     <ng-container *appHasPermission="'leave.write'">
       @if (request(); as req) {
         @if (req.status === PermissionRequestStatus.Pending) {
@@ -31,6 +41,11 @@
       </div>
 
       <div class="col-12 md:col-6">
+        <label class="text-500 text-sm block">{{ 'leave.permissions.type' | translate }}</label>
+        <span class="text-900 font-semibold text-lg">{{ req.permissionTypeArabicName || req.permissionTypeName }}</span>
+      </div>
+
+      <div class="col-12 md:col-6">
         <label class="text-500 text-sm block">{{ 'leave.permissions.date' | translate }}</label>
         <span class="text-900 font-semibold text-lg">{{ req.date | appDate }}</span>
       </div>
@@ -50,7 +65,7 @@
             {{ (req.halfDayPeriod === HalfDayPeriod.Afternoon ? 'leave.permissions.period_afternoon_desc' : 'leave.permissions.period_morning_desc') | translate }}
           </ng-container>
           <ng-container *ngIf="req.durationType === PermissionDurationType.TimeRange">
-            {{ 'leave.permissions.time_range' | translate: { from: req.fromTime || '--', to: req.toTime || '--' } }}
+            {{ 'leave.permissions.time_range' | translate: { from: formatPermissionTime(req.fromTime), to: formatPermissionTime(req.toTime) } }}
           </ng-container>
         </span>
       </div>
@@ -136,5 +151,13 @@
   [warningAlerts]="request()?.warningAlerts"
   [loading]="actionLoading()"
   (confirmed)="handleActionConfirm($event)"
+/>
+
+<app-permission-request-print-dialog
+  *ngIf="request()"
+  [visible]="printDialogOpen()"
+  (visibleChange)="printDialogOpen.set($event)"
+  [requestId]="request()!.id"
+  [request]="request()"
 />
 

@@ -15,12 +15,13 @@ import {
   PermissionDurationType,
   HalfDayPeriod,
 } from '../../../../core/models/permission-request.model';
-import { AppDatePipe, DetailHeaderComponent, StatusBadgeComponent } from '../../../../shared';
+import { AppDatePipe, DetailHeaderComponent, StatusBadgeComponent, formatAppTime } from '../../../../shared';
 import {
   RequestActionDialogComponent,
   RequestActionEvent,
   RequestActionType,
 } from '../../shared/request-action-dialog/request-action-dialog.component';
+import { PermissionRequestPrintDialogComponent } from '../../shared/permission-request-print-dialog/permission-request-print-dialog.component';
 
 @Component({
   selector: 'app-permission-request-detail',
@@ -35,6 +36,7 @@ import {
     DetailHeaderComponent,
     AppDatePipe,
     RequestActionDialogComponent,
+    PermissionRequestPrintDialogComponent,
     TranslateModule,
     HasPermissionDirective,
   ],
@@ -58,10 +60,15 @@ export class PermissionRequestDetailComponent implements OnInit {
   readonly actionDialogOpen = signal(false);
   readonly currentAction = signal<RequestActionType | null>(null);
   readonly actionLoading = signal(false);
+  readonly printDialogOpen = signal(false);
 
   readonly PermissionRequestStatus = PermissionRequestStatus;
   readonly PermissionDurationType = PermissionDurationType;
   readonly HalfDayPeriod = HalfDayPeriod;
+
+  formatPermissionTime(value: string | null | undefined): string {
+    return formatAppTime(value, this.languageService.currentLang(), { empty: '--' });
+  }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -81,6 +88,14 @@ export class PermissionRequestDetailComponent implements OnInit {
         if (req?.employeeId) {
           this.loadEmployeeName(req.employeeId);
         }
+        if (req && this.route.snapshot.queryParamMap.get('print') === '1') {
+          this.printDialogOpen.set(true);
+          void this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: {},
+            replaceUrl: true,
+          });
+        }
       },
       error: () => {
         this.loading.set(false);
@@ -99,6 +114,10 @@ export class PermissionRequestDetailComponent implements OnInit {
         if (emp) this.employeeName.set(emp.fullName);
       },
     });
+  }
+
+  openPrintDialog(): void {
+    this.printDialogOpen.set(true);
   }
 
   openActionDialog(action: RequestActionType): void {

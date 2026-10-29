@@ -33,12 +33,12 @@
             <div class="grid p-fluid">
               <div class="col-12 md:col-6">
                 <app-form-field forId="shiftStart" labelKey="shifts.start" [required]="true">
-                  <input id="shiftStart" type="time" pInputText formControlName="shiftStart" />
+                  <app-time-input inputId="shiftStart" formControlName="shiftStart" [asTimeString]="true" />
                 </app-form-field>
               </div>
               <div class="col-12 md:col-6">
                 <app-form-field forId="shiftEnd" labelKey="shifts.end" [required]="true">
-                  <input id="shiftEnd" type="time" pInputText formControlName="shiftEnd" />
+                  <app-time-input inputId="shiftEnd" formControlName="shiftEnd" [asTimeString]="true" />
                 </app-form-field>
               </div>
             </div>
@@ -50,22 +50,22 @@
             <div class="grid p-fluid">
               <div class="col-12 md:col-3">
                 <app-form-field forId="fingerInFrom" labelKey="shifts.finger_in_from">
-                  <input id="fingerInFrom" type="time" pInputText formControlName="fingerInFrom" />
+                  <app-time-input inputId="fingerInFrom" formControlName="fingerInFrom" [asTimeString]="true" />
                 </app-form-field>
               </div>
               <div class="col-12 md:col-3">
                 <app-form-field forId="fingerInTo" labelKey="shifts.finger_in_to">
-                  <input id="fingerInTo" type="time" pInputText formControlName="fingerInTo" />
+                  <app-time-input inputId="fingerInTo" formControlName="fingerInTo" [asTimeString]="true" />
                 </app-form-field>
               </div>
               <div class="col-12 md:col-3">
                 <app-form-field forId="fingerOutFrom" labelKey="shifts.finger_out_from">
-                  <input id="fingerOutFrom" type="time" pInputText formControlName="fingerOutFrom" />
+                  <app-time-input inputId="fingerOutFrom" formControlName="fingerOutFrom" [asTimeString]="true" />
                 </app-form-field>
               </div>
               <div class="col-12 md:col-3">
                 <app-form-field forId="fingerOutTo" labelKey="shifts.finger_out_to">
-                  <input id="fingerOutTo" type="time" pInputText formControlName="fingerOutTo" />
+                  <app-time-input inputId="fingerOutTo" formControlName="fingerOutTo" [asTimeString]="true" />
                 </app-form-field>
               </div>
             </div>

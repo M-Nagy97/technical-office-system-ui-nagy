@@ -13,3 +13,4 @@ export * from './crud-dialog/crud-dialog.component';
 export * from './detail-header/detail-header.component';
 export * from './stat-card/stat-card.component';
 export * from './entity-cell/entity-cell.component';
+export * from './time-input/time-input.component';

@@ -42,3 +42,59 @@
     </div>
   </p-card>
 </div>
+
+<p-dialog
+  [header]="'employee_schedule_page.day_dialog' | translate"
+  [(visible)]="dialogVisible"
+  [modal]="true"
+  [style]="{ width: '28rem' }"
+>
+  <div class="flex flex-column gap-2">
+    <div>{{ dialogDate }}</div>
+    <div class="text-600">{{ sourceLabel(dialogRow) }}</div>
+    @if (dialogRow?.notes) {
+      <div>{{ dialogRow?.notes }}</div>
+    }
+    @if (canWrite) {
+      <div class="flex flex-column gap-2 mt-2">
+        <label>{{ 'employee_schedule_page.shift' | translate }}</label>
+        <p-dropdown
+          [(ngModel)]="dialogShiftId"
+          [options]="shifts"
+          optionLabel="shiftName"
+          optionValue="id"
+          [placeholder]="'employee_schedule_page.shift' | translate"
+          styleClass="w-full"
+        />
+      </div>
+    }
+  </div>
+  <ng-template pTemplate="footer">
+    @if (canWrite) {
+      <p-button
+        [label]="'employee_schedule_page.personal_holiday' | translate"
+        icon="pi pi-star"
+        [outlined]="true"
+        [loading]="dialogSaving"
+        (onClick)="markPersonalHoliday()"
+      />
+      <p-button
+        [label]="'employee_schedule_page.make_workday' | translate"
+        icon="pi pi-briefcase"
+        [outlined]="true"
+        [loading]="dialogSaving"
+        (onClick)="markWorkday()"
+      />
+      @if (dialogRow?.isEmployeeOverride) {
+        <p-button
+          [label]="'employee_schedule_page.clear_override' | translate"
+          icon="pi pi-undo"
+          severity="danger"
+          [outlined]="true"
+          [loading]="dialogSaving"
+          (onClick)="clearOverride()"
+        />
+      }
+    }
+  </ng-template>
+</p-dialog>

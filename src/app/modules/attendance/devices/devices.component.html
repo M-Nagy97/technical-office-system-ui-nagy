@@ -183,7 +183,7 @@
               <i class="pi pi-exclamation-triangle"></i> غير موجود
             </span>
           </td>
-          <td dir="ltr">{{ log.punchTime | date: 'yyyy-MM-dd HH:mm' }}</td>
+          <td dir="ltr">{{ log.punchTime | appDate }} {{ log.punchTime | appDate:'time' }}</td>
           <td>{{ log.directionLabel }}</td>
                     <td>
             <p-tag

@@ -51,7 +51,7 @@
   </app-form-field>
   @if (newToEmployeeId) {
     <app-form-field labelKey="custody.receive_date">
-      <p-calendar [(ngModel)]="newDate" [showTime]="true" hourFormat="24" dateFormat="dd/mm/yy" styleClass="w-full" appendTo="body" />
+      <p-calendar [(ngModel)]="newDate" [showTime]="true" hourFormat="12" dateFormat="dd/mm/yy" styleClass="w-full" appendTo="body" />
     </app-form-field>
   }
   <app-form-field labelKey="custody.col.notes">

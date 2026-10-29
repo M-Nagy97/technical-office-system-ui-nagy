@@ -7,7 +7,7 @@ import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
-import { CrudDialogComponent } from '../../../shared';
+import { AppDatePipe, CrudDialogComponent } from '../../../shared';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { CalendarModule } from 'primeng/calendar';
@@ -39,6 +39,7 @@ import { catchError, finalize, of } from 'rxjs';
     CalendarModule,
     HasPermissionDirective,
     CrudDialogComponent,
+    AppDatePipe,
   ],
   templateUrl: './financial-custody.component.html',
   styleUrl: './financial-custody.component.scss',

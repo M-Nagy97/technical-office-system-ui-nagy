@@ -12,7 +12,7 @@ import {
   CreateShiftCommand,
   UpdateShiftCommand,
 } from '../../../core/api/generated';
-import { FormActionsComponent, FormFieldComponent, FormSectionComponent, NotifyService } from '../../../shared';
+import { FormActionsComponent, FormFieldComponent, FormSectionComponent, NotifyService, TimeInputComponent } from '../../../shared';
 
 function timeToApi(v: string): string {
   if (!v || v.length < 5) return '00:00:00';
@@ -32,6 +32,7 @@ function timeToApi(v: string): string {
     FormFieldComponent,
     FormSectionComponent,
     FormActionsComponent,
+    TimeInputComponent,
   ],
   templateUrl: './shift-form.component.html',
   styleUrl: './shift-form.component.scss',

@@ -58,7 +58,18 @@
       [translateHeader]="true"
       emptyMessage="employees.documents.empty"
       [translateEmptyMessage]="true"
-    />
+    >
+      <ng-template sharedTableCell="status" let-row>
+        @if (row.expiryDate) {
+          <p-tag
+            [value]="rowStatusKey(row) | translate"
+            [severity]="rowStatusSeverity(row)"
+          />
+        } @else {
+          <span>—</span>
+        }
+      </ng-template>
+    </app-shared-table>
   </p-card>
 </div>
 
@@ -67,7 +78,7 @@
   [visible]="uploadDialogVisible()"
   (visibleChange)="uploadDialogVisible.set($event)"
   [modal]="true"
-  [style]="{ width: '32rem' }"
+  [style]="{ width: '36rem' }"
   [draggable]="false"
   [resizable]="false"
   (onHide)="closeUpload()"
@@ -77,7 +88,7 @@
     <p-dropdown
       [options]="employeeOptions()"
       [ngModel]="uploadEmployeeId()"
-      (ngModelChange)="uploadEmployeeId.set($event)"
+      (ngModelChange)="onUploadEmployeeChange($event)"
       optionLabel="label"
       optionValue="value"
       [placeholder]="'employees.documents.filter_employee' | translate"
@@ -86,30 +97,79 @@
     <p-dropdown
       [options]="uploadTypeOptions"
       [ngModel]="uploadDocType()"
-      (ngModelChange)="uploadDocType.set($event)"
+      (ngModelChange)="onUploadDocTypeChange($event)"
       optionLabel="label"
       optionValue="value"
       [placeholder]="'employees.documents.filter_type' | translate"
       styleClass="w-full"
     />
+
+    @if (activeNationalIdConflict(); as conflict) {
+      <p-message
+        severity="warn"
+        [text]="'employees.documents.active_natid_warning' | translate: { date: formatDate(conflict.expiryDate) }"
+        styleClass="w-full"
+      />
+    }
+    @if (expiredNationalIdNotice(); as expiredDoc) {
+      <p-message
+        severity="info"
+        [text]="'employees.documents.expired_natid_info' | translate: { date: formatDate(expiredDoc.expiryDate) }"
+        styleClass="w-full"
+      />
+    }
+
+    <div class="date-fields">
+      <div class="field">
+        <label>{{ 'employees.form.issue_date' | translate }}</label>
+        <p-calendar
+          [ngModel]="uploadIssueDate()"
+          (ngModelChange)="onUploadIssueDateChange($event)"
+          dateFormat="dd/mm/yy"
+          [showIcon]="true"
+          [disabled]="uploadDisabled()"
+          styleClass="w-full"
+          inputStyleClass="w-full"
+        />
+      </div>
+      <div class="field">
+        <label>{{ 'employees.form.expiry_date' | translate }} <span class="required">*</span></label>
+        <p-calendar
+          [ngModel]="uploadExpiryDate()"
+          (ngModelChange)="onUploadExpiryDateChange($event)"
+          dateFormat="dd/mm/yy"
+          [showIcon]="true"
+          [disabled]="uploadDisabled()"
+          styleClass="w-full"
+          inputStyleClass="w-full"
+        />
+        <small class="hint">{{ 'employees.documents.expiry_default_hint' | translate }}</small>
+      </div>
+    </div>
+
     <input
       pInputText
       class="w-full"
       [ngModel]="uploadDocName()"
       (ngModelChange)="uploadDocName.set($event)"
       [placeholder]="'employees.documents.doc_name_optional' | translate"
+      [disabled]="uploadDisabled()"
     />
-    <p-fileUpload
-      mode="advanced"
-      [auto]="false"
-      [customUpload]="true"
-      [multiple]="true"
-      [disabled]="uploading()"
-      (uploadHandler)="onUploadFile($event)"
-      [chooseLabel]="'employees.documents.choose_files' | translate"
-      [uploadLabel]="'employees.documents.upload' | translate"
-      [cancelLabel]="'employees.documents.cancel' | translate"
-    />
+
+    @if (uploadWidgetKey(); as widgetKey) {
+      <p-fileUpload
+        [attr.data-widget-key]="widgetKey"
+        mode="advanced"
+        [auto]="false"
+        [customUpload]="true"
+        [multiple]="!isNationalIdUpload()"
+        [disabled]="uploadDisabled()"
+        (uploadHandler)="onUploadFile($event)"
+        [chooseLabel]="'employees.documents.choose_files' | translate"
+        [uploadLabel]="'employees.documents.upload' | translate"
+        [cancelLabel]="'employees.documents.cancel' | translate"
+      />
+    }
   </div>
   <ng-template pTemplate="footer">
     <button

@@ -1,0 +1,303 @@
+<div class="public-holidays">
+  <p-card>
+    <div class="px-1 pb-3">
+      <h2 class="m-0 text-xl">{{ 'public_holidays_page.title' | translate }}</h2>
+      <p class="text-600 mt-2 mb-0">{{ 'public_holidays_page.subtitle' | translate }}</p>
+    </div>
+
+    <app-filter-bar
+      [search]="searchText()"
+      (searchChange)="searchText.set($event)"
+      searchPlaceholderKey="public_holidays_page.search"
+    >
+      <p-dropdown
+        [ngModel]="year()"
+        (ngModelChange)="year.set($event); load()"
+        [options]="years"
+        styleClass="w-8rem"
+      />
+      <ng-container *appHasPermission="'timeattendance.write'">
+        <p-button
+          [label]="'public_holidays_page.template' | translate"
+          icon="pi pi-download"
+          [outlined]="true"
+          (onClick)="downloadTemplate()"
+        />
+        <p-button
+          [label]="'public_holidays_page.import' | translate"
+          icon="pi pi-upload"
+          [outlined]="true"
+          (onClick)="openImport()"
+        />
+        <p-button
+          [label]="'public_holidays_page.export' | translate"
+          icon="pi pi-file-excel"
+          [outlined]="true"
+          (onClick)="exportYear()"
+        />
+        <p-button
+          [label]="'public_holidays_page.copy_year' | translate"
+          icon="pi pi-copy"
+          [outlined]="true"
+          [loading]="copying()"
+          (onClick)="copyPreviousYear()"
+        />
+        @if (fixedDraftCount() > 0) {
+          <p-button
+            [label]="'public_holidays_page.confirm_fixed' | translate"
+            icon="pi pi-check"
+            [outlined]="true"
+            (onClick)="openConfirm({ kind: 'fixed-all' })"
+          />
+        }
+        <p-button
+          [label]="'public_holidays_page.add' | translate"
+          icon="pi pi-plus"
+          (onClick)="openCreate()"
+        />
+      </ng-container>
+    </app-filter-bar>
+
+    @if (draftCount() > 0) {
+      <p class="text-600 mt-2 mb-3">
+        {{
+          'public_holidays_page.draft_summary'
+            | translate: { drafts: draftCount(), movable: movableDraftCount() }
+        }}
+      </p>
+    }
+
+    <app-shared-table
+      [value]="filtered()"
+      [loading]="loading()"
+      [columns]="columns"
+      [actions]="actions"
+      actionsColumnHeader="common.actions"
+      actionsColumnWidth="10rem"
+      emptyMessage="public_holidays_page.empty"
+    >
+      <ng-template sharedTableCell="status" let-row>
+        <div class="flex flex-wrap gap-2">
+          @if (row.status === PublicHolidayStatus.Draft) {
+            <p-tag [value]="'public_holidays_page.draft' | translate" severity="warning" />
+          }
+          @if (row.isMovable) {
+            <p-tag [value]="'public_holidays_page.movable' | translate" severity="info" />
+          }
+          @if (needsThisYearDates(row)) {
+            <p-tag [value]="'public_holidays_page.needs_dates' | translate" severity="danger" />
+          }
+        </div>
+      </ng-template>
+    </app-shared-table>
+  </p-card>
+</div>
+
+<p-dialog
+  [header]="(editingId() ? 'public_holidays_page.edit' : 'public_holidays_page.add') | translate"
+  [visible]="dialogVisible()"
+  (visibleChange)="dialogVisible.set($event)"
+  [modal]="true"
+  [style]="{ width: '32rem' }"
+>
+  <div class="flex flex-column gap-3">
+    <div class="flex flex-column gap-2">
+      <label>{{ 'public_holidays_page.name' | translate }}</label>
+      <input
+        pInputText
+        [ngModel]="formName()"
+        (ngModelChange)="formName.set($event)"
+        [placeholder]="'public_holidays_page.name_placeholder' | translate"
+      />
+    </div>
+    <div class="flex gap-3">
+      <div class="flex flex-column gap-2 flex-1">
+        <label>{{ 'public_holidays_page.from' | translate }}</label>
+        <p-calendar
+          [ngModel]="formFrom()"
+          (ngModelChange)="formFrom.set($event)"
+          dateFormat="yy-mm-dd"
+          [showIcon]="true"
+          styleClass="w-full"
+        />
+      </div>
+      <div class="flex flex-column gap-2 flex-1">
+        <label>{{ 'public_holidays_page.to' | translate }}</label>
+        <p-calendar
+          [ngModel]="formTo()"
+          (ngModelChange)="formTo.set($event)"
+          dateFormat="yy-mm-dd"
+          [showIcon]="true"
+          styleClass="w-full"
+        />
+      </div>
+    </div>
+    <div class="flex flex-column gap-2">
+      <label>{{ 'public_holidays_page.occasion' | translate }}</label>
+      <p-calendar
+        [ngModel]="formOccasion()"
+        (ngModelChange)="formOccasion.set($event)"
+        dateFormat="yy-mm-dd"
+        [showIcon]="true"
+        [showButtonBar]="true"
+        styleClass="w-full"
+      />
+      <small class="text-500">{{ 'public_holidays_page.occasion_hint' | translate }}</small>
+    </div>
+    <div class="flex flex-column gap-2">
+      <label>{{ 'public_holidays_page.notes' | translate }}</label>
+      <textarea
+        pInputTextarea
+        [ngModel]="formNotes()"
+        (ngModelChange)="formNotes.set($event)"
+        rows="2"
+      ></textarea>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button
+      [label]="'common.cancel' | translate"
+      [text]="true"
+      (onClick)="dialogVisible.set(false)"
+    />
+    <p-button
+      [label]="'common.save' | translate"
+      icon="pi pi-save"
+      [loading]="saving()"
+      (onClick)="save()"
+    />
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [header]="'public_holidays_page.import' | translate"
+  [visible]="importVisible()"
+  (visibleChange)="importVisible.set($event)"
+  [modal]="true"
+  [style]="{ width: '72rem' }"
+>
+  <div class="flex flex-column gap-3">
+    <input type="file" accept=".xlsx,.xls,.csv" (change)="onImportFileSelected($event)" />
+    @if (importing()) {
+      <p class="text-600 m-0">{{ 'public_holidays_page.previewing' | translate }}</p>
+    }
+    @if (importPreview(); as preview) {
+      <p class="text-600 m-0">
+        {{
+          'public_holidays_page.import_summary'
+            | translate
+              : {
+                  newCount: preview.newCount,
+                  duplicateCount: preview.duplicateCount,
+                  conflictCount: preview.conflictCount,
+                  invalidCount: preview.invalidCount,
+                  calc: preview.affectedCalcCount
+                }
+        }}
+      </p>
+      <p-table [value]="preview.rows" [scrollable]="true" scrollHeight="22rem" styleClass="p-datatable-sm">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>{{ 'public_holidays_page.col_row' | translate }}</th>
+            <th>{{ 'public_holidays_page.col_name' | translate }}</th>
+            <th>{{ 'public_holidays_page.col_from' | translate }}</th>
+            <th>{{ 'public_holidays_page.col_to' | translate }}</th>
+            <th>{{ 'public_holidays_page.col_status' | translate }}</th>
+            <th>{{ 'public_holidays_page.col_message' | translate }}</th>
+            <th>{{ 'public_holidays_page.col_action' | translate }}</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-row>
+          <tr>
+            <td>{{ row.sourceRow }}</td>
+            <td>{{ row.name }}</td>
+            <td>{{ row.fromDate }}</td>
+            <td>{{ row.toDate }}</td>
+            <td>
+              <p-tag
+                [value]="importStatusKey(row.status) | translate"
+                [severity]="importStatusSeverity(row.status)"
+              />
+            </td>
+            <td>{{ previewMessage(row) }}</td>
+            <td>
+              @if (
+                row.status === ImportRowStatus.Duplicate || row.status === ImportRowStatus.Conflict
+              ) {
+                <p-dropdown
+                  [options]="resolutionOptions"
+                  optionValue="value"
+                  [ngModel]="importResolutions()[row.sourceRow]"
+                  (ngModelChange)="setResolution(row.sourceRow, $event)"
+                  [style]="{ width: '8rem' }"
+                >
+                  <ng-template pTemplate="item" let-opt>
+                    {{ opt.labelKey | translate }}
+                  </ng-template>
+                  <ng-template pTemplate="selectedItem" let-opt>
+                    {{ opt?.labelKey | translate }}
+                  </ng-template>
+                </p-dropdown>
+              }
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+      <label class="flex align-items-center gap-2">
+        <p-checkbox [binary]="true" [ngModel]="importRecalc()" (ngModelChange)="importRecalc.set($event)" />
+        <span>{{
+          'public_holidays_page.recalc'
+            | translate: { count: importPreview()?.affectedCalcCount ?? 0 }
+        }}</span>
+      </label>
+    }
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button
+      [label]="'common.cancel' | translate"
+      [text]="true"
+      (onClick)="importVisible.set(false)"
+    />
+    <p-button
+      [label]="'public_holidays_page.commit' | translate"
+      icon="pi pi-save"
+      [loading]="committing()"
+      [disabled]="!importPreview() || selectedImportCount() === 0"
+      (onClick)="commitImport()"
+    />
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [header]="'public_holidays_page.confirm' | translate"
+  [visible]="confirmVisible()"
+  (visibleChange)="confirmVisible.set($event)"
+  [modal]="true"
+  [style]="{ width: '28rem' }"
+>
+  <p>
+    {{
+      (confirmTarget()?.kind === 'fixed-all'
+        ? 'public_holidays_page.confirm_fixed_hint'
+        : 'public_holidays_page.confirm_hint'
+      ) | translate: { count: fixedDraftCount() }
+    }}
+  </p>
+  <label class="flex align-items-center gap-2">
+    <p-checkbox [binary]="true" [ngModel]="confirmRecalc()" (ngModelChange)="confirmRecalc.set($event)" />
+    <span>{{ 'public_holidays_page.recalc' | translate: { count: 0 } }}</span>
+  </label>
+  <ng-template pTemplate="footer">
+    <p-button
+      [label]="'common.cancel' | translate"
+      [text]="true"
+      (onClick)="confirmVisible.set(false)"
+    />
+    <p-button
+      [label]="'public_holidays_page.confirm' | translate"
+      icon="pi pi-check"
+      [loading]="confirming()"
+      (onClick)="submitConfirm()"
+    />
+  </ng-template>
+</p-dialog>

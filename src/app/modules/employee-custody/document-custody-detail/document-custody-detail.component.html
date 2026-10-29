@@ -79,7 +79,7 @@
     </div>
     <div class="field">
       <label class="block mb-1">{{ 'custody.col.date' | translate }}</label>
-      <p-calendar [(ngModel)]="transferDate" [showTime]="true" hourFormat="24" dateFormat="dd/mm/yy" styleClass="w-full" appendTo="body" />
+      <p-calendar [(ngModel)]="transferDate" [showTime]="true" hourFormat="12" dateFormat="dd/mm/yy" styleClass="w-full" appendTo="body" />
     </div>
     <div class="field">
       <label class="block mb-1">{{ 'custody.col.notes' | translate }}</label>
@@ -99,7 +99,7 @@
   <div class="flex flex-column gap-3">
     <div class="field">
       <label class="block mb-1">{{ 'custody.col.date' | translate }}</label>
-      <p-calendar [(ngModel)]="completeDate" [showTime]="true" hourFormat="24" dateFormat="dd/mm/yy" styleClass="w-full" appendTo="body" />
+      <p-calendar [(ngModel)]="completeDate" [showTime]="true" hourFormat="12" dateFormat="dd/mm/yy" styleClass="w-full" appendTo="body" />
     </div>
     <div class="field">
       <label class="block mb-1">{{ 'custody.completed_by' | translate }}</label>

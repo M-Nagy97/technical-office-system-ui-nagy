@@ -1,104 +1,199 @@
 <div class="daily-attendance">
-  <p-card [header]="'daily_attendance_page.filters_title' | translate">
-    <div class="toolbar flex flex-column lg:flex-row gap-3 align-items-stretch lg:align-items-end">
-      <div class="field flex-1" style="min-width: 12rem">
-        <label class="block mb-2 font-medium" for="da-from">{{ 'daily_attendance_page.from' | translate }}</label>
-        <p-calendar
-          id="da-from"
-          [ngModel]="dateFrom()"
-          (ngModelChange)="onDateFromChange($event)"
-          dateFormat="dd/mm/yy"
-          [showIcon]="true"
-          styleClass="w-full"
-        />
-      </div>
-      <div class="field flex-1" style="min-width: 12rem">
-        <label class="block mb-2 font-medium" for="da-to">{{ 'daily_attendance_page.to' | translate }}</label>
-        <p-calendar
-          id="da-to"
-          [ngModel]="dateTo()"
-          (ngModelChange)="onDateToChange($event)"
-          dateFormat="dd/mm/yy"
-          [showIcon]="true"
-          styleClass="w-full"
-        />
-      </div>
-      <div class="field flex-1" style="min-width: 16rem">
-        <label class="block mb-2 font-medium" for="da-emps">{{ 'daily_attendance_page.employees' | translate }}</label>
-        <p-multiSelect
-          inputId="da-emps"
-          [options]="employeeOptions()"
-          [ngModel]="selectedEmployeeIds()"
-          (ngModelChange)="selectedEmployeeIds.set($event)"
-          optionLabel="label"
-          optionValue="value"
-          [filter]="true"
-          display="chip"
-          [showClear]="true"
-          styleClass="w-full"
-          [placeholder]="'daily_attendance_page.employees' | translate"
-        />
-      </div>
-      <div>
-        <button
-          pButton
-          type="button"
-          [label]="'daily_attendance_page.load' | translate"
-          icon="pi pi-search"
-          (click)="loadGrid()"
+  <div class="page-title">
+    <h2 class="m-0 text-xl font-bold text-900">{{ 'daily_attendance_page.sheet_title' | translate }}</h2>
+  </div>
+
+  <p-tabView>
+    <p-tabPanel [header]="'daily_attendance_page.tab_register' | translate">
+      <p-card>
+        <div class="filter-row">
+          <div class="date-filter">
+            <p-calendar
+              inputId="da-work-date"
+              [ngModel]="workDate()"
+              (ngModelChange)="onWorkDateChange($event)"
+              dateFormat="dd/mm/yy"
+              [showIcon]="true"
+              [placeholder]="'daily_attendance_page.work_date' | translate"
+              styleClass="w-full"
+            />
+          </div>
+          <app-filter-bar
+            [search]="sheetSearch()"
+            (searchChange)="sheetSearch.set($event)"
+            searchPlaceholderKey="daily_attendance_page.search_employee"
+          >
+            <div class="filter-actions">
+              <button
+                pButton
+                type="button"
+                [label]="'daily_attendance_page.load' | translate"
+                icon="pi pi-search"
+                (click)="loadSheet()"
+                [loading]="loadingSheet()"
+              ></button>
+              <ng-container *appHasPermission="'timeattendance.write'">
+                <button
+                  pButton
+                  type="button"
+                  [label]="'daily_attendance_page.register_in' | translate"
+                  icon="pi pi-sign-in"
+                  class="p-button-outlined"
+                  (click)="openRegisterDialog('in')"
+                ></button>
+                <button
+                  pButton
+                  type="button"
+                  [label]="'daily_attendance_page.register_out' | translate"
+                  icon="pi pi-sign-out"
+                  class="p-button-outlined"
+                  (click)="openRegisterDialog('out')"
+                ></button>
+              </ng-container>
+            </div>
+          </app-filter-bar>
+        </div>
+
+        <app-shared-table
+          [value]="filteredSheetRows()"
+          [loading]="loadingSheet()"
+          [columns]="sheetColumns"
+          [actions]="sheetActions"
+          actionsColumnHeader="daily_attendance_page.col_actions"
+          actionsColumnWidth="9rem"
+        >
+          <ng-template sharedTableCell="shiftName" let-row>
+            {{ row.shiftName || ('daily_attendance_page.no_shift' | translate) }}
+          </ng-template>
+          <ng-template sharedTableCell="actualIn" let-row>
+            {{ formatFingerClock(row.actualIn) }}
+          </ng-template>
+          <ng-template sharedTableCell="actualOut" let-row>
+            {{ formatFingerClock(row.actualOut) }}
+          </ng-template>
+          <ng-template sharedTableCell="overlay" let-row>
+            <div class="overlay-chips">
+              @if (leaveTag(row); as leave) {
+                <p-tag [value]="leave" [severity]="row.isCompensatoryLeave ? 'info' : 'warning'" />
+              }
+              @for (p of row.permissions; track p.permissionRequestId) {
+                <p-tag [value]="permissionChip(p)" severity="secondary" />
+              }
+              @if (row.workedDuringApprovedLeave) {
+                <p-tag [value]="'daily_attendance_page.worked_during_leave' | translate" severity="danger" />
+              }
+              @if (!leaveTag(row) && row.permissions.length === 0) {
+                <span class="text-600">—</span>
+              }
+            </div>
+          </ng-template>
+          <ng-template sharedTableCell="status" let-row>
+            @if (row.status) {
+              <p-tag [value]="statusLabel(row.status)" [severity]="statusSeverity(row.status)" />
+            } @else {
+              <span class="text-600">—</span>
+            }
+          </ng-template>
+          <ng-template sharedTableCell="hours" let-row>
+            {{ formatHours(row.netWorkMinutes) }}
+          </ng-template>
+        </app-shared-table>
+      </p-card>
+    </p-tabPanel>
+
+    <p-tabPanel [header]="'daily_attendance_page.tab_raw' | translate">
+      <p-card>
+        <div class="filter-row">
+          <div class="date-filter">
+            <p-calendar
+              inputId="da-from"
+              [ngModel]="dateFrom()"
+              (ngModelChange)="onDateFromChange($event)"
+              dateFormat="dd/mm/yy"
+              [showIcon]="true"
+              [placeholder]="'daily_attendance_page.from' | translate"
+              styleClass="w-full"
+            />
+          </div>
+          <div class="date-filter">
+            <p-calendar
+              inputId="da-to"
+              [ngModel]="dateTo()"
+              (ngModelChange)="onDateToChange($event)"
+              dateFormat="dd/mm/yy"
+              [showIcon]="true"
+              [placeholder]="'daily_attendance_page.to' | translate"
+              styleClass="w-full"
+            />
+          </div>
+          <app-filter-bar [showSearch]="false">
+            <p-multiSelect
+              inputId="da-emps"
+              [options]="employeeOptions()"
+              [ngModel]="selectedEmployeeIds()"
+              (ngModelChange)="selectedEmployeeIds.set($event)"
+              optionLabel="label"
+              optionValue="value"
+              [filter]="true"
+              display="chip"
+              [showClear]="true"
+              styleClass="employees-filter"
+              [placeholder]="'daily_attendance_page.employees' | translate"
+            />
+            <div class="filter-actions">
+              <button
+                pButton
+                type="button"
+                [label]="'daily_attendance_page.load' | translate"
+                icon="pi pi-search"
+                (click)="loadGrid()"
+                [loading]="loadingGrid()"
+              ></button>
+            </div>
+          </app-filter-bar>
+        </div>
+
+        <div class="filter-row">
+          <div class="filter-actions">
+            <button
+              pButton
+              type="button"
+              [label]="'daily_attendance_page.download_template' | translate"
+              icon="pi pi-download"
+              class="p-button-outlined p-button-secondary"
+              (click)="downloadTemplate()"
+            ></button>
+            <button
+              pButton
+              type="button"
+              [label]="'daily_attendance_page.upload_file' | translate"
+              icon="pi pi-upload"
+              class="p-button-outlined"
+              [loading]="importingFile()"
+              (click)="fileInput.click()"
+            ></button>
+            <input
+              #fileInput
+              type="file"
+              accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              hidden
+              (change)="onAttendanceFileSelected($event)"
+            />
+          </div>
+        </div>
+
+        <p class="text-600 text-sm m-0 mb-3">{{ 'daily_attendance_page.import_hint' | translate }}</p>
+
+        <app-shared-table
+          [value]="employeeGroups()"
           [loading]="loadingGrid()"
-        ></button>
-      </div>
-    </div>
-
-    <div class="toolbar flex flex-wrap gap-2 mt-3">
-      <button
-        pButton
-        type="button"
-        [label]="'daily_attendance_page.download_template' | translate"
-        icon="pi pi-download"
-        class="p-button-outlined p-button-secondary"
-        (click)="downloadTemplate()"
-      ></button>
-      <button
-        pButton
-        type="button"
-        [label]="'daily_attendance_page.upload_file' | translate"
-        icon="pi pi-upload"
-        class="p-button-outlined"
-        [loading]="importingFile()"
-        (click)="fileInput.click()"
-      ></button>
-      <input
-        #fileInput
-        type="file"
-        accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        hidden
-        (change)="onAttendanceFileSelected($event)"
-      />
-      <button
-        pButton
-        type="button"
-        [label]="'daily_attendance_page.add_punch' | translate"
-        icon="pi pi-plus"
-        class="p-button-outlined"
-        (click)="openManualPunchDialog()"
-      ></button>
-    </div>
-
-    <p class="text-600 text-sm m-0 mt-3">{{ 'daily_attendance_page.import_hint' | translate }}</p>
-  </p-card>
-
-  <p-card class="mt-3" [header]="'daily_attendance_page.table_title' | translate">
-    <app-shared-table
-      [value]="employeeGroups()"
-      [loading]="loadingGrid()"
-      [columns]="employeeSummaryColumns"
-      [actions]="employeeSummaryActions"
-      actionsColumnHeader="daily_attendance_page.col_actions"
-      [tableStyle]="{ 'min-width': '44rem' }"
-    />
-  </p-card>
+          [columns]="employeeSummaryColumns"
+          [actions]="employeeSummaryActions"
+          actionsColumnHeader="daily_attendance_page.col_actions"
+        />
+      </p-card>
+    </p-tabPanel>
+  </p-tabView>
 </div>
 
 <p-dialog
@@ -149,11 +244,11 @@
 </p-dialog>
 
 <p-dialog
-  [header]="'daily_attendance_page.manual_header' | translate"
+  [header]="dialogHeaderKey() | translate"
   [visible]="showManualPunchDialog()"
   (visibleChange)="showManualPunchDialog.set($event)"
   [modal]="true"
-  [style]="{ width: '28rem' }"
+  [style]="{ width: 'min(28rem, 96vw)' }"
   [draggable]="false"
   [resizable]="false"
   (onHide)="closeManualPunchDialog()"
@@ -162,7 +257,7 @@
     <div class="p-field">
       <label for="punch-emp">{{ 'daily_attendance_page.pick_employee' | translate }}</label>
       <p-dropdown
-        id="punch-emp"
+        inputId="punch-emp"
         [options]="employeeOptions()"
         [ngModel]="punchEmployeeId()"
         (ngModelChange)="punchEmployeeId.set($event)"
@@ -171,32 +266,39 @@
         [placeholder]="'daily_attendance_page.pick_employee' | translate"
         [filter]="true"
         styleClass="w-full"
+        [style]="{ width: '100%' }"
       />
     </div>
     <div class="p-field">
-      <label for="punch-type">{{ 'daily_attendance_page.punch_type' | translate }}</label>
-      <p-dropdown
-        id="punch-type"
-        [options]="punchTypeOptions"
-        [ngModel]="punchType()"
-        (ngModelChange)="punchType.set($event)"
-        optionLabel="label"
-        optionValue="value"
-        styleClass="w-full"
-      />
-    </div>
-    <div class="p-field">
-      <label for="punch-time">{{ 'daily_attendance_page.punch_time' | translate }}</label>
+      <label for="punch-date">{{ 'daily_attendance_page.work_date' | translate }}</label>
       <p-calendar
-        id="punch-time"
-        [ngModel]="punchTime()"
-        (ngModelChange)="punchTime.set($event)"
-        [showTime]="true"
-        hourFormat="24"
+        inputId="punch-date"
+        [ngModel]="punchWorkDate()"
+        (ngModelChange)="punchWorkDate.set($event)"
         dateFormat="dd/mm/yy"
+        [showIcon]="true"
         styleClass="w-full"
       />
     </div>
+    @if (registerMode() === 'in') {
+      <div class="p-field">
+        <label for="punch-in">{{ 'daily_attendance_page.in_time' | translate }}</label>
+        <app-time-input
+          inputId="punch-in"
+          [ngModel]="punchInTime()"
+          (ngModelChange)="onPunchTimeChange('in', $event)"
+        />
+      </div>
+    } @else {
+      <div class="p-field">
+        <label for="punch-out">{{ 'daily_attendance_page.out_time' | translate }}</label>
+        <app-time-input
+          inputId="punch-out"
+          [ngModel]="punchOutTime()"
+          (ngModelChange)="onPunchTimeChange('out', $event)"
+        />
+      </div>
+    }
     <div class="p-field">
       <label for="punch-notes">{{ 'daily_attendance_page.notes' | translate }}</label>
       <input
@@ -221,11 +323,11 @@
     <button
       pButton
       type="button"
-      [label]="'daily_attendance_page.save' | translate"
+      [label]="'daily_attendance_page.save_and_calc' | translate"
       icon="pi pi-check"
       (click)="saveManualPunch()"
       [loading]="savingPunch()"
-      [disabled]="!punchEmployeeId()"
+      [disabled]="!punchEmployeeId() || (registerMode() === 'in' ? !punchInTime() : !punchOutTime())"
     ></button>
   </ng-template>
 </p-dialog>

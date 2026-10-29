@@ -63,7 +63,7 @@
         </div>
 
         <!-- تاريخ النهاية -->
-        <div class="col-12 md:col-6 field">
+        <div class="col-12 md:col-6 field" *ngIf="!isCompensatory()">
           <label for="endDate" class="font-medium">{{ 'leave.requests.field_end_date' | translate }} <span class="text-red-500">*</span></label>
           <p-calendar
             id="endDate"
@@ -78,6 +78,22 @@
           >
             {{ 'leave.requests.field_end_date_req' | translate }}
           </small>
+        </div>
+
+        <div class="col-12 field" *ngIf="isCompensatory()">
+          <label class="font-medium block mb-2">{{ 'leave.requests.compensatory_credits' | translate }}</label>
+          <div class="p-3 border-round surface-50" *ngIf="loadingCredits()">
+            {{ 'common.loading' | translate }}
+          </div>
+          <div class="p-3 border-round surface-50 text-red-600" *ngIf="!loadingCredits() && compensatoryCredits().length === 0">
+            {{ 'leave.requests.no_compensatory_credits' | translate }}
+          </div>
+          <ul class="m-0 pl-3" *ngIf="!loadingCredits() && compensatoryCredits().length > 0">
+            <li *ngFor="let credit of compensatoryCredits()">
+              {{ 'leave.requests.credit_earned' | translate }}: {{ credit.sourceWorkDate }}
+              — {{ 'leave.requests.credit_expires' | translate }}: {{ credit.expiresOn }}
+            </li>
+          </ul>
         </div>
 
         <!-- إجمالي الأيام (محسوب تلقائياً) -->
@@ -169,4 +185,10 @@
   (proceed)="evaluateSubmit.onPolicyProceed()"
   (cancelled)="evaluateSubmit.onPolicyDialogClosed()"
 ></app-policy-evaluation-dialog>
+
+<app-leave-request-print-dialog
+  [visible]="printDialogOpen()"
+  (visibleChange)="onPrintDialogVisibleChange($event)"
+  [requestId]="printRequestId()"
+/>
 

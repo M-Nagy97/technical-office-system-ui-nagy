@@ -1,0 +1,32 @@
+<div class="permission-type-list">
+  <p-card>
+    <div class="header-toolbar flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+      <div class="page-title">
+        <h2 class="m-0 text-xl font-bold text-900">{{ 'leave.permission_types.title' | translate }}</h2>
+      </div>
+    </div>
+
+    <app-filter-bar
+      [search]="searchText()"
+      (searchChange)="searchText.set($event)"
+      searchPlaceholderKey="leave.permission_types.search_placeholder"
+    >
+      <ng-container *appHasPermission="'leave.write'">
+        <a pButton [label]="'leave.permission_types.add_button' | translate" icon="pi pi-plus" routerLink="/leave/permission-types/add"></a>
+      </ng-container>
+    </app-filter-bar>
+
+    <app-shared-table
+      [value]="filteredPermissionTypes()"
+      [loading]="loading()"
+      [columns]="columns"
+      [actions]="actions"
+      actionsColumnHeader="leave.permission_types.actions"
+      actionsColumnWidth="8rem"
+      [tableStyle]="{ 'min-width': '32rem' }"
+      [translateHeader]="true"
+      emptyMessage="leave.permission_types.empty"
+      [translateEmptyMessage]="true"
+    ></app-shared-table>
+  </p-card>
+</div>

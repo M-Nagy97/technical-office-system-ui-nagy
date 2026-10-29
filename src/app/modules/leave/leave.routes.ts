@@ -22,6 +22,22 @@ export const LEAVE_ROUTES: Routes = [
         (m) => m.AddLeaveTypeComponent
       ),
   },
+  {
+    path: 'permission-types',
+    loadComponent: () =>
+      import('./permission-types/permission-type-list/permission-type-list.component').then(
+        (m) => m.PermissionTypeListComponent
+      ),
+  },
+  {
+    path: 'permission-types/add',
+    canActivate: [permissionGuard],
+    data: { permission: ErpPermissions.leaveWrite },
+    loadComponent: () =>
+      import('./permission-types/add-permission-type/add-permission-type.component').then(
+        (m) => m.AddPermissionTypeComponent
+      ),
+  },
 
   {
     path: 'requests',

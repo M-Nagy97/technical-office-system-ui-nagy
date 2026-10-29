@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
-import { NgClass, NgFor, NgIf, DatePipe } from '@angular/common';
+import { NgClass, NgFor, NgIf } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
@@ -8,7 +8,7 @@ import { DialogModule } from 'primeng/dialog';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
-import { ConfirmService } from '../../../shared';
+import { AppDatePipe, ConfirmService } from '../../../shared';
 import { HasPermissionDirective } from '../../../core/directives/has-permission.directive';
 import { DeviceService } from './services/device.service';
 import { DeviceFormComponent } from './device-form/device-form.component';
@@ -18,7 +18,7 @@ import { Device, DeviceFormData, DeviceLogPreview, ReadLogsResult } from './mode
   selector: 'app-devices',
   standalone: true,
   imports: [
-    NgFor, NgIf, NgClass, DatePipe,
+    NgFor, NgIf, NgClass, AppDatePipe,
     ButtonModule, CardModule, TagModule,
     DialogModule, TableModule, TooltipModule,
     DeviceFormComponent,

@@ -1,0 +1,222 @@
+<p-dialog
+  [(visible)]="visible"
+  [header]="'leave.print.title' | translate"
+  [modal]="true"
+  styleClass="leave-print-dialog"
+  [style]="{ width: 'min(960px, 96vw)' }"
+  [contentStyle]="{ padding: '0', overflow: 'auto', background: '#d9d9d9' }"
+  [draggable]="false"
+  [resizable]="false"
+  appendTo="body"
+  (onHide)="onHide()"
+>
+  <div class="leave-print-dialog-body">
+    <div class="leave-print-toolbar no-print">
+      <div class="toolbar-grid">
+        <div class="field mb-0">
+          <label for="ledgerSerial">{{ 'leave.print.ledger_serial' | translate }}</label>
+          <input
+            id="ledgerSerial"
+            type="text"
+            pInputText
+            class="w-full"
+            [ngModel]="ledgerSerial()"
+            (ngModelChange)="ledgerSerial.set($event)"
+          />
+        </div>
+        <div class="field mb-0">
+          <label for="substituteId">{{ 'leave.print.substitute' | translate }}</label>
+          <p-dropdown
+            inputId="substituteId"
+            [options]="substituteOptions()"
+            optionLabel="fullName"
+            optionValue="id"
+            [ngModel]="substituteId()"
+            (ngModelChange)="onSubstituteChange($event)"
+            [filter]="true"
+            filterBy="fullName,employeeNumber"
+            [showClear]="true"
+            [placeholder]="'leave.print.substitute_placeholder' | translate"
+            appendTo="body"
+            styleClass="w-full"
+          />
+        </div>
+        <div class="field mb-0">
+          <label for="issueDate">{{ 'leave.print.issue_date' | translate }}</label>
+          <p-calendar
+            inputId="issueDate"
+            [ngModel]="issueDate()"
+            (ngModelChange)="issueDate.set($event)"
+            dateFormat="yy/mm/dd"
+            [showIcon]="true"
+            appendTo="body"
+            styleClass="w-full"
+          />
+        </div>
+      </div>
+
+      <div class="toolbar-signatures">
+        <div class="signature-edit">
+          <div class="signature-edit-title">{{ 'leave.print.right_block' | translate }}</div>
+          <input type="text" pInputText [ngModel]="rightRank()" (ngModelChange)="rightRank.set($event)" />
+          <input type="text" pInputText [ngModel]="rightName()" (ngModelChange)="rightName.set($event)" />
+          <input type="text" pInputText [ngModel]="rightTitle()" (ngModelChange)="rightTitle.set($event)" />
+        </div>
+        <div class="signature-edit">
+          <div class="signature-edit-title">{{ 'leave.print.left_block' | translate }}</div>
+          <input type="text" pInputText [ngModel]="leftRank()" (ngModelChange)="leftRank.set($event)" />
+          <input type="text" pInputText [ngModel]="leftName()" (ngModelChange)="leftName.set($event)" />
+          <input type="text" pInputText [ngModel]="leftTitle()" (ngModelChange)="leftTitle.set($event)" />
+        </div>
+      </div>
+    </div>
+
+    <div class="leave-print-preview" *ngIf="!loading(); else loadingTpl">
+      <article class="leave-print-sheet" dir="rtl" lang="ar">
+        <header class="paper-header">
+          <img class="paper-logo" src="assets/images/logo-pas.png" alt="" />
+          <h1 class="paper-title">طلب أجازة : {{ leaveTypeTitle() }}</h1>
+          <div class="serial-box">
+            <div class="serial-row">
+              <span>مسلسل الدفتر</span>
+              <span class="serial-value">{{ employeeNumber() }}</span>
+            </div>
+            <div class="serial-row">
+              <span>رقم شئون العاملين</span>
+              <span class="serial-value">{{ toArabicDigits(ledgerSerial()) }}</span>
+            </div>
+          </div>
+        </header>
+
+        <section class="paper-body">
+          <p class="paper-line">
+            <span class="label">الاسم :</span>
+            <span class="value">{{ employeeName() }}</span>
+          </p>
+
+          <p class="paper-line">
+            <span class="label">جهة العمل :</span>
+            <span class="value">
+              إدارة مركز تكنولوجيا المعلومات / قسم :
+              {{ departmentLine() }}
+            </span>
+          </p>
+
+          <div class="paper-row duration-row">
+            <p class="paper-line">
+              <span class="label">مده الأجازة :</span>
+              <span class="value">{{ totalDays() }} يوم</span>
+            </p>
+            <p class="paper-line grow">
+              <span class="label">الفترة من :</span>
+              <span class="value">{{ startDateText() }}</span>
+              <span class="label">حتى :</span>
+              <span class="value">{{ endDateText() }}</span>
+            </p>
+            <p class="sign-inline">
+              <span>توقيع الموظف</span>
+              <span class="sig-dots">.........................</span>
+            </p>
+          </div>
+
+          <div class="pledge-block">
+            <p class="paper-line">
+              <span class="label">أتعهد بأن أقوم بالعمل أثناء الأجازة :</span>
+              <span class="label">الاسم :</span>
+              <span class="value underline-value">{{ substituteName() }}</span>
+            </p>
+            <p class="sign-inline">
+              <span>توقيع الموظف</span>
+              <span class="sig-dots">.........................</span>
+            </p>
+          </div>
+
+          <table class="balance-table">
+            <thead>
+              <tr>
+                <th>البيان</th>
+                <th>الإجازات المستحقة للعام الحالي</th>
+                <th>الإجازات السابق منحها عن العام الحالي</th>
+                <th>الرصيد المتبقي للعام الحالي</th>
+                <th>توقيع مسئول الشئون الإدارية</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>اعتيادي</td>
+                <td>{{ formatBalance(annualBalance()?.allowedDays) }}</td>
+                <td>{{ formatBalance(annualBalance()?.usedDays) }}</td>
+                <td>{{ formatBalance(annualBalance()?.remainingDays) }}</td>
+                <td rowspan="2" class="sign-cell"></td>
+              </tr>
+              <tr>
+                <td>طارئة</td>
+                <td>{{ formatBalance(emergencyBalance()?.allowedDays) }}</td>
+                <td>{{ formatBalance(emergencyBalance()?.usedDays) }}</td>
+                <td>{{ formatBalance(emergencyBalance()?.remainingDays) }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="notes-block">
+            <p class="paper-line">
+              <span class="label">- ملاحظات :</span>
+              <span class="value">{{ notes() }}</span>
+            </p>
+            <p class="paper-line">
+              <span class="label">- رقم التليفون :</span>
+              <span class="value">{{ phone() }}</span>
+            </p>
+            <p class="paper-line">
+              <span class="label">- العنوان :</span>
+              <span class="value">{{ address() }}</span>
+            </p>
+          </div>
+        </section>
+
+        <footer class="paper-footer">
+          <div class="official-sign">
+            <div class="rank">{{ rightRank() }}</div>
+            <div class="official-name">{{ rightName() }}</div>
+            <div>{{ rightTitle() }}</div>
+          </div>
+          <div class="official-sign left">
+            <div class="rank">{{ leftRank() }}</div>
+            <div class="official-name">{{ leftName() }}</div>
+            <div>{{ leftTitle() }}</div>
+          </div>
+        </footer>
+
+        <p class="issue-date">تحرير الأجازة : {{ issueDateText() }}</p>
+      </article>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-content-end gap-2 no-print">
+      <button
+        pButton
+        type="button"
+        [label]="'leave.print.close_btn' | translate"
+        icon="pi pi-times"
+        class="p-button-outlined p-button-secondary"
+        (click)="onHide()"
+      ></button>
+      <button
+        pButton
+        type="button"
+        [label]="'leave.print.print_btn' | translate"
+        icon="pi pi-print"
+        class="p-button-success"
+        [disabled]="loading() || !loadedRequest()"
+        (click)="print()"
+      ></button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<ng-template #loadingTpl>
+  <div class="leave-print-loading no-print">
+    <p-progressSpinner strokeWidth="4" [style]="{ width: '48px', height: '48px' }" />
+  </div>
+</ng-template>

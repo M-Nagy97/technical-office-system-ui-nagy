@@ -12,7 +12,7 @@ import { PolicyEvaluationDialogMode } from './policy-evaluation-dialog/policy-ev
 export interface EvaluateSubmitOptions<TCommand> {
   evaluate: (command: TCommand) => Observable<PolicyEvaluationResultDto>;
   submit: (command: TCommand) => Observable<unknown>;
-  onSuccess: () => void;
+  onSuccess: (result?: unknown) => void;
 }
 
 /**
@@ -106,12 +106,12 @@ export class EvaluateSubmitService {
 
     this.submitting.set(true);
     this.options.submit(command).subscribe({
-      next: () => {
+      next: (result) => {
         this.submitting.set(false);
         this.policyDialogLoading.set(false);
         this.policyDialogVisible.set(false);
         this.pendingCommand = null;
-        this.options!.onSuccess();
+        this.options!.onSuccess(result);
       },
       error: () => {
         this.submitting.set(false);

@@ -16,6 +16,7 @@ import {
   RequestActionEvent,
   RequestActionType,
 } from '../../shared/request-action-dialog/request-action-dialog.component';
+import { LeaveRequestPrintDialogComponent } from '../../shared/leave-request-print-dialog/leave-request-print-dialog.component';
 
 @Component({
   selector: 'app-leave-request-detail',
@@ -30,6 +31,7 @@ import {
     DetailHeaderComponent,
     AppDatePipe,
     RequestActionDialogComponent,
+    LeaveRequestPrintDialogComponent,
     TranslateModule,
     HasPermissionDirective,
   ],
@@ -53,6 +55,7 @@ export class LeaveRequestDetailComponent implements OnInit {
   readonly actionDialogOpen = signal(false);
   readonly currentAction = signal<RequestActionType | null>(null);
   readonly actionLoading = signal(false);
+  readonly printDialogOpen = signal(false);
 
   readonly LeaveRequestStatus = LeaveRequestStatus;
 
@@ -74,6 +77,14 @@ export class LeaveRequestDetailComponent implements OnInit {
         if (req?.employeeId) {
           this.loadEmployeeName(req.employeeId);
         }
+        if (req && this.route.snapshot.queryParamMap.get('print') === '1') {
+          this.printDialogOpen.set(true);
+          void this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: {},
+            replaceUrl: true,
+          });
+        }
       },
       error: () => {
         this.loading.set(false);
@@ -92,6 +103,10 @@ export class LeaveRequestDetailComponent implements OnInit {
         if (emp) this.employeeName.set(emp.fullName);
       },
     });
+  }
+
+  openPrintDialog(): void {
+    this.printDialogOpen.set(true);
   }
 
   openActionDialog(action: RequestActionType): void {

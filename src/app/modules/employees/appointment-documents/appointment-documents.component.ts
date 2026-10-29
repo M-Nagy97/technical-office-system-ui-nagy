@@ -9,6 +9,8 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
 import { RippleModule } from 'primeng/ripple';
+import { MessageModule } from 'primeng/message';
+import { TagModule } from 'primeng/tag';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { forkJoin, switchMap } from 'rxjs';
@@ -22,12 +24,20 @@ import { Employee, EmployeeDocument, EmployeeDocumentType } from '../../../core/
 import {
   buildDocTypeFilterOptions,
   buildDocTypeUploadOptions,
+  defaultExpiryFromIssue,
   getDocTypeLabel,
+  isDocumentActive,
+  isDocumentExpired,
+  isSameLocalDay,
   resolveDocumentTypeId,
+  startOfLocalDay,
   truncateDocumentNumber,
 } from '../../../core/mappers/employee-document-types';
 import { isPlaceholderDocumentUrl } from '../../../core/utils/media-url.util';
-import { SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
+import {
+  SharedTableCellTemplateDirective,
+  SharedTableComponent,
+} from '../../../shared';
 import { SharedTableAction, SharedTableColumn } from '../../../shared/components/shared-table/shared-table.models';
 import { DocumentPreviewDialogComponent } from '../../../shared/components/document-preview-dialog/document-preview-dialog.component';
 
@@ -40,6 +50,7 @@ export interface DocumentRow {
   name: string;
   fileUrl: string;
   uploadDate: Date;
+  expiryDate?: Date;
   document: EmployeeDocument;
 }
 
@@ -57,8 +68,11 @@ export interface DocumentRow {
     InputTextModule,
     TooltipModule,
     RippleModule,
+    MessageModule,
+    TagModule,
     TranslateModule,
     SharedTableComponent,
+    SharedTableCellTemplateDirective,
     DocumentPreviewDialogComponent,
   ],
   templateUrl: './appointment-documents.component.html',
@@ -83,6 +97,11 @@ export class AppointmentDocumentsComponent implements OnInit {
   readonly uploadEmployeeId = signal<string | null>(null);
   readonly uploadDocType = signal<EmployeeDocumentType | null>(null);
   readonly uploadDocName = signal('');
+  readonly uploadIssueDate = signal<Date | null>(new Date());
+  readonly uploadExpiryDate = signal<Date | null>(null);
+  readonly uploadWidgetKey = signal(1);
+
+  private lastAutoExpiry: Date | null = null;
 
   typeOptions: { label: string; value: EmployeeDocumentType }[] = [];
   uploadTypeOptions: { label: string; value: EmployeeDocumentType }[] = [];
@@ -109,6 +128,32 @@ export class AppointmentDocumentsComponent implements OnInit {
     return doc.name || doc.documentNumber || fromUrl || 'document';
   });
 
+  readonly isNationalIdUpload = computed(() => this.uploadDocType() === 'id_copy');
+
+  readonly nationalIdDocsForEmployee = computed(() => {
+    const employeeId = this.uploadEmployeeId();
+    if (!employeeId || this.uploadDocType() !== 'id_copy') return [];
+    return this.documentRows().filter((row) => row.employeeId === employeeId && row.type === 'id_copy');
+  });
+
+  readonly activeNationalIdConflict = computed(() => {
+    const matches = this.nationalIdDocsForEmployee();
+    return matches.find((row) => isDocumentActive(row.expiryDate)) ?? null;
+  });
+
+  readonly expiredNationalIdNotice = computed(() => {
+    if (this.activeNationalIdConflict()) return null;
+    const expired = this.nationalIdDocsForEmployee().filter((row) => isDocumentExpired(row.expiryDate));
+    if (!expired.length) return null;
+    return [...expired].sort(
+      (a, b) => this.dateTime(b.expiryDate) - this.dateTime(a.expiryDate)
+    )[0];
+  });
+
+  readonly uploadDisabled = computed(
+    () => this.uploading() || !!this.activeNationalIdConflict()
+  );
+
   readonly documentRows = computed(() => {
     const nameById = this.employeeNameById();
     return this.documentDtos().map((dto, index) => {
@@ -123,6 +168,7 @@ export class AppointmentDocumentsComponent implements OnInit {
         name: document.name || document.documentNumber || document.type,
         fileUrl: document.fileUrl,
         uploadDate: document.uploadDate,
+        expiryDate: document.expiryDate,
         document,
       } satisfies DocumentRow;
     });
@@ -157,7 +203,7 @@ export class AppointmentDocumentsComponent implements OnInit {
     {
       id: 'delete',
       icon: 'pi pi-trash',
-      buttonClass: 'p-button-rounded p-button-text p-button-danger p-button-sm',
+      buttonClass: 'p-button-rounded p-button-text p-button-sm p-button-danger',
       onClick: (row) => this.confirmDelete(row),
     },
   ];
@@ -166,7 +212,6 @@ export class AppointmentDocumentsComponent implements OnInit {
     this.rebuildLocalized();
     this.translate.onLangChange.subscribe(() => {
       this.rebuildLocalized();
-      // Refresh computed type labels by reassigning dto list
       this.documentDtos.update((list) => [...list]);
     });
     this.loadDocuments();
@@ -184,6 +229,12 @@ export class AppointmentDocumentsComponent implements OnInit {
         header: 'employees.documents.col_upload_date',
         valueGetter: (row) => this.formatDate(row.uploadDate),
       },
+      {
+        id: 'expiryDate',
+        header: 'employees.documents.col_expiry_date',
+        valueGetter: (row) => (row.expiryDate ? this.formatDate(row.expiryDate) : '—'),
+      },
+      { id: 'status', header: 'employees.documents.col_status' },
     ];
   }
 
@@ -206,11 +257,59 @@ export class AppointmentDocumentsComponent implements OnInit {
     this.uploadEmployeeId.set(null);
     this.uploadDocType.set(null);
     this.uploadDocName.set('');
+    this.uploadIssueDate.set(startOfLocalDay(new Date()));
+    this.uploadExpiryDate.set(null);
+    this.lastAutoExpiry = null;
+    this.uploadWidgetKey.update((key) => key + 1);
     this.uploadDialogVisible.set(true);
   }
 
   closeUpload(): void {
     this.uploadDialogVisible.set(false);
+  }
+
+  onUploadEmployeeChange(employeeId: string | null): void {
+    this.uploadEmployeeId.set(employeeId);
+  }
+
+  onUploadDocTypeChange(type: EmployeeDocumentType | null): void {
+    this.uploadDocType.set(type);
+    this.lastAutoExpiry = null;
+    this.applyDefaultExpiry();
+    this.uploadWidgetKey.update((key) => key + 1);
+  }
+
+  onUploadIssueDateChange(date: Date | null): void {
+    this.uploadIssueDate.set(date);
+    const currentExpiry = this.uploadExpiryDate();
+    if (!currentExpiry || isSameLocalDay(currentExpiry, this.lastAutoExpiry)) {
+      this.applyDefaultExpiry();
+    }
+  }
+
+  onUploadExpiryDateChange(date: Date | null): void {
+    this.uploadExpiryDate.set(date);
+    if (!isSameLocalDay(date, this.lastAutoExpiry)) {
+      this.lastAutoExpiry = null;
+    }
+  }
+
+  private applyDefaultExpiry(): void {
+    const type = this.uploadDocType();
+    const issue = this.uploadIssueDate();
+    const expiry = type && issue ? defaultExpiryFromIssue(issue, type) : null;
+    this.uploadExpiryDate.set(expiry);
+    this.lastAutoExpiry = expiry;
+  }
+
+  rowStatusKey(row: DocumentRow): string {
+    return isDocumentExpired(row.expiryDate)
+      ? 'employees.documents.status_expired'
+      : 'employees.documents.status_active';
+  }
+
+  rowStatusSeverity(row: DocumentRow): 'success' | 'danger' {
+    return isDocumentExpired(row.expiryDate) ? 'danger' : 'success';
   }
 
   openPreview(row: DocumentRow): void {
@@ -256,8 +355,17 @@ export class AppointmentDocumentsComponent implements OnInit {
     return this.translate.currentLang === 'en' ? 'en-US' : 'ar-EG';
   }
 
-  formatDate(d: Date): string {
-    return new Date(d).toLocaleDateString(this.dateLocale());
+  formatDate(d: Date | string | number | null | undefined): string {
+    if (d == null) return '—';
+    const date = d instanceof Date ? d : new Date(d);
+    if (Number.isNaN(date.getTime())) return '—';
+    return date.toLocaleDateString(this.dateLocale());
+  }
+
+  private dateTime(value: Date | string | number | null | undefined): number {
+    if (value == null) return 0;
+    const date = value instanceof Date ? value : new Date(value);
+    return Number.isNaN(date.getTime()) ? 0 : date.getTime();
   }
 
   onUploadFile(event: { files?: File[] }): void {
@@ -265,8 +373,10 @@ export class AppointmentDocumentsComponent implements OnInit {
     const employeeId = this.uploadEmployeeId();
     const docType = this.uploadDocType();
     const documentTypeId = docType ? resolveDocumentTypeId(docType) : undefined;
+    const issueDate = this.uploadIssueDate();
+    const expiryDate = this.uploadExpiryDate();
 
-    if (!files.length || !employeeId || !docType || !documentTypeId) {
+    if (!files.length || !employeeId || !docType || !documentTypeId || !issueDate) {
       this.messageService.add({
         severity: 'warn',
         summary: this.translate.instant('employees.documents.missing_data_summary'),
@@ -275,18 +385,48 @@ export class AppointmentDocumentsComponent implements OnInit {
       return;
     }
 
+    if (this.activeNationalIdConflict()) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: this.translate.instant('employees.documents.missing_data_summary'),
+        detail: this.translate.instant('employees.documents.active_natid_warning', {
+          date: this.formatDate(this.activeNationalIdConflict()!.expiryDate),
+        }),
+      });
+      return;
+    }
+
+    if (!expiryDate) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: this.translate.instant('employees.documents.missing_data_summary'),
+        detail: this.translate.instant('employees.documents.expiry_required'),
+      });
+      return;
+    }
+
+    if (startOfLocalDay(expiryDate) < startOfLocalDay(issueDate)) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: this.translate.instant('employees.documents.missing_data_summary'),
+        detail: this.translate.instant('employees.documents.expiry_before_issue'),
+      });
+      return;
+    }
+
+    const filesToUpload = docType === 'id_copy' ? files.slice(0, 1) : files;
+
     if (this.uploading()) return;
     this.uploading.set(true);
 
     const displayName = this.uploadDocName().trim();
-    const now = new Date();
     const typeLabel = getDocTypeLabel(docType, this.translate);
 
-    forkJoin(files.map((file) => this.fileUploadService.upload(file, 'employees/documents')))
+    forkJoin(filesToUpload.map((file) => this.fileUploadService.upload(file, 'employees/documents')))
       .pipe(
         switchMap((paths) => {
           const newDocs: EmployeeDocument[] = paths.map((path, index) => {
-            const file = files[index];
+            const file = filesToUpload[index];
             const name = truncateDocumentNumber(
               displayName || file.name || typeLabel,
               typeLabel
@@ -298,7 +438,8 @@ export class AppointmentDocumentsComponent implements OnInit {
               name,
               documentNumber: name,
               fileUrl: path,
-              uploadDate: now,
+              uploadDate: issueDate,
+              expiryDate,
             };
           });
           return this.employeeService.addDocuments(employeeId, newDocs);

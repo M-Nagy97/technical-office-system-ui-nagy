@@ -8,14 +8,19 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { DropdownModule } from 'primeng/dropdown';
 import { CalendarModule } from 'primeng/calendar';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LeaveRequestService, LeaveTypeService, EmployeeService, LanguageService } from '../../../../core/services';
+import {
+  COMPENSATORY_LEAVE_TYPE_ID,
+  CompensatoryCreditDto,
+} from '../../../../core/services/leave-request.service';
 import { LeaveTypeDto } from '../../../../core/services/leave-type.service';
 import { Employee } from '../../../../core/models/employee.model';
-import { SubmitLeaveRequestCommand } from '../../../../core/models/leave-request.model';
+import { SubmitLeaveRequestCommand, SubmitLeaveRequestResponse } from '../../../../core/models/leave-request.model';
 import { PolicyEvaluationDialogComponent } from '../../shared/policy-evaluation-dialog/policy-evaluation-dialog.component';
 import { EvaluateSubmitService } from '../../shared/evaluate-submit.service';
+import { LeaveRequestPrintDialogComponent } from '../../shared/leave-request-print-dialog/leave-request-print-dialog.component';
 
 @Component({
   selector: 'app-leave-request-form',
@@ -32,6 +37,7 @@ import { EvaluateSubmitService } from '../../shared/evaluate-submit.service';
     CalendarModule,
     TranslateModule,
     PolicyEvaluationDialogComponent,
+    LeaveRequestPrintDialogComponent,
   ],
   providers: [EvaluateSubmitService],
   templateUrl: './leave-request-form.component.html',
@@ -41,6 +47,7 @@ export class LeaveRequestFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
+  private readonly confirmationService = inject(ConfirmationService);
   private readonly leaveRequestService = inject(LeaveRequestService);
   private readonly leaveTypeService = inject(LeaveTypeService);
   private readonly employeeService = inject(EmployeeService);
@@ -52,6 +59,12 @@ export class LeaveRequestFormComponent implements OnInit {
   readonly employees = signal<Employee[]>([]);
   readonly requiresDocument = signal(false);
   readonly computedDays = signal<number | null>(null);
+  readonly isCompensatory = signal(false);
+  readonly compensatoryCredits = signal<CompensatoryCreditDto[]>([]);
+  readonly loadingCredits = signal(false);
+  readonly printDialogOpen = signal(false);
+  readonly printRequestId = signal('');
+  private navigateAfterPrint = false;
 
   form!: FormGroup;
 
@@ -87,9 +100,16 @@ export class LeaveRequestFormComponent implements OnInit {
         attachCtrl?.clearValidators();
       }
       attachCtrl?.updateValueAndValidity();
+      this.onCompensatoryModeChanged();
     });
 
-    this.form.get('startDate')?.valueChanges.subscribe(() => this.calcDays());
+    this.form.get('employeeId')?.valueChanges.subscribe(() => this.loadCompensatoryCredits());
+    this.form.get('startDate')?.valueChanges.subscribe((start: Date | null) => {
+      if (this.isCompensatory() && start) {
+        this.form.get('endDate')?.setValue(start, { emitEvent: false });
+      }
+      this.calcDays();
+    });
     this.form.get('endDate')?.valueChanges.subscribe(() => this.calcDays());
   }
 
@@ -130,7 +150,55 @@ export class LeaveRequestFormComponent implements OnInit {
     });
   }
 
+  private onCompensatoryModeChanged(): void {
+    const typeId = this.form.get('leaveTypeId')?.value as string;
+    const type = this.leaveTypes().find((t) => t.id === typeId);
+    const compensatory =
+      typeId === COMPENSATORY_LEAVE_TYPE_ID ||
+      type?.arabicName === 'بدل راحة' ||
+      type?.name === 'Compensatory Leave';
+    this.isCompensatory.set(compensatory);
+    const endCtrl = this.form.get('endDate');
+    if (compensatory) {
+      const start = this.form.get('startDate')?.value as Date | null;
+      if (start) endCtrl?.setValue(start, { emitEvent: false });
+      this.calcDays();
+      this.loadCompensatoryCredits();
+    } else {
+      this.compensatoryCredits.set([]);
+    }
+  }
+
+  private loadCompensatoryCredits(): void {
+    if (!this.isCompensatory()) return;
+    const employeeId = this.form.get('employeeId')?.value as string;
+    if (!employeeId) {
+      this.compensatoryCredits.set([]);
+      return;
+    }
+    this.loadingCredits.set(true);
+    this.leaveRequestService.getCompensatoryCredits(employeeId).subscribe({
+      next: (rows) => {
+        this.compensatoryCredits.set(rows ?? []);
+        this.loadingCredits.set(false);
+      },
+      error: () => {
+        this.compensatoryCredits.set([]);
+        this.loadingCredits.set(false);
+      },
+    });
+  }
+
   submit(): void {
+    if (this.isCompensatory() && this.compensatoryCredits().length === 0) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: this.translate.instant('common.warning'),
+        detail: this.translate.instant('leave.requests.no_compensatory_credits'),
+      });
+      return;
+    }
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.messageService.add({
@@ -155,19 +223,46 @@ export class LeaveRequestFormComponent implements OnInit {
     this.evaluateSubmit.run(command, {
       evaluate: (cmd) => this.leaveRequestService.evaluate(cmd),
       submit: (cmd) => this.leaveRequestService.submit(cmd),
-      onSuccess: () => {
+      onSuccess: (result) => {
+        const id = (result as SubmitLeaveRequestResponse | undefined)?.id ?? '';
         this.messageService.add({
           severity: 'success',
           summary: this.translate.instant('common.success'),
           detail: this.translate.instant('leave.requests.submit_success'),
         });
-        this.router.navigate(['/leave/requests']);
+        if (!id) {
+          this.router.navigate(['/leave/requests']);
+          return;
+        }
+        this.confirmationService.confirm({
+          header: this.translate.instant('leave.print.confirm_title'),
+          message: this.translate.instant('leave.print.confirm_message'),
+          icon: 'pi pi-print',
+          acceptLabel: this.translate.instant('leave.print.confirm_accept'),
+          rejectLabel: this.translate.instant('leave.print.confirm_reject'),
+          acceptButtonStyleClass: 'p-button-primary',
+          rejectButtonStyleClass: 'p-button-text p-button-secondary',
+          accept: () => {
+            this.navigateAfterPrint = true;
+            this.printRequestId.set(id);
+            this.printDialogOpen.set(true);
+          },
+          reject: () => this.router.navigate(['/leave/requests']),
+        });
       },
     });
   }
 
   cancel(): void {
     this.router.navigate(['/leave/requests']);
+  }
+
+  onPrintDialogVisibleChange(visible: boolean): void {
+    this.printDialogOpen.set(visible);
+    if (!visible && this.navigateAfterPrint) {
+      this.navigateAfterPrint = false;
+      this.router.navigate(['/leave/requests']);
+    }
   }
 
   private buildCommand(): SubmitLeaveRequestCommand {

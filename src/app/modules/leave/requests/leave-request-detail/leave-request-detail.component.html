@@ -8,6 +8,16 @@
     @if (request(); as req) {
       <app-status-badge detailStatus [status]="req.status" type="leave" />
     }
+    @if (request(); as req) {
+      <button
+        pButton
+        type="button"
+        [label]="'leave.print.action' | translate"
+        icon="pi pi-print"
+        class="p-button-outlined p-button-secondary p-button-sm"
+        (click)="openPrintDialog()"
+      ></button>
+    }
     <ng-container *appHasPermission="'leave.write'">
       @if (request(); as req) {
         @if (req.status === LeaveRequestStatus.Pending) {
@@ -146,5 +156,13 @@
   [warningAlerts]="request()?.warningAlerts"
   [loading]="actionLoading()"
   (confirmed)="handleActionConfirm($event)"
+/>
+
+<app-leave-request-print-dialog
+  *ngIf="request()"
+  [visible]="printDialogOpen()"
+  (visibleChange)="printDialogOpen.set($event)"
+  [requestId]="request()!.id"
+  [request]="request()"
 />
 

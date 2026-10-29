@@ -97,6 +97,8 @@ export class SidebarComponent implements OnInit {
         { label: 'nav.lookups', icon: 'pi pi-cog', section: true, module: 'leave' },
         { label: 'nav.leave_types_list', icon: 'pi pi-list', route: '/leave/types', module: 'leave' },
         { label: 'nav.add_leave_type', icon: 'pi pi-plus', route: '/leave/types/add', module: 'leave', requiresWrite: true },
+        { label: 'nav.permission_types_list', icon: 'pi pi-list', route: '/leave/permission-types', module: 'leave' },
+        { label: 'nav.add_permission_type', icon: 'pi pi-plus', route: '/leave/permission-types/add', module: 'leave', requiresWrite: true },
         { label: 'nav.policy_rules', icon: 'pi pi-sliders-h', route: '/leave/policy-rules', module: 'leave' },
       ],
     },
@@ -111,6 +113,7 @@ export class SidebarComponent implements OnInit {
         { label: 'nav.attendance_reports', icon: 'pi pi-chart-bar', route: '/attendance/reports', module: 'attendance' },
         { label: 'nav.lookups', icon: 'pi pi-cog', section: true, module: 'attendance' },
         { label: 'nav.shifts', icon: 'pi pi-moon', route: '/attendance/shifts', module: 'attendance' },
+        { label: 'nav.public_holidays', icon: 'pi pi-star', route: '/attendance/holidays', module: 'attendance' },
         { label: 'nav.month_plans', icon: 'pi pi-calendar', route: '/attendance/plans', module: 'attendance' },
         { label: 'nav.month_plan_template', icon: 'pi pi-calendar-plus', route: '/attendance/month-plan-template', module: 'attendance' },
         { label: 'nav.employee_plans', icon: 'pi pi-users', route: '/attendance/employee-plans', module: 'attendance' },
@@ -192,8 +195,11 @@ export class SidebarComponent implements OnInit {
 
   isRouteActive(route: string | undefined): boolean {
     if (!route) return false;
-    if (route === '/dashboard') return this.router.url === '/dashboard' || this.router.url === '/';
-    return this.router.url.startsWith(route);
+    const url = this.router.url.split('?')[0];
+    if (route === '/dashboard') return url === '/dashboard' || url === '/';
+    // Daily sheet lives at /attendance; do not mark it active on nested attendance routes.
+    if (route === '/attendance') return url === '/attendance';
+    return url === route || url.startsWith(`${route}/`);
   }
 
   hasActiveChild(item: NavItem): boolean {
