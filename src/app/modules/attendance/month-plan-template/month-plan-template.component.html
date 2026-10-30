@@ -19,7 +19,6 @@
           [placeholder]="'month_plan_template_page.plan' | translate"
           (onChange)="onPlanChange()"
           styleClass="w-full md:w-16rem"
-          appendTo="body"
         />
       </div>
 
@@ -34,7 +33,6 @@
           [ngModelOptions]="{ standalone: true }"
           [placeholder]="'month_plan_template_page.default_shift' | translate"
           styleClass="w-full md:w-14rem"
-          appendTo="body"
         />
       </div>
 
@@ -56,7 +54,7 @@
       @if (viewMode() === 'month') {
         <div class="flex flex-column gap-2">
           <label>{{ 'month_plan_template_page.year' | translate }}</label>
-          <p-dropdown formControlName="year" [options]="years" styleClass="w-8rem" appendTo="body" />
+          <p-dropdown formControlName="year" [options]="years" styleClass="w-8rem" />
         </div>
         <div class="flex flex-column gap-2">
           <label>{{ 'month_plan_template_page.month' | translate }}</label>
@@ -66,7 +64,6 @@
             optionLabel="label"
             optionValue="value"
             styleClass="w-10rem"
-            appendTo="body"
           />
         </div>
       } @else {
@@ -184,7 +181,6 @@
             [placeholder]="'month_plan_template_page.no_shift' | translate"
             [disabled]="row.isCompanyHoliday || row.dayType !== 1"
             styleClass="w-full border-none shadow-none"
-            appendTo="body"
           />
         </ng-template>
 
@@ -197,7 +193,6 @@
             (onChange)="onDayTypeChange(row)"
             [disabled]="row.isCompanyHoliday"
             styleClass="w-full border-none shadow-none"
-            appendTo="body"
           />
         </ng-template>
 
@@ -252,7 +247,6 @@
         dateFormat="dd/mm/yy"
         [showIcon]="true"
         styleClass="w-full"
-        appendTo="body"
       />
     </div>
     <div class="flex flex-column gap-2">

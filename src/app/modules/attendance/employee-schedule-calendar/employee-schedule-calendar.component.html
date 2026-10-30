@@ -17,7 +17,6 @@
             filterBy="employeeName,employeeCode"
             [showClear]="true"
             styleClass="w-full"
-            appendTo="body"
             (onChange)="onEmployeeChange()"
           >
             <ng-template let-e pTemplate="item">
@@ -66,7 +65,6 @@
           optionValue="id"
           [placeholder]="'employee_schedule_page.shift' | translate"
           styleClass="w-full"
-          appendTo="body"
         />
       </div>
     }

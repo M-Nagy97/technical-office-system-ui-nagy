@@ -1,7 +1,7 @@
 <div class="time-attendance-settings">
   <p-card header="إعدادات الحضور والوقت">
     <p class="text-600 mb-4">
-      إعدادات عامة لموديول الحضور (صف واحد في قاعدة البيانات). طريقة الحساب الافتراضية والتسامح بالدقائق وتقريب الدقائق واشتراك خروج البصمة.
+      إعدادات عامة لموديول الحضور (صف واحد في قاعدة البيانات). التسامح بالدقائق وتقريب الدقائق واشتراك خروج البصمة.
     </p>
 
     @if (loading()) {
@@ -10,16 +10,6 @@
       </div>
     } @else {
       <div class="settings-form grid">
-        <div class="col-12 md:col-6">
-          <label class="block mb-2 font-medium">طريقة الحساب الافتراضية</label>
-          <input
-            pInputText
-            class="w-full"
-            [ngModel]="model().defaultCalculationMethod"
-            (ngModelChange)="patchModel({ defaultCalculationMethod: $event })"
-            placeholder="مثال: Fifo"
-          />
-        </div>
         <div class="col-12 md:col-6">
           <label class="block mb-2 font-medium">تقريب لأقرب (دقائق)</label>
           <p-inputNumber
@@ -88,9 +78,6 @@
           />
           <span>اشتراط تسجيل خروج (بصمة)</span>
         </div>
-        @if (settingsId()) {
-          <div class="col-12 text-sm text-500">المعرّف: {{ settingsId() }}</div>
-        }
         <app-form-actions
           [saving]="saving()"
           [saveDisabled]="saving()"

@@ -1,10 +1,10 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { TooltipModule } from 'primeng/tooltip';
@@ -26,7 +26,6 @@ import {
     FormsModule,
     CardModule,
     ButtonModule,
-    InputTextModule,
     InputNumberModule,
     InputSwitchModule,
     TooltipModule,
@@ -41,6 +40,7 @@ import {
 export class TimeAttendanceSettingsComponent implements OnInit {
   private readonly api = inject(WorkforceAttendanceSettingsService);
   private readonly messages = inject(MessageService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly loading = signal(false);
   readonly saving = signal(false);
@@ -72,7 +72,7 @@ export class TimeAttendanceSettingsComponent implements OnInit {
 
   load(): void {
     this.loading.set(true);
-    this.api.get().subscribe({
+    this.api.get().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (row: WorkforceAttendanceSettingsDto | null) => {
         if (row) {
           this.settingsId.set(row.id);
@@ -137,6 +137,7 @@ export class TimeAttendanceSettingsComponent implements OnInit {
         compensatoryClaimDays: m.compensatoryClaimDays || 15,
         minimumCompensatoryWorkMinutes: m.minimumCompensatoryWorkMinutes,
       })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (saved: WorkforceAttendanceSettingsDto) => {
           this.settingsId.set(saved.id);

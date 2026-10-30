@@ -338,14 +338,3 @@ a.p-button:focus,
 .p-steps .p-menuitem-link:focus {
   text-decoration: none;
 }
-
-// Overlay panels (dropdown, calendar, menu) must paint above tables, cards, and dialogs.
-.p-overlay,
-.p-dropdown-panel,
-.p-multiselect-panel,
-.p-datepicker,
-.p-overlaypanel,
-.p-autocomplete-panel,
-.p-menu.p-menu-overlay {
-  z-index: 1200;
-}
